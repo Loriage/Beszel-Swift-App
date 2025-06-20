@@ -13,7 +13,7 @@ enum TimeRangeOption: String, CaseIterable, Identifiable {
     case lastHour = "1 heure"
     case last12Hours = "12 heures"
     case last24Hours = "24 heures"
-    case last7Days = "7 jours"
+    case last7Days = "1 semaine"
     case last30Days = "30 jours"
 
     var id: String { self.rawValue }

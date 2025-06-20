@@ -9,30 +9,24 @@ import SwiftUI
 import Charts
 
 struct SystemView: View {
-    @ObservedObject var apiService: BeszelAPIService
     @EnvironmentObject var settingsManager: SettingsManager
-
-    @State private var dataPoints: [SystemDataPoint] = []
-    @State private var isLoading = true
-    @State private var errorMessage: String?
     
+    @Binding var dataPoints: [SystemDataPoint]
+    var fetchData: () async -> Void
+
     private var xAxisFormat: Date.FormatStyle {
         switch settingsManager.selectedTimeRange {
-            case .lastHour, .last12Hours, .last24Hours:
-                return .dateTime.hour().minute()
-            case .last7Days, .last30Days:
-                return .dateTime.day(.twoDigits).month(.twoDigits)
-            }
+        case .lastHour, .last12Hours, .last24Hours:
+            return .dateTime.hour(.defaultDigits(amPM: .omitted)).minute()
+        case .last7Days, .last30Days:
+            return .dateTime.day(.twoDigits).month(.twoDigits)
+        }
     }
 
     var body: some View {
         NavigationView {
-            if isLoading {
+            if dataPoints.isEmpty {
                 ProgressView("Chargement des données système...")
-            } else if let errorMessage = errorMessage {
-                Text("Erreur : \(errorMessage)")
-                    .foregroundColor(.red)
-                    .padding()
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
@@ -43,19 +37,21 @@ struct SystemView: View {
                     .padding()
                 }
                 .navigationTitle("Système")
-                .refreshable { await fetchData() }
+                .refreshable {
+                    await fetchData()
+                }
             }
-        }
-        .task {
-            await fetchData()
-        }
-        .onChange(of: settingsManager.selectedTimeRange) {
-            Task { await fetchData() }
         }
     }
 
     private var cpuChart: some View {
-        GroupBox("Utilisation CPU (%)") {
+        GroupBox(label:
+            HStack {
+                Text("Utilisation CPU (%)")
+                Spacer()
+                PinButtonView(item: .systemCPU)
+            }
+        ) {
             Chart(dataPoints) { point in
                 LineMark(x: .value("Date", point.date), y: .value("CPU", point.cpu))
                     .foregroundStyle(.blue)
@@ -67,12 +63,19 @@ struct SystemView: View {
                     AxisValueLabel(format: xAxisFormat, centered: true)
                 }
             }
+            .chartYScale(domain: 0...100) // On garde notre échelle fixe
             .frame(height: 200)
         }
     }
     
     private var memoryChart: some View {
-        GroupBox("Utilisation Mémoire (%)") {
+        GroupBox(label:
+            HStack {
+                Text("Utilisation Mémoire (%)")
+                Spacer()
+                PinButtonView(item: .systemMemory)
+            }
+        ) {
             Chart(dataPoints) { point in
                 LineMark(x: .value("Date", point.date), y: .value("Mémoire", point.memoryPercent))
                     .foregroundStyle(.green)
@@ -84,12 +87,19 @@ struct SystemView: View {
                     AxisValueLabel(format: xAxisFormat, centered: true)
                 }
             }
+            .chartYScale(domain: 0...100) // On garde notre échelle fixe
             .frame(height: 200)
         }
     }
     
     private var temperatureChart: some View {
-        GroupBox("Températures (°C)") {
+        GroupBox(label:
+            HStack {
+                Text("Températures (°C)")
+                Spacer()
+                PinButtonView(item: .systemTemperature)
+            }
+        ) {
             Chart(dataPoints) { point in
                 ForEach(point.temperatures, id: \.name) { temp in
                     LineMark(
@@ -106,23 +116,5 @@ struct SystemView: View {
             }
             .frame(height: 200)
         }
-    }
-
-    private func fetchData() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            let filter = settingsManager.apiFilterString
-            let records = try await apiService.fetchSystemStats(filter: filter)
-            
-            self.dataPoints = records.compactMap { record in
-                guard let date = DateFormatter.pocketBase.date(from: record.created) else { return nil }
-                let tempsArray = record.stats.temperatures.map { (name: $0.key, value: $0.value) }
-                return SystemDataPoint(date: date, cpu: record.stats.cpu, memoryPercent: record.stats.memoryPercent, temperatures: tempsArray)
-            }.sorted(by: { $0.date < $1.date })
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-        isLoading = false
     }
 }

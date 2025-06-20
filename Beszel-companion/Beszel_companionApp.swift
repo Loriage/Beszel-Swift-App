@@ -12,6 +12,7 @@ struct Beszel_companionApp: App {
     @AppStorage("isOnboardingCompleted") private var isOnboardingCompleted = false
     
     @StateObject private var settingsManager = SettingsManager()
+    @StateObject private var dashboardManager = DashboardManager()
 
     var body: some Scene {
         WindowGroup {
@@ -23,6 +24,7 @@ struct Beszel_companionApp: App {
                         onLogout: logout
                     )
                     .environmentObject(settingsManager)
+                    .environmentObject(dashboardManager)
                 } else {
                     OnboardingView(onComplete: completeOnboarding)
                 }

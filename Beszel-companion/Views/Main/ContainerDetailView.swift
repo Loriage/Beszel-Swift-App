@@ -24,7 +24,13 @@ struct ContainerDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                GroupBox("Utilisation CPU (%)") {
+                GroupBox(label:
+                    HStack {
+                        Text("Utilisation CPU (%)")
+                        Spacer()
+                        PinButtonView(item: .containerCPU(name: container.name))
+                    }
+                ) {
                     Chart(container.statPoints) { point in
                         LineMark(
                             x: .value("Date", point.date),
@@ -40,7 +46,13 @@ struct ContainerDetailView: View {
                     .frame(height: 200)
                 }
 
-                GroupBox("Utilisation Mémoire (Mo)") {
+                GroupBox(label:
+                    HStack {
+                        Text("Utilisation Mémoire (Mo)")
+                        Spacer()
+                        PinButtonView(item: .containerMemory(name: container.name))
+                    }
+                ) {
                     Chart(container.statPoints) { point in
                         LineMark(
                             x: .value("Date", point.date),

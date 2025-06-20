@@ -18,13 +18,11 @@ struct SystemView: View {
     
     private var xAxisFormat: Date.FormatStyle {
         switch settingsManager.selectedTimeRange {
-        case .lastHour, .last12Hours:
-            return .dateTime.hour().minute()
-        case .last24Hours, .last7Days:
-            return .dateTime.month(.abbreviated).day()
-        case .last30Days:
-            return .dateTime.day().month()
-        }
+            case .lastHour, .last12Hours, .last24Hours:
+                return .dateTime.hour().minute()
+            case .last7Days, .last30Days:
+                return .dateTime.day(.twoDigits).month(.twoDigits)
+            }
     }
 
     var body: some View {
@@ -69,7 +67,6 @@ struct SystemView: View {
                     AxisValueLabel(format: xAxisFormat, centered: true)
                 }
             }
-            .chartYScale(domain: 0...100)
             .frame(height: 200)
         }
     }

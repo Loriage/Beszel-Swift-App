@@ -14,13 +14,11 @@ struct ContainerDetailView: View {
     
     private var xAxisFormat: Date.FormatStyle {
         switch settingsManager.selectedTimeRange {
-        case .lastHour, .last12Hours:
-            return .dateTime.hour().minute() // Affiche "14:30"
-        case .last24Hours, .last7Days:
-            return .dateTime.month(.abbreviated).day() // Affiche "20 juin"
-        case .last30Days:
-            return .dateTime.day().month() // Affiche "20/06"
-        }
+            case .lastHour, .last12Hours, .last24Hours:
+                return .dateTime.hour().minute()
+            case .last7Days, .last30Days:
+                return .dateTime.day(.twoDigits).month(.twoDigits)
+            }
     }
 
     var body: some View {
@@ -39,7 +37,6 @@ struct ContainerDetailView: View {
                             AxisValueLabel(format: xAxisFormat, centered: true)
                         }
                     }
-                    .chartYScale(domain: 0...100)
                     .frame(height: 200)
                 }
 
@@ -52,7 +49,9 @@ struct ContainerDetailView: View {
                         .foregroundStyle(.green)
                     }
                     .chartXAxis {
-                        AxisMarks(values: .automatic(desiredCount: 5))
+                        AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                            AxisValueLabel(format: xAxisFormat, centered: true)
+                        }
                     }
                     .frame(height: 200)
                 }

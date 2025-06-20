@@ -46,9 +46,10 @@ class BeszelAPIService: ObservableObject {
         }
         
         var urlString = "\(baseURL)/api/collections/container_stats/records"
+        urlString += "?perPage=500"
         
         if let filter = filter {
-            urlString += "?filter=\(filter)"
+            urlString += "&filter=\(filter)"
         }
         
         guard let url = URL(string: urlString) else {
@@ -74,9 +75,10 @@ class BeszelAPIService: ObservableObject {
         }
 
         var urlString = "\(baseURL)/api/collections/system_stats/records"
+        urlString += "?perPage=500"
         
         if let filter = filter {
-            urlString += "?filter=\(filter)"
+            urlString += "&filter=\(filter)"
         }
 
         guard let url = URL(string: urlString) else {

@@ -43,4 +43,9 @@ class DashboardManager: ObservableObject {
         }
         return []
     }
+
+    func removeAllPins() {
+        pinnedItems.removeAll()
+        saveItems()
+    }
 }

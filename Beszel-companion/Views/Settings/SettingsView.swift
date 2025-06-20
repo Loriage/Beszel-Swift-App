@@ -8,10 +8,12 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @EnvironmentObject var dashboardManager: DashboardManager
     @EnvironmentObject var settingsManager: SettingsManager
     
     var onLogout: () -> Void
     @State private var isShowingAlert = false
+    @State private var isShowingClearPinsAlert = false
 
     var body: some View {
         NavigationView {
@@ -22,6 +24,12 @@ struct SettingsView: View {
                             Text(option.rawValue).tag(option)
                         }
                     }
+                }
+                Section(header: Text("Tableau de bord")) {
+                    Button("Supprimer toutes les épingles", role: .destructive) {
+                        isShowingClearPinsAlert = true
+                    }
+                    .disabled(dashboardManager.pinnedItems.isEmpty)
                 }
                 Section(header: Text("Compte")) {
                     Button("Se déconnecter", role: .destructive) {
@@ -37,6 +45,14 @@ struct SettingsView: View {
                 }
             } message: {
                 Text("Êtes-vous sûr de vouloir vous déconnecter ? Vos informations de connexion seront effacées.")
+            }
+            .alert("Vider le tableau de bord", isPresented: $isShowingClearPinsAlert) {
+                Button("Annuler", role: .cancel) { }
+                Button("Supprimer", role: .destructive) {
+                    dashboardManager.removeAllPins()
+                }
+            } message: {
+                Text("Êtes-vous sûr de vouloir supprimer toutes vos épingles ? Cette action est irréversible.")
             }
         }
     }

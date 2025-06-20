@@ -33,6 +33,12 @@ class CredentialsManager {
         }
         return (url, email, password)
     }
+    
+    func deleteCredentials() {
+        UserDefaults.standard.removeObject(forKey: "beszelURL")
+        UserDefaults.standard.removeObject(forKey: "beszelEmail")
+        KeychainHelper.delete(service: service, account: userAccount)
+    }
 
     func setOnboardingCompleted(_ completed: Bool) {
         UserDefaults.standard.set(completed, forKey: "isOnboardingCompleted")

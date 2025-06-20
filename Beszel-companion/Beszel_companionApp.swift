@@ -39,6 +39,8 @@ struct Beszel_companionApp: App {
     }
 
     private func logout() {
+        dashboardManager.removeAllPins()
+        CredentialsManager.shared.deleteCredentials()
         CredentialsManager.shared.setOnboardingCompleted(false)
     }
 }

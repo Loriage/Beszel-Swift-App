@@ -11,9 +11,9 @@ This application allows you to view your server and container statistics directl
 
 ## Overview
 
-|       Home (Dashboard)       |                 Containers                 |                Detail View                |
-| :--------------------------: | :----------------------------------------: | :---------------------------------------: |
-| ![Home](./assets/pinned.png) | ![Containers](./assets/container_list.png) | ![Detail](./assets/container_details.png) |
+|         Home (Dashboard)          |                   Containers                    |                  Detail View                   |
+| :-------------------------------: | :---------------------------------------------: | :--------------------------------------------: |
+| ![Home](./screenshots/pinned.png) | ![Containers](./screenshots/container_list.png) | ![Detail](./screenshots/container_details.png) |
 
 ## Features
 

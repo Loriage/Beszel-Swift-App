@@ -11,9 +11,9 @@ This application allows you to view your server and container statistics directl
 
 ## Overview
 
-|               Home                |                    System                     |                 Containers                  |                  Detail View                   |
-| :-------------------------------: | :-------------------------------------------: | :-----------------------------------------: | :--------------------------------------------: |
-| ![Home](./screenshots/pinned.png) | ![Containers](./screenshots/system_stats.png) | ![System](./screenshots/container_list.png) | ![Detail](./screenshots/container_details.png) |
+|                                                      Home                                                      |                                                        System                                                        |                                                       Containers                                                       |                                                        Detail View                                                        |
+| :------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------: |
+| <img src="https://https://github.com/Loriage/Beszel-Swift-App/blob/main/screenshots/pinned.png" width="200" /> | <img src="https://https://github.com/Loriage/Beszel-Swift-App/blob/main/screenshots/system_stats.png" width="200" /> | <img src="https://https://github.com/Loriage/Beszel-Swift-App/blob/main/screenshots/container_list.png" width="200" /> | <img src="https://https://github.com/Loriage/Beszel-Swift-App/blob/main/screenshots/container_details.png" width="200" /> |
 
 ## Features
 

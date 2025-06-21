@@ -13,17 +13,28 @@ struct ContainerView: View {
     @Binding var processedData: [ProcessedContainerData]
     
     var fetchData: () async -> Void
+    var onShowSettings: () -> Void
 
     var body: some View {
         NavigationView {
             List(processedData.sorted(by: { $0.name < $1.name })) { container in
-                NavigationLink(destination: ContainerDetailView(container: container, settingsManager: settingsManager)) {
-                    Text(container.name)
-                }
+                VStack(alignment: .leading) {
+                    NavigationLink(destination: ContainerDetailView(container: container, settingsManager: settingsManager)) {
+                        Text(container.name)
+                    }
+                }                
             }
             .navigationTitle("Conteneurs")
+            .navigationSubtitle("Liste des conteneurs Dockers")
             .refreshable {
                 await fetchData()
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: onShowSettings) {
+                        Image(systemName: "gearshape.fill")
+                    }
+                }
             }
         }
     }

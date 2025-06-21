@@ -10,9 +10,10 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var dashboardManager: DashboardManager
     @EnvironmentObject var settingsManager: SettingsManager
+    @Environment(\.dismiss) var dismiss
     
     var onLogout: () -> Void
-    @State private var isShowingAlert = false
+    @State private var isShowingLogoutAlert = false
     @State private var isShowingClearPinsAlert = false
 
     var body: some View {
@@ -33,12 +34,20 @@ struct SettingsView: View {
                 }
                 Section(header: Text("Compte")) {
                     Button("Se déconnecter", role: .destructive) {
-                        isShowingAlert = true
+                        isShowingLogoutAlert = true
                     }
                 }
             }
             .navigationTitle("Paramètres")
-            .alert("Se déconnecter", isPresented: $isShowingAlert) {
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(action: {dismiss()}) {
+                        Image(systemName: "xmark")
+                    }
+                }
+            }
+            .alert("Se déconnecter", isPresented: $isShowingLogoutAlert) {
                 Button("Annuler", role: .cancel) { }
                 Button("Confirmer", role: .destructive) {
                     onLogout()

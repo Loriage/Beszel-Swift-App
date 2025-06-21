@@ -11,9 +11,9 @@ This application allows you to view your server and container statistics directl
 
 ## Overview
 
-|         Home (Dashboard)          |                   Containers                    |                  System                   |                  Detail View                   |
-| :-------------------------------: | :---------------------------------------------: | :---------------------------------------: | :--------------------------------------------: |
-| ![Home](./screenshots/pinned.png) | ![Containers](./screenshots/container_list.png) | ![System](./screenshots/system_stats.png) | ![Detail](./screenshots/container_details.png) |
+|               Home                |                    System                     |                 Containers                  |                  Detail View                   |
+| :-------------------------------: | :-------------------------------------------: | :-----------------------------------------: | :--------------------------------------------: |
+| ![Home](./screenshots/pinned.png) | ![Containers](./screenshots/system_stats.png) | ![System](./screenshots/container_list.png) | ![Detail](./screenshots/container_details.png) |
 
 ## Features
 
@@ -29,8 +29,6 @@ This application allows you to view your server and container statistics directl
 ## Client Architecture
 
 Unlike Beszel, which consists of a **hub** and an **agent**, **Beszel Companion** is a single client that communicates directly with your Beszel **hub**'s API. It requires no additional installation on your servers.
-
-The application is built on a modern MVVM (Model-View-ViewModel) architecture and leverages the latest Apple technologies.
 
 ## Getting Started
 

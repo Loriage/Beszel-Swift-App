@@ -1,10 +1,3 @@
-//
-//  SystemStats.swift
-//  Beszel-companion
-//
-//  Created by Bruno DURAND on 20/06/2025.
-//
-
 import Foundation
 
 struct SystemStatsRecord: Identifiable, Codable {
@@ -21,7 +14,7 @@ struct SystemStatsDetail: Codable {
     let diskPercent: Double
     let networkSent: Double
     let networkReceived: Double
-    
+
     let temperatures: [String: Double]
 
     enum CodingKeys: String, CodingKey {

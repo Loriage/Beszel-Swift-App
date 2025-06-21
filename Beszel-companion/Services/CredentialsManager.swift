@@ -1,10 +1,3 @@
-//
-//  CredentialsManager.swift
-//  Beszel-companion
-//
-//  Created by Bruno DURAND on 20/06/2025.
-//
-
 import Foundation
 
 class CredentialsManager {
@@ -17,7 +10,6 @@ class CredentialsManager {
         UserDefaults.standard.set(url, forKey: "beszelURL")
         UserDefaults.standard.set(email, forKey: "beszelEmail")
 
-        // On convertit le mot de passe en Data pour le Keychain
         if let passwordData = password.data(using: .utf8) {
             KeychainHelper.save(data: passwordData, service: service, account: userAccount)
         }
@@ -33,7 +25,7 @@ class CredentialsManager {
         }
         return (url, email, password)
     }
-    
+
     func deleteCredentials() {
         UserDefaults.standard.removeObject(forKey: "beszelURL")
         UserDefaults.standard.removeObject(forKey: "beszelEmail")

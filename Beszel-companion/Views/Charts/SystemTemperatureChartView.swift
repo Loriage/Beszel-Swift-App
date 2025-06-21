@@ -1,10 +1,3 @@
-//
-//  SystemCpuChartView 2.swift
-//  Beszel
-//
-//  Created by Bruno DURAND on 21/06/2025.
-//
-
 import SwiftUI
 import Charts
 
@@ -13,7 +6,6 @@ struct SystemTemperatureChartView: View {
     let dataPoints: [SystemDataPoint]
 
     var body: some View {
-        
         GroupBox(label:
             HStack {
                 Text("Températures (°C)")

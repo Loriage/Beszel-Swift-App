@@ -1,23 +1,16 @@
-//
-//  MainView.swift
-//  Beszel-companion
-//
-//  Created by Bruno DURAND on 20/06/2025.
-//
-
 import SwiftUI
 
 struct MainView: View {
     @StateObject var apiService: BeszelAPIService
     @EnvironmentObject var settingsManager: SettingsManager
-    
+
     var onLogout: () -> Void
 
     @State private var containerData: [ProcessedContainerData] = []
     @State private var systemDataPoints: [SystemDataPoint] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
-    
+
     @State private var isShowingSettings = false
 
     var body: some View {
@@ -30,7 +23,7 @@ struct MainView: View {
             .tabItem {
                 Label("Accueil", systemImage: "house.fill")
             }
-            
+
             SystemView(
                 dataPoints: $systemDataPoints,
                 fetchData: fetchData,
@@ -39,7 +32,7 @@ struct MainView: View {
             .tabItem {
                 Label("Système", systemImage: "cpu.fill")
             }
-            
+
             ContainerView(
                 processedData: $containerData,
                 fetchData: fetchData,
@@ -66,21 +59,19 @@ struct MainView: View {
         isLoading = true
         errorMessage = nil
         let filter = settingsManager.apiFilterString
-        
+
         do {
             async let containerRecords = apiService.fetchMonitors(filter: filter)
             async let systemRecords = apiService.fetchSystemStats(filter: filter)
-            
+
             self.containerData = transform(records: try await containerRecords)
             self.systemDataPoints = transformSystem(records: try await systemRecords)
-            
         } catch {
             self.errorMessage = error.localizedDescription
         }
-        
         isLoading = false
     }
-    
+
     private func transform(records: [ContainerStatsRecord]) -> [ProcessedContainerData] {
         var containerDict = [String: [StatPoint]]()
 
@@ -88,17 +79,17 @@ struct MainView: View {
             guard let date = DateFormatter.pocketBase.date(from: record.created) else {
                 continue
             }
-            
+
             for stat in record.stats {
                 let point = StatPoint(date: date, cpu: stat.cpu, memory: stat.memory)
                 containerDict[stat.name, default: []].append(point)
             }
         }
-        
+
         let result = containerDict.map { name, points in
             ProcessedContainerData(id: name, statPoints: points.sorted(by: { $0.date < $1.date }))
         }
-        
+
         return result
     }
     private func transformSystem(records: [SystemStatsRecord]) -> [SystemDataPoint] {
@@ -108,7 +99,7 @@ struct MainView: View {
             }
 
             let tempsArray = record.stats.temperatures.map { (name: $0.key, value: $0.value) }
-            
+
             return SystemDataPoint(
                 date: date,
                 cpu: record.stats.cpu,
@@ -116,7 +107,7 @@ struct MainView: View {
                 temperatures: tempsArray
             )
         }
-        
+
         return dataPoints.sorted(by: { $0.date < $1.date })
     }
 }

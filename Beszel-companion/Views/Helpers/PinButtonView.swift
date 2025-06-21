@@ -1,12 +1,3 @@
-//
-//  PinButtonView.swift
-//  Beszel-companion
-//
-//  Created by Bruno DURAND on 21/06/2025.
-//
-
-
-// Fichier: Views/Helpers/PinButtonView.swift
 import SwiftUI
 
 struct PinButtonView: View {

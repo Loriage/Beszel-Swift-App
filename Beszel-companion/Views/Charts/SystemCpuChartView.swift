@@ -1,10 +1,3 @@
-//
-//  SystemCpuChartView.swift
-//  Beszel
-//
-//  Created by Bruno DURAND on 21/06/2025.
-//
-
 import SwiftUI
 import Charts
 

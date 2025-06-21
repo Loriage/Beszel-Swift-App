@@ -1,16 +1,9 @@
-//
-//  Beszel_companionApp.swift
-//  Beszel-companion
-//
-//  Created by Bruno DURAND on 20/06/2025.
-//
-
 import SwiftUI
 
 @main
 struct Beszel_companionApp: App {
     @AppStorage("isOnboardingCompleted") private var isOnboardingCompleted = false
-    
+
     @StateObject private var settingsManager = SettingsManager()
     @StateObject private var dashboardManager = DashboardManager()
 

@@ -1,17 +1,10 @@
-//
-//  SettingsView.swift
-//  Beszel-companion
-//
-//  Created by Bruno DURAND on 20/06/2025.
-//
-
 import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var dashboardManager: DashboardManager
     @EnvironmentObject var settingsManager: SettingsManager
     @Environment(\.dismiss) var dismiss
-    
+
     var onLogout: () -> Void
     @State private var isShowingLogoutAlert = false
     @State private var isShowingClearPinsAlert = false

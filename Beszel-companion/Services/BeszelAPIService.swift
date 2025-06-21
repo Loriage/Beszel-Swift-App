@@ -1,10 +1,3 @@
-//
-//  BeszelAPIService.swift
-//  Beszel-companion
-//
-//  Created by Bruno DURAND on 20/06/2025.
-//
-
 import Foundation
 import Combine
 
@@ -19,7 +12,7 @@ class BeszelAPIService: ObservableObject {
         self.email = email
         self.password = password
     }
-    
+
     private func authenticate() async throws {
         guard let url = URL(string: "\(baseURL)/api/collections/users/auth-with-password") else {
             throw URLError(.badURL)
@@ -44,18 +37,18 @@ class BeszelAPIService: ObservableObject {
         guard let token = authToken else {
             throw URLError(.userAuthenticationRequired)
         }
-        
+
         var urlString = "\(baseURL)/api/collections/container_stats/records"
         urlString += "?perPage=500"
-        
+
         if let filter = filter {
             urlString += "&filter=\(filter)"
         }
-        
+
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
         }
-        
+
         var request = URLRequest(url: url)
         request.addValue(token, forHTTPHeaderField: "Authorization")
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -65,7 +58,7 @@ class BeszelAPIService: ObservableObject {
         let decodedResponse = try JSONDecoder().decode(PocketBaseListResponse<ContainerStatsRecord>.self, from: data)
         return decodedResponse.items
     }
-    
+
     func fetchSystemStats(filter: String?) async throws -> [SystemStatsRecord] {
         if authToken == nil {
             try await authenticate()
@@ -76,7 +69,7 @@ class BeszelAPIService: ObservableObject {
 
         var urlString = "\(baseURL)/api/collections/system_stats/records"
         urlString += "?perPage=500"
-        
+
         if let filter = filter {
             urlString += "&filter=\(filter)"
         }

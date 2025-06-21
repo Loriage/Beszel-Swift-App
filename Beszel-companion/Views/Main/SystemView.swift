@@ -1,16 +1,9 @@
-//
-//  SystemView.swift
-//  Beszel-companion
-//
-//  Created by Bruno DURAND on 20/06/2025.
-//
-
 import SwiftUI
 import Charts
 
 struct SystemView: View {
     @EnvironmentObject var settingsManager: SettingsManager
-    
+
     @Binding var dataPoints: [SystemDataPoint]
     var fetchData: () async -> Void
     var onShowSettings: () -> Void

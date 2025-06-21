@@ -1,10 +1,3 @@
-//
-//  PinnedItem.swift
-//  Beszel-companion
-//
-//  Created by Bruno DURAND on 21/06/2025.
-//
-
 import Foundation
 
 enum PinnedItem: Codable, Hashable, Identifiable {

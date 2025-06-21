@@ -1,22 +1,13 @@
-//
-//  HomeView.swift
-//  Beszel-companion
-//
-//  Created by Bruno DURAND on 21/06/2025.
-//
-
-
-// Fichier: Views/HomeView.swift
 import SwiftUI
 import Charts
 
 struct HomeView: View {
     @EnvironmentObject var dashboardManager: DashboardManager
     @EnvironmentObject var settingsManager: SettingsManager
-    
+
     let containerData: [ProcessedContainerData]
     let systemDataPoints: [SystemDataPoint]
-    
+
     var onShowSettings: () -> Void
 
     var body: some View {
@@ -46,7 +37,7 @@ struct HomeView: View {
                 }
             }
         }
-    
+
     private var emptyStateView: some View {
         VStack (alignment: .center) {
             Spacer(minLength: 80)
@@ -63,7 +54,7 @@ struct HomeView: View {
         }
         .padding(.horizontal)
     }
-    
+
     @ViewBuilder
     private func pinnedItemView(for item: PinnedItem) -> some View {
         switch item {

@@ -22,9 +22,9 @@ struct HomeView: View {
                                     pinnedItemView(for: item)
                                 }
                             }
-                            .padding(.horizontal)
                         }
                     }
+                    .padding(.horizontal)
                 }
                 .navigationTitle("Accueil")
                 .navigationSubtitle("Vos graphiques épinglés")

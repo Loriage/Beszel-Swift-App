@@ -1,0 +1,59 @@
+# Xcode
+.DS_Store
+*.xcodeproj/
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/xcuserdata/
+
+# Swift Package Manager (SPM)
+.swiftpm/
+
+# Carthage
+Carthage/Build/
+
+# CocoaPods
+Pods/
+*.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata # keep this if you want to track scheme changes etc.
+
+# Build products
+Build/
+*.xcarchive/
+*.xcresults/
+*.xccheckout/
+DerivedData/
+
+# Generated files
+*.ipa
+*.app
+*.dSYM.zip
+*.dsym
+*.mobileprovision
+
+# Playgrounds
+*.playground/
+!*.playground/contents.swift
+
+# Test-related files
+# Some developers prefer to commit test data, others not.
+# Consider if these should be committed.
+*.xctest
+*.xctestplan
+*.xctestproducts
+
+# Misc
+*.hmap
+*.lock
+.project
+.xcscmblueprint/
+.swift-version # If you use swiftenv/asdf
+
+# User-specific / Local settings
+xcuserdata/
+
+# fastlane
+# You might want to keep some fastlane files under version control
+# depending on your setup.
+fastlane/report.xml
+fastlane/screenshots/
+fastlane/test_output/

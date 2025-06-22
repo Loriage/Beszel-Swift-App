@@ -15,7 +15,7 @@ struct SettingsView: View {
                 Section(header: Text("Affichage")) {
                     Picker("Période des graphiques", selection: $settingsManager.selectedTimeRange) {
                         ForEach(TimeRangeOption.allCases) { option in
-                            Text(option.rawValue).tag(option)
+                            Text(option.localizedString).tag(option)
                         }
                     }
                 }

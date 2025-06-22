@@ -3,13 +3,19 @@ import SwiftUI
 import Combine
 
 enum TimeRangeOption: String, CaseIterable, Identifiable {
-    case lastHour = "1 heure"
-    case last12Hours = "12 heures"
-    case last24Hours = "24 heures"
-    case last7Days = "1 semaine"
-    case last30Days = "30 jours"
+    case lastHour = "lastHour"
+    case last12Hours = "last12Hours"
+    case last24Hours = "last24Hours"
+    case last7Days = "last7Days"
+    case last30Days = "last30Days"
 
-    var id: String { self.rawValue }
+    var id: String {
+        self.rawValue
+    }
+
+    var localizedString: String {
+        return NSLocalizedString(self.rawValue, comment: "Time range description")
+    }
 }
 
 class SettingsManager: ObservableObject {

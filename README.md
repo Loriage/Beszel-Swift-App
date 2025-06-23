@@ -28,7 +28,7 @@ This application allows you to view your server and container statistics directl
 
 ## Client Architecture
 
-Unlike Beszel, which consists of a **hub** and an **agent**, **Beszel Companion** is a single client that communicates directly with your Beszel **hub**'s API. It requires no additional installation on your servers.
+Unlike Beszel, which consists of a **hub** and an **agent**, **Beszel Swift App** is a single client that communicates directly with your Beszel **hub**'s API. It requires no additional installation on your servers.
 
 ## Getting Started
 
@@ -36,7 +36,7 @@ Unlike Beszel, which consists of a **hub** and an **agent**, **Beszel Companion*
 
 1.  A working [Beszel](https://beszel.dev/guide/getting-started) instance that is accessible from the internet.
 2.  Xcode 15 or newer.
-3.  An iPhone device or simulator running iOS 16 or newer.
+3.  An iPhone device or simulator running iOS 17 or newer.
 
 ### Installation
 

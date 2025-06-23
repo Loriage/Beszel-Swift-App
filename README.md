@@ -36,7 +36,7 @@ Unlike Beszel, which consists of a **hub** and an **agent**, **Beszel Swift App*
 
 1.  A working [Beszel](https://beszel.dev/guide/getting-started) instance that is accessible from the internet.
 2.  Xcode 15 or newer.
-3.  An iPhone device or simulator running iOS 17 or newer.
+3.  An iPhone device or simulator running iOS 17 or newer. This project is tested with iOS 26.
 
 ### Installation
 

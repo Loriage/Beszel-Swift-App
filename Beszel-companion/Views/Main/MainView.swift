@@ -2,7 +2,10 @@ import SwiftUI
 
 struct MainView: View {
     @StateObject var apiService: BeszelAPIService
+
     @EnvironmentObject var settingsManager: SettingsManager
+    @EnvironmentObject var dashboardManager: DashboardManager
+    @EnvironmentObject var languageManager: LanguageManager
 
     var onLogout: () -> Void
 
@@ -10,15 +13,15 @@ struct MainView: View {
     @State private var systemDataPoints: [SystemDataPoint] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
-
-    @State private var isShowingSettings = false
+    
+    @Binding var isShowingSettings: Bool
 
     var body: some View {
         TabView {
             HomeView(
                 containerData: containerData,
                 systemDataPoints: systemDataPoints,
-                onShowSettings: { isShowingSettings = true }
+                isShowingSettings: $isShowingSettings
             )
             .tabItem {
                 Label("Accueil", systemImage: "house.fill")
@@ -27,7 +30,7 @@ struct MainView: View {
             SystemView(
                 dataPoints: $systemDataPoints,
                 fetchData: fetchData,
-                onShowSettings: { isShowingSettings = true }
+                isShowingSettings: $isShowingSettings
             )
             .tabItem {
                 Label("Système", systemImage: "cpu.fill")
@@ -36,7 +39,7 @@ struct MainView: View {
             ContainerView(
                 processedData: $containerData,
                 fetchData: fetchData,
-                onShowSettings: { isShowingSettings = true }
+                isShowingSettings: $isShowingSettings
             )
             .tabItem {
                 Label("Conteneurs", systemImage: "shippingbox.fill")
@@ -45,9 +48,6 @@ struct MainView: View {
         .task { await fetchData() }
         .onChange(of: settingsManager.selectedTimeRange) {
             Task { await fetchData() }
-        }
-        .sheet(isPresented: $isShowingSettings) {
-            SettingsView(onLogout: onLogout)
         }
         .task { await fetchData() }
         .onChange(of: settingsManager.selectedTimeRange) {

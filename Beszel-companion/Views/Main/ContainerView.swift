@@ -6,7 +6,7 @@ struct ContainerView: View {
     @Binding var processedData: [ProcessedContainerData]
 
     var fetchData: () async -> Void
-    var onShowSettings: () -> Void
+    @Binding var isShowingSettings: Bool
 
     var body: some View {
         NavigationView {
@@ -24,7 +24,7 @@ struct ContainerView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: onShowSettings) {
+                    Button(action: {isShowingSettings = true}) {
                         Image(systemName: "gearshape.fill")
                     }
                 }

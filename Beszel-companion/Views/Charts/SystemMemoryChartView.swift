@@ -1,37 +1,89 @@
 import SwiftUI
 import Charts
+import WidgetKit
 
 struct SystemMemoryChartView: View {
-    @EnvironmentObject var settingsManager: SettingsManager
+    @Environment(\.widgetFamily) private var widgetFamily
+    
+    let xAxisFormat: Date.FormatStyle
     let dataPoints: [SystemDataPoint]
-
+    
+    var isPinned: Bool = false
+    var onPinToggle: () -> Void = {}
+    
+    var isForWidget: Bool = false
+    
     var body: some View {
-        GroupBox(label:
-            HStack {
+        if !isForWidget {
+            GroupBox(label:
+                        HStack {
                 Text("Utilisation Mémoire (%)")
                 Spacer()
-                PinButtonView(item: .systemMemory)
+                PinButtonView(isPinned: isPinned, action: onPinToggle)
             }
-        ) {
-            Chart(dataPoints) { point in
-                LineMark(
-                    x: .value("Date", point.date),
-                    y: .value("Mémoire", point.memoryPercent)
-                )
-                .foregroundStyle(.green)
-                AreaMark(
-                    x: .value("Date", point.date),
-                    y: .value("Mémoire", point.memoryPercent)
-                )
-                .foregroundStyle(LinearGradient(colors: [.green.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
+            ) {
+                chartContent
+                    .frame(height: 200)
             }
-            .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                    AxisValueLabel(format: settingsManager.selectedTimeRange.xAxisFormat, centered: true)
+        } else {
+            GroupBox(label:
+                HStack {
+                    Text("Utilisation Mémoire (%)")
+                    .bold()
+                    Spacer()
+                }
+            ) {
+                switch widgetFamily {
+                case .systemSmall:
+                    chartContent
+                        .chartLegend(.hidden)
+                        .chartYAxis(.hidden)
+                        .chartXAxis(.hidden)
+                    
+                case .systemMedium, .systemLarge:
+                    chartContent
+                        .chartLegend(position: .bottom, alignment: .center)
+                        .chartXAxis {
+                            AxisMarks(values: .automatic(desiredCount: 4)) { _ in
+                                AxisValueLabel(format: xAxisFormat, centered: true)
+                            }
+                        }
+                    
+                default:
+                    chartContent
                 }
             }
-            .chartYScale(domain: 0...100)
-            .frame(height: 200)
+            .groupBoxStyle(PlainGroupBoxStyle())
         }
+    }
+
+    struct PlainGroupBoxStyle: GroupBoxStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            VStack(alignment: .leading) {
+                configuration.label
+                configuration.content
+            }
+        }
+    }
+
+    private var chartContent: some View {
+        Chart(dataPoints) { point in
+            LineMark(
+                x: .value("Date", point.date),
+                y: .value("Mémoire", point.memoryPercent)
+            )
+            .foregroundStyle(.green)
+            AreaMark(
+                x: .value("Date", point.date),
+                y: .value("Mémoire", point.memoryPercent)
+            )
+            .foregroundStyle(LinearGradient(colors: [.green.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
+        }
+        .chartXAxis {
+            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                AxisValueLabel(format: xAxisFormat, centered: true)
+            }
+        }
+        .chartYScale(domain: 0...100)
     }
 }

@@ -8,7 +8,7 @@ struct HomeView: View {
     let containerData: [ProcessedContainerData]
     let systemDataPoints: [SystemDataPoint]
 
-    var onShowSettings: () -> Void
+    @Binding var isShowingSettings: Bool
 
     var body: some View {
         NavigationView {
@@ -30,7 +30,7 @@ struct HomeView: View {
                 .navigationSubtitle("Vos graphiques épinglés")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: onShowSettings) {
+                        Button(action: {isShowingSettings = true}) {
                             Image(systemName: "gearshape.fill")
                         }
                     }
@@ -54,23 +54,52 @@ struct HomeView: View {
         }
         .padding(.horizontal)
     }
+    
+    private var xAxisFormat: Date.FormatStyle {
+        settingsManager.selectedTimeRange.xAxisFormat
+    }
 
     @ViewBuilder
     private func pinnedItemView(for item: PinnedItem) -> some View {
         switch item {
         case .systemCPU:
-            SystemCpuChartView(dataPoints: systemDataPoints)
+            SystemCpuChartView(
+                xAxisFormat: xAxisFormat,
+                dataPoints: systemDataPoints,
+                isPinned: dashboardManager.isPinned(.systemCPU),
+                onPinToggle: { dashboardManager.togglePin(for: .systemCPU) }
+            )
         case .systemMemory:
-            SystemMemoryChartView(dataPoints: systemDataPoints)
+            SystemMemoryChartView(
+                xAxisFormat: xAxisFormat,
+                dataPoints: systemDataPoints,
+                isPinned: dashboardManager.isPinned(.systemMemory),
+                onPinToggle: { dashboardManager.togglePin(for: .systemMemory) }
+            )
         case .systemTemperature:
-            SystemTemperatureChartView(dataPoints: systemDataPoints)
+            SystemTemperatureChartView(
+                xAxisFormat: xAxisFormat,
+                dataPoints: systemDataPoints,
+                isPinned: dashboardManager.isPinned(.systemTemperature),
+                onPinToggle: { dashboardManager.togglePin(for: .systemTemperature) }
+            )
         case .containerCPU(let name):
             if let container = containerData.first(where: { $0.id == name }) {
-                ContainerCpuChartView(container: container)
+                ContainerCpuChartView(
+                    xAxisFormat: xAxisFormat,
+                    container: container,
+                    isPinned: dashboardManager.isPinned(.containerCPU(name: container.name)),
+                    onPinToggle: { dashboardManager.togglePin(for: .containerCPU(name: container.name)) }
+                )
             }
         case .containerMemory(let name):
             if let container = containerData.first(where: { $0.id == name }) {
-                ContainerMemoryChartView(container: container)
+                ContainerMemoryChartView(
+                    xAxisFormat: xAxisFormat,
+                    container: container,
+                    isPinned: dashboardManager.isPinned(.containerMemory(name: container.name)),
+                    onPinToggle: { dashboardManager.togglePin(for: .containerMemory(name: container.name)) }
+                )
             }
         }
     }

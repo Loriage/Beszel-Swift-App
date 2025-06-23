@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var dashboardManager: DashboardManager
     @EnvironmentObject var settingsManager: SettingsManager
+    @EnvironmentObject var languageManager: LanguageManager
     @Environment(\.dismiss) var dismiss
 
     var onLogout: () -> Void
@@ -13,6 +14,14 @@ struct SettingsView: View {
         NavigationView {
             Form {
                 Section(header: Text("Affichage")) {
+                    Picker("Langue", selection: $languageManager.currentLanguageCode) {
+                        ForEach(languageManager.availableLanguages, id: \.code) { lang in
+                            Text(lang.name).tag(lang.code)
+                        }
+                    }
+                    .onChange(of: languageManager.currentLanguageCode) { _, newCode in
+                        languageManager.changeLanguage(to: newCode)
+                    }
                     Picker("Période des graphiques", selection: $settingsManager.selectedTimeRange) {
                         ForEach(TimeRangeOption.allCases) { option in
                             Text(option.rawValue).tag(option)

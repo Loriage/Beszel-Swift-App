@@ -4,21 +4,27 @@ import Charts
 struct ContainerDetailView: View {
     let container: ProcessedContainerData
     @ObservedObject var settingsManager: SettingsManager
+    @EnvironmentObject var dashboardManager: DashboardManager
 
     private var xAxisFormat: Date.FormatStyle {
-        switch settingsManager.selectedTimeRange {
-            case .lastHour, .last12Hours, .last24Hours:
-                return .dateTime.hour().minute()
-            case .last7Days, .last30Days:
-                return .dateTime.day(.twoDigits).month(.twoDigits)
-            }
+        settingsManager.selectedTimeRange.xAxisFormat
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                ContainerCpuChartView(container: container)
-                ContainerMemoryChartView(container: container)
+                ContainerCpuChartView(
+                    xAxisFormat: xAxisFormat,
+                    container: container,
+                    isPinned: dashboardManager.isPinned(.containerCPU(name: container.name)),
+                    onPinToggle: { dashboardManager.togglePin(for: .containerCPU(name: container.name)) }
+                )
+                ContainerMemoryChartView(
+                    xAxisFormat: xAxisFormat,
+                    container: container,
+                    isPinned: dashboardManager.isPinned(.containerMemory(name: container.name)),
+                    onPinToggle: { dashboardManager.togglePin(for: .containerMemory(name: container.name)) }
+                )
 
                 Spacer()
             }

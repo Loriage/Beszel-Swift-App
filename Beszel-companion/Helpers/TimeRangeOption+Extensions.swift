@@ -1,7 +1,6 @@
 import Foundation
 import SwiftUI
 
-
 extension TimeRangeOption {
     var xAxisFormat: Date.FormatStyle {
         switch self {

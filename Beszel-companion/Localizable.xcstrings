@@ -225,6 +225,22 @@
         }
       }
     },
+    "Langue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Langue"
+          }
+        }
+      }
+    },
     "last7Days" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -566,6 +582,22 @@
         }
       }
     },
+    "Utilisation CPU %@ (%%)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ CPU Usage (%)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation CPU %@ (%%)"
+          }
+        }
+      }
+    },
     "Utilisation Mémoire (%)" : {
       "localizations" : {
         "en" : {
@@ -582,18 +614,18 @@
         }
       }
     },
-    "Utilisation Mémoire (Mo)" : {
+    "Utilisation Mémoire %@ (Mo)" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory Usage (Mo)"
+            "value" : "%@ Memory Usage (Mo)"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Utilisation Mémoire (Mo)"
+            "value" : "Utilisation Mémoire %@ (Mo)"
           }
         }
       }

@@ -1,14 +1,13 @@
 import SwiftUI
 
 struct PinButtonView: View {
-    @EnvironmentObject var dashboardManager: DashboardManager
-    let item: PinnedItem
+    let isPinned: Bool
+    let action: () -> Void
 
     var body: some View {
-        Button(action: {
-            dashboardManager.togglePin(for: item)
-        }) {
-            Image(systemName: dashboardManager.isPinned(item) ? "pin.fill" : "pin")
+        Button(action: action) {
+            Image(systemName: isPinned ? "pin.fill" : "pin")
+                .foregroundColor(.accentColor)
         }
         .buttonStyle(.plain)
     }

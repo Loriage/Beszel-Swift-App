@@ -1,37 +1,90 @@
+// Fichier: Views/Charts/SystemCpuChartView.swift
 import SwiftUI
 import Charts
+import WidgetKit
 
 struct SystemCpuChartView: View {
-    @EnvironmentObject var settingsManager: SettingsManager
+    @Environment(\.widgetFamily) private var widgetFamily
+    
+    let xAxisFormat: Date.FormatStyle
     let dataPoints: [SystemDataPoint]
+    
+    var isPinned: Bool = false
+    var onPinToggle: () -> Void = {}
+
+    var isForWidget: Bool = false
 
     var body: some View {
-        GroupBox(label:
-            HStack {
-                Text("Utilisation CPU (%)")
-                Spacer()
-                PinButtonView(item: .systemCPU)
+        if !isForWidget {
+            GroupBox(label:
+                HStack {
+                    Text("Utilisation CPU (%)")
+                    Spacer()
+                    PinButtonView(isPinned: isPinned, action: onPinToggle)
+                }
+            ) {
+                chartContent
+                    .frame(height: 200)
             }
-        ) {
-            Chart(dataPoints) { point in
-                LineMark(
-                    x: .value("Date", point.date),
-                    y: .value("CPU", point.cpu)
-                )
-                .foregroundStyle(.blue)
-                AreaMark(
-                    x: .value("Date", point.date),
-                    y: .value("CPU", point.cpu)
-                )
-                .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
-            }
-            .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                    AxisValueLabel(format: settingsManager.selectedTimeRange.xAxisFormat, centered: true)
+        } else {
+            GroupBox(label:
+                HStack {
+                    Text("Utilisation CPU (%)")
+                        .bold()
+                    Spacer()
+                }
+            ) {
+                switch widgetFamily {
+                case .systemSmall:
+                    chartContent
+                        .chartLegend(.hidden)
+                        .chartYAxis(.hidden)
+                        .chartXAxis(.hidden)
+                    
+                case .systemMedium, .systemLarge:
+                    chartContent
+                        .chartLegend(position: .bottom, alignment: .center)
+                        .chartXAxis {
+                            AxisMarks(values: .automatic(desiredCount: 4)) { _ in
+                                AxisValueLabel(format: xAxisFormat, centered: true)
+                            }
+                        }
+                    
+                default:
+                    chartContent
                 }
             }
-            .chartYScale(domain: 0...100)
-            .frame(height: 200)
+            .groupBoxStyle(PlainGroupBoxStyle())
         }
+    }
+
+    struct PlainGroupBoxStyle: GroupBoxStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            VStack(alignment: .leading) {
+                configuration.label
+                configuration.content
+            }
+        }
+    }
+    
+    private var chartContent: some View {
+        Chart(dataPoints) { point in
+            LineMark(
+                x: .value("Date", point.date),
+                y: .value("CPU", point.cpu)
+            )
+            .foregroundStyle(.blue)
+            AreaMark(
+                x: .value("Date", point.date),
+                y: .value("CPU", point.cpu)
+            )
+            .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
+        }
+        .chartXAxis {
+            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                AxisValueLabel(format: xAxisFormat, centered: true)
+            }
+        }
+        .chartYScale(domain: 0...100)
     }
 }

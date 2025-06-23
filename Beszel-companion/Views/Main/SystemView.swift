@@ -3,10 +3,15 @@ import Charts
 
 struct SystemView: View {
     @EnvironmentObject var settingsManager: SettingsManager
+    @EnvironmentObject var dashboardManager: DashboardManager
 
     @Binding var dataPoints: [SystemDataPoint]
     var fetchData: () async -> Void
-    var onShowSettings: () -> Void
+    @Binding var isShowingSettings: Bool
+
+    private var xAxisFormat: Date.FormatStyle {
+        settingsManager.selectedTimeRange.xAxisFormat
+    }
 
     var body: some View {
         NavigationView {
@@ -15,9 +20,24 @@ struct SystemView: View {
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
-                        SystemCpuChartView(dataPoints: dataPoints)
-                        SystemMemoryChartView(dataPoints: dataPoints)
-                        SystemTemperatureChartView(dataPoints: dataPoints)
+                        SystemCpuChartView(
+                            xAxisFormat: xAxisFormat,
+                            dataPoints: dataPoints,
+                            isPinned: dashboardManager.isPinned(.systemCPU),
+                            onPinToggle: { dashboardManager.togglePin(for: .systemCPU) }
+                        )
+                        SystemMemoryChartView(
+                            xAxisFormat: xAxisFormat,
+                            dataPoints: dataPoints,
+                            isPinned: dashboardManager.isPinned(.systemMemory),
+                            onPinToggle: { dashboardManager.togglePin(for: .systemMemory) }
+                        )
+                        SystemTemperatureChartView(
+                            xAxisFormat: xAxisFormat,
+                            dataPoints: dataPoints,
+                            isPinned: dashboardManager.isPinned(.systemTemperature),
+                            onPinToggle: { dashboardManager.togglePin(for: .systemTemperature) }
+                        )
                     }
                     .padding(.horizontal)
                 }
@@ -28,7 +48,7 @@ struct SystemView: View {
                 }
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: onShowSettings) {
+                        Button(action: {isShowingSettings = true}) {
                             Image(systemName: "gearshape.fill")
                         }
                     }

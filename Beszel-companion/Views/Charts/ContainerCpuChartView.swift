@@ -2,15 +2,18 @@ import SwiftUI
 import Charts
 
 struct ContainerCpuChartView: View {
-    @EnvironmentObject var settingsManager: SettingsManager
+    let xAxisFormat: Date.FormatStyle
     let container: ProcessedContainerData
+
+    var isPinned: Bool = false
+    var onPinToggle: () -> Void = {}
 
     var body: some View {
         GroupBox(label:
             HStack {
-                Text("Utilisation CPU (%)")
+                Text("Utilisation CPU \(container.name) (%)")
                 Spacer()
-                PinButtonView(item: .containerCPU(name: container.name))
+                PinButtonView(isPinned: isPinned, action: onPinToggle)
             }
         ) {
             Chart(container.statPoints) { point in
@@ -22,7 +25,7 @@ struct ContainerCpuChartView: View {
             }
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                    AxisValueLabel(format: settingsManager.selectedTimeRange.xAxisFormat, centered: true)
+                    AxisValueLabel(format: xAxisFormat, centered: true)
                 }
             }
             .frame(height: 200)

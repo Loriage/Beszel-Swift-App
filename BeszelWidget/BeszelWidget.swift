@@ -13,17 +13,20 @@ struct Provider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: SelectChartIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        let creds = CredentialsManager.shared.loadCredentials()
+        let credentialsManager = CredentialsManager.shared
+        let settingsManager = SettingsManager()
+        
+        let creds = credentialsManager.loadCredentials()
         guard let url = creds.url, let email = creds.email, let password = creds.password else {
             let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: [], errorMessage: "Non connecté")
             return Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(3600)))
         }
         
         let apiService = BeszelAPIService(url: url, email: email, password: password)
-        let settingsManager = SettingsManager()
         
         do {
-            let records = try await apiService.fetchSystemStats(filter: settingsManager.apiFilterString)
+            let filter = settingsManager.apiFilterString
+            let records = try await apiService.fetchSystemStats(filter: filter)
             let dataPoints = transformSystem(records: records)
             
             let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: dataPoints)

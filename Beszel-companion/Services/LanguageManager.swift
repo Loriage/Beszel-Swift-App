@@ -18,7 +18,6 @@ class LanguageManager: ObservableObject {
 
     init() {
         let supportedLanguageCodes = Bundle.main.localizations
-        let userDefaults = UserDefaults(suiteName: appGroupIdentifier)!
 
         self.availableLanguages = supportedLanguageCodes.compactMap {
             let locale = Locale(identifier: $0)
@@ -26,7 +25,7 @@ class LanguageManager: ObservableObject {
             return Language(code: $0, name: name.capitalized)
         }
 
-        if let savedLanguage = userDefaults.string(forKey: userDefaultsKey) {
+        if let savedLanguage = CredentialsManager.sharedUserDefaults.string(forKey: userDefaultsKey) {
             self.currentLanguageCode = savedLanguage
         } else {
             if let bestMatch = Bundle.preferredLocalizations(from: supportedLanguageCodes).first {
@@ -39,6 +38,6 @@ class LanguageManager: ObservableObject {
     
     func changeLanguage(to code: String) {
         self.currentLanguageCode = code
-        sharedUserDefaults.set(code, forKey: userDefaultsKey)
+        CredentialsManager.sharedUserDefaults.set(code, forKey: userDefaultsKey)
     }
 }

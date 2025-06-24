@@ -49,10 +49,6 @@ struct MainView: View {
         .onChange(of: settingsManager.selectedTimeRange) {
             Task { await fetchData() }
         }
-        .task { await fetchData() }
-        .onChange(of: settingsManager.selectedTimeRange) {
-            Task { await fetchData() }
-        }
     }
 
     private func fetchData() async {

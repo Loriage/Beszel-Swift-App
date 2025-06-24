@@ -22,7 +22,6 @@ struct HomeView: View {
                                     pinnedItemView(for: item)
                                 }
                             }
-                            .padding(.horizontal)
                         }
                     }
                 }
@@ -35,7 +34,9 @@ struct HomeView: View {
                         }
                     }
                 }
+
             }
+            .padding(.horizontal)
         }
 
     private var emptyStateView: some View {

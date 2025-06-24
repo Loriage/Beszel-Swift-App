@@ -4,6 +4,10 @@ class CredentialsManager {
     static let shared = CredentialsManager()
 
     let appGroupIdentifier = "group.com.nohitdev.Beszel"
+    static var sharedUserDefaults: UserDefaults {
+        return UserDefaults(suiteName: shared.appGroupIdentifier)!
+    }
+    
     private lazy var sharedUserDefaults = UserDefaults(suiteName: appGroupIdentifier)!
 
     private let service = "com.nohitdev.Beszel"

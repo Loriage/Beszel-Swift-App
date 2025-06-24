@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 struct SettingsView: View {
     @EnvironmentObject var dashboardManager: DashboardManager
@@ -24,8 +25,11 @@ struct SettingsView: View {
                     }
                     Picker("Période des graphiques", selection: $settingsManager.selectedTimeRange) {
                         ForEach(TimeRangeOption.allCases) { option in
-                            Text(option.rawValue).tag(option)
+                            Text(LocalizedStringKey(option.rawValue)).tag(option)
                         }
+                    }
+                    .onChange(of: settingsManager.selectedTimeRange) { _, _ in
+                        WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                     }
                 }
                 Section(header: Text("Tableau de bord")) {

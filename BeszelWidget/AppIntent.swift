@@ -1,18 +1,26 @@
-//
-//  AppIntent.swift
-//  BeszelWidget
-//
-//  Created by Bruno DURAND on 23/06/2025.
-//
-
 import WidgetKit
 import AppIntents
+import SwiftUI
 
-struct ConfigurationAppIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource { "Configuration" }
-    static var description: IntentDescription { "This is an example widget." }
+public enum WidgetChartType: String, AppEnum, Sendable {
+    case systemCPU
+    case systemMemory
+    case systemTemperature
 
-    // An example configurable parameter.
-    @Parameter(title: "Favorite Emoji", default: "😃")
-    var favoriteEmoji: String
+    public static var typeDisplayRepresentation: TypeDisplayRepresentation = "Type de Graphique"
+    public static var caseDisplayRepresentations: [WidgetChartType: DisplayRepresentation] = [
+        .systemCPU: "CPU Système",
+        .systemMemory: "Mémoire Système",
+        .systemTemperature: "Températures Système"
+    ]
+}
+
+public struct SelectChartIntent: WidgetConfigurationIntent {
+    public static var title: LocalizedStringResource = "Sélectionner un Graphique"
+    public static var description: IntentDescription = "Choisir le graphique à afficher sur le widget."
+
+    @Parameter(title: "Graphique", default: .systemCPU)
+    public var chart: WidgetChartType
+    
+    public init() {}
 }

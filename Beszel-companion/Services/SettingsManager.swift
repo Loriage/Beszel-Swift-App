@@ -3,11 +3,11 @@ import SwiftUI
 import Combine
 
 enum TimeRangeOption: String, CaseIterable, Identifiable {
-    case lastHour = "lastHour"
-    case last12Hours = "last12Hours"
-    case last24Hours = "last24Hours"
-    case last7Days = "last7Days"
-    case last30Days = "last30Days"
+    case lastHour = "timeRange.lastHour"
+    case last12Hours = "timeRange.last12Hours"
+    case last24Hours = "timeRange.last24Hours"
+    case last7Days = "timeRange.last7Days"
+    case last30Days = "timeRange.last30Days"
 
     var id: String { self.rawValue }
 }

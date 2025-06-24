@@ -18,7 +18,7 @@ struct SystemCpuChartView: View {
         if !isForWidget {
             GroupBox(label:
                 HStack {
-                    Text("Utilisation CPU (%)")
+                    Text("chart.cpuUsage")
                     Spacer()
                     PinButtonView(isPinned: isPinned, action: onPinToggle)
                 }
@@ -29,7 +29,7 @@ struct SystemCpuChartView: View {
         } else {
             GroupBox(label:
                 HStack {
-                    Text("Utilisation CPU (%)")
+                    Text("chart.cpuUsage")
                         .bold()
                     Spacer()
                 }

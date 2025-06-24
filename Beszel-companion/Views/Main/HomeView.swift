@@ -12,32 +12,31 @@ struct HomeView: View {
 
     var body: some View {
         NavigationView {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
-                        if dashboardManager.pinnedItems.isEmpty {
-                            emptyStateView
-                        } else {
-                            LazyVGrid(columns: [GridItem(.flexible())], spacing: 24) {
-                                ForEach(dashboardManager.pinnedItems) { item in
-                                    pinnedItemView(for: item)
-                                }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    if dashboardManager.pinnedItems.isEmpty {
+                        emptyStateView
+                    } else {
+                        LazyVGrid(columns: [GridItem(.flexible())], spacing: 24) {
+                            ForEach(dashboardManager.pinnedItems) { item in
+                                pinnedItemView(for: item)
                             }
                         }
                     }
                 }
-                .navigationTitle("Accueil")
-                .navigationSubtitle("Vos graphiques épinglés")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {isShowingSettings = true}) {
-                            Image(systemName: "gearshape.fill")
-                        }
+                .padding(.horizontal)
+            }
+            .navigationTitle("home.title")
+            .navigationSubtitle("home.subtitle")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {isShowingSettings = true}) {
+                        Image(systemName: "gearshape.fill")
                     }
                 }
-
             }
-            .padding(.horizontal)
         }
+    }
 
     private var emptyStateView: some View {
         VStack (alignment: .center) {
@@ -45,11 +44,11 @@ struct HomeView: View {
             Image(systemName: "pin.slash")
                 .font(.largeTitle)
                 .foregroundColor(.secondary)
-            Text("Votre accueil est vide")
+            Text("home.empty.title")
                 .font(.title2)
                 .fontWeight(.bold)
                 .padding(.top, 8)
-            Text("Épinglez vos graphiques préférés depuis les pages Système et Conteneurs pour les voir ici.")
+            Text("home.empty.message")
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
         }

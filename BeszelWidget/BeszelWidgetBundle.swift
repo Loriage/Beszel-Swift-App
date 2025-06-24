@@ -1,10 +1,3 @@
-//
-//  BeszelWidgetBundle.swift
-//  BeszelWidget
-//
-//  Created by Bruno DURAND on 23/06/2025.
-//
-
 import WidgetKit
 import SwiftUI
 
@@ -12,6 +5,5 @@ import SwiftUI
 struct BeszelWidgetBundle: WidgetBundle {
     var body: some Widget {
         BeszelWidget()
-        BeszelWidgetControl()
     }
 }

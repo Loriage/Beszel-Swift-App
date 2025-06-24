@@ -11,7 +11,7 @@ struct ContainerMemoryChartView: View {
     var body: some View {
         GroupBox(label:
             HStack {
-            Text("Utilisation Mémoire \(container.name) (Mo)")
+                Text("\(LocalizedStringResource("chart.container.memoryUsage.bytes")) \(container.name)")
                 Spacer()
                 PinButtonView(isPinned: isPinned, action: onPinToggle)
             }

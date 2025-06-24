@@ -16,7 +16,7 @@ struct SystemView: View {
     var body: some View {
         NavigationView {
             if dataPoints.isEmpty {
-                ProgressView("Chargement des données système...")
+                ProgressView("system.loading")
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
@@ -41,8 +41,8 @@ struct SystemView: View {
                     }
                     .padding(.horizontal)
                 }
-                .navigationTitle("Système")
-                .navigationSubtitle("Utilisation moyenne à l'échelle du système")
+                .navigationTitle("system.title")
+                .navigationSubtitle("system.subtitle")
                 .refreshable {
                     await fetchData()
                 }

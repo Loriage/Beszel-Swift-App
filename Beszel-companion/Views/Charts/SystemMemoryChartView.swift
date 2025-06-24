@@ -17,7 +17,7 @@ struct SystemMemoryChartView: View {
         if !isForWidget {
             GroupBox(label:
                         HStack {
-                Text("Utilisation Mémoire (%)")
+                Text("chart.memoryUsage")
                 Spacer()
                 PinButtonView(isPinned: isPinned, action: onPinToggle)
             }
@@ -28,7 +28,7 @@ struct SystemMemoryChartView: View {
         } else {
             GroupBox(label:
                 HStack {
-                    Text("Utilisation Mémoire (%)")
+                    Text("chart.memoryUsage")
                     .bold()
                     Spacer()
                 }

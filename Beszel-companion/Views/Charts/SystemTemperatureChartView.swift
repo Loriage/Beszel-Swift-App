@@ -17,7 +17,7 @@ struct SystemTemperatureChartView: View {
         if !isForWidget {
             GroupBox(label:
                 HStack {
-                    Text("Températures (°C)")
+                    Text("chart.temperatures")
                     Spacer()
                     PinButtonView(isPinned: isPinned, action: onPinToggle)
                 }
@@ -28,7 +28,7 @@ struct SystemTemperatureChartView: View {
         } else {
             GroupBox(label:
                         HStack {
-                Text("Températures (°C)")
+                Text("chart.temperatures")
                     .bold()
                 Spacer()
             }

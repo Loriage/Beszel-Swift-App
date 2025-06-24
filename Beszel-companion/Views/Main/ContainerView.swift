@@ -17,8 +17,8 @@ struct ContainerView: View {
                     }
                 }
             }
-            .navigationTitle("Conteneurs")
-            .navigationSubtitle("Liste des conteneurs Dockers")
+            .navigationTitle("container.title")
+            .navigationSubtitle("container.subtitle")
             .refreshable {
                 await fetchData()
             }

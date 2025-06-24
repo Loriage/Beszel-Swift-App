@@ -4,11 +4,11 @@ import Charts
 
 struct Provider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), chartType: .systemCPU, dataPoints: [])
+        SimpleEntry(date: Date(), chartType: .systemCPU, dataPoints: [], timeRange: .last24Hours)
     }
 
     func snapshot(for configuration: SelectChartIntent, in context: Context) async -> SimpleEntry {
-        let entry = SimpleEntry(date: Date(), chartType: configuration.chart, dataPoints: sampleDataPoints())
+        let entry = SimpleEntry(date: Date(), chartType: configuration.chart, dataPoints: sampleDataPoints(), timeRange: .last24Hours)
         return entry
     }
 
@@ -18,7 +18,7 @@ struct Provider: AppIntentTimelineProvider {
         
         let creds = credentialsManager.loadCredentials()
         guard let url = creds.url, let email = creds.email, let password = creds.password else {
-            let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: [], errorMessage: "Non connecté")
+            let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: [], timeRange: settingsManager.selectedTimeRange, errorMessage: "widget.notConnected")
             return Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(3600)))
         }
         
@@ -29,13 +29,13 @@ struct Provider: AppIntentTimelineProvider {
             let records = try await apiService.fetchSystemStats(filter: filter)
             let dataPoints = transformSystem(records: records)
             
-            let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: dataPoints)
+            let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: dataPoints, timeRange: settingsManager.selectedTimeRange)
             
             let nextUpdate = Date().addingTimeInterval(15 * 60)
             return Timeline(entries: [entry], policy: .after(nextUpdate))
             
         } catch {
-            let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: [], errorMessage: "Erreur de chargement")
+            let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: [], timeRange: settingsManager.selectedTimeRange, errorMessage: "widget.loadingError")
             let nextUpdate = Date().addingTimeInterval(15 * 60)
             return Timeline(entries: [entry], policy: .after(nextUpdate))
         }
@@ -74,24 +74,26 @@ struct SimpleEntry: TimelineEntry {
     let date: Date
     let chartType: WidgetChartType
     let dataPoints: [SystemDataPoint]
+    let timeRange: TimeRangeOption
     var errorMessage: String? = nil
 }
 
 struct BeszelWidgetEntryView : View {
+    private let languageManager = LanguageManager()
     var entry: Provider.Entry
     
     private var widgetXAxisFormat: Date.FormatStyle {
-        return TimeRangeOption.last24Hours.xAxisFormat
+        return entry.timeRange.xAxisFormat
     }
 
     var body: some View {
         VStack(alignment: .leading) {
             if let errorMessage = entry.errorMessage {
-                Text(errorMessage)
+                Text(LocalizedStringKey(errorMessage))
                     .font(.caption)
                     .foregroundColor(.secondary)
             } else if entry.dataPoints.isEmpty {
-                Text("Aucune donnée disponible pour la période sélectionnée.")
+                Text("widget.noData") //Aucune donnée disponible pour la période sélectionnée.
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -100,6 +102,7 @@ struct BeszelWidgetEntryView : View {
             }
         }
         .containerBackground(.fill.tertiary, for: .widget)
+        .environment(\.locale, Locale(identifier: languageManager.currentLanguageCode))
     }
 
     @ViewBuilder
@@ -122,8 +125,8 @@ struct BeszelWidget: Widget {
         AppIntentConfiguration(kind: kind, intent: SelectChartIntent.self, provider: Provider()) { entry in
             BeszelWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Graphique Beszel")
-        .description("Affichez un graphique de monitoring de votre serveur.")
+        .configurationDisplayName("widget.displayName")
+        .description("widget.description") //Affichez un graphique de monitoring de votre serveur.
         .supportedFamilies([.systemMedium, .systemLarge])
     }
 }

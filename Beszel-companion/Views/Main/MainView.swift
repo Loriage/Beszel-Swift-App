@@ -24,7 +24,7 @@ struct MainView: View {
                 isShowingSettings: $isShowingSettings
             )
             .tabItem {
-                Label("Accueil", systemImage: "house.fill")
+                Label("home.title", systemImage: "house.fill")
             }
 
             SystemView(
@@ -33,7 +33,7 @@ struct MainView: View {
                 isShowingSettings: $isShowingSettings
             )
             .tabItem {
-                Label("Système", systemImage: "cpu.fill")
+                Label("system.title", systemImage: "cpu.fill")
             }
 
             ContainerView(
@@ -42,7 +42,7 @@ struct MainView: View {
                 isShowingSettings: $isShowingSettings
             )
             .tabItem {
-                Label("Conteneurs", systemImage: "shippingbox.fill")
+                Label("container.title", systemImage: "shippingbox.fill")
             }
         }
         .task { await fetchData() }

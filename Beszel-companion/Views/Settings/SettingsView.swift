@@ -14,16 +14,17 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Affichage")) {
-                    Picker("Langue", selection: $languageManager.currentLanguageCode) {
+                Section(header: Text("settings.display")) {
+                    Picker("settings.display.language", selection: $languageManager.currentLanguageCode) {
                         ForEach(languageManager.availableLanguages, id: \.code) { lang in
                             Text(lang.name).tag(lang.code)
                         }
                     }
                     .onChange(of: languageManager.currentLanguageCode) { _, newCode in
                         languageManager.changeLanguage(to: newCode)
+                        WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                     }
-                    Picker("Période des graphiques", selection: $settingsManager.selectedTimeRange) {
+                    Picker("settings.display.chartPeriod", selection: $settingsManager.selectedTimeRange) {
                         ForEach(TimeRangeOption.allCases) { option in
                             Text(LocalizedStringKey(option.rawValue)).tag(option)
                         }
@@ -32,19 +33,19 @@ struct SettingsView: View {
                         WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                     }
                 }
-                Section(header: Text("Tableau de bord")) {
-                    Button("Supprimer toutes les épingles", role: .destructive) {
+                Section(header: Text("settings.dashboard")) {
+                    Button("settings.dashboard.clearPins", role: .destructive) {
                         isShowingClearPinsAlert = true
                     }
                     .disabled(dashboardManager.pinnedItems.isEmpty)
                 }
-                Section(header: Text("Compte")) {
-                    Button("Se déconnecter", role: .destructive) {
+                Section(header: Text("settings.account")) {
+                    Button("settings.account.disconnect", role: .destructive) {
                         isShowingLogoutAlert = true
                     }
                 }
             }
-            .navigationTitle("Paramètres")
+            .navigationTitle("settings.title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -53,21 +54,21 @@ struct SettingsView: View {
                     }
                 }
             }
-            .alert("Se déconnecter", isPresented: $isShowingLogoutAlert) {
-                Button("Annuler", role: .cancel) { }
-                Button("Confirmer", role: .destructive) {
+            .alert("settings.account.disconnect.alert.title", isPresented: $isShowingLogoutAlert) {
+                Button("common.cancel", role: .cancel) { }
+                Button("common.confirm", role: .destructive) {
                     onLogout()
                 }
             } message: {
-                Text("Êtes-vous sûr de vouloir vous déconnecter ? Vos informations de connexion seront effacées.")
+                Text("settings.account.disconnect.alert.message")
             }
-            .alert("Vider le tableau de bord", isPresented: $isShowingClearPinsAlert) {
-                Button("Annuler", role: .cancel) { }
-                Button("Supprimer", role: .destructive) {
+            .alert("settings.dashboard.clearPins.alert.title", isPresented: $isShowingClearPinsAlert) {
+                Button("common.cancel", role: .cancel) { }
+                Button("common.delete", role: .destructive) {
                     dashboardManager.removeAllPins()
                 }
             } message: {
-                Text("Êtes-vous sûr de vouloir supprimer toutes vos épingles ? Cette action est irréversible.")
+                Text("settings.dashboard.clearPins.alert.message")
             }
         }
     }

@@ -7,17 +7,17 @@ public enum WidgetChartType: String, AppEnum, Sendable {
     case systemMemory
     case systemTemperature
 
-    public static var typeDisplayRepresentation: TypeDisplayRepresentation = "Type de Graphique"
+    public static var typeDisplayRepresentation: TypeDisplayRepresentation = "widget.configuration.parameter.title" //Type de Graphique
     public static var caseDisplayRepresentations: [WidgetChartType: DisplayRepresentation] = [
-        .systemCPU: "CPU Système",
-        .systemMemory: "Mémoire Système",
-        .systemTemperature: "Températures Système"
+        .systemCPU: "widget.chart.systemCPU.title",
+        .systemMemory: "widget.chart.systemMemory.title",
+        .systemTemperature: "widget.chart.systemTemperature.title"
     ]
 }
 
 public struct SelectChartIntent: WidgetConfigurationIntent {
-    public static var title: LocalizedStringResource = "Sélectionner un Graphique"
-    public static var description: IntentDescription = "Choisir le graphique à afficher sur le widget."
+    public static var title: LocalizedStringResource = "widget.configuration.title" // Sélectionner un Graphique
+    public static var description: IntentDescription = "widget.configuration.description" // Choisir le graphique à afficher sur le widget.
 
     @Parameter(title: "Graphique", default: .systemCPU)
     public var chart: WidgetChartType

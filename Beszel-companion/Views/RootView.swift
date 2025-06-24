@@ -19,6 +19,7 @@ struct RootView: View {
                         onLogout: logout,
                         isShowingSettings: $isShowingSettings,
                     )
+                    .id(languageManager.currentLanguageCode)
                 } else {
                     OnboardingView(onComplete: completeOnboarding)
                 }

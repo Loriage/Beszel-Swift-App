@@ -11,7 +11,7 @@ struct ContainerCpuChartView: View {
     var body: some View {
         GroupBox(label:
             HStack {
-                Text("Utilisation CPU \(container.name) (%)")
+                Text("\(LocalizedStringResource("chart.container.cpuUsage.percent")) \(container.name)")
                 Spacer()
                 PinButtonView(isPinned: isPinned, action: onPinToggle)
             }

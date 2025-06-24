@@ -18,24 +18,24 @@ struct OnboardingView: View {
                 .font(.system(size: 60))
                 .foregroundColor(.accentColor)
 
-            Text("Connexion à Beszel")
+            Text("onboarding.title")
                 .font(.largeTitle)
                 .fontWeight(.bold)
 
-            Text("Veuillez entrer les informations de votre instance.")
+            Text("onboarding.subtitle")
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
 
             GroupBox {
-                TextField("URL (ex: https://beszel.domaine.com)", text: $url)
+                TextField("onboarding.urlPlaceholder", text: $url)
                     .keyboardType(.URL)
                     .autocapitalization(.none)
                 Divider()
-                TextField("Email", text: $email)
+                TextField("onboarding.input.email", text: $email)
                     .keyboardType(.emailAddress)
                     .autocapitalization(.none)
                 Divider()
-                SecureField("Mot de passe", text: $password)
+                SecureField("onboarding.input.password", text: $password)
             }
             .padding(.horizontal)
 
@@ -50,7 +50,7 @@ struct OnboardingView: View {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 } else {
-                    Text("Se Connecter")
+                    Text("onboarding.loginButton")
                         .fontWeight(.semibold)
                 }
             }
@@ -83,7 +83,7 @@ struct OnboardingView: View {
                     onComplete()
                 }
             } catch {
-                errorMessage = "La connexion a échoué. Vérifiez vos informations."
+                errorMessage = "onboarding.loginFailed"
                 isLoading = false
             }
         }

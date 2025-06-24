@@ -1,39 +1,103 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "Accueil" : {
+    "%@ %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Home"
+            "state" : "new",
+            "value" : "%1$@ %2$@"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Accueil"
+            "value" : "%1$@ %2$@"
           }
         }
       }
     },
-    "Affichage" : {
+    "chart.container.cpuUsage.percent" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Display"
+            "value" : "CPU Usage (%)"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Affichage"
+            "value" : "Utilisation CPU (%)"
           }
         }
       }
     },
-    "Annuler" : {
+    "chart.container.memoryUsage.bytes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory Usage (Mb)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation mémoire (Mo)"
+          }
+        }
+      }
+    },
+    "chart.cpuUsage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU Usage (%)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation CPU (%)"
+          }
+        }
+      }
+    },
+    "chart.memoryUsage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory Usage (%)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation Mémoire (%)"
+          }
+        }
+      }
+    },
+    "chart.temperatures" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temperatures (°C)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Températures (°C)"
+          }
+        }
+      }
+    },
+    "common.cancel" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -49,39 +113,7 @@
         }
       }
     },
-    "Chargement des données système..." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading system data…"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chargement des données système..."
-          }
-        }
-      }
-    },
-    "Compte" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Account"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compte"
-          }
-        }
-      }
-    },
-    "Confirmer" : {
+    "common.confirm" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -97,23 +129,39 @@
         }
       }
     },
-    "Connexion à Beszel" : {
+    "common.delete" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect to Beszel"
+            "value" : "Delete"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connexion à Beszel"
+            "value" : "Supprimer"
           }
         }
       }
     },
-    "Conteneurs" : {
+    "container.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Docker container list"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liste des conteneurs Docker"
+          }
+        }
+      }
+    },
+    "container.title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -161,28 +209,28 @@
         }
       }
     },
-    "Email" : {
+    "Graphique" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Email"
+            "value" : "Chart"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Email"
+            "value" : "Graphique"
           }
         }
       }
     },
-    "Épinglez vos graphiques préférés depuis les pages Système et Conteneurs pour les voir ici." : {
+    "home.empty.message" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pin your favorite graphics from System and Containers pages to see them here."
+            "value" : "Pin your favorite charts from the System and Containers pages to see them here."
           }
         },
         "fr" : {
@@ -193,151 +241,50 @@
         }
       }
     },
-    "Êtes-vous sûr de vouloir supprimer toutes vos épingles ? Cette action est irréversible." : {
+    "home.empty.title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Are you sure you want to delete all your pins? This action is irreversible."
+            "value" : "Your home is empty"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Êtes-vous sûr de vouloir supprimer toutes vos épingles ? Cette action est irréversible."
+            "value" : "Votre accueil est vide"
           }
         }
       }
     },
-    "Êtes-vous sûr de vouloir vous déconnecter ? Vos informations de connexion seront effacées." : {
+    "home.subtitle" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Are you sure you want to log out? All your information will be deleted."
+            "value" : "Your pinned charts"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Êtes-vous sûr de vouloir vous déconnecter ? Vos informations de connexion seront effacées."
+            "value" : "Vos graphiques épinglés"
           }
         }
       }
     },
-    "Langue" : {
+    "home.title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language"
+            "value" : "Home"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Langue"
-          }
-        }
-      }
-    },
-    "last7Days" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 week"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 semaine"
-          }
-        }
-      }
-    },
-    "last12Hours" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "12 hours"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "12 heures"
-          }
-        }
-      }
-    },
-    "last24Hours" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "24 hours"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "24 heures"
-          }
-        }
-      }
-    },
-    "last30Days" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 month"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 mois"
-          }
-        }
-      }
-    },
-    "lastHour" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 hours"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 heure"
-          }
-        }
-      }
-    },
-    "Liste des conteneurs Dockers" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Docker containers list"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Liste des conteneurs Dockers"
+            "value" : "Accueil"
           }
         }
       }
@@ -353,12 +300,28 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mémoire"
+            "value" : "Memory"
           }
         }
       }
     },
-    "Mot de passe" : {
+    "onboarding.input.email" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email"
+          }
+        }
+      }
+    },
+    "onboarding.input.password" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -374,55 +337,87 @@
         }
       }
     },
-    "Paramètres" : {
+    "onboarding.loginButton" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Settings"
+            "value" : "Connect"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paramètres"
+            "value" : "Se Connecter"
           }
         }
       }
     },
-    "Période des graphiques" : {
+    "onboarding.subtitle" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chart period"
+            "value" : "Please enter your instance details."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Période des graphiques"
+            "value" : "Veuillez entrer les informations de votre instance."
           }
         }
       }
     },
-    "Se Connecter" : {
+    "onboarding.title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Login"
+            "value" : "Connect to Beszel"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se connecter"
+            "value" : "Connexion à Beszel"
           }
         }
       }
     },
-    "Se déconnecter" : {
+    "onboarding.urlPlaceholder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL (e.g., https://beszel.domain.tld)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL (ex: https://beszel.domaine.com)"
+          }
+        }
+      }
+    },
+    "settings.account" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte"
+          }
+        }
+      }
+    },
+    "settings.account.disconnect" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -434,6 +429,166 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Se déconnecter"
+          }
+        }
+      }
+    },
+    "settings.account.disconnect.alert.message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to log out? Your connection details will be erased."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Êtes-vous sûr de vouloir vous déconnecter ? Vos informations de connexion seront effacées."
+          }
+        }
+      }
+    },
+    "settings.account.disconnect.alert.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log out"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se déconnecter"
+          }
+        }
+      }
+    },
+    "settings.dashboard" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dashboard"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tableau de bord"
+          }
+        }
+      }
+    },
+    "settings.dashboard.clearPins" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear all pins"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer toutes les épingles"
+          }
+        }
+      }
+    },
+    "settings.dashboard.clearPins.alert.message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to delete all your pins? This action is irreversible."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Êtes-vous sûr de vouloir supprimer toutes vos épingles ? Cette action est irréversible."
+          }
+        }
+      }
+    },
+    "settings.dashboard.clearPins.alert.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear all pins"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer toutes les épingles"
+          }
+        }
+      }
+    },
+    "settings.display" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Display"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affichage"
+          }
+        }
+      }
+    },
+    "settings.display.chartPeriod" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chart period"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Période du graphique"
+          }
+        }
+      }
+    },
+    "settings.display.language" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Langue"
+          }
+        }
+      }
+    },
+    "settings.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paramètres"
           }
         }
       }
@@ -454,39 +609,39 @@
         }
       }
     },
-    "Supprimer" : {
+    "system.loading" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Delete"
+            "value" : "Loading system data..."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Supprimer"
+            "value" : "Chargement des données système..."
           }
         }
       }
     },
-    "Supprimer toutes les épingles" : {
+    "system.subtitle" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Delete all pins"
+            "value" : "Average system-wide use"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Supprimer toutes les épingles"
+            "value" : "Utilisation moyenne à l'échelle du système"
           }
         }
       }
     },
-    "Système" : {
+    "system.title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -498,22 +653,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Système"
-          }
-        }
-      }
-    },
-    "Tableau de bord" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dashboard"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tableau de bord"
           }
         }
       }
@@ -534,182 +673,267 @@
         }
       }
     },
-    "Températures (°C)" : {
+    "timeRange.last7Days" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Temperature (°C)"
+            "value" : "7 days"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Températures (°C)"
+            "value" : "7 jours"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
+    "timeRange.last12Hours" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "12 hours"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "12 heures"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
+    "timeRange.last24Hours" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "24 hours"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "24 heures"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
+    "timeRange.last30Days" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 days"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 jours"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
+    "timeRange.lastHour" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last hour"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dernière heure"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
+    "widget.chart.systemCPU.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System CPU"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU Système"
           }
         }
       }
     },
-    "URL (ex: https://beszel.domaine.com)" : {
+    "widget.chart.systemMemory.title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "URL (ex: https://beszel.domain.tld)"
+            "value" : "System Memory"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "URL (ex: https://beszel.domaine.com)"
+            "value" : "Mémoire Système"
           }
         }
       }
     },
-    "Utilisation CPU (%)" : {
+    "widget.chart.systemTemperature.title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "CPU Usage (%)"
+            "value" : "System Temperatures"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Utilisation CPU (%)"
+            "value" : "Températures Système"
           }
         }
       }
     },
-    "Utilisation CPU %@ (%%)" : {
+    "widget.configuration.description" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ CPU Usage (%)"
+            "value" : "Choose the chart to display in the widget."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Utilisation CPU %@ (%%)"
+            "value" : "Choisir le graphique à afficher sur le widget."
           }
         }
       }
     },
-    "Utilisation Mémoire (%)" : {
+    "widget.configuration.parameter.title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory Usage (%)"
+            "value" : "Chart Type"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Utilisation Mémoire (%)"
+            "value" : "Type de Graphique"
           }
         }
       }
     },
-    "Utilisation Mémoire %@ (Mo)" : {
+    "widget.configuration.title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ Memory Usage (Mo)"
+            "value" : "Select a Chart"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Utilisation Mémoire %@ (Mo)"
+            "value" : "Sélectionner un Graphique"
           }
         }
       }
     },
-    "Utilisation moyenne à l'échelle du système" : {
+    "widget.description" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Average system-wide use"
+            "value" : "Display a monitoring chart from your server."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Utilisation moyenne à l'échelle du système"
+            "value" : "Affichez un graphique de monitoring de votre serveur."
           }
         }
       }
     },
-    "Veuillez entrer les informations de votre instance." : {
+    "widget.displayName" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Please enter your instance details."
+            "value" : "Beszel Chart"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Veuillez entrer les informations de votre instance."
+            "value" : "Graphique Beszel"
           }
         }
       }
     },
-    "Vider le tableau de bord" : {
+    "widget.loadingError" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Delete all pins"
+            "value" : "Loading Error"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vider le tableau de bord"
+            "value" : "Erreur de chargement"
           }
         }
       }
     },
-    "Vos graphiques épinglés" : {
+    "widget.noData" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your pinned charts"
+            "value" : "No data available for the selected period."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vos graphiques épinglés"
+            "value" : "Aucune donnée disponible pour la période sélectionnée."
           }
         }
       }
     },
-    "Votre accueil est vide" : {
+    "widget.notConnected" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your home page is empty"
+            "value" : "Not Connected"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Votre accueil est vide"
+            "value" : "Non connecté"
           }
         }
       }
     }
   },
-  "version" : "1.1"
+  "version" : "1.0"
 }

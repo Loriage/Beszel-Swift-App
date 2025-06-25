@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct MainView: View {
     @StateObject var apiService: BeszelAPIService
@@ -6,6 +7,7 @@ struct MainView: View {
     @EnvironmentObject var settingsManager: SettingsManager
     @EnvironmentObject var dashboardManager: DashboardManager
     @EnvironmentObject var languageManager: LanguageManager
+    @ObservedObject var refreshManager: RefreshManager
 
     var onLogout: () -> Void
 
@@ -46,8 +48,18 @@ struct MainView: View {
             }
         }
         .task { await fetchData() }
-        .onChange(of: settingsManager.selectedTimeRange) {
+        .task {
+            refreshManager.adjustTimer(for: settingsManager.selectedTimeRange)
+            await fetchData()
+        }
+        .onChange(of: settingsManager.selectedTimeRange) { _, newTimeRange in
+            refreshManager.adjustTimer(for: newTimeRange)
             Task { await fetchData() }
+        }
+        .onReceive(refreshManager.$refreshSignal) { _ in
+            Task {
+                await fetchData()
+            }
         }
     }
 

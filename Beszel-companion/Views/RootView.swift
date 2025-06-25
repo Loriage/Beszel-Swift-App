@@ -4,6 +4,7 @@ struct RootView: View {
     @ObservedObject var languageManager: LanguageManager
     @ObservedObject var settingsManager: SettingsManager
     @ObservedObject var dashboardManager: DashboardManager
+    @ObservedObject var refreshManager: RefreshManager
     
     @State private var isShowingSettings = false
     
@@ -16,6 +17,7 @@ struct RootView: View {
                 if let url = creds.url, let email = creds.email, let password = creds.password {
                     MainView(
                         apiService: BeszelAPIService(url: url, email: email, password: password),
+                        refreshManager: refreshManager,
                         onLogout: logout,
                         isShowingSettings: $isShowingSettings,
                     )

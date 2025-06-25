@@ -15,6 +15,20 @@ struct Provider: AppIntentTimelineProvider {
     func timeline(for configuration: SelectChartIntent, in context: Context) async -> Timeline<SimpleEntry> {
         let credentialsManager = CredentialsManager.shared
         let settingsManager = SettingsManager()
+        let selectedTimeRange = settingsManager.selectedTimeRange
+        
+        let refreshInterval: TimeInterval
+        switch selectedTimeRange {
+        case .lastHour:
+            refreshInterval = 5 * 60
+        case .last12Hours:
+            refreshInterval = 15 * 60
+        case .last24Hours, .last7Days, .last30Days:
+            refreshInterval = 30 * 60
+        }
+        
+        let currentDate = Date()
+        let endDate = currentDate.addingTimeInterval(4 * 3600)
         
         let creds = credentialsManager.loadCredentials()
         guard let url = creds.url, let email = creds.email, let password = creds.password else {
@@ -29,13 +43,27 @@ struct Provider: AppIntentTimelineProvider {
             let records = try await apiService.fetchSystemStats(filter: filter)
             let dataPoints = transformSystem(records: records)
             
-            let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: dataPoints, timeRange: settingsManager.selectedTimeRange)
+            var entries: [SimpleEntry] = []
             
-            let nextUpdate = Date().addingTimeInterval(15 * 60)
-            return Timeline(entries: [entry], policy: .after(nextUpdate))
+            var entryDate = currentDate
+            while entryDate < endDate {
+                let entry = SimpleEntry(
+                    date: entryDate,
+                    chartType: configuration.chart,
+                    dataPoints: dataPoints,
+                    timeRange: selectedTimeRange
+                )
+                entries.append(entry)
+                entryDate = entryDate.addingTimeInterval(refreshInterval)
+            }
             
+            if entries.isEmpty {
+                let entry = SimpleEntry(date: currentDate, chartType: configuration.chart, dataPoints: dataPoints, timeRange: selectedTimeRange)
+                entries.append(entry)
+            }
+            return Timeline(entries: entries, policy: .atEnd)
         } catch {
-            let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: [], timeRange: settingsManager.selectedTimeRange, errorMessage: "widget.loadingError")
+            let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: [], timeRange: selectedTimeRange, errorMessage: "widget.loadingError")
             let nextUpdate = Date().addingTimeInterval(15 * 60)
             return Timeline(entries: [entry], policy: .after(nextUpdate))
         }
@@ -93,7 +121,7 @@ struct BeszelWidgetEntryView : View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             } else if entry.dataPoints.isEmpty {
-                Text("widget.noData") //Aucune donnée disponible pour la période sélectionnée.
+                Text("widget.noData")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -126,7 +154,7 @@ struct BeszelWidget: Widget {
             BeszelWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("widget.displayName")
-        .description("widget.description") //Affichez un graphique de monitoring de votre serveur.
+        .description("widget.description")
         .supportedFamilies([.systemMedium, .systemLarge])
     }
 }

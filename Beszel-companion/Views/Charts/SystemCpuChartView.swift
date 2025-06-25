@@ -1,4 +1,3 @@
-// Fichier: Views/Charts/SystemCpuChartView.swift
 import SwiftUI
 import Charts
 import WidgetKit

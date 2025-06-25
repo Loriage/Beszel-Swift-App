@@ -1,12 +1,8 @@
 import Foundation
 import WidgetKit
-import os
 
 struct WidgetService {
-    private let logger = Logger(subsystem: "com.nohitdev.Beszel.BeszelWidget", category: "TimelineGeneration")
-    
     func generateTimeline(for configuration: SelectChartIntent) async -> Timeline<SimpleEntry> {
-        logger.info("--- Starting timeline generation ---")
         let credentialsManager = CredentialsManager.shared
         let settingsManager = SettingsManager()
         let selectedTimeRange = settingsManager.selectedTimeRange
@@ -22,17 +18,13 @@ struct WidgetService {
             let filter = settingsManager.apiFilterString
             let records = try await apiService.fetchSystemStats(filter: filter)
             let dataPoints = DataProcessor.transformSystem(records: records)
-            
-            logger.log("Successfully fetched \(dataPoints.count) data points.")
-            
+
             return createSuccessTimeline(
                 for: configuration.chart,
                 with: dataPoints,
                 timeRange: selectedTimeRange
             )
         } catch {
-            logger.error("Failed to generate timeline: \(error.localizedDescription)")
-            
             let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: [], timeRange: selectedTimeRange, errorMessage: "widget.loadingError")
             let nextUpdate = Date().addingTimeInterval(15 * 60)
             return Timeline(entries: [entry], policy: .after(nextUpdate))
@@ -51,9 +43,7 @@ struct WidgetService {
 
         let refreshInterval = getRefreshInterval(for: timeRange)
         let nextUpdateDate = currentDate.addingTimeInterval(refreshInterval)
-        
-        logger.log("Creating a single-entry timeline. Next refresh scheduled for \(nextUpdateDate.formatted(date: .omitted, time: .standard))")
-        
+
         return Timeline(entries: [entry], policy: .after(nextUpdateDate))
     }
 

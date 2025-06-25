@@ -19,12 +19,6 @@ struct BeszelWidgetEntryView : View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            HStack {
-                Text(entry.date, style: .time) // Affiche l'heure de l'entrée
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                Spacer()
-            }
             if let errorMessage = entry.errorMessage {
                 Text(LocalizedStringKey(errorMessage))
                     .font(.caption)

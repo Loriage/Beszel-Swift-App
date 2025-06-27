@@ -4,6 +4,7 @@ struct SystemStatsRecord: Identifiable, Codable {
     let id: String
     let created: String
     let stats: SystemStatsDetail
+    let type: String
 }
 
 struct SystemStatsDetail: Codable {

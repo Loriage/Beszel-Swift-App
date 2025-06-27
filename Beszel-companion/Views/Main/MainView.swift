@@ -75,6 +75,20 @@ struct MainView: View {
 
             self.containerData = DataProcessor.transform(records: try await containerRecords)
             self.systemDataPoints = DataProcessor.transformSystem(records: try await systemRecords)
+            
+            // --- AJOUT POUR LE DÉBOGAGE ---
+                    print("--- Checking for anomalous data points ---")
+            for point in self.systemDataPoints {
+                // On cherche les points de mémoire impossibles
+                if point.memoryPercent > 100.0 {
+                    print("Anomalous Memory Point: \(point.memoryPercent)% at \(point.date)")
+                }
+                // On peut aussi chercher des pics de CPU très élevés
+                if point.cpu > 95.0 {
+                    print("High CPU Spike: \(point.cpu)% at \(point.date)")
+                }
+            }
+            // --- FIN DE L'AJOUT ---
         } catch {
             self.errorMessage = error.localizedDescription
         }

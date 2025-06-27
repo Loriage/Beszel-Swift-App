@@ -209,22 +209,6 @@
         }
       }
     },
-    "Graphique" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chart"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Graphique"
-          }
-        }
-      }
-    },
     "home.empty.message" : {
       "localizations" : {
         "en" : {
@@ -687,8 +671,7 @@
             "value" : "7 jours"
           }
         }
-      },
-      "shouldTranslate" : false
+      }
     },
     "timeRange.last12Hours" : {
       "localizations" : {
@@ -704,8 +687,7 @@
             "value" : "12 heures"
           }
         }
-      },
-      "shouldTranslate" : false
+      }
     },
     "timeRange.last24Hours" : {
       "localizations" : {
@@ -721,8 +703,7 @@
             "value" : "24 heures"
           }
         }
-      },
-      "shouldTranslate" : false
+      }
     },
     "timeRange.last30Days" : {
       "localizations" : {
@@ -738,8 +719,7 @@
             "value" : "30 jours"
           }
         }
-      },
-      "shouldTranslate" : false
+      }
     },
     "timeRange.lastHour" : {
       "localizations" : {
@@ -755,8 +735,7 @@
             "value" : "Dernière heure"
           }
         }
-      },
-      "shouldTranslate" : false
+      }
     },
     "widget.chart.systemCPU.title" : {
       "localizations" : {
@@ -790,22 +769,6 @@
         }
       }
     },
-    "widget.chart.systemTemperature.title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "System Temperatures"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Températures Système"
-          }
-        }
-      }
-    },
     "widget.configuration.description" : {
       "localizations" : {
         "en" : {
@@ -834,22 +797,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Type de Graphique"
-          }
-        }
-      }
-    },
-    "widget.configuration.title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select a Chart"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sélectionner un Graphique"
           }
         }
       }

@@ -12,6 +12,9 @@ struct SystemView: View {
     private var xAxisFormat: Date.FormatStyle {
         settingsManager.selectedTimeRange.xAxisFormat
     }
+    private var hasTemperatureData: Bool {
+        dataPoints.contains { !$0.temperatures.isEmpty }
+    }
 
     var body: some View {
         NavigationView {
@@ -32,12 +35,14 @@ struct SystemView: View {
                             isPinned: dashboardManager.isPinned(.systemMemory),
                             onPinToggle: { dashboardManager.togglePin(for: .systemMemory) }
                         )
-                        SystemTemperatureChartView(
-                            xAxisFormat: xAxisFormat,
-                            dataPoints: dataPoints,
-                            isPinned: dashboardManager.isPinned(.systemTemperature),
-                            onPinToggle: { dashboardManager.togglePin(for: .systemTemperature) }
-                        )
+                        if hasTemperatureData {
+                            SystemTemperatureChartView(
+                                xAxisFormat: xAxisFormat,
+                                dataPoints: dataPoints,
+                                isPinned: dashboardManager.isPinned(.systemTemperature),
+                                onPinToggle: { dashboardManager.togglePin(for: .systemTemperature) }
+                            )
+                        }
                     }
                     .padding(.horizontal)
                 }

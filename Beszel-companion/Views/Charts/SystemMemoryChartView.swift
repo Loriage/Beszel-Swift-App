@@ -84,6 +84,5 @@ struct SystemMemoryChartView: View {
                 AxisValueLabel(format: xAxisFormat, centered: true)
             }
         }
-        .chartYScale(domain: 0...100)
     }
 }

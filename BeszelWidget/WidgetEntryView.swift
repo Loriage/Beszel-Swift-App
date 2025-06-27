@@ -43,8 +43,6 @@ struct BeszelWidgetEntryView : View {
             SystemCpuChartView(xAxisFormat: widgetXAxisFormat, dataPoints: entry.dataPoints, isForWidget: true )
         case .systemMemory:
             SystemMemoryChartView(xAxisFormat: widgetXAxisFormat, dataPoints: entry.dataPoints, isForWidget: true)
-        case .systemTemperature:
-            SystemTemperatureChartView(xAxisFormat: widgetXAxisFormat, dataPoints: entry.dataPoints, isForWidget: true)
         }
     }
 }

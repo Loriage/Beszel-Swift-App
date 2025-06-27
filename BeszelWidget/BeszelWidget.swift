@@ -62,7 +62,7 @@ struct BeszelWidgetEntryView : View {
             if entry.dataPoints.contains(where: { !$0.temperatures.isEmpty }) {
                 SystemTemperatureChartView(xAxisFormat: widgetXAxisFormat, dataPoints: entry.dataPoints, isForWidget: true)
             } else {
-                NoDataPlaceholderView(metricName: "chart.temperatures")
+                NoDataPlaceholderView(metricName: "widget.temperatures")
             }
         }
     }

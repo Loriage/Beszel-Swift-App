@@ -1,6 +1,22 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        }
+      }
+    },
     "%@ %@" : {
       "localizations" : {
         "en" : {
@@ -13,6 +29,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
+    "chart.configuration.chartType.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chart"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Graphique"
+          }
+        }
+      }
+    },
+    "chart.configuration.instance.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instance"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instance"
           }
         }
       }
@@ -81,17 +129,33 @@
         }
       }
     },
-    "chart.temperatures" : {
+    "chart.noDataForMetric %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Temperatures (°C)"
+            "value" : "No data for %@"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
+            "value" : "Pas de données pour %@"
+          }
+        }
+      }
+    },
+    "chart.temperatures" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temperature (°C)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
             "value" : "Températures (°C)"
           }
         }
@@ -273,6 +337,22 @@
         }
       }
     },
+    "Instance" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instance"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instance"
+          }
+        }
+      }
+    },
     "Mémoire" : {
       "localizations" : {
         "en" : {
@@ -327,6 +407,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Instance name (ex: Local or Server)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nom de l’instance (ex: Local ou Serveur)"
           }
         }
       }
@@ -391,40 +477,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "URL (ex: https://beszel.domaine.com)"
-          }
-        }
-      }
-    },
-    "settings.account" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Account"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compte"
-          }
-        }
-      }
-    },
-    "settings.account.disconnect" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Log out"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se déconnecter"
           }
         }
       }
@@ -580,12 +632,24 @@
             "state" : "translated",
             "value" : "Add an instance"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter une instance"
+          }
         }
       }
     },
     "settings.instances.title" : {
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instances"
+          }
+        },
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Instances"
@@ -801,6 +865,22 @@
         }
       }
     },
+    "widget.chart.systemTemperature.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Temperature"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Température Système"
+          }
+        }
+      }
+    },
     "widget.configuration.description" : {
       "localizations" : {
         "en" : {
@@ -833,6 +913,22 @@
         }
       }
     },
+    "widget.configuration.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beszel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beszel"
+          }
+        }
+      }
+    },
     "widget.description" : {
       "localizations" : {
         "en" : {
@@ -854,12 +950,12 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Beszel Chart"
+            "value" : "Beszel"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Graphique Beszel"
           }
         }
@@ -909,6 +1005,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Non connecté"
+          }
+        }
+      }
+    },
+    "widget.selectInstance" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select an instance in the widget settings"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sélectionnez une instances dans les paramètres du widget"
+          }
+        }
+      }
+    },
+    "widget.temperatures" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "temperature"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "température"
           }
         }
       }

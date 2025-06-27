@@ -37,7 +37,7 @@ public struct ChartTypeEntity: AppEntity {
     }
 
     public var displayRepresentation: DisplayRepresentation { DisplayRepresentation(title: title) }
-    public static var typeDisplayRepresentation: TypeDisplayRepresentation = "Graphique"
+    public static var typeDisplayRepresentation: TypeDisplayRepresentation = "widget.configuration.title"
     public static var defaultQuery = ChartTypeQuery()
 }
 
@@ -60,10 +60,10 @@ public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
     public static var title: LocalizedStringResource = "widget.configuration.title"
     public static var description: IntentDescription = "widget.configuration.description"
 
-    @Parameter(title: "Instance")
+    @Parameter(title: "chart.configuration.instance.title")
     public var instance: InstanceEntity?
 
-    @Parameter(title: "Graphique")
+    @Parameter(title: "chart.configuration.chartType.title")
     public var chart: ChartTypeEntity?
 
     public init() {}

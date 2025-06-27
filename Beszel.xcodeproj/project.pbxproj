@@ -78,6 +78,7 @@
 				Helpers/LocalizationKeys.swift,
 				"Helpers/TimeRangeOption+Extensions.swift",
 				"Helpers/UserDefaults+Extensions.swift",
+				Localizable.xcstrings,
 				Models/AuthResponse.swift,
 				Models/ContainerStatsRecord.swift,
 				Models/Instance.swift,

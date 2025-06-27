@@ -57,10 +57,11 @@ Unlike Beszel, which consists of a **hub** and an **agent**, **Beszel Swift App*
 
 ## Roadmap
 
--   [ ] Home Screen & Lock Screen Widgets.
--   [ ] Push notifications via Beszel's webhooks.
--   [ ] Enhanced chart interactivity (scrubbing).
+-   [ ] Lock Screen Widgets.
+-   [ ] Push notifications.
+-   [ ] Enhanced chart interactivity.
 -   [ ] Localization into other languages.
+-   [ ] Multiple instances management
 
 ## Acknowledgements
 

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct OnboardingView: View {
+    @State private var instanceName = ""
     @State private var url = ""
     @State private var email = ""
     @State private var password = ""
@@ -8,7 +9,7 @@ struct OnboardingView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
 
-    var onComplete: () -> Void
+    var onComplete: (String, String, String, String) -> Void
 
     var body: some View {
         VStack(spacing: 20) {
@@ -27,6 +28,9 @@ struct OnboardingView: View {
                 .multilineTextAlignment(.center)
 
             GroupBox {
+                TextField("onboarding.instanceNamePlaceholder", text: $instanceName)
+                    .autocapitalization(.words)
+                Divider()
                 TextField("onboarding.urlPlaceholder", text: $url)
                     .keyboardType(.URL)
                     .autocapitalization(.none)
@@ -68,6 +72,11 @@ struct OnboardingView: View {
     }
 
     private func connect() {
+        guard !instanceName.isEmpty, !url.isEmpty, !email.isEmpty, !password.isEmpty else {
+            errorMessage = "onboarding.fieldsRequired"
+            return
+        }
+
         isLoading = true
         errorMessage = nil
 
@@ -76,11 +85,8 @@ struct OnboardingView: View {
                 let testService = BeszelAPIService(url: url, email: email, password: password)
                 _ = try await testService.fetchMonitors(filter: nil)
 
-                CredentialsManager.shared.saveCredentials(url: url, email: email, password: password)
-                CredentialsManager.shared.setOnboardingCompleted(true)
-
                 await MainActor.run {
-                    onComplete()
+                    onComplete(instanceName, url, email, password)
                 }
             } catch {
                 errorMessage = "onboarding.loginFailed"

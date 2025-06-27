@@ -321,6 +321,16 @@
         }
       }
     },
+    "onboarding.instanceNamePlaceholder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instance name (ex: Local or Server)"
+          }
+        }
+      }
+    },
     "onboarding.loginButton" : {
       "localizations" : {
         "en" : {
@@ -386,6 +396,7 @@
       }
     },
     "settings.account" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -402,6 +413,7 @@
       }
     },
     "settings.account.disconnect" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -557,6 +569,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Langue"
+          }
+        }
+      }
+    },
+    "settings.instances.add" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add an instance"
+          }
+        }
+      }
+    },
+    "settings.instances.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instances"
           }
         }
       }

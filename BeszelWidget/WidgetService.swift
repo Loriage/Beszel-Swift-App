@@ -2,30 +2,35 @@ import Foundation
 import WidgetKit
 
 struct WidgetService {
-    func generateTimeline(for configuration: SelectChartIntent) async -> Timeline<SimpleEntry> {
-        let credentialsManager = CredentialsManager.shared
-        let settingsManager = SettingsManager()
-        let selectedTimeRange = settingsManager.selectedTimeRange
 
-        let creds = credentialsManager.loadCredentials()
-        guard let url = creds.url, let email = creds.email, let password = creds.password else {
-            let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: [], timeRange: settingsManager.selectedTimeRange, errorMessage: "widget.notConnected")
+    func generateTimeline(for configuration: SelectChartIntent) async -> Timeline<SimpleEntry> {
+        let instanceManager = InstanceManager.shared
+        let settingsManager = SettingsManager()
+
+        guard let activeInstance = instanceManager.activeInstance else {
+            let entry = SimpleEntry(date: .now, chartType: .systemCPU, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.notConnected")
             return Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(3600)))
         }
-        
-        let apiService = BeszelAPIService(url: url, email: email, password: password)
+
+        guard let password = instanceManager.loadPassword(for: activeInstance) else {
+            let entry = SimpleEntry(date: .now, chartType: .systemCPU, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.loadingError")
+            return Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(3600)))
+        }
+
+        let apiService = BeszelAPIService(url: activeInstance.url, email: activeInstance.email, password: password)
+
         do {
             let filter = settingsManager.apiFilterString
             let records = try await apiService.fetchSystemStats(filter: filter)
             let dataPoints = DataProcessor.transformSystem(records: records)
-
+            
             return createSuccessTimeline(
                 for: configuration.chart,
                 with: dataPoints,
-                timeRange: selectedTimeRange
+                timeRange: settingsManager.selectedTimeRange
             )
         } catch {
-            let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: [], timeRange: selectedTimeRange, errorMessage: "widget.loadingError")
+            let entry = SimpleEntry(date: .now, chartType: configuration.chart, dataPoints: [], timeRange: settingsManager.selectedTimeRange, errorMessage: "widget.loadingError")
             let nextUpdate = Date().addingTimeInterval(15 * 60)
             return Timeline(entries: [entry], policy: .after(nextUpdate))
         }

@@ -8,13 +8,10 @@ struct Language: Hashable {
 }
 
 class LanguageManager: ObservableObject {
-    @Published var currentLanguageCode: String
-
-    let availableLanguages: [Language]
+    @AppStorage("selectedLanguage", store: .sharedSuite)
+    var currentLanguageCode: String = ""
     
-    private let appGroupIdentifier = "group.com.nohitdev.Beszel"
-    private lazy var sharedUserDefaults = UserDefaults(suiteName: appGroupIdentifier)!
-    private let userDefaultsKey = "selectedLanguage"
+    let availableLanguages: [Language]
 
     init() {
         let supportedLanguageCodes = Bundle.main.localizations
@@ -25,19 +22,12 @@ class LanguageManager: ObservableObject {
             return Language(code: $0, name: name.capitalized)
         }
 
-        if let savedLanguage = CredentialsManager.sharedUserDefaults.string(forKey: userDefaultsKey) {
-            self.currentLanguageCode = savedLanguage
-        } else {
+        if currentLanguageCode.isEmpty {
             if let bestMatch = Bundle.preferredLocalizations(from: supportedLanguageCodes).first {
                 self.currentLanguageCode = bestMatch
             } else {
                 self.currentLanguageCode = Bundle.main.developmentLocalization ?? "en"
             }
         }
-    }
-    
-    func changeLanguage(to code: String) {
-        self.currentLanguageCode = code
-        CredentialsManager.sharedUserDefaults.set(code, forKey: userDefaultsKey)
     }
 }

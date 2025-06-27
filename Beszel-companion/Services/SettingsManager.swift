@@ -13,8 +13,13 @@ enum TimeRangeOption: String, CaseIterable, Identifiable {
 }
 
 class SettingsManager: ObservableObject {
-    @AppStorage("selectedTimeRange", store: CredentialsManager.sharedUserDefaults)
-    var selectedTimeRange: TimeRangeOption = .last24Hours
+    let objectWillChange = PassthroughSubject<Void, Never>()
+    @AppStorage("selectedTimeRange", store: .sharedSuite)
+    var selectedTimeRange: TimeRangeOption = .last24Hours {
+            didSet {
+                objectWillChange.send()
+            }
+        }
 
     var apiFilterString: String? {
         let now = Date().addingTimeInterval(5 * 60)

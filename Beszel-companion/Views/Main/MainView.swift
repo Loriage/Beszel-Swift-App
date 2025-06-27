@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import WidgetKit
 
 struct MainView: View {
     @StateObject var apiService: BeszelAPIService

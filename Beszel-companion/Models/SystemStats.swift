@@ -14,8 +14,7 @@ struct SystemStatsDetail: Codable {
     let diskPercent: Double
     let networkSent: Double
     let networkReceived: Double
-
-    let temperatures: [String: Double]
+    let temperatures: [String: Double]?
 
     enum CodingKeys: String, CodingKey {
         case cpu

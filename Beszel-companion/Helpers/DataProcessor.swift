@@ -7,7 +7,7 @@ struct DataProcessor {
                 return nil
             }
 
-            let tempsArray = record.stats.temperatures.map { (name: $0.key, value: $0.value) }
+            let tempsArray = (record.stats.temperatures ?? [:]).map { (name: $0.key, value: $0.value) }
 
             return SystemDataPoint(
                 date: date,

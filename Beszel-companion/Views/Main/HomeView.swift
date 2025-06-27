@@ -58,6 +58,9 @@ struct HomeView: View {
     private var xAxisFormat: Date.FormatStyle {
         settingsManager.selectedTimeRange.xAxisFormat
     }
+    private var hasTemperatureData: Bool {
+        systemDataPoints.contains { !$0.temperatures.isEmpty }
+    }
 
     @ViewBuilder
     private func pinnedItemView(for item: PinnedItem) -> some View {
@@ -77,12 +80,14 @@ struct HomeView: View {
                 onPinToggle: { dashboardManager.togglePin(for: .systemMemory) }
             )
         case .systemTemperature:
-            SystemTemperatureChartView(
-                xAxisFormat: xAxisFormat,
-                dataPoints: systemDataPoints,
-                isPinned: dashboardManager.isPinned(.systemTemperature),
-                onPinToggle: { dashboardManager.togglePin(for: .systemTemperature) }
-            )
+            if hasTemperatureData {
+                SystemTemperatureChartView(
+                    xAxisFormat: xAxisFormat,
+                    dataPoints: systemDataPoints,
+                    isPinned: dashboardManager.isPinned(.systemTemperature),
+                    onPinToggle: { dashboardManager.togglePin(for: .systemTemperature) }
+                )
+            }
         case .containerCPU(let name):
             if let container = containerData.first(where: { $0.id == name }) {
                 ContainerCpuChartView(

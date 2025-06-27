@@ -44,7 +44,7 @@ struct SystemCpuChartView: View {
                     chartContent
                         .chartLegend(position: .bottom, alignment: .center)
                         .chartXAxis {
-                            AxisMarks(values: .automatic(desiredCount: 4)) { _ in
+                            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
                                 AxisValueLabel(format: xAxisFormat, centered: true)
                             }
                         }

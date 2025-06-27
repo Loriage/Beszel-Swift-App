@@ -58,6 +58,7 @@ struct SettingsView: View {
                 Button("common.cancel", role: .cancel) { }
                 Button("common.confirm", role: .destructive) {
                     onLogout()
+                    dismiss()
                 }
             } message: {
                 Text("settings.account.disconnect.alert.message")

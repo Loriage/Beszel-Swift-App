@@ -101,6 +101,7 @@ struct SettingsView: View {
                 Text("settings.dashboard.clearPins.alert.message")
             }
         }
+        .id(languageManager.currentLanguageCode)
     }
 
     private func deleteInstance(at offsets: IndexSet) {

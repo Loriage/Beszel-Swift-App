@@ -53,7 +53,7 @@ Unlike Beszel, which consists of a **hub** and an **agent**, **Beszel Swift App*
 -   **Swift Charts**: For creating all charts within the application.
 -   **Swift Concurrency (`async/await`)**: For modern and performant network calls.
 -   **Combine**: For state management of shared objects (`ObservableObject`).
--   **WidgetKit**: (Future) To display information on the Home Screen.
+-   **WidgetKit**: To display information on the Home Screen.
 
 ## Roadmap
 

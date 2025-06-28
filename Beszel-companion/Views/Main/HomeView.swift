@@ -4,12 +4,9 @@ import Charts
 struct HomeView: View {
     @EnvironmentObject var dashboardManager: DashboardManager
     @EnvironmentObject var settingsManager: SettingsManager
-    @ObservedObject var instanceManager: InstanceManager
 
     let containerData: [ProcessedContainerData]
     let systemDataPoints: [SystemDataPoint]
-
-    @Binding var isShowingSettings: Bool
 
     var body: some View {
         ScrollView {

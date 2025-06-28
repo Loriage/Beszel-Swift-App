@@ -29,10 +29,8 @@ struct MainView: View {
         NavigationView{
             TabView(selection: $selectedTab) {
                 HomeView(
-                    instanceManager: instanceManager,
                     containerData: viewModel.containerData,
                     systemDataPoints: viewModel.systemDataPoints,
-                    isShowingSettings: $isShowingSettings,
                 )
                 .tabItem {
                     Label("home.title", systemImage: "house.fill")
@@ -40,10 +38,8 @@ struct MainView: View {
                 .tag(Tab.home)
                 
                 SystemView(
-                    instanceManager: instanceManager,
                     dataPoints: $viewModel.systemDataPoints,
                     fetchData: { viewModel.fetchData() },
-                    isShowingSettings: $isShowingSettings,
                 )
                 .tabItem {
                     Label("system.title", systemImage: "cpu.fill")

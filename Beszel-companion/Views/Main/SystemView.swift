@@ -4,11 +4,9 @@ import Charts
 struct SystemView: View {
     @EnvironmentObject var settingsManager: SettingsManager
     @EnvironmentObject var dashboardManager: DashboardManager
-    @ObservedObject var instanceManager: InstanceManager
     
     @Binding var dataPoints: [SystemDataPoint]
     var fetchData: () async -> Void
-    @Binding var isShowingSettings: Bool
     
     private var xAxisFormat: Date.FormatStyle {
         settingsManager.selectedTimeRange.xAxisFormat

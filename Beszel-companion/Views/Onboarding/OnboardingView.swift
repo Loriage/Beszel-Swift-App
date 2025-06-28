@@ -44,7 +44,7 @@ struct OnboardingView: View {
             .padding(.horizontal)
 
             if let errorMessage = errorMessage {
-                Text(errorMessage)
+                Text(LocalizedStringKey(errorMessage))
                     .foregroundColor(.red)
                     .font(.caption)
             }

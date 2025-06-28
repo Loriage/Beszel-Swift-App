@@ -4,6 +4,7 @@ import Charts
 struct HomeView: View {
     @EnvironmentObject var dashboardManager: DashboardManager
     @EnvironmentObject var settingsManager: SettingsManager
+    @ObservedObject var instanceManager: InstanceManager
 
     let containerData: [ProcessedContainerData]
     let systemDataPoints: [SystemDataPoint]
@@ -11,36 +12,34 @@ struct HomeView: View {
     @Binding var isShowingSettings: Bool
 
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    if dashboardManager.pinnedItems.isEmpty {
-                        emptyStateView
-                    } else {
-                        LazyVGrid(columns: [GridItem(.flexible())], spacing: 24) {
-                            ForEach(dashboardManager.pinnedItems) { item in
-                                pinnedItemView(for: item)
-                            }
-                        }
-                    }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading) {
+                    Text("home.title")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                    Text("home.subtitle")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
                 .padding(.horizontal)
-            }
-            .navigationTitle("home.title")
-            .navigationSubtitle("home.subtitle")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {isShowingSettings = true}) {
-                        Image(systemName: "gearshape.fill")
+
+                if dashboardManager.pinnedItems.isEmpty {
+                    emptyStateView
+                } else {
+                    LazyVGrid(columns: [GridItem(.flexible())], spacing: 24) {
+                        ForEach(dashboardManager.pinnedItems) { item in
+                            pinnedItemView(for: item)
+                        }
                     }
+                    .padding(.horizontal)
                 }
             }
         }
     }
 
     private var emptyStateView: some View {
-        VStack (alignment: .center) {
-            Spacer(minLength: 80)
+        VStack (alignment: .center, spacing: 8) {
             Image(systemName: "pin.slash")
                 .font(.largeTitle)
                 .foregroundColor(.secondary)
@@ -52,7 +51,9 @@ struct HomeView: View {
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
         }
+        .frame(maxWidth: .infinity)
         .padding(.horizontal)
+        .padding(.top, 80)
     }
     
     private var xAxisFormat: Date.FormatStyle {

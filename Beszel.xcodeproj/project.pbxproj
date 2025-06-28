@@ -95,6 +95,7 @@
 				Views/Charts/SystemCpuChartView.swift,
 				Views/Charts/SystemMemoryChartView.swift,
 				Views/Charts/SystemTemperatureChartView.swift,
+				Views/Helpers/InstanceSwitcherView.swift,
 				Views/Helpers/PinButtonView.swift,
 			);
 			target = 87FE4D6E2E0D241200163BCE /* BeszelWidgetExtension */;

@@ -2,33 +2,37 @@ import SwiftUI
 
 struct ContainerView: View {
     @EnvironmentObject var settingsManager: SettingsManager
-
+    
     @Binding var processedData: [ProcessedContainerData]
-
+    
     var fetchData: () async -> Void
-    @Binding var isShowingSettings: Bool
-
+    
     var body: some View {
-        NavigationView {
-            List(processedData.sorted(by: { $0.name < $1.name })) { container in
+        ScrollView {
+            VStack(alignment: .leading) {
                 VStack(alignment: .leading) {
-                    NavigationLink(destination: ContainerDetailView(container: container, settingsManager: settingsManager)) {
-                        Text(container.name)
+                    Text("container.title")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                    Text("container.subtitle")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal)
+                
+                List(processedData.sorted(by: { $0.name < $1.name })) { container in
+                    VStack(alignment: .leading) {
+                        NavigationLink(destination: ContainerDetailView(container: container, settingsManager: settingsManager)) {
+                            Text(container.name)
+                        }
                     }
                 }
+                .contentMargins(.top, 18)
+                .frame(height: CGFloat((processedData.count * 54) + (processedData.count < 4 ? 200 : 0)), alignment: .top)
             }
-            .navigationTitle("container.title")
-            .navigationSubtitle("container.subtitle")
-            .refreshable {
-                await fetchData()
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {isShowingSettings = true}) {
-                        Image(systemName: "gearshape.fill")
-                    }
-                }
-            }
+        }
+        .refreshable {
+            await fetchData()
         }
     }
 }

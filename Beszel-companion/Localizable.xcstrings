@@ -155,8 +155,8 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Températures (°C)"
+            "state" : "translated",
+            "value" : "Température (°C)"
           }
         }
       }
@@ -353,6 +353,22 @@
         }
       }
     },
+    "Instances" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instances"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instances"
+          }
+        }
+      }
+    },
     "Mémoire" : {
       "localizations" : {
         "en" : {
@@ -365,6 +381,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Memory"
+          }
+        }
+      }
+    },
+    "onboarding.fieldsRequired" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fields required"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Champs requis"
           }
         }
       }
@@ -429,6 +462,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Se Connecter"
+          }
+        }
+      }
+    },
+    "onboarding.loginFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login failed"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexion échouée"
           }
         }
       }
@@ -955,8 +1005,8 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Graphique Beszel"
+            "state" : "translated",
+            "value" : "Beszel"
           }
         }
       }

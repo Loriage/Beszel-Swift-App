@@ -7,7 +7,7 @@ class InstanceManager: ObservableObject {
     static let appGroupIdentifier = "group.com.nohitdev.Beszel"
 
     @AppStorage("instances", store: UserDefaults(suiteName: appGroupIdentifier)) private var instancesData: Data = Data()
-    @AppStorage("activeInstanceID", store: UserDefaults(suiteName: appGroupIdentifier)) private var activeInstanceIDString: String?
+    @AppStorage("activeInstanceID", store: UserDefaults(suiteName: appGroupIdentifier)) var activeInstanceIDString: String?
 
     @Published var instances: [Instance] = []
     @Published var activeInstance: Instance?
@@ -60,6 +60,18 @@ class InstanceManager: ObservableObject {
         setActiveInstance(nil)
         
         DashboardManager.shared.nukeAllPins()
+    }
+    
+    var activeInstanceSelection: Binding<String?> {
+        Binding<String?>(
+            get: {
+                self.activeInstanceIDString
+            },
+            set: { newID in
+                self.activeInstanceIDString = newID
+                self.updateActiveInstance()
+            }
+        )
     }
 
     private func updateActiveInstance() {

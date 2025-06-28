@@ -8,6 +8,7 @@ struct RootView: View {
     @ObservedObject var instanceManager: InstanceManager
     
     @State private var isShowingSettings = false
+    @State private var selectedTab: Tab = .home
 
     var body: some View {
         Group {
@@ -21,7 +22,8 @@ struct RootView: View {
                     instanceManager: instanceManager,
                     settingsManager: settingsManager,
                     refreshManager: refreshManager,
-                    isShowingSettings: $isShowingSettings
+                    isShowingSettings: $isShowingSettings,
+                    selectedTab: $selectedTab
                 )
                 .id("\(activeInstance.id.uuidString)-\(languageManager.currentLanguageCode)")
             } else {

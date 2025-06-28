@@ -6,7 +6,7 @@
 //
 
 import Testing
-@testable import Beszel_companion
+@testable import Beszel
 
 struct Beszel_companionTests {
 

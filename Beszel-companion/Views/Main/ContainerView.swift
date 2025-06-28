@@ -9,8 +9,8 @@ struct ContainerView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading) {
-                VStack(alignment: .leading) {
+            LazyVStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 0) {
                     Text("container.title")
                         .font(.largeTitle)
                         .fontWeight(.bold)
@@ -19,16 +19,30 @@ struct ContainerView: View {
                         .foregroundColor(.secondary)
                 }
                 .padding(.horizontal)
-                
-                List(processedData.sorted(by: { $0.name < $1.name })) { container in
-                    VStack(alignment: .leading) {
-                        NavigationLink(destination: ContainerDetailView(container: container, settingsManager: settingsManager)) {
-                            Text(container.name)
+
+                VStack(alignment: .leading, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        ForEach(processedData.sorted(by: { $0.name < $1.name })) { container in
+                            NavigationLink(destination: ContainerDetailView(container: container, settingsManager: settingsManager)) {
+                                HStack {
+                                    Text(container.name)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.footnote.weight(.semibold))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.vertical, 12)
+                                .padding(.horizontal)
+                            }
+                            Divider()
+                            .padding(.leading)
                         }
                     }
+                    .background(Color(.systemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
-                .contentMargins(.top, 18)
-                .frame(height: CGFloat((processedData.count * 54) + (processedData.count < 4 ? 200 : 0)), alignment: .top)
+                .padding()
             }
         }
         .refreshable {

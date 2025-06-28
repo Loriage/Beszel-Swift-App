@@ -12,6 +12,11 @@ struct ContainerDetailView: View {
 
     var body: some View {
         ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(container.name)
+                    .font(.title2)
+                    .fontWeight(.bold)
+            }
             VStack(alignment: .leading, spacing: 24) {
                 ContainerCpuChartView(
                     xAxisFormat: xAxisFormat,
@@ -30,7 +35,5 @@ struct ContainerDetailView: View {
             }
             .padding()
         }
-        .navigationTitle(container.name)
-        .navigationBarTitleDisplayMode(.inline)
     }
 }

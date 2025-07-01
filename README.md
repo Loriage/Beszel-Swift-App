@@ -5,9 +5,10 @@
 [![License](https://img.shields.io/github/license/Loriage/Beszel-Swift-App?color=%239944ee)](./LICENSE)
 [![Made with SwiftUI](https://img.shields.io/badge/Made%20with-SwiftUI-blue.svg?logo=swift)](https://developer.apple.com/xcode/swiftui/)
 
-An unofficial, native iOS client for the [Beszel](https://github.com/henrygd/beszel) server monitoring platform.
+An unofficial, native iOS client for the [Beszel](https://beszel.dev) monitoring platform.
 
-This application allows you to view your server and container statistics directly from your iPhone by connecting to your Beszel instance's API.
+> [!IMPORTANT]
+> A [Beszel](https://beszel.dev) instance is required to use Beszel Companion.
 
 ## Overview
 
@@ -17,51 +18,34 @@ This application allows you to view your server and container statistics directl
 
 ## Features
 
--   **Secure Connection**: Connects to your Beszel instance via its API. Credentials are securely stored in the iOS Keychain.
--   **Custom Dashboard**: Pin your favorite charts (System CPU, a specific container's memory, etc.) to a home screen for quick access.
--   **System Stats**: Visualize historical data for CPU usage, memory usage, and temperatures of your host systems.
--   **Container Stats**: Browse a list of all your Docker containers and analyze their historical CPU and memory consumption.
--   **Interactive Charts**: Clean and responsive charts built with Swift Charts.
--   **Time Range Filtering**: Display data from the last hour, last 24 hours, last 7 days, and more.
--   **Native Experience**: A smooth and integrated user experience, built entirely with SwiftUI.
--   **Dark Mode Support**: The interface automatically adapts to your device's theme.
+-   [x] **Custom Dashboard** for quick access to your favorite charts.
+-   [x] **System Stats** (CPU, memory, temperatures).
+-   [x] **Container Stats** (CPU, memory).
+-   [x] **Time Range Filtering** (last hour, 24h, 7 days, etc.).
+-   [x] **Secure Connection** (credentials stored in the iOS Keychain).
+-   [x] **Native SwiftUI Experience** and Dark Mode support.
+-   [x] **Home Screen Widgets**.
+-   [x] **Multiple Beszel instances support.**
+-   [ ] Lock Screen Widgets.
+-   [ ] Push Notifications.
+-   [ ] Enhanced chart interactivity.
+-   [ ] More language support.
 
-## Client Architecture
+## Installation
 
-Unlike Beszel, which consists of a **hub** and an **agent**, **Beszel Swift App** is a single client that communicates directly with your Beszel **hub**'s API. It requires no additional installation on your servers.
+<a href="https://apps.apple.com/us/app/beszel/id6747600765"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&amp;releaseDate=1712361600" alt="Download on the App Store" style="border-radius: 13px; width: 200px; height: 66px;"></a>
 
-## Getting Started
-
-### Prerequisites
-
-1.  A working [Beszel](https://beszel.dev/guide/getting-started) instance that is accessible from the internet.
-2.  Xcode 15 or newer.
-3.  An iPhone device or simulator running iOS 17 or newer. This project is tested with iOS 26.
-
-### Installation
-
-1.  Clone this repository:
-    ```bash
-    git clone https://github.com/Loriage/Beszel-Swift-App.git
-    ```
-2.  Open the `Beszel-companion.xcodeproj` project in Xcode.
-3.  Run the application. The onboarding screen will prompt you to enter your Beszel instance URL, email, and password.
+#### Alternative Methods
+- Sideload .ipa from [releases](https://github.com/Loriage/Beszel-Swift-App/releases/latest)
+- Build it yourself
 
 ## Technologies Used
 
--   **SwiftUI**: For the entire declarative and reactive user interface.
+-   **SwiftUI**: For the declarative and reactive user interface.
 -   **Swift Charts**: For creating all charts within the application.
 -   **Swift Concurrency (`async/await`)**: For modern and performant network calls.
--   **Combine**: For state management of shared objects (`ObservableObject`).
+-   **Combine**: For state management of shared objects.
 -   **WidgetKit**: To display information on the Home Screen.
-
-## Roadmap
-
--   [ ] Lock Screen Widgets.
--   [ ] Push notifications.
--   [ ] Enhanced chart interactivity.
--   [ ] Localization into other languages.
--   [ ] Multiple instances management
 
 ## Acknowledgements
 

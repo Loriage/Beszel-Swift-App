@@ -33,7 +33,7 @@ An unofficial, native iOS client for the [Beszel](https://beszel.dev) monitoring
 
 ## Installation
 
-<a href="https://apps.apple.com/us/app/beszel/id6747600765"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&amp;releaseDate=1712361600" alt="Download on the App Store" style="border-radius: 13px; width: 200px; height: 66px;"></a>
+<a href="https://apps.apple.com/us/app/beszel/id6747600765"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&amp;releaseDate=1712361600" alt="Download on the App Store" target="_blank" style="border-radius: 13px; width: 200px; height: 66px;"></a>
 
 #### Alternative Methods
 - Sideload .ipa from [releases](https://github.com/Loriage/Beszel-Swift-App/releases/latest)

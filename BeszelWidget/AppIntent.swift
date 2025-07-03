@@ -27,6 +27,54 @@ public struct InstanceQuery: EntityQuery {
     }
 }
 
+public struct SystemEntity: AppEntity {
+    public let id: String
+    public let name: String
+
+    public init(id: String, name: String) {
+        self.id = id
+        self.name = name
+    }
+
+    public var displayRepresentation: DisplayRepresentation { DisplayRepresentation(title: "\(name)") }
+    public static var typeDisplayRepresentation: TypeDisplayRepresentation = "Système"
+    public static var defaultQuery = SystemQuery()
+}
+
+public struct SystemQuery: EntityQuery {
+    public init() {}
+
+    public func entities(for identifiers: [String]) async throws -> [SystemEntity] {
+        let allSystems = await allSystemsForSelectedInstance()
+        return allSystems.filter { identifiers.contains($0.id) }
+    }
+
+    public func suggestedEntities() async throws -> [SystemEntity] {
+        return await allSystemsForSelectedInstance()
+    }
+
+    private func allSystemsForSelectedInstance() async -> [SystemEntity] {
+        let instanceManager = InstanceManager.shared
+
+        guard let activeInstanceIDString = UserDefaults.sharedSuite.string(forKey: "activeInstanceID"),
+              let instanceID = UUID(uuidString: activeInstanceIDString),
+              let instance = instanceManager.instances.first(where: { $0.id == instanceID }),
+              let password = instanceManager.loadPassword(for: instance)
+        else {
+            return []
+        }
+        
+        let apiService = BeszelAPIService(url: instance.url, email: instance.email, password: password)
+        
+        do {
+            let systems = try await apiService.fetchSystems()
+            return systems.map { SystemEntity(id: $0.id, name: $0.name) }
+        } catch {
+            return []
+        }
+    }
+}
+
 public struct ChartTypeEntity: AppEntity {
     public let id: String
     public let title: LocalizedStringResource
@@ -63,12 +111,16 @@ public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
     @Parameter(title: "chart.configuration.instance.title")
     public var instance: InstanceEntity?
 
+    @Parameter(title: "chart.configuration.system.title")
+    public var system: SystemEntity?
+
     @Parameter(title: "chart.configuration.chartType.title")
     public var chart: ChartTypeEntity?
 
     public init() {}
-    public init(instance: InstanceEntity?, chart: ChartTypeEntity?) {
+    public init(instance: InstanceEntity?, system: SystemEntity?, chart: ChartTypeEntity?) {
         self.instance = instance
+        self.system = system
         self.chart = chart
     }
 }

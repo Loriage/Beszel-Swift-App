@@ -112,12 +112,17 @@ struct Provider: AppIntentTimelineProvider {
     func timeline(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> Timeline<SimpleEntry> {
         let instanceManager = InstanceManager.shared
         let settingsManager = SettingsManager()
-        
+
         guard let selectedInstanceEntity = configuration.instance,
               let instanceID = UUID(uuidString: selectedInstanceEntity.id),
               let instanceToFetch = instanceManager.instances.first(where: { $0.id == instanceID })
         else {
             let entry = SimpleEntry(date: .now, chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.selectInstance")
+            return Timeline(entries: [entry], policy: .atEnd)
+        }
+
+        guard let selectedSystemEntity = configuration.system else {
+            let entry = SimpleEntry(date: .now, chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.selectSystem")
             return Timeline(entries: [entry], policy: .atEnd)
         }
         
@@ -130,8 +135,11 @@ struct Provider: AppIntentTimelineProvider {
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
         
         do {
-            let filter = settingsManager.apiFilterString
-            let records = try await apiService.fetchSystemStats(filter: filter)
+            let timeFilter = settingsManager.apiFilterString ?? "1=1"
+            let systemFilter = "system = '\(selectedSystemEntity.id)'"
+            let finalFilter = "(\(systemFilter) && \(timeFilter))"
+
+            let records = try await apiService.fetchSystemStats(filter: finalFilter)
             let dataPoints = DataProcessor.transformSystem(records: records)
             
             let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: dataPoints, timeRange: settingsManager.selectedTimeRange)

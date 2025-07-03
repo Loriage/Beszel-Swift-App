@@ -85,6 +85,7 @@
 				Models/PinnedItem.swift,
 				Models/PocketBaseResponse.swift,
 				Models/ProcessedData.swift,
+				Models/SystemRecord.swift,
 				Models/SystemStats.swift,
 				Services/BeszelAPIService.swift,
 				Services/DashboardManager.swift,
@@ -97,6 +98,7 @@
 				Views/Charts/SystemTemperatureChartView.swift,
 				Views/Helpers/InstanceSwitcherView.swift,
 				Views/Helpers/PinButtonView.swift,
+				Views/Helpers/SystemSwitcherView.swift,
 			);
 			target = 87FE4D6E2E0D241200163BCE /* BeszelWidgetExtension */;
 		};

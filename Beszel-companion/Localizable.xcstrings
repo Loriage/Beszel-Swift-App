@@ -33,6 +33,9 @@
         }
       }
     },
+    "Chargement des systèmes..." : {
+
+    },
     "chart.configuration.chartType.title" : {
       "localizations" : {
         "en" : {
@@ -64,6 +67,9 @@
           }
         }
       }
+    },
+    "chart.configuration.system.title" : {
+
     },
     "chart.container.cpuUsage.percent" : {
       "localizations" : {
@@ -786,6 +792,12 @@
           }
         }
       }
+    },
+    "Système" : {
+
+    },
+    "Systèmes" : {
+
     },
     "Temp" : {
       "localizations" : {

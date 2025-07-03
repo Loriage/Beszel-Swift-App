@@ -17,15 +17,21 @@ struct RootView: View {
                     instanceManager.addInstance(name: name, url: url, email: email, password: password)
                 })
             } else if let activeInstance = instanceManager.activeInstance {
-                MainView(
-                    instance: activeInstance,
-                    instanceManager: instanceManager,
-                    settingsManager: settingsManager,
-                    refreshManager: refreshManager,
-                    isShowingSettings: $isShowingSettings,
-                    selectedTab: $selectedTab
-                )
-                .id("\(activeInstance.id.uuidString)-\(languageManager.currentLanguageCode)")
+                if let activeSystem = instanceManager.activeSystem {
+                    MainView(
+                        instance: activeInstance,
+                        instanceManager: instanceManager,
+                        settingsManager: settingsManager,
+                        refreshManager: refreshManager,
+                        isShowingSettings: $isShowingSettings,
+                        selectedTab: $selectedTab
+                    )
+                    .id("\(activeInstance.id.uuidString)-\(activeSystem.id)-\(languageManager.currentLanguageCode)-\(settingsManager.selectedTimeRange.rawValue)")
+                } else {
+                    VStack {
+                        ProgressView("Chargement des systèmes...")
+                    }
+                }
             } else {
                 ProgressView()
             }

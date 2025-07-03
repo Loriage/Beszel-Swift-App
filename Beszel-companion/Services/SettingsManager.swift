@@ -46,6 +46,6 @@ class SettingsManager: ObservableObject {
         let dateString = formatter.string(from: startDate)
 
         let filter = "created >= '\(dateString)'"
-        return filter.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        return filter
     }
 }

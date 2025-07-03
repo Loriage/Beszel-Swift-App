@@ -21,7 +21,8 @@ struct MainView: View {
         _viewModel = StateObject(wrappedValue: MainViewModel(
             instance: instance,
             settingsManager: settingsManager,
-            refreshManager: refreshManager
+            refreshManager: refreshManager,
+            instanceManager: instanceManager
         ))
     }
 
@@ -57,7 +58,7 @@ struct MainView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    InstanceSwitcherView(instanceManager: instanceManager)
+                    SystemSwitcherView(instanceManager: instanceManager)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {isShowingSettings = true}) {

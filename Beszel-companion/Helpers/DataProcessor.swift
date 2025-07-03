@@ -5,16 +5,44 @@ struct DataProcessor {
     private static func parseTypeDuration(_ typeString: String) -> Int {
         return Int(typeString.replacingOccurrences(of: "m", with: "")) ?? Int.max
     }
+
+    static func applyMovingAverage(to dataPoints: [SystemDataPoint], windowSize: Int) -> [SystemDataPoint] {
+        guard dataPoints.count >= windowSize else {
+            return dataPoints
+        }
+        
+        var smoothedPoints: [SystemDataPoint] = []
+        
+        for i in 0...(dataPoints.count - windowSize) {
+            let window = Array(dataPoints[i..<(i + windowSize)])
+            
+            let averageCpu = window.map { $0.cpu }.reduce(0, +) / Double(windowSize)
+            let averageMemory = window.map { $0.memoryPercent }.reduce(0, +) / Double(windowSize)
+
+            let lastPointInWindow = window.last!
+            
+            let smoothedPoint = SystemDataPoint(
+                date: lastPointInWindow.date,
+                cpu: averageCpu,
+                memoryPercent: averageMemory,
+                temperatures: lastPointInWindow.temperatures
+            )
+            
+            smoothedPoints.append(smoothedPoint)
+        }
+        
+        return smoothedPoints
+    }
     
     static func transformSystem(records: [SystemStatsRecord]) -> [SystemDataPoint] {
-        let groupedByDate = Dictionary(grouping: records, by: { $0.created })
+        let groupedByDate = Dictionary(grouping: records, by: { String($0.created.prefix(16)) })
         
-        let uniqueBestRecords = groupedByDate.compactMap { (_, recordsForDate) -> SystemStatsRecord? in
-            if recordsForDate.count == 1 {
-                return recordsForDate.first
+        let uniqueBestRecords = groupedByDate.compactMap { (_, recordsForMinute) -> SystemStatsRecord? in
+            if recordsForMinute.count == 1 {
+                return recordsForMinute.first
             }
 
-            return recordsForDate.min(by: { recordA, recordB in
+            return recordsForMinute.min(by: { recordA, recordB in
                 parseTypeDuration(recordA.type) < parseTypeDuration(recordB.type)
             })
         }

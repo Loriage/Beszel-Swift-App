@@ -1,3 +1,5 @@
+// Services/DashboardManager.swift
+
 import Foundation
 import SwiftUI
 import Combine
@@ -12,21 +14,34 @@ class DashboardManager: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        InstanceManager.shared.$activeInstance
-            .sink { [weak self] activeInstance in
-                self?.loadPins(for: activeInstance)
+        // On observe le système actif pour charger les bonnes épingles
+        InstanceManager.shared.$activeSystem
+            .sink { [weak self] activeSystem in
+                self?.loadPins(
+                    for: InstanceManager.shared.activeInstance,
+                    system: activeSystem
+                )
             }
             .store(in: &cancellables)
     }
     
-    private func loadPins(for instance: Instance?) {
-        guard let instanceID = instance?.id.uuidString else {
+    // Clé composite pour le stockage des épingles
+    private func compositeKey(for instance: Instance?, system: SystemRecord?) -> String? {
+        guard let instanceID = instance?.id.uuidString, let systemID = system?.id else {
+            return nil
+        }
+        return "\(instanceID)-\(systemID)"
+    }
+    
+    // La fonction corrigée
+    private func loadPins(for instance: Instance?, system: SystemRecord?) {
+        guard let key = compositeKey(for: instance, system: system) else {
             self.pinnedItems = []
             return
         }
         
         let allPins = decodeAllPins()
-        self.pinnedItems = allPins[instanceID] ?? []
+        self.pinnedItems = allPins[key] ?? []
     }
 
     func isPinned(_ item: PinnedItem) -> Bool {
@@ -34,28 +49,28 @@ class DashboardManager: ObservableObject {
     }
 
     func togglePin(for item: PinnedItem) {
-        guard let activeInstanceID = InstanceManager.shared.activeInstance?.id.uuidString else { return }
+        guard let key = compositeKey(for: InstanceManager.shared.activeInstance, system: InstanceManager.shared.activeSystem) else { return }
         
         var allPins = decodeAllPins()
-        var currentInstancePins = allPins[activeInstanceID] ?? []
+        var currentPins = allPins[key] ?? []
         
         if isPinned(item) {
-            currentInstancePins.removeAll { $0 == item }
+            currentPins.removeAll { $0 == item }
         } else {
-            currentInstancePins.append(item)
+            currentPins.append(item)
         }
         
-        allPins[activeInstanceID] = currentInstancePins
+        allPins[key] = currentPins
         saveAllPins(allPins)
         
-        self.pinnedItems = currentInstancePins
+        self.pinnedItems = currentPins
     }
 
-    func removeAllPinsForActiveInstance() {
-        guard let activeInstanceID = InstanceManager.shared.activeInstance?.id.uuidString else { return }
+    func removeAllPinsForActiveSystem() {
+        guard let key = compositeKey(for: InstanceManager.shared.activeInstance, system: InstanceManager.shared.activeSystem) else { return }
         
         var allPins = decodeAllPins()
-        allPins.removeValue(forKey: activeInstanceID)
+        allPins.removeValue(forKey: key)
         saveAllPins(allPins)
         
         self.pinnedItems = []

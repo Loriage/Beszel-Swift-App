@@ -34,7 +34,20 @@
       }
     },
     "Chargement des systèmes..." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systems loaading…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des systèmes…"
+          }
+        }
+      }
     },
     "chart.configuration.chartType.title" : {
       "localizations" : {
@@ -69,7 +82,20 @@
       }
     },
     "chart.configuration.system.title" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Système"
+          }
+        }
+      }
     },
     "chart.container.cpuUsage.percent" : {
       "localizations" : {
@@ -794,10 +820,36 @@
       }
     },
     "Système" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Système"
+          }
+        }
+      }
     },
     "Systèmes" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systems"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systèmes"
+          }
+        }
+      }
     },
     "Temp" : {
       "localizations" : {

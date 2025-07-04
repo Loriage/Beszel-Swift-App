@@ -29,7 +29,7 @@ struct RootView: View {
                     .id("\(activeInstance.id.uuidString)-\(activeSystem.id)-\(languageManager.currentLanguageCode)-\(settingsManager.selectedTimeRange.rawValue)")
                 } else {
                     VStack {
-                        ProgressView("Chargement des systèmes...")
+                        ProgressView("systems.loading")
                     }
                 }
             } else {

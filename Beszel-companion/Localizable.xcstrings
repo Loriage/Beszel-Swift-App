@@ -33,22 +33,6 @@
         }
       }
     },
-    "Chargement des systèmes..." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Systems loaading…"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chargement des systèmes…"
-          }
-        }
-      }
-    },
     "chart.configuration.chartType.title" : {
       "localizations" : {
         "en" : {
@@ -70,13 +54,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Instance"
+            "value" : "Hub"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Instance"
+            "value" : "Hub"
           }
         }
       }
@@ -374,13 +358,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Instance"
+            "value" : "Hub"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Instance"
+            "value" : "Hub"
           }
         }
       }
@@ -390,13 +374,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Instances"
+            "value" : "Hubs"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Instances"
+            "value" : "Hubs"
           }
         }
       }
@@ -471,13 +455,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Instance name (ex: Local or Server)"
+            "value" : "Hub name (e.g: Local or Server)"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nom de l’instance (ex: Local ou Serveur)"
+            "state" : "needs_review",
+            "value" : "Nom du hub (ex: Local ou Serveur)"
           }
         }
       }
@@ -520,13 +504,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Please enter your instance details."
+            "value" : "Please enter your hub details."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Veuillez entrer les informations de votre instance."
+            "value" : "Veuillez entrer les informations de votre hub."
           }
         }
       }
@@ -712,13 +696,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add an instance"
+            "value" : "Add a hub"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ajouter une instance"
+            "value" : "Ajouter un hub"
           }
         }
       }
@@ -728,13 +712,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Instances"
+            "value" : "Hubs"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Instances"
+            "value" : "Hubs"
           }
         }
       }
@@ -847,6 +831,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Systèmes"
+          }
+        }
+      }
+    },
+    "systems.loading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading systems…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des systèmes…"
           }
         }
       }
@@ -1129,13 +1130,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select an instance in the widget settings"
+            "value" : "Select a hub in the widget settings"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sélectionnez une instances dans les paramètres du widget"
+            "value" : "Sélectionnez un hub dans les paramètres du widget"
+          }
+        }
+      }
+    },
+    "widget.selectSystem" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a system in the widget settings"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sélectionnez un système dans les paramètres du widget"
           }
         }
       }

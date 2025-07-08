@@ -1,5 +1,3 @@
-// Services/DashboardManager.swift
-
 import Foundation
 import SwiftUI
 import Combine
@@ -14,7 +12,6 @@ class DashboardManager: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        // On observe le système actif pour charger les bonnes épingles
         InstanceManager.shared.$activeSystem
             .sink { [weak self] activeSystem in
                 self?.loadPins(
@@ -24,16 +21,14 @@ class DashboardManager: ObservableObject {
             }
             .store(in: &cancellables)
     }
-    
-    // Clé composite pour le stockage des épingles
+
     private func compositeKey(for instance: Instance?, system: SystemRecord?) -> String? {
         guard let instanceID = instance?.id.uuidString, let systemID = system?.id else {
             return nil
         }
         return "\(instanceID)-\(systemID)"
     }
-    
-    // La fonction corrigée
+
     private func loadPins(for instance: Instance?, system: SystemRecord?) {
         guard let key = compositeKey(for: instance, system: system) else {
             self.pinnedItems = []

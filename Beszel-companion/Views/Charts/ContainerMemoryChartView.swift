@@ -4,18 +4,26 @@ import Charts
 struct ContainerMemoryChartView: View {
     let xAxisFormat: Date.FormatStyle
     let container: ProcessedContainerData
+    var systemName: String? = nil
     
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
     var body: some View {
         GroupBox(label:
-            HStack {
+                    HStack {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("\(LocalizedStringResource("chart.container.memoryUsage.bytes")) \(container.name)")
-                Spacer()
-                PinButtonView(isPinned: isPinned, action: onPinToggle)
+                    .font(.headline)
+                if let systemName = systemName {
+                    Text(systemName)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
-        ) {
+            Spacer()
+            PinButtonView(isPinned: isPinned, action: onPinToggle)
+        }) {
             Chart(container.statPoints) { point in
                 LineMark(
                     x: .value("Date", point.date),

@@ -13,7 +13,7 @@ struct MainView: View {
     @Binding var isShowingSettings: Bool
     @Binding var selectedTab: Tab
 
-    init(instance: Instance, instanceManager: InstanceManager, settingsManager: SettingsManager, refreshManager: RefreshManager, isShowingSettings: Binding<Bool>, selectedTab: Binding<Tab>) {
+    init(instance: Instance, instanceManager: InstanceManager, settingsManager: SettingsManager, refreshManager: RefreshManager, dashboardManager: DashboardManager, isShowingSettings: Binding<Bool>, selectedTab: Binding<Tab>) {
         self.instanceManager = instanceManager
         self._isShowingSettings = isShowingSettings
         self._selectedTab = selectedTab
@@ -22,16 +22,41 @@ struct MainView: View {
             instance: instance,
             settingsManager: settingsManager,
             refreshManager: refreshManager,
-            instanceManager: instanceManager
+            instanceManager: instanceManager,
         ))
     }
 
+    private var activeSystemDataPointsBinding: Binding<[SystemDataPoint]> {
+        Binding<[SystemDataPoint]>(
+            get: {
+                guard let activeSystemID = instanceManager.activeSystem?.id else { return [] }
+                return viewModel.systemDataPointsBySystem[activeSystemID] ?? []
+            },
+            set: { newValue in
+                guard let activeSystemID = instanceManager.activeSystem?.id else { return }
+                viewModel.systemDataPointsBySystem[activeSystemID] = newValue
+            }
+        )
+    }
+
+    private var activeContainerDataBinding: Binding<[ProcessedContainerData]> {
+        Binding<[ProcessedContainerData]>(
+            get: {
+                guard let activeSystemID = instanceManager.activeSystem?.id else { return [] }
+                return viewModel.containerDataBySystem[activeSystemID] ?? []
+            },
+            set: { newValue in
+                guard let activeSystemID = instanceManager.activeSystem?.id else { return }
+                viewModel.containerDataBySystem[activeSystemID] = newValue
+            }
+        )
+    }
+
     var body: some View {
-        NavigationView{
+        NavigationStack {
             TabView(selection: $selectedTab) {
                 HomeView(
-                    containerData: viewModel.containerData,
-                    systemDataPoints: viewModel.systemDataPoints,
+                    viewModel: viewModel
                 )
                 .tabItem {
                     Label("home.title", systemImage: "house.fill")
@@ -39,7 +64,7 @@ struct MainView: View {
                 .tag(Tab.home)
                 
                 SystemView(
-                    dataPoints: $viewModel.systemDataPoints,
+                    dataPoints: activeSystemDataPointsBinding,
                     fetchData: { viewModel.fetchData() },
                 )
                 .tabItem {
@@ -48,7 +73,7 @@ struct MainView: View {
                 .tag(Tab.system)
                 
                 ContainerView(
-                    processedData: $viewModel.containerData,
+                    processedData: activeContainerDataBinding,
                     fetchData: { viewModel.fetchData() },
                 )
                 .tabItem {

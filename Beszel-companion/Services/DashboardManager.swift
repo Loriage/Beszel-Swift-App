@@ -11,6 +11,28 @@ class DashboardManager: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
 
+    var allPinsForActiveInstance: [ResolvedPinnedItem] {
+        guard let activeInstanceID = InstanceManager.shared.activeInstance?.id.uuidString else {
+            return []
+        }
+        
+        let allSystemPins = decodeAllPins()
+        
+        let resolvedItems = allSystemPins.flatMap { (key, items) -> [ResolvedPinnedItem] in
+            let prefix = "\(activeInstanceID)-"
+
+            guard key.hasPrefix(prefix) else {
+                return []
+            }
+
+            let systemID = String(key.dropFirst(prefix.count))
+
+            return items.map { ResolvedPinnedItem(item: $0, systemID: systemID) }
+        }
+        
+        return Array(Set(resolvedItems))
+    }
+
     init() {
         InstanceManager.shared.$activeSystem
             .sink { [weak self] activeSystem in

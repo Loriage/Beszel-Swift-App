@@ -28,7 +28,11 @@ struct SystemView: View {
                 }
                 .padding(.horizontal)
                 if dataPoints.isEmpty {
-                    ProgressView("system.loading")
+                    VStack {
+                        ProgressView("system.loading")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 80)
                 } else {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 24) {

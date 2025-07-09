@@ -547,6 +547,9 @@
         }
       }
     },
+    "Rechercher..." : {
+
+    },
     "settings.account.disconnect.alert.message" : {
       "localizations" : {
         "en" : {
@@ -947,6 +950,9 @@
           }
         }
       }
+    },
+    "Trier par" : {
+
     },
     "widget.chart.systemCPU.title" : {
       "localizations" : {

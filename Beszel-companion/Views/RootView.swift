@@ -23,6 +23,7 @@ struct RootView: View {
                         instanceManager: instanceManager,
                         settingsManager: settingsManager,
                         refreshManager: refreshManager,
+                        dashboardManager: dashboardManager,
                         isShowingSettings: $isShowingSettings,
                         selectedTab: $selectedTab
                     )
@@ -42,6 +43,7 @@ struct RootView: View {
         .environmentObject(settingsManager)
         .environmentObject(dashboardManager)
         .environmentObject(languageManager)
+        .environmentObject(instanceManager)
         .environment(\.locale, Locale(identifier: languageManager.currentLanguageCode))
     }
 }

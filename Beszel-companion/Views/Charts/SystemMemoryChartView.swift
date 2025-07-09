@@ -7,6 +7,7 @@ struct SystemMemoryChartView: View {
     
     let xAxisFormat: Date.FormatStyle
     let dataPoints: [SystemDataPoint]
+    var systemName: String? = nil
     
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
@@ -15,13 +16,19 @@ struct SystemMemoryChartView: View {
     
     var body: some View {
         if !isForWidget {
-            GroupBox(label:
-                        HStack {
-                Text("chart.memoryUsage")
+            GroupBox(label: HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("chart.memoryUsage")
+                        .font(.headline)
+                    if let systemName = systemName {
+                        Text(systemName)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
                 Spacer()
                 PinButtonView(isPinned: isPinned, action: onPinToggle)
-            }
-            ) {
+            }) {
                 chartContent
                     .frame(height: 200)
             }

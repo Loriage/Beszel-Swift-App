@@ -39,13 +39,6 @@ This application allows you to view your server and container statistics directl
 -   [ ] Enhanced chart interactivity.
 -   [ ] Localization into other languages.
 
-## Getting Started
-
-### Prerequisites
-
-1.  A working [Beszel](https://beszel.dev/guide/getting-started) instance that is accessible from the internet.
-2.  An iPhone device or simulator running iOS 17 or newer. This project is tested with iOS 26.
-
 ## Technologies Used
 
 -   **SwiftUI**: For the entire declarative and reactive user interface.

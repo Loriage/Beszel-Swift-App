@@ -318,6 +318,17 @@
         }
       }
     },
+    "dashboard.sortBy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort by"
+          }
+        }
+      }
+    },
     "Date" : {
       "localizations" : {
         "en" : {
@@ -478,9 +489,6 @@
           }
         }
       }
-    },
-    "OK" : {
-
     },
     "onboarding.fieldsRequired" : {
       "extractionState" : "manual",

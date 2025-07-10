@@ -13,8 +13,8 @@ struct FilterView: View {
                     Toggle("dashboard.descending", isOn: $sortDescending)
                 }
 
-                Section(header: Text("dashboard.filterBy")) {
-                    Picker("dashboard.filterBy", selection: $sortOption) {
+                Section(header: Text("dashboard.sortBy")) {
+                    Picker("dashboard.sortBy", selection: $sortOption) {
                         ForEach(SortOption.allCases) { option in
                             Text(LocalizedStringKey(option.rawValue)).tag(option)
                         }
@@ -24,11 +24,13 @@ struct FilterView: View {
                 }
             }
             .navigationTitle("dashboard.filtersTitle")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("OK") {
+                    Button(action: {
                         dismiss()
+                    }) {
+                        Image(systemName: "checkmark")
                     }
                 }
             }

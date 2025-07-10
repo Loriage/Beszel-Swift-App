@@ -273,6 +273,17 @@
         }
       }
     },
+    "dashboard.descending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descending"
+          }
+        }
+      }
+    },
     "dashboard.filterBy" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -280,6 +291,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Filter by"
+          }
+        }
+      }
+    },
+    "dashboard.filtersTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filters"
           }
         }
       }
@@ -456,6 +478,9 @@
           }
         }
       }
+    },
+    "OK" : {
+
     },
     "onboarding.fieldsRequired" : {
       "extractionState" : "manual",

@@ -15,9 +15,11 @@ struct HomeView: View {
     @EnvironmentObject var instanceManager: InstanceManager
 
     @ObservedObject var viewModel: MainViewModel
-    
+
+    @State private var isShowingFilterSheet = false
     @State private var searchText = ""
     @State private var sortOption: SortOption = .bySystem
+    @State private var sortDescending = false
 
     private var xAxisFormat: Date.FormatStyle {
         settingsManager.selectedTimeRange.xAxisFormat
@@ -31,7 +33,7 @@ struct HomeView: View {
 
     private var filteredAndSortedPins: [ResolvedPinnedItem] {
         let pins = dashboardManager.allPinsForActiveInstance
-
+        
         let filteredPins: [ResolvedPinnedItem]
         if searchText.isEmpty {
             filteredPins = pins
@@ -44,10 +46,11 @@ struct HomeView: View {
                 itemName.localizedCaseInsensitiveContains(searchText)
             }
         }
-
+        
+        var sortedPins: [ResolvedPinnedItem]
         switch sortOption {
         case .bySystem:
-            return filteredPins.sorted { (lhs, rhs) in
+            sortedPins = filteredPins.sorted { (lhs, rhs) in
                 let lhsSystemName = instanceManager.systems.first { $0.id == lhs.systemID }?.name ?? ""
                 let rhsSystemName = instanceManager.systems.first { $0.id == rhs.systemID }?.name ?? ""
                 if lhsSystemName != rhsSystemName {
@@ -56,19 +59,25 @@ struct HomeView: View {
                 return lhs.item.displayName < rhs.item.displayName
             }
         case .byMetric:
-            return filteredPins.sorted { lhs, rhs in
+            sortedPins = filteredPins.sorted { lhs, rhs in
                 if lhs.item.metricName != rhs.item.metricName {
                     return lhs.item.metricName < rhs.item.metricName
                 }
                 return lhs.item.displayName < rhs.item.displayName
             }
         case .byService:
-            return filteredPins.sorted { lhs, rhs in
+            sortedPins = filteredPins.sorted { lhs, rhs in
                 if lhs.item.serviceName != rhs.item.serviceName {
                     return lhs.item.serviceName < rhs.item.serviceName
                 }
                 return lhs.item.displayName < rhs.item.displayName
             }
+        }
+        
+        if sortDescending {
+            return sortedPins.reversed()
+        } else {
+            return sortedPins
         }
     }
 
@@ -102,17 +111,10 @@ struct HomeView: View {
                                         .padding(.leading, 8)
                                 }
                             )
-                        
-                        Menu {
-                            Text("dashboard.filterBy")
-                            Picker(LocalizedStringResource("dashboard.filterBy"), selection: $sortOption) {
-                                ForEach(SortOption.allCases) { option in
-                                    Text(LocalizedStringKey(option.rawValue)).tag(option)
-                                }
-                            }
-                        }
-                        label: {
-                            Image(systemName: "arrow.up.arrow.down.circle")
+                        Button(action: {
+                            isShowingFilterSheet = true
+                        }) {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
                                 .font(.title2)
                         }
                     }
@@ -126,6 +128,13 @@ struct HomeView: View {
                     .padding(.horizontal)
                 }
             }
+        }
+        .onAppear { viewModel.fetchData() }
+        .sheet(isPresented: $isShowingFilterSheet) {
+            FilterView(
+                sortOption: $sortOption,
+                sortDescending: $sortDescending
+            )
         }
     }
 

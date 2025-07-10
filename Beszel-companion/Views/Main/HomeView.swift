@@ -115,7 +115,7 @@ struct HomeView: View {
                             isShowingFilterSheet = true
                         }) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
-                                .font(.title2)
+                                .font(.title)
                         }
                     }
                     .padding(.horizontal)

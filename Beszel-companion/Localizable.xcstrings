@@ -273,6 +273,29 @@
         }
       }
     },
+    "dashboard.filterBy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filter by"
+          }
+        }
+      }
+    },
+    "dashboard.searchPlaceholder" : {
+      "comment" : "Recherche…",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search…"
+          }
+        }
+      }
+    },
     "Date" : {
       "localizations" : {
         "en" : {
@@ -285,6 +308,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Date"
+          }
+        }
+      }
+    },
+    "filter.byMetric" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metric"
+          }
+        }
+      }
+    },
+    "filter.byService" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Service"
+          }
+        }
+      }
+    },
+    "filter.bySystem" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
           }
         }
       }
@@ -546,9 +602,6 @@
           }
         }
       }
-    },
-    "Rechercher..." : {
-
     },
     "settings.account.disconnect.alert.message" : {
       "localizations" : {
@@ -950,9 +1003,6 @@
           }
         }
       }
-    },
-    "Trier par" : {
-
     },
     "widget.chart.systemCPU.title" : {
       "localizations" : {

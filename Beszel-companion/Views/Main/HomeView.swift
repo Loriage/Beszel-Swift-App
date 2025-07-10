@@ -2,9 +2,9 @@ import SwiftUI
 import Charts
 
 enum SortOption: String, CaseIterable, Identifiable {
-    case bySystem = "Par Système"
-    case byMetric = "Par Métrique"
-    case byService = "Par Service"
+    case bySystem = "filter.bySystem"
+    case byMetric = "filter.byMetric"
+    case byService = "filter.byService"
 
     var id: String { self.rawValue }
 }
@@ -89,7 +89,7 @@ struct HomeView: View {
                     emptyStateView
                 } else {
                     HStack {
-                        TextField("Rechercher...", text: $searchText)
+                        TextField("dashboard.searchPlaceholder", text: $searchText)
                             .padding(8)
                             .padding(.leading, 24)
                             .background(Color(.systemGray6))
@@ -104,12 +104,14 @@ struct HomeView: View {
                             )
                         
                         Menu {
-                            Picker("Trier par", selection: $sortOption) {
+                            Text("dashboard.filterBy")
+                            Picker(LocalizedStringResource("dashboard.filterBy"), selection: $sortOption) {
                                 ForEach(SortOption.allCases) { option in
-                                    Text(option.rawValue).tag(option)
+                                    Text(LocalizedStringKey(option.rawValue)).tag(option)
                                 }
                             }
-                        } label: {
+                        }
+                        label: {
                             Image(systemName: "arrow.up.arrow.down.circle")
                                 .font(.title2)
                         }

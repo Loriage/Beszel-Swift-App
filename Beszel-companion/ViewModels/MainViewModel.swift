@@ -7,19 +7,19 @@ class MainViewModel: ObservableObject {
     @Published var systemDataPointsBySystem: [String: [SystemDataPoint]] = [:]
     @Published var isLoading = true
     @Published var errorMessage: String?
-    
+
     private let apiService: BeszelAPIService
     private let settingsManager: SettingsManager
     private let instanceManager: InstanceManager
     private var cancellables = Set<AnyCancellable>()
-    
+
     init(instance: Instance, settingsManager: SettingsManager, refreshManager: RefreshManager, instanceManager: InstanceManager) {
         self.settingsManager = settingsManager
         self.instanceManager = instanceManager
-        
+
         let password = InstanceManager.shared.loadPassword(for: instance) ?? ""
         self.apiService = BeszelAPIService(url: instance.url, email: instance.email, password: password)
-        
+
         settingsManager.objectWillChange
             .sink { [weak self] _ in
                 guard let self = self else { return }
@@ -27,14 +27,14 @@ class MainViewModel: ObservableObject {
                 self.fetchData()
             }
             .store(in: &cancellables)
-        
+
         instanceManager.$activeSystem
             .dropFirst()
             .sink { [weak self] _ in
                 self?.fetchData()
             }
             .store(in: &cancellables)
-        
+
         refreshManager.$refreshSignal
             .dropFirst()
             .sink { [weak self] _ in
@@ -57,7 +57,7 @@ class MainViewModel: ObservableObject {
             let systemsToFetch = instanceManager.systems
 
             let timeFilter = self.settingsManager.apiFilterString
-            
+
             guard !systemsToFetch.isEmpty else {
                 await MainActor.run {
                     self.systemDataPointsBySystem = [:]
@@ -69,7 +69,7 @@ class MainViewModel: ObservableObject {
 
             do {
                 let (finalSystemData, finalContainerData) = try await withThrowingTaskGroup(of: (systemId: String, systemData: [SystemDataPoint], containerData: [ProcessedContainerData]).self, returning: ([String: [SystemDataPoint]], [String: [ProcessedContainerData]]).self) { group in
-                    
+
                     for system in systemsToFetch {
                         group.addTask {
                             let systemFilter = "system = '\(system.id)'"
@@ -82,7 +82,7 @@ class MainViewModel: ObservableObject {
 
                             async let containerRecords = self.apiService.fetchMonitors(filter: finalFilter)
                             async let systemRecords = self.apiService.fetchSystemStats(filter: finalFilter)
-                            
+
                             let fetchedContainers = try await containerRecords
                             let fetchedSystem = try await systemRecords
 
@@ -91,7 +91,7 @@ class MainViewModel: ObservableObject {
                                 let containers = DataProcessor.transform(records: fetchedContainers)
                                 return (system, containers)
                             }
-                            
+
                             return (system.id, transformedSystem, transformedContainers)
                         }
                     }
@@ -101,7 +101,7 @@ class MainViewModel: ObservableObject {
                         partialResult.1[taskResult.systemId] = taskResult.containerData
                     }
                 }
-                
+
                 await MainActor.run {
                     self.systemDataPointsBySystem = finalSystemData
                     self.containerDataBySystem = finalContainerData
@@ -114,7 +114,7 @@ class MainViewModel: ObservableObject {
                     self.containerDataBySystem = [:]
                 }
             }
-            
+
             await MainActor.run {
                 self.isLoading = false
             }

@@ -5,23 +5,11 @@ import SwiftUI
 class InstanceManager: ObservableObject {
     static let shared = InstanceManager()
     static let appGroupIdentifier = "group.com.nohitdev.Beszel"
-    private static var didLogStoreType = false
 
-    // Helper to get the correct UserDefaults instance
+    private let keychainService = "com.nohitdev.Beszel.instances"
+
     private static func getStore() -> UserDefaults {
-        if let store = UserDefaults(suiteName: appGroupIdentifier) {
-            if !didLogStoreType {
-                print("[InstanceManager] Debug: Utilisation des UserDefaults de l'App Group. La communication avec le widget devrait fonctionner.")
-                didLogStoreType = true
-            }
-            return store
-        } else {
-            if !didLogStoreType {
-                print("[InstanceManager] Debug: App Group indisponible. Utilisation des UserDefaults standards. Ceci est normal pour les builds sideloadées. Le widget ne fonctionnera pas.")
-                didLogStoreType = true
-            }
-            return .standard
-        }
+        return UserDefaults(suiteName: appGroupIdentifier) ?? .standard
     }
 
     private var userDefaultsStore: UserDefaults {
@@ -49,12 +37,15 @@ class InstanceManager: ObservableObject {
     @Published var activeSystem: SystemRecord?
     @Published var isLoadingSystems = false
 
-    private let keychainService = "com.nohitdev.Beszel.instances"
     private var cancellables = Set<AnyCancellable>()
 
     init() {
         self.instances = decodeInstances()
         updateActiveInstance()
+
+        if self.activeInstance == nil, let firstInstance = self.instances.first {
+            setActiveInstance(firstInstance)
+        }
 
         self.$activeInstance
             .removeDuplicates(by: { $0?.id == $1?.id })
@@ -69,9 +60,73 @@ class InstanceManager: ObservableObject {
             }
             .store(in: &cancellables)
     }
+    
+    var activeInstanceSelection: Binding<String?> {
+        Binding<String?>(
+            get: {
+                self.activeInstanceIDString
+            },
+            set: { newID in
+                if let newID = newID, let uuid = UUID(uuidString: newID), let instance = self.instances.first(where: { $0.id == uuid }) {
+                    self.setActiveInstance(instance)
+                } else {
+                    self.setActiveInstance(nil)
+                }
+            }
+        )
+    }
+    
+    var activeSystemSelection: Binding<String?> {
+        Binding<String?>(
+            get: { self.activeSystemIDString },
+            set: { newID in
+                self.activeSystemIDString = newID
+                self.updateActiveSystem()
+            }
+        )
+    }
+
+    func fetchSystemsForInstance(_ instance: Instance) {
+        Task {
+            await MainActor.run {
+                self.isLoadingSystems = true
+            }
+
+            guard let password = self.loadPassword(for: instance), !password.isEmpty else {
+                await MainActor.run {
+                    self.isLoadingSystems = false
+                }
+                return
+            }
+            
+            await self.performFetch(for: instance, with: password)
+        }
+    }
+
+    private func performFetch(for instance: Instance, with password: String) async {
+        await MainActor.run { self.isLoadingSystems = true }
+        
+        let apiService = BeszelAPIService(url: instance.url, email: instance.email, password: password)
+        
+        do {
+            let fetchedSystems = try await apiService.fetchSystems()
+            await MainActor.run {
+                self.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
+                self.updateActiveSystem()
+                self.isLoadingSystems = false
+            }
+        } catch {
+            await MainActor.run {
+                self.systems = []
+                self.activeSystem = nil
+                self.isLoadingSystems = false
+            }
+        }
+    }
 
     func addInstance(name: String, url: String, email: String, password: String) {
         let newInstance = Instance(id: UUID(), name: name, url: url, email: email)
+        
         savePassword(password: password, forInstanceID: newInstance.id)
         
         instances.append(newInstance)
@@ -100,46 +155,18 @@ class InstanceManager: ObservableObject {
         updateActiveInstance()
     }
 
-    private func fetchSystemsForInstance(_ instance: Instance) {
-        Task {
-            await MainActor.run { self.isLoadingSystems = true }
-            
-            let password = self.loadPassword(for: instance) ?? ""
-            let apiService = BeszelAPIService(url: instance.url, email: instance.email, password: password)
-            
-            do {
-                let fetchedSystems = try await apiService.fetchSystems()
-                await MainActor.run {
-                    self.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
-                    self.updateActiveSystem()
-                    self.isLoadingSystems = false
-                }
-            } catch {
-                print("Failed to fetch systems: \(error)")
-                await MainActor.run {
-                    self.systems = []
-                    self.activeSystem = nil
-                    self.isLoadingSystems = false
-                }
-            }
-        }
-    }
-
-    var activeSystemSelection: Binding<String?> {
-        Binding<String?>(
-            get: { self.activeSystemIDString },
-            set: { newID in
-                self.activeSystemIDString = newID
-                self.updateActiveSystem()
-            }
-        )
-    }
-    
     func loadPassword(for instance: Instance) -> String? {
-        guard let passwordData = KeychainHelper.load(service: keychainService, account: instance.id.uuidString) else {
-            return nil
+        if let passwordData = KeychainHelper.load(service: keychainService, account: instance.id.uuidString, useSharedKeychain: true),
+           let password = String(data: passwordData, encoding: .utf8), !password.isEmpty {
+            return password
         }
-        return String(data: passwordData, encoding: .utf8)
+        
+        if let passwordData = KeychainHelper.load(service: keychainService, account: instance.id.uuidString, useSharedKeychain: false),
+           let password = String(data: passwordData, encoding: .utf8), !password.isEmpty {
+            return password
+        }
+        
+        return nil
     }
     
     func logoutAll() {
@@ -149,22 +176,8 @@ class InstanceManager: ObservableObject {
         instances.removeAll()
         saveInstances()
         setActiveInstance(nil)
-        
-        DashboardManager.shared.nukeAllPins()
     }
     
-    var activeInstanceSelection: Binding<String?> {
-        Binding<String?>(
-            get: {
-                self.activeInstanceIDString
-            },
-            set: { newID in
-                self.activeInstanceIDString = newID
-                self.updateActiveInstance()
-            }
-        )
-    }
-
     private func updateActiveInstance() {
         guard let activeIDString = self.activeInstanceIDString,
               let uuid = UUID(uuidString: activeIDString) else {
@@ -202,12 +215,17 @@ class InstanceManager: ObservableObject {
     }
     
     private func savePassword(password: String, forInstanceID instanceID: UUID) {
-        if let passwordData = password.data(using: .utf8) {
-            KeychainHelper.save(data: passwordData, service: keychainService, account: instanceID.uuidString)
+        guard let passwordData = password.data(using: .utf8) else { return }
+
+        let didSaveToShared = KeychainHelper.save(data: passwordData, service: keychainService, account: instanceID.uuidString, useSharedKeychain: true)
+        
+        if !didSaveToShared {
+            _ = KeychainHelper.save(data: passwordData, service: keychainService, account: instanceID.uuidString, useSharedKeychain: false)
         }
     }
 
     private func deletePassword(forInstanceID instanceID: UUID) {
-        KeychainHelper.delete(service: keychainService, account: instanceID.uuidString)
+        KeychainHelper.delete(service: keychainService, account: instanceID.uuidString, useSharedKeychain: true)
+        KeychainHelper.delete(service: keychainService, account: instanceID.uuidString, useSharedKeychain: false)
     }
 }

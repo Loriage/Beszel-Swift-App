@@ -17,7 +17,11 @@ struct RootView: View {
                     instanceManager.addInstance(name: name, url: url, email: email, password: password)
                 })
             } else if let activeInstance = instanceManager.activeInstance {
-                if let activeSystem = instanceManager.activeSystem {
+                if instanceManager.isLoadingSystems {
+                    VStack {
+                        ProgressView("systems.loading")
+                    }
+                } else {
                     MainView(
                         instance: activeInstance,
                         instanceManager: instanceManager,
@@ -27,11 +31,7 @@ struct RootView: View {
                         isShowingSettings: $isShowingSettings,
                         selectedTab: $selectedTab
                     )
-                    .id("\(activeInstance.id.uuidString)-\(activeSystem.id)-\(languageManager.currentLanguageCode)-\(settingsManager.selectedTimeRange.rawValue)")
-                } else {
-                    VStack {
-                        ProgressView("systems.loading")
-                    }
+                    .id("\(activeInstance.id.uuidString)-\(instanceManager.activeSystem?.id ?? "no-system")-\(languageManager.currentLanguageCode)-\(settingsManager.selectedTimeRange.rawValue)")
                 }
             } else {
                 ProgressView()

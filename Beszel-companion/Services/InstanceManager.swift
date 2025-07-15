@@ -5,15 +5,46 @@ import SwiftUI
 class InstanceManager: ObservableObject {
     static let shared = InstanceManager()
     static let appGroupIdentifier = "group.com.nohitdev.Beszel"
+    private static var didLogStoreType = false
 
-    @AppStorage("instances", store: UserDefaults(suiteName: appGroupIdentifier)) private var instancesData: Data = Data()
-    @AppStorage("activeInstanceID", store: UserDefaults(suiteName: appGroupIdentifier)) var activeInstanceIDString: String?
+    // Helper to get the correct UserDefaults instance
+    private static func getStore() -> UserDefaults {
+        if let store = UserDefaults(suiteName: appGroupIdentifier) {
+            if !didLogStoreType {
+                print("[InstanceManager] Debug: Utilisation des UserDefaults de l'App Group. La communication avec le widget devrait fonctionner.")
+                didLogStoreType = true
+            }
+            return store
+        } else {
+            if !didLogStoreType {
+                print("[InstanceManager] Debug: App Group indisponible. Utilisation des UserDefaults standards. Ceci est normal pour les builds sideloadées. Le widget ne fonctionnera pas.")
+                didLogStoreType = true
+            }
+            return .standard
+        }
+    }
 
-    @AppStorage("activeSystemID", store: UserDefaults(suiteName: appGroupIdentifier)) var activeSystemIDString: String?
+    private var userDefaultsStore: UserDefaults {
+        return InstanceManager.getStore()
+    }
+
+    private var instancesData: Data {
+        get { userDefaultsStore.data(forKey: "instances") ?? Data() }
+        set { userDefaultsStore.set(newValue, forKey: "instances") }
+    }
+
+    var activeInstanceIDString: String? {
+        get { userDefaultsStore.string(forKey: "activeInstanceID") }
+        set { userDefaultsStore.set(newValue, forKey: "activeInstanceID") }
+    }
+
+    var activeSystemIDString: String? {
+        get { userDefaultsStore.string(forKey: "activeSystemID") }
+        set { userDefaultsStore.set(newValue, forKey: "activeSystemID") }
+    }
 
     @Published var instances: [Instance] = []
     @Published var activeInstance: Instance?
-
     @Published var systems: [SystemRecord] = []
     @Published var activeSystem: SystemRecord?
     @Published var isLoadingSystems = false
@@ -28,12 +59,13 @@ class InstanceManager: ObservableObject {
         self.$activeInstance
             .removeDuplicates(by: { $0?.id == $1?.id })
             .sink { [weak self] instance in
-                guard let self = self, let instance = instance else {
-                    self?.systems = []
-                    self?.activeSystem = nil
-                    return
+                guard let self = self else { return }
+                if let instance = instance {
+                    self.fetchSystemsForInstance(instance)
+                } else {
+                    self.systems = []
+                    self.activeSystem = nil
                 }
-                self.fetchSystemsForInstance(instance)
             }
             .store(in: &cancellables)
     }
@@ -83,6 +115,7 @@ class InstanceManager: ObservableObject {
                     self.isLoadingSystems = false
                 }
             } catch {
+                print("Failed to fetch systems: \(error)")
                 await MainActor.run {
                     self.systems = []
                     self.activeSystem = nil
@@ -150,7 +183,6 @@ class InstanceManager: ObservableObject {
         if let activeID = self.activeSystemIDString, let system = systems.first(where: { $0.id == activeID }) {
             self.activeSystem = system
         } else {
-            // Si aucun système n'est sélectionné ou si l'ID stocké n'est plus valide, on prend le premier
             self.activeSystem = systems.first
             self.activeSystemIDString = systems.first?.id
         }
@@ -163,10 +195,10 @@ class InstanceManager: ObservableObject {
     }
 
     private func decodeInstances() -> [Instance] {
-        guard let data = try? JSONDecoder().decode([Instance].self, from: instancesData) else {
+        guard let decodedInstances = try? JSONDecoder().decode([Instance].self, from: instancesData), !decodedInstances.isEmpty else {
             return []
         }
-        return data
+        return decodedInstances
     }
     
     private func savePassword(password: String, forInstanceID instanceID: UUID) {

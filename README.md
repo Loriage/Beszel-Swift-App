@@ -60,6 +60,7 @@ This application allows you to view your server and container statistics directl
 ### Widgets on Sideloaded App
 
 The Home Screen widgets will not function if you install the app by sideloading the .ipa file. This is a known limitation due to iOS security policies, as sideloading prevents the widget from securely sharing data and credentials with the main app through the required App Group.
+
 For the best experience, including widget support, please download the official version from the App Store.
 
 ## Acknowledgements

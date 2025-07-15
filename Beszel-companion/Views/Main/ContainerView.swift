@@ -43,6 +43,7 @@ struct ContainerView: View {
                             }
                         }
                     }
+                    .padding(.vertical, 8)
                     .background(Color(.systemGroupedBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }

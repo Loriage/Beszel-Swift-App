@@ -13,7 +13,7 @@ struct FilterView: View {
                     Toggle("dashboard.descending", isOn: $sortDescending)
                 }
 
-                Section(header: Text("dashboard.sortBy")) {
+                Section(header: Text("dashboard.sortByOrder")) {
                     Picker("dashboard.sortBy", selection: $sortOption) {
                         ForEach(SortOption.allCases) { option in
                             Text(LocalizedStringKey(option.rawValue)).tag(option)

@@ -46,6 +46,7 @@ class MainViewModel: ObservableObject {
 
         fetchData()
     }
+
     func fetchData() {
         Task {
             await MainActor.run {
@@ -54,6 +55,8 @@ class MainViewModel: ObservableObject {
             }
 
             let systemsToFetch = instanceManager.systems
+
+            let timeFilter = self.settingsManager.apiFilterString
             
             guard !systemsToFetch.isEmpty else {
                 await MainActor.run {
@@ -72,8 +75,8 @@ class MainViewModel: ObservableObject {
                             let systemFilter = "system = '\(system.id)'"
                             var filters: [String] = [systemFilter]
 
-                            if let timeFilter = self.settingsManager.apiFilterString {
-                                filters.append(timeFilter)
+                            if let capturedTimeFilter = timeFilter {
+                                filters.append(capturedTimeFilter)
                             }
                             let finalFilter = "(\(filters.joined(separator: " && ")))"
 
@@ -83,8 +86,11 @@ class MainViewModel: ObservableObject {
                             let fetchedContainers = try await containerRecords
                             let fetchedSystem = try await systemRecords
 
-                            let transformedSystem = DataProcessor.transformSystem(records: fetchedSystem)
-                            let transformedContainers = DataProcessor.transform(records: fetchedContainers)
+                            let (transformedSystem, transformedContainers) = await MainActor.run {
+                                let system = DataProcessor.transformSystem(records: fetchedSystem)
+                                let containers = DataProcessor.transform(records: fetchedContainers)
+                                return (system, containers)
+                            }
                             
                             return (system.id, transformedSystem, transformedContainers)
                         }

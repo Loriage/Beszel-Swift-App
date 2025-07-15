@@ -46,7 +46,6 @@ class MainViewModel: ObservableObject {
 
         fetchData()
     }
-
     func fetchData() {
         Task {
             await MainActor.run {
@@ -65,45 +64,48 @@ class MainViewModel: ObservableObject {
                 return
             }
 
-            await withTaskGroup(of: (systemId: String, systemData: [SystemDataPoint], containerData: [ProcessedContainerData]).self) { group in
-                for system in systemsToFetch {
-                    group.addTask {
-                        let systemFilter = "system = '\(system.id)'"
-                        var filters: [String] = [systemFilter]
-                        
-                        if let timeFilter = await self.settingsManager.apiFilterString {
-                            filters.append(timeFilter)
-                        }
-                        let finalFilter = "(\(filters.joined(separator: " && ")))"
-                        
-                        do {
+            do {
+                let (finalSystemData, finalContainerData) = try await withThrowingTaskGroup(of: (systemId: String, systemData: [SystemDataPoint], containerData: [ProcessedContainerData]).self, returning: ([String: [SystemDataPoint]], [String: [ProcessedContainerData]]).self) { group in
+                    
+                    for system in systemsToFetch {
+                        group.addTask {
+                            let systemFilter = "system = '\(system.id)'"
+                            var filters: [String] = [systemFilter]
+
+                            if let timeFilter = self.settingsManager.apiFilterString {
+                                filters.append(timeFilter)
+                            }
+                            let finalFilter = "(\(filters.joined(separator: " && ")))"
+
                             async let containerRecords = self.apiService.fetchMonitors(filter: finalFilter)
                             async let systemRecords = self.apiService.fetchSystemStats(filter: finalFilter)
                             
                             let fetchedContainers = try await containerRecords
                             let fetchedSystem = try await systemRecords
-                            
-                            let transformedSystem = await DataProcessor.transformSystem(records: fetchedSystem)
-                            let transformedContainers = await DataProcessor.transform(records: fetchedContainers)
+
+                            let transformedSystem = DataProcessor.transformSystem(records: fetchedSystem)
+                            let transformedContainers = DataProcessor.transform(records: fetchedContainers)
                             
                             return (system.id, transformedSystem, transformedContainers)
-                        } catch {
-                            return (system.id, [], [])
                         }
+                    }
+
+                    return try await group.reduce(into: ([:], [:])) { (partialResult, taskResult) in
+                        partialResult.0[taskResult.systemId] = taskResult.systemData
+                        partialResult.1[taskResult.systemId] = taskResult.containerData
                     }
                 }
                 
-                var tempSystemData: [String: [SystemDataPoint]] = [:]
-                var tempContainerData: [String: [ProcessedContainerData]] = [:]
-                
-                for await result in group {
-                    tempSystemData[result.systemId] = result.systemData
-                    tempContainerData[result.systemId] = result.containerData
-                }
-                
                 await MainActor.run {
-                    self.systemDataPointsBySystem = tempSystemData
-                    self.containerDataBySystem = tempContainerData
+                    self.systemDataPointsBySystem = finalSystemData
+                    self.containerDataBySystem = finalContainerData
+                }
+
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = "Failed to fetch data: \(error.localizedDescription)"
+                    self.systemDataPointsBySystem = [:]
+                    self.containerDataBySystem = [:]
                 }
             }
             

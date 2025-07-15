@@ -10,10 +10,10 @@ struct FilterView: View {
         NavigationStack {
             Form {
                 Section(header: Text("dashboard.descending")) {
-                    Toggle("dashboard.descending", isOn: $sortDescending)
+                    Toggle("dashboard.sortByOrder", isOn: $sortDescending)
                 }
 
-                Section(header: Text("dashboard.sortByOrder")) {
+                Section(header: Text("dashboard.sortBy")) {
                     Picker("dashboard.sortBy", selection: $sortOption) {
                         ForEach(SortOption.allCases) { option in
                             Text(LocalizedStringKey(option.rawValue)).tag(option)

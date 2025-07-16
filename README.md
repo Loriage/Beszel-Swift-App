@@ -11,6 +11,8 @@ This application allows you to view your server and container statistics directl
 
 > [!IMPORTANT]  
 > **A working Beszel instance accessible from the internet is required to use Beszel Companion.**
+>
+> By default, only an `admin` user can read all data. For better security, you can create a `readonly` user by modifying API route access in your PocketBase settings.
 
 ## Overview
 

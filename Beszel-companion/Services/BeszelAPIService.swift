@@ -13,7 +13,6 @@ class BeszelAPIService: ObservableObject {
         self.password = password
     }
 
-
     private func buildURL(for path: String, filter: String?) throws -> URL {
         guard var components = URLComponents(string: baseURL) else {
             throw URLError(.badURL)

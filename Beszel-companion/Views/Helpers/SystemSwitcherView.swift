@@ -14,15 +14,18 @@ struct SystemSwitcherView: View {
             }
         } label: {
             HStack(spacing: 12) {
-                Text(instanceManager.activeSystem?.name ?? "Chargement...")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary)
+                if let systemName = instanceManager.activeSystem?.name {
+                    Text(systemName)
+                } else {
+                    Text("switcher.loading")
+                }
                 
                 Image(systemName: "chevron.up.chevron.down")
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.secondary)
             }
+            .font(.headline.weight(.semibold))
+            .foregroundColor(.primary)
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
         }

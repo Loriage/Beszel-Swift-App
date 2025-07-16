@@ -56,6 +56,7 @@
 
 /* Begin PBXFileReference section */
 		878F14832E282B94001A5DD1 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		87AB833C2E283E9D002B66DB /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
 		87EB26752E05AAAE002A98E2 /* Beszel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Beszel.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		87EB26822E05AAB0002A98E2 /* BeszelTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BeszelTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		87EB268C2E05AAB0002A98E2 /* BeszelUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BeszelUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -201,6 +202,7 @@
 		87FE4D702E0D241200163BCE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				87AB833C2E283E9D002B66DB /* AuthenticationServices.framework */,
 				87FE4D712E0D241200163BCE /* WidgetKit.framework */,
 				87FE4D732E0D241200163BCE /* SwiftUI.framework */,
 			);

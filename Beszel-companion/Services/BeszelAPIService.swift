@@ -4,13 +4,13 @@ import Combine
 class BeszelAPIService: ObservableObject {
     private let baseURL: String
     private let email: String
-    private let password: String
+    private let credential: String
     private var authToken: String?
 
     init(url: String, email: String, password: String) {
         self.baseURL = url
         self.email = email
-        self.password = password
+        self.credential = password
     }
 
     private func buildURL(for path: String, filter: String?) throws -> URL {
@@ -35,14 +35,24 @@ class BeszelAPIService: ObservableObject {
         return url
     }
 
-    private func authenticate() async throws {
+    private func ensureAuthenticated() async throws {
+        if authToken != nil {
+            return
+        }
+
+        let parts = credential.components(separatedBy: ".")
+        if parts.count == 3 {
+            self.authToken = credential
+            return
+        }
+
         guard let url = URL(string: "\(baseURL)/api/collections/users/auth-with-password") else {
             throw URLError(.badURL)
         }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        let body: [String: String] = ["identity": self.email, "password": self.password]
+        let body: [String: String] = ["identity": self.email, "password": self.credential]
         request.httpBody = try JSONEncoder().encode(body)
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
@@ -53,9 +63,7 @@ class BeszelAPIService: ObservableObject {
     }
 
     func fetchMonitors(filter: String?) async throws -> [ContainerStatsRecord] {
-        if authToken == nil {
-            try await authenticate()
-        }
+        try await ensureAuthenticated()
         guard let token = authToken else {
             throw URLError(.userAuthenticationRequired)
         }
@@ -75,9 +83,7 @@ class BeszelAPIService: ObservableObject {
     }
 
     func fetchSystemStats(filter: String?) async throws -> [SystemStatsRecord] {
-        if authToken == nil {
-            try await authenticate()
-        }
+        try await ensureAuthenticated()
         guard let token = authToken else {
             throw URLError(.userAuthenticationRequired)
         }
@@ -98,9 +104,7 @@ class BeszelAPIService: ObservableObject {
     }
 
     func fetchSystems() async throws -> [SystemRecord] {
-        if authToken == nil {
-            try await authenticate()
-        }
+        try await ensureAuthenticated()
         guard let token = authToken else {
             throw URLError(.userAuthenticationRequired)
         }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		874458B42E28299200522F72 /* Beszel.icon in Resources */ = {isa = PBXBuildFile; fileRef = 874458B32E28299200522F72 /* Beszel.icon */; };
 		87FE4D722E0D241200163BCE /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87FE4D712E0D241200163BCE /* WidgetKit.framework */; };
 		87FE4D742E0D241200163BCE /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87FE4D732E0D241200163BCE /* SwiftUI.framework */; };
 		87FE4D832E0D241300163BCE /* BeszelWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 87FE4D6F2E0D241200163BCE /* BeszelWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -51,6 +52,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		874458B32E28299200522F72 /* Beszel.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Beszel.icon; sourceTree = "<group>"; };
 		87EB26752E05AAAE002A98E2 /* Beszel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Beszel.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		87EB26822E05AAB0002A98E2 /* BeszelTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BeszelTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		87EB268C2E05AAB0002A98E2 /* BeszelUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BeszelUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -170,6 +172,7 @@
 		87EB266C2E05AAAE002A98E2 = {
 			isa = PBXGroup;
 			children = (
+				874458B32E28299200522F72 /* Beszel.icon */,
 				87FE4DA72E0D25F300163BCE /* Beszel.entitlements */,
 				87FE4DA62E0D25CD00163BCE /* BeszelWidgetExtension.entitlements */,
 				87EB26772E05AAAE002A98E2 /* Beszel-companion */,
@@ -349,6 +352,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				874458B42E28299200522F72 /* Beszel.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -553,7 +557,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Beszel.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -594,7 +598,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Beszel.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

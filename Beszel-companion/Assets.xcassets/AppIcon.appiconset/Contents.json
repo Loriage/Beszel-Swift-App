@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Beszel-iOS-Default-1024x1024@1x.png",
+      "filename" : "light.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Beszel-iOS-Dark-1024x1024@1x.png",
+      "filename" : "dark.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -25,7 +25,7 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "Beszel-iOS-TintedLight-1024x1024@1x.png",
+      "filename" : "dark 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

@@ -257,6 +257,9 @@
         }
       }
     },
+    "Conteneur" : {
+
+    },
     "CPU" : {
       "localizations" : {
         "en" : {
@@ -391,6 +394,9 @@
           }
         }
       }
+    },
+    "End" : {
+
     },
     "filter.byMetric" : {
       "extractionState" : "manual",
@@ -916,6 +922,9 @@
         }
       }
     },
+    "Start" : {
+
+    },
     "switcher.loading" : {
       "localizations" : {
         "en" : {
@@ -1124,6 +1133,12 @@
           }
         }
       }
+    },
+    "Utilisation CPU totale des conteneurs (%)" : {
+
+    },
+    "Utilisation Mémoire totale des conteneurs (%@)" : {
+
     },
     "widget.chart.systemCPU.title" : {
       "localizations" : {

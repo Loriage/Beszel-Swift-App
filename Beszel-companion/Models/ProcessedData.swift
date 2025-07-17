@@ -1,7 +1,7 @@
 import Foundation
 
 struct StatPoint: Identifiable {
-    let id = UUID()
+    var id: Date { date } 
     let date: Date
     let cpu: Double
     let memory: Double

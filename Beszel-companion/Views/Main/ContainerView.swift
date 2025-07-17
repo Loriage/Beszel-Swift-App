@@ -19,6 +19,13 @@ struct ContainerView: View {
                         .foregroundColor(.secondary)
                 }
                 .padding(.horizontal)
+                
+                if !processedData.isEmpty {
+                    StackedContainerChartView(
+                        settingsManager: settingsManager,
+                        processedData: processedData
+                    )
+                }
 
                 VStack(alignment: .leading, spacing: 0) {
                     VStack(alignment: .leading, spacing: 4) {

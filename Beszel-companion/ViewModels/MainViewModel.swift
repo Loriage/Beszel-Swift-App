@@ -16,9 +16,7 @@ class MainViewModel: ObservableObject {
     init(instance: Instance, settingsManager: SettingsManager, refreshManager: RefreshManager, instanceManager: InstanceManager) {
         self.settingsManager = settingsManager
         self.instanceManager = instanceManager
-
-        let password = InstanceManager.shared.loadPassword(for: instance) ?? ""
-        self.apiService = BeszelAPIService(url: instance.url, email: instance.email, password: password)
+        self.apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
 
         settingsManager.objectWillChange
             .sink { [weak self] _ in
@@ -55,7 +53,6 @@ class MainViewModel: ObservableObject {
             }
 
             let systemsToFetch = instanceManager.systems
-
             let timeFilter = self.settingsManager.apiFilterString
 
             guard !systemsToFetch.isEmpty else {

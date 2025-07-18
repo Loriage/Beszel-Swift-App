@@ -398,6 +398,9 @@
     "End" : {
 
     },
+    "Faites glisser sur l'axe X pour sélectionner une date." : {
+
+    },
     "filter.byMetric" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -544,6 +547,9 @@
           }
         }
       }
+    },
+    "Légende et Valeurs à %@" : {
+
     },
     "Mémoire" : {
       "localizations" : {

@@ -1,6 +1,11 @@
 import SwiftUI
 import Charts
 
+enum ChartType {
+    case cpu
+    case memory
+}
+
 struct AggregatedContainerData: Identifiable {
     var id: String { "\(name)-\(date.timeIntervalSince1970)" }
     let date: Date
@@ -33,7 +38,7 @@ struct StackedContainerChartView: View {
         Color(red: 0.3, green: 0.3, blue: 0.3), Color(red: 0.18, green: 0.55, blue: 0.34)
     ]
 
-    private func color(for containerName: String) -> Color {
+    func color(for containerName: String) -> Color {
         var hash = 0
         for char in containerName.unicodeScalars {
             hash = (hash &* 31 &+ Int(char.value))
@@ -42,7 +47,7 @@ struct StackedContainerChartView: View {
         return chartColors[index]
     }
     
-    private func cpuDomain() -> [String] {
+    func cpuDomain() -> [String] {
         let averageUsage = processedData.map { container -> (name: String, avg: Double) in
             let total = container.statPoints.reduce(0) { $0 + $1.cpu }
             let average = container.statPoints.isEmpty ? 0 : total / Double(container.statPoints.count)
@@ -52,7 +57,7 @@ struct StackedContainerChartView: View {
         return averageUsage.sorted { $0.avg < $1.avg }.map { $0.name }
     }
         
-    private func memoryDomain() -> [String] {
+    func memoryDomain() -> [String] {
         let averageUsage = processedData.map { container -> (name: String, avg: Double) in
             let total = container.statPoints.reduce(0) { $0 + $1.memory }
             let average = container.statPoints.isEmpty ? 0 : total / Double(container.statPoints.count)
@@ -66,7 +71,7 @@ struct StackedContainerChartView: View {
         return domain.map { color(for: $0) }
     }
 
-    private func gradientRange(for domain: [String]) -> [LinearGradient] {
+    func gradientRange(for domain: [String]) -> [LinearGradient] {
         return domain.map {
             let baseColor = color(for: $0)
             return LinearGradient(
@@ -115,29 +120,25 @@ struct StackedContainerChartView: View {
                 cumulative = yEnd
             }
         }
-        
         return stacked
     }
-    
-    private var stackedCpuData: [StackedContainerData] {
-        let domain = cpuDomain()
-        return stackedData(valueExtractor: { $0.cpu }, domain: domain)
-    }
-    
-    private var stackedMemoryData: [StackedContainerData] {
-        let domain = memoryDomain()
-        return stackedData(valueExtractor: { $0.memory }, domain: domain)
-    }
 
+    private var cpuDomainValue: [String] { cpuDomain() }
+    private var memoryDomainValue: [String] { memoryDomain() }
+    private var stackedCpu: [StackedContainerData] { stackedData(valueExtractor: { $0.cpu }, domain: cpuDomainValue) }
+    private var stackedMemory: [StackedContainerData] { stackedData(valueExtractor: { $0.memory }, domain: memoryDomainValue) }
+    private var uniqueCpuDates: [Date] { Array(Set(stackedCpu.map { $0.date })).sorted() }
+    private var uniqueMemoryDates: [Date] { Array(Set(stackedMemory.map { $0.date })).sorted() }
+    
     private var maxMemory: Double {
-        stackedMemoryData.max(by: { $0.yEnd < $1.yEnd })?.yEnd ?? 0
+        stackedMemory.max(by: { $0.yEnd < $1.yEnd })?.yEnd ?? 0
     }
 
-    private var memoryUnit: String {
+    var memoryUnit: String {
         maxMemory >= 1024 ? "Go" : "Mo"
     }
 
-    private var memoryLabelScale: Double {
+    var memoryLabelScale: Double {
         maxMemory >= 1024 ? 1024 : 1
     }
 
@@ -147,43 +148,241 @@ struct StackedContainerChartView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            GroupBox(label: Text("Utilisation CPU totale des conteneurs (%)").font(.headline)) {
-                let domain = self.cpuDomain()
-
-                ZStack {
-                    Chart(stackedCpuData) { data in
-                        AreaMark(
-                            x: .value("Date", data.date),
-                            yStart: .value("Start", data.yStart),
-                            yEnd: .value("End", data.yEnd)
-                        )
-                        .foregroundStyle(by: .value("Conteneur", data.name))
-                        .interpolationMethod(.monotone)
+            NavigationLink(destination: DetailedCpuChartView(stackedData: stackedCpu, domain: cpuDomainValue, uniqueDates: uniqueCpuDates, settingsManager: settingsManager)) {
+                GroupBox(label: Text("Utilisation CPU totale des conteneurs (%)").font(.headline)) {
+                    ZStack {
+                        Chart(stackedCpu) { data in
+                            AreaMark(
+                                x: .value("Date", data.date),
+                                yStart: .value("Start", data.yStart),
+                                yEnd: .value("End", data.yEnd)
+                            )
+                            .foregroundStyle(by: .value("Conteneur", data.name))
+                            .interpolationMethod(.monotone)
+                        }
+                        .chartForegroundStyleScale(domain: cpuDomainValue, range: gradientRange(for: cpuDomainValue))
                     }
-                    .chartForegroundStyleScale(domain: domain, range: gradientRange(for: domain))
+                    .commonChartCustomization()
                 }
-                .commonChartCustomization()
             }
+            .buttonStyle(PlainButtonStyle())
 
-            GroupBox(label: Text("Utilisation Mémoire totale des conteneurs (\(memoryUnit))").font(.headline)) {
-                let domain = self.memoryDomain()
+            NavigationLink(destination: DetailedMemoryChartView(stackedData: stackedMemory, domain: memoryDomainValue, uniqueDates: uniqueMemoryDates, memoryUnit: memoryUnit, memoryLabelScale: memoryLabelScale, settingsManager: settingsManager)) {
+                GroupBox(label: Text("Utilisation Mémoire totale des conteneurs (\(memoryUnit))").font(.headline)) {
+                    ZStack {
+                        Chart(stackedMemory) { data in
+                            AreaMark(
+                                x: .value("Date", data.date),
+                                yStart: .value("Start", data.yStart),
+                                yEnd: .value("End", data.yEnd)
+                            )
+                            .foregroundStyle(by: .value("Conteneur", data.name))
+                            .interpolationMethod(.monotone)
+                        }
+                        .chartForegroundStyleScale(domain: memoryDomainValue, range: gradientRange(for: memoryDomainValue))
+                        .chartYAxis {
+                            AxisMarks { value in
+                                if let yValue = value.as(Double.self) {
+                                    let scaledValue = yValue / memoryLabelScale
+                                    let labelText = String(format: "%.1f", scaledValue)
+                                    AxisGridLine()
+                                    AxisValueLabel {
+                                        Text(labelText)
+                                            .font(.caption)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .commonChartCustomization()
+                }
+            }
+            .buttonStyle(PlainButtonStyle())
+        }
+        .padding(.horizontal)
+    }
+}
 
-                ZStack {
-                    Chart(stackedMemoryData) { data in
+struct DetailedCpuChartView: View {
+    let stackedData: [StackedContainerData]
+    let domain: [String]
+    let uniqueDates: [Date]
+    @ObservedObject var settingsManager: SettingsManager
+    
+    @State private var snappedDate: Date?
+    @State private var dragLocation: CGPoint?
+    
+    private var title: String {
+        "Détails Utilisation CPU (%)"
+    }
+    
+    private var unit: String {
+        "%"
+    }
+    
+    private var scale: Double {
+        1
+    }
+
+    private func valuesForDate(_ date: Date?) -> [String: Double] {
+        guard let date = date else { return [:] }
+        let pointsForDate = stackedData.filter { $0.date == date }
+        if pointsForDate.isEmpty {
+            return [:]
+        }
+        var dict: [String: Double] = [:]
+        for point in pointsForDate {
+            let value = (point.yEnd - point.yStart) / scale
+            if dict[point.name] != nil {
+                print("Debug: Duplicate key '\(point.name)' found, keeping first value")
+            } else {
+                dict[point.name] = value
+            }
+        }
+        return dict
+    }
+
+    private var sortedDomain: [String] {
+        let values = valuesForDate(snappedDate)
+        return domain.sorted { (values[$0] ?? 0) > (values[$1] ?? 0) }
+    }
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                GroupBox(label: Text("Utilisation CPU totale des conteneurs (%)").font(.headline)) {
+                    Chart(stackedData) { data in
                         AreaMark(
                             x: .value("Date", data.date),
                             yStart: .value("Start", data.yStart),
                             yEnd: .value("End", data.yEnd)
                         )
                         .foregroundStyle(by: .value("Conteneur", data.name))
-                        .interpolationMethod(.monotone)
+                        .interpolationMethod(.linear)
                     }
-                    .chartForegroundStyleScale(domain: domain, range: gradientRange(for: domain))
+                    .chartForegroundStyleScale(domain: domain, range: StackedContainerChartView(settingsManager: settingsManager, processedData: []).gradientRange(for: domain))
+                    .chartOverlay { proxy in
+                        GeometryReader { geometry in
+                            ZStack(alignment: .topLeading) {
+                                if let snappedDate = snappedDate {
+                                    let xPosition = proxy.position(forX: snappedDate) ?? 0
+                                    Path { path in
+                                        path.move(to: CGPoint(x: xPosition, y: 0))
+                                        path.addLine(to: CGPoint(x: xPosition, y: geometry.size.height))
+                                    }
+                                    .stroke(Color.gray.opacity(0.5), style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                }
+                                Rectangle()
+                                    .fill(Color.clear)
+                                    .contentShape(Rectangle())
+                                    .gesture(
+                                        DragGesture()
+                                            .onChanged { value in
+                                                dragLocation = value.location
+                                                if let date = proxy.value(atX: value.location.x, as: Date.self) {
+                                                    snappedDate = uniqueDates.min(by: { abs($0.timeIntervalSince(date)) < abs($1.timeIntervalSince(date)) })
+                                                }
+                                            }
+                                            .onEnded { _ in
+                                                dragLocation = nil
+                                            }
+                                    )
+                            }
+                        }
+                    }
+                    .commonChartCustomization()
+                }
+
+                Text("Légende et Valeurs à \(snappedDate?.formatted(date: .omitted, time: .shortened) ?? "sélectionnez une date")")
+                    .font(.headline)
+                if snappedDate == nil {
+                    Text("Faites glisser sur l'axe X pour sélectionner une date.")
+                        .foregroundColor(.gray)
+                }
+                let values = valuesForDate(snappedDate)
+                ForEach(sortedDomain, id: \.self) { name in
+                    HStack {
+                        Circle().fill(StackedContainerChartView(settingsManager: settingsManager, processedData: []).color(for: name)).frame(width: 10, height: 10)
+                        Text(name)
+                        Spacer()
+                        let value = values[name] ?? 0.0
+                        Text(String(format: "%.1f %%", value))
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .padding()
+        }
+        .navigationTitle(title)
+    }
+}
+
+struct DetailedMemoryChartView: View {
+    let stackedData: [StackedContainerData]
+    let domain: [String]
+    let uniqueDates: [Date]
+    let memoryUnit: String
+    let memoryLabelScale: Double
+    @ObservedObject var settingsManager: SettingsManager
+    
+    @State private var snappedDate: Date?
+    @State private var dragLocation: CGPoint?
+    
+    private var title: String {
+        "Détails Utilisation Mémoire (\(memoryUnit))"
+    }
+    
+    private var unit: String {
+        memoryUnit
+    }
+    
+    private var scale: Double {
+        memoryLabelScale
+    }
+
+    private func valuesForDate(_ date: Date?) -> [String: Double] {
+        guard let date = date else { return [:] }
+        let pointsForDate = stackedData.filter { $0.date == date }
+        if pointsForDate.isEmpty {
+            return [:]
+        }
+        var dict: [String: Double] = [:]
+        for point in pointsForDate {
+            let value = (point.yEnd - point.yStart) / scale
+            if dict[point.name] != nil {
+                print("Debug: Duplicate key '\(point.name)' found, keeping first value")
+            } else {
+                dict[point.name] = value
+            }
+        }
+        return dict
+    }
+
+    private var sortedDomain: [String] {
+        let values = valuesForDate(snappedDate)
+        return domain.sorted { (values[$0] ?? 0) > (values[$1] ?? 0) }
+    }
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                GroupBox(label: Text("Utilisation Mémoire totale des conteneurs (\(memoryUnit))").font(.headline)) {
+                    Chart(stackedData) { data in
+                        AreaMark(
+                            x: .value("Date", data.date),
+                            yStart: .value("Start", data.yStart),
+                            yEnd: .value("End", data.yEnd)
+                        )
+                        .foregroundStyle(by: .value("Conteneur", data.name))
+                        .interpolationMethod(.linear)
+                    }
+                    .chartForegroundStyleScale(domain: domain, range: StackedContainerChartView(settingsManager: settingsManager, processedData: []).gradientRange(for: domain))
                     .chartYAxis {
                         AxisMarks { value in
                             if let yValue = value.as(Double.self) {
-                                let scaledValue = yValue / memoryLabelScale
+                                let scaledValue = yValue / scale
                                 let labelText = String(format: "%.1f", scaledValue)
+                                AxisGridLine()
                                 AxisValueLabel {
                                     Text(labelText)
                                         .font(.caption)
@@ -191,11 +390,59 @@ struct StackedContainerChartView: View {
                             }
                         }
                     }
+                    .chartOverlay { proxy in
+                        GeometryReader { geometry in
+                            ZStack(alignment: .topLeading) {
+                                if let snappedDate = snappedDate {
+                                    let xPosition = proxy.position(forX: snappedDate) ?? 0
+                                    Path { path in
+                                        path.move(to: CGPoint(x: xPosition, y: 0))
+                                        path.addLine(to: CGPoint(x: xPosition, y: geometry.size.height))
+                                    }
+                                    .stroke(Color.gray.opacity(0.5), style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                }
+                                Rectangle()
+                                    .fill(Color.clear)
+                                    .contentShape(Rectangle())
+                                    .gesture(
+                                        DragGesture()
+                                            .onChanged { value in
+                                                dragLocation = value.location
+                                                if let date = proxy.value(atX: value.location.x, as: Date.self) {
+                                                    snappedDate = uniqueDates.min(by: { abs($0.timeIntervalSince(date)) < abs($1.timeIntervalSince(date)) })
+                                                }
+                                            }
+                                            .onEnded { _ in
+                                                dragLocation = nil
+                                            }
+                                    )
+                            }
+                        }
+                    }
+                    .commonChartCustomization()
                 }
-                .commonChartCustomization()
+
+                Text("Légende et Valeurs à \(snappedDate?.formatted(date: .omitted, time: .shortened) ?? "sélectionnez une date")")
+                    .font(.headline)
+                if snappedDate == nil {
+                    Text("Faites glisser sur l'axe X pour sélectionner une date.")
+                        .foregroundColor(.gray)
+                }
+                let values = valuesForDate(snappedDate)
+                ForEach(sortedDomain, id: \.self) { name in
+                    HStack {
+                        Circle().fill(StackedContainerChartView(settingsManager: settingsManager, processedData: []).color(for: name)).frame(width: 10, height: 10)
+                        Text(name)
+                        Spacer()
+                        let value = values[name] ?? 0.0
+                        Text(String(format: "%.1f %@", value, unit))
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
+            .padding()
         }
-        .padding(.horizontal)
+        .navigationTitle(title)
     }
 }
 

@@ -46,7 +46,7 @@ struct ContainerView: View {
 
                             if index < sortedData.count - 1 {
                                 Divider()
-                                    .padding(.leading)
+                                    .padding(.horizontal, 16)
                             }
                         }
                     }

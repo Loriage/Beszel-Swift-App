@@ -79,6 +79,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Helpers/DataProcessor.swift,
+				Helpers/DataSimplifier.swift,
 				"Helpers/DateFormatter+Extensions.swift",
 				Helpers/KeychainHelper.swift,
 				Helpers/LocalizationKeys.swift,

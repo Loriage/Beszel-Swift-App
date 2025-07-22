@@ -13,6 +13,38 @@ class MainViewModel: ObservableObject {
     private let instanceManager: InstanceManager
     private var cancellables = Set<AnyCancellable>()
 
+    private func downsampleStatPoints(_ statPoints: [StatPoint], timeRange: TimeRangeOption) -> [StatPoint] {
+        guard !statPoints.isEmpty else { return [] }
+        
+        let targetCount: Int
+        switch timeRange {
+        case .lastHour:
+            targetCount = 600
+        default:
+            targetCount = 300
+        }
+
+        let minDate = statPoints.min(by: { $0.date < $1.date })?.date ?? Date()
+        let maxDate = statPoints.max(by: { $0.date < $1.date })?.date ?? Date()
+        let totalDuration = maxDate.timeIntervalSince(minDate)
+
+        let minInterval: TimeInterval
+        switch timeRange {
+        case .lastHour, .last12Hours:
+            minInterval = 30
+        case .last24Hours:
+            minInterval = 60
+        case .last7Days:
+            minInterval = 300
+        case .last30Days:
+            minInterval = 900
+        }
+
+        let calculatedInterval = max(minInterval, totalDuration / Double(targetCount))
+
+        return statPoints.downsampled(bucketInterval: calculatedInterval, method: .average)
+    }
+
     init(instance: Instance, settingsManager: SettingsManager, refreshManager: RefreshManager, instanceManager: InstanceManager) {
         self.settingsManager = settingsManager
         self.instanceManager = instanceManager
@@ -89,7 +121,13 @@ class MainViewModel: ObservableObject {
                                 return (system, containers)
                             }
 
-                            return (system.id, transformedSystem, transformedContainers)
+                            let downsampledContainers = transformedContainers.map { container in
+                                var downsampled = container
+                                downsampled.statPoints = self.downsampleStatPoints(container.statPoints, timeRange: self.settingsManager.selectedTimeRange)
+                                return downsampled
+                            }
+
+                            return (system.id, transformedSystem, downsampledContainers)
                         }
                     }
 

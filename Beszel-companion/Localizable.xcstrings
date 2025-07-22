@@ -548,9 +548,6 @@
         }
       }
     },
-    "Légende et Valeurs à %@" : {
-
-    },
     "Mémoire" : {
       "localizations" : {
         "en" : {
@@ -666,7 +663,6 @@
       }
     },
     "onboarding.subtitle" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1140,10 +1136,16 @@
         }
       }
     },
+    "Total : " : {
+
+    },
     "Utilisation CPU totale des conteneurs (%)" : {
 
     },
     "Utilisation Mémoire totale des conteneurs (%@)" : {
+
+    },
+    "Valeurs le %@" : {
 
     },
     "widget.chart.systemCPU.title" : {

@@ -78,6 +78,12 @@
 		87FE4D942E0D24E200163BCE /* Exceptions for "Beszel-companion" folder in "BeszelWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Components/Charts/SystemCpuChartView.swift,
+				Components/Charts/SystemMemoryChartView.swift,
+				Components/Charts/SystemTemperatureChartView.swift,
+				Components/Helpers/InstanceSwitcherView.swift,
+				Components/Helpers/PinButtonView.swift,
+				Components/Helpers/SystemSwitcherView.swift,
 				Helpers/ChartUtils.swift,
 				Helpers/DataProcessor.swift,
 				Helpers/DataSimplifier.swift,
@@ -101,12 +107,6 @@
 				Services/LanguageManager.swift,
 				Services/RefreshManager.swift,
 				Services/SettingsManager.swift,
-				Views/Charts/SystemCpuChartView.swift,
-				Views/Charts/SystemMemoryChartView.swift,
-				Views/Charts/SystemTemperatureChartView.swift,
-				Views/Helpers/InstanceSwitcherView.swift,
-				Views/Helpers/PinButtonView.swift,
-				Views/Helpers/SystemSwitcherView.swift,
 			);
 			target = 87FE4D6E2E0D241200163BCE /* BeszelWidgetExtension */;
 		};

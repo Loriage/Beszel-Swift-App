@@ -1,85 +1,9 @@
 import SwiftUI
 import Charts
 
-enum SortOption: String, CaseIterable, Identifiable {
-    case bySystem = "filter.bySystem"
-    case byMetric = "filter.byMetric"
-    case byService = "filter.byService"
-
-    var id: String { self.rawValue }
-}
-
 struct HomeView: View {
+    @ObservedObject var homeViewModel: HomeViewModel
     @EnvironmentObject var dashboardManager: DashboardManager
-    @EnvironmentObject var settingsManager: SettingsManager
-    @EnvironmentObject var instanceManager: InstanceManager
-
-    @ObservedObject var viewModel: MainViewModel
-
-    @State private var isShowingFilterSheet = false
-    @State private var searchText = ""
-    @State private var sortOption: SortOption = .bySystem
-    @State private var sortDescending = false
-
-    private var xAxisFormat: Date.FormatStyle {
-        settingsManager.selectedTimeRange.xAxisFormat
-    }
-
-    private var hasTemperatureData: Bool {
-        viewModel.systemDataPointsBySystem.values.contains { dataPointsArray in
-            dataPointsArray.contains { !$0.temperatures.isEmpty }
-        }
-    }
-
-    private var filteredAndSortedPins: [ResolvedPinnedItem] {
-        let pins = dashboardManager.allPinsForActiveInstance
-        
-        let filteredPins: [ResolvedPinnedItem]
-        if searchText.isEmpty {
-            filteredPins = pins
-        } else {
-            filteredPins = pins.filter { resolvedItem in
-                let systemName = instanceManager.systems.first { $0.id == resolvedItem.systemID }?.name ?? ""
-                let itemName = resolvedItem.item.displayName
-                
-                return systemName.localizedCaseInsensitiveContains(searchText) ||
-                itemName.localizedCaseInsensitiveContains(searchText)
-            }
-        }
-        
-        var sortedPins: [ResolvedPinnedItem]
-        switch sortOption {
-        case .bySystem:
-            sortedPins = filteredPins.sorted { (lhs, rhs) in
-                let lhsSystemName = instanceManager.systems.first { $0.id == lhs.systemID }?.name ?? ""
-                let rhsSystemName = instanceManager.systems.first { $0.id == rhs.systemID }?.name ?? ""
-                if lhsSystemName != rhsSystemName {
-                    return lhsSystemName < rhsSystemName
-                }
-                return lhs.item.displayName < rhs.item.displayName
-            }
-        case .byMetric:
-            sortedPins = filteredPins.sorted { lhs, rhs in
-                if lhs.item.metricName != rhs.item.metricName {
-                    return lhs.item.metricName < rhs.item.metricName
-                }
-                return lhs.item.displayName < rhs.item.displayName
-            }
-        case .byService:
-            sortedPins = filteredPins.sorted { lhs, rhs in
-                if lhs.item.serviceName != rhs.item.serviceName {
-                    return lhs.item.serviceName < rhs.item.serviceName
-                }
-                return lhs.item.displayName < rhs.item.displayName
-            }
-        }
-        
-        if sortDescending {
-            return sortedPins.reversed()
-        } else {
-            return sortedPins
-        }
-    }
 
     var body: some View {
         ScrollView {
@@ -98,7 +22,7 @@ struct HomeView: View {
                     emptyStateView
                 } else {
                     HStack {
-                        TextField("dashboard.searchPlaceholder", text: $searchText)
+                        TextField("dashboard.searchPlaceholder", text: $homeViewModel.searchText)
                             .padding(8)
                             .padding(.leading, 24)
                             .background(Color(.systemGray6))
@@ -112,7 +36,7 @@ struct HomeView: View {
                                 }
                             )
                         Button(action: {
-                            isShowingFilterSheet = true
+                            homeViewModel.isShowingFilterSheet = true
                         }) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .font(.title)
@@ -121,7 +45,7 @@ struct HomeView: View {
                     .padding(.horizontal)
 
                     LazyVGrid(columns: [GridItem(.flexible())], spacing: 24) {
-                        ForEach(filteredAndSortedPins) { resolvedItem in
+                        ForEach(homeViewModel.filteredAndSortedPins) { resolvedItem in
                             pinnedItemView(for: resolvedItem)
                         }
                     }
@@ -129,11 +53,11 @@ struct HomeView: View {
                 }
             }
         }
-        .onAppear { viewModel.fetchData() }
-        .sheet(isPresented: $isShowingFilterSheet) {
+        .onAppear { homeViewModel.fetchData() }
+        .sheet(isPresented: $homeViewModel.isShowingFilterSheet) {
             FilterView(
-                sortOption: $sortOption,
-                sortDescending: $sortDescending
+                sortOption: $homeViewModel.sortOption,
+                sortDescending: $homeViewModel.sortDescending
             )
         }
     }
@@ -158,55 +82,55 @@ struct HomeView: View {
 
     @ViewBuilder
     private func pinnedItemView(for resolvedItem: ResolvedPinnedItem) -> some View {
-        let systemData = viewModel.systemDataPointsBySystem[resolvedItem.systemID] ?? []
-        let containerData = viewModel.containerDataBySystem[resolvedItem.systemID] ?? []
-        let systemName = instanceManager.systems.first { $0.id == resolvedItem.systemID }?.name
+        let systemData = homeViewModel.systemData(for: resolvedItem)
+        let containerData = homeViewModel.containerData(for: resolvedItem)
+        let systemName = homeViewModel.systemName(for: resolvedItem)
         
         switch resolvedItem.item {
         case .systemCPU:
             SystemCpuChartView(
-                xAxisFormat: xAxisFormat,
+                xAxisFormat: homeViewModel.xAxisFormat,
                 dataPoints: systemData,
                 systemName: systemName,
-                isPinned: dashboardManager.isPinned(.systemCPU),
-                onPinToggle: { dashboardManager.togglePin(for: .systemCPU) }
+                isPinned: homeViewModel.isPinned(.systemCPU),
+                onPinToggle: { homeViewModel.togglePin(for: .systemCPU) }
             )
         case .systemMemory:
             SystemMemoryChartView(
-                xAxisFormat: xAxisFormat,
+                xAxisFormat: homeViewModel.xAxisFormat,
                 dataPoints: systemData,
                 systemName: systemName,
-                isPinned: dashboardManager.isPinned(.systemMemory),
-                onPinToggle: { dashboardManager.togglePin(for: .systemMemory) }
+                isPinned: homeViewModel.isPinned(.systemMemory),
+                onPinToggle: { homeViewModel.togglePin(for: .systemMemory) }
             )
         case .systemTemperature:
-            if hasTemperatureData {
+            if homeViewModel.hasTemperatureData {
                 SystemTemperatureChartView(
-                    xAxisFormat: xAxisFormat,
+                    xAxisFormat: homeViewModel.xAxisFormat,
                     dataPoints: systemData,
                     systemName: systemName,
-                    isPinned: dashboardManager.isPinned(.systemTemperature),
-                    onPinToggle: { dashboardManager.togglePin(for: .systemTemperature) }
+                    isPinned: homeViewModel.isPinned(.systemTemperature),
+                    onPinToggle: { homeViewModel.togglePin(for: .systemTemperature) }
                 )
             }
         case .containerCPU(let name):
             if let container = containerData.first(where: { $0.id == name }) {
                 ContainerCpuChartView(
-                    xAxisFormat: xAxisFormat,
+                    xAxisFormat: homeViewModel.xAxisFormat,
                     container: container,
                     systemName: systemName,
-                    isPinned: dashboardManager.isPinned(.containerCPU(name: container.name)),
-                    onPinToggle: { dashboardManager.togglePin(for: .containerCPU(name: container.name)) }
+                    isPinned: homeViewModel.isPinned(.containerCPU(name: container.name)),
+                    onPinToggle: { homeViewModel.togglePin(for: .containerCPU(name: container.name)) }
                 )
             }
         case .containerMemory(let name):
             if let container = containerData.first(where: { $0.id == name }) {
                 ContainerMemoryChartView(
-                    xAxisFormat: xAxisFormat,
+                    xAxisFormat: homeViewModel.xAxisFormat,
                     container: container,
                     systemName: systemName,
-                    isPinned: dashboardManager.isPinned(.containerMemory(name: container.name)),
-                    onPinToggle: { dashboardManager.togglePin(for: .containerMemory(name: container.name)) }
+                    isPinned: homeViewModel.isPinned(.containerMemory(name: container.name)),
+                    onPinToggle: { homeViewModel.togglePin(for: .containerMemory(name: container.name)) }
                 )
             }
         }

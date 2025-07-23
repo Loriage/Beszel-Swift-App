@@ -8,6 +8,7 @@ enum Tab {
 
 struct MainView: View {
     @StateObject private var viewModel: MainViewModel
+    @StateObject private var homeViewModel: HomeViewModel
 
     @ObservedObject var instanceManager: InstanceManager
     @Binding var isShowingSettings: Bool
@@ -18,11 +19,19 @@ struct MainView: View {
         self._isShowingSettings = isShowingSettings
         self._selectedTab = selectedTab
 
-        _viewModel = StateObject(wrappedValue: MainViewModel(
+        let mainViewModel = MainViewModel(
             instance: instance,
             settingsManager: settingsManager,
             refreshManager: refreshManager,
+            instanceManager: instanceManager
+        )
+        _viewModel = StateObject(wrappedValue: mainViewModel)
+        
+        _homeViewModel = StateObject(wrappedValue: HomeViewModel(
+            dashboardManager: dashboardManager,
+            settingsManager: settingsManager,
             instanceManager: instanceManager,
+            mainViewModel: mainViewModel
         ))
     }
 
@@ -56,7 +65,7 @@ struct MainView: View {
         NavigationStack {
             TabView(selection: $selectedTab) {
                 HomeView(
-                    viewModel: viewModel
+                    homeViewModel: homeViewModel
                 )
                 .tabItem {
                     Label("home.title", systemImage: "house.fill")
@@ -65,7 +74,7 @@ struct MainView: View {
                 
                 SystemView(
                     dataPoints: activeSystemDataPointsBinding,
-                    fetchData: { viewModel.fetchData() },
+                    fetchData: { viewModel.fetchData() }
                 )
                 .tabItem {
                     Label("system.title", systemImage: "cpu.fill")
@@ -74,7 +83,7 @@ struct MainView: View {
                 
                 ContainerView(
                     processedData: activeContainerDataBinding,
-                    fetchData: { viewModel.fetchData() },
+                    fetchData: { viewModel.fetchData() }
                 )
                 .tabItem {
                     Label("container.title", systemImage: "shippingbox.fill")

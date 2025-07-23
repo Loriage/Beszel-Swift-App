@@ -53,7 +53,7 @@ struct HomeView: View {
                 }
             }
         }
-        .onAppear { homeViewModel.fetchData() }
+        .onAppear { Task { homeViewModel.chartDataManager.fetchData() } }
         .sheet(isPresented: $homeViewModel.isShowingFilterSheet) {
             FilterView(
                 sortOption: $homeViewModel.sortOption,
@@ -82,55 +82,53 @@ struct HomeView: View {
 
     @ViewBuilder
     private func pinnedItemView(for resolvedItem: ResolvedPinnedItem) -> some View {
-        let systemData = homeViewModel.systemData(for: resolvedItem)
-        let containerData = homeViewModel.containerData(for: resolvedItem)
-        let systemName = homeViewModel.systemName(for: resolvedItem)
-        
+        let systemData = homeViewModel.chartDataManager.systemData(forSystemID: resolvedItem.systemID)
+        let containerData = homeViewModel.chartDataManager.containerData(forSystemID: resolvedItem.systemID)
+        let systemName = homeViewModel.chartDataManager.systemName(forSystemID: resolvedItem.systemID)
+
         switch resolvedItem.item {
         case .systemCPU:
             SystemCpuChartView(
-                xAxisFormat: homeViewModel.xAxisFormat,
+                xAxisFormat: homeViewModel.chartDataManager.xAxisFormat,
                 dataPoints: systemData,
                 systemName: systemName,
-                isPinned: homeViewModel.isPinned(.systemCPU),
-                onPinToggle: { homeViewModel.togglePin(for: .systemCPU) }
+                isPinned: homeViewModel.chartDataManager.isPinned(.systemCPU, onSystem: resolvedItem.systemID),
+                onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .systemCPU) }
             )
         case .systemMemory:
             SystemMemoryChartView(
-                xAxisFormat: homeViewModel.xAxisFormat,
+                xAxisFormat: homeViewModel.chartDataManager.xAxisFormat,
                 dataPoints: systemData,
                 systemName: systemName,
-                isPinned: homeViewModel.isPinned(.systemMemory),
-                onPinToggle: { homeViewModel.togglePin(for: .systemMemory) }
+                isPinned: homeViewModel.chartDataManager.isPinned(.systemMemory, onSystem: resolvedItem.systemID),
+                onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .systemMemory) }
             )
         case .systemTemperature:
-            if homeViewModel.hasTemperatureData {
-                SystemTemperatureChartView(
-                    xAxisFormat: homeViewModel.xAxisFormat,
-                    dataPoints: systemData,
-                    systemName: systemName,
-                    isPinned: homeViewModel.isPinned(.systemTemperature),
-                    onPinToggle: { homeViewModel.togglePin(for: .systemTemperature) }
-                )
-            }
+            SystemTemperatureChartView(
+                xAxisFormat: homeViewModel.chartDataManager.xAxisFormat,
+                dataPoints: systemData,
+                systemName: systemName,
+                isPinned: homeViewModel.chartDataManager.isPinned(.systemTemperature, onSystem: resolvedItem.systemID),
+                onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .systemTemperature) }
+            )
         case .containerCPU(let name):
             if let container = containerData.first(where: { $0.id == name }) {
                 ContainerCpuChartView(
-                    xAxisFormat: homeViewModel.xAxisFormat,
+                    xAxisFormat: homeViewModel.chartDataManager.xAxisFormat,
                     container: container,
                     systemName: systemName,
-                    isPinned: homeViewModel.isPinned(.containerCPU(name: container.name)),
-                    onPinToggle: { homeViewModel.togglePin(for: .containerCPU(name: container.name)) }
+                    isPinned: homeViewModel.chartDataManager.isPinned(.containerCPU(name: container.name), onSystem: resolvedItem.systemID),
+                    onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .containerCPU(name: container.name)) }
                 )
             }
         case .containerMemory(let name):
             if let container = containerData.first(where: { $0.id == name }) {
                 ContainerMemoryChartView(
-                    xAxisFormat: homeViewModel.xAxisFormat,
+                    xAxisFormat: homeViewModel.chartDataManager.xAxisFormat,
                     container: container,
                     systemName: systemName,
-                    isPinned: homeViewModel.isPinned(.containerMemory(name: container.name)),
-                    onPinToggle: { homeViewModel.togglePin(for: .containerMemory(name: container.name)) }
+                    isPinned: homeViewModel.chartDataManager.isPinned(.containerMemory(name: container.name), onSystem: resolvedItem.systemID),
+                    onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .containerMemory(name: container.name)) }
                 )
             }
         }

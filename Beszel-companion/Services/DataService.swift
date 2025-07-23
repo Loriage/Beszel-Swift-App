@@ -2,7 +2,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-class MainViewModel: ObservableObject {
+class DataService: ObservableObject {
     @Published var containerDataBySystem: [String: [ProcessedContainerData]] = [:]
     @Published var systemDataPointsBySystem: [String: [SystemDataPoint]] = [:]
     @Published var isLoading = true
@@ -10,9 +10,39 @@ class MainViewModel: ObservableObject {
 
     private let apiService: BeszelAPIService
     private let settingsManager: SettingsManager
-    private let instanceManager: InstanceManager
     private var cancellables = Set<AnyCancellable>()
 
+    init(instance: Instance, settingsManager: SettingsManager, refreshManager: RefreshManager, instanceManager: InstanceManager) {
+        self.settingsManager = settingsManager
+        self.apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
+
+        settingsManager.objectWillChange
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                refreshManager.adjustTimer(for: self.settingsManager.selectedTimeRange)
+                self.fetchData()
+            }
+            .store(in: &cancellables)
+
+        instanceManager.objectWillChange
+            .dropFirst()
+            .sink { [weak self] _ in
+                self?.fetchData()
+            }
+            .store(in: &cancellables)
+
+        refreshManager.$refreshSignal
+            .dropFirst()
+            .sink { [weak self] _ in
+                self?.fetchData()
+            }
+            .store(in: &cancellables)
+
+        refreshManager.adjustTimer(for: settingsManager.selectedTimeRange)
+
+        fetchData()
+    }
+    
     private func downsampleStatPoints(_ statPoints: [StatPoint], timeRange: TimeRangeOption) -> [StatPoint] {
         guard !statPoints.isEmpty else { return [] }
         
@@ -45,38 +75,6 @@ class MainViewModel: ObservableObject {
         return statPoints.downsampled(bucketInterval: calculatedInterval, method: .average)
     }
 
-    init(instance: Instance, settingsManager: SettingsManager, refreshManager: RefreshManager, instanceManager: InstanceManager) {
-        self.settingsManager = settingsManager
-        self.instanceManager = instanceManager
-        self.apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
-
-        settingsManager.objectWillChange
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-                refreshManager.adjustTimer(for: self.settingsManager.selectedTimeRange)
-                self.fetchData()
-            }
-            .store(in: &cancellables)
-
-        instanceManager.$activeSystem
-            .dropFirst()
-            .sink { [weak self] _ in
-                self?.fetchData()
-            }
-            .store(in: &cancellables)
-
-        refreshManager.$refreshSignal
-            .dropFirst()
-            .sink { [weak self] _ in
-                self?.fetchData()
-            }
-            .store(in: &cancellables)
-
-        refreshManager.adjustTimer(for: settingsManager.selectedTimeRange)
-
-        fetchData()
-    }
-
     func fetchData() {
         Task {
             await MainActor.run {
@@ -84,7 +82,7 @@ class MainViewModel: ObservableObject {
                 self.errorMessage = nil
             }
 
-            let systemsToFetch = instanceManager.systems
+            let systemsToFetch = InstanceManager.shared.systems
             let timeFilter = self.settingsManager.apiFilterString
 
             guard !systemsToFetch.isEmpty else {

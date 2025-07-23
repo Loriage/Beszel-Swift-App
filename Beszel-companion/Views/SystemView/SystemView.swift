@@ -2,18 +2,7 @@ import SwiftUI
 import Charts
 
 struct SystemView: View {
-    @EnvironmentObject var settingsManager: SettingsManager
-    @EnvironmentObject var dashboardManager: DashboardManager
-    
-    @Binding var dataPoints: [SystemDataPoint]
-    var fetchData: () async -> Void
-    
-    private var xAxisFormat: Date.FormatStyle {
-        settingsManager.selectedTimeRange.xAxisFormat
-    }
-    private var hasTemperatureData: Bool {
-        dataPoints.contains { !$0.temperatures.isEmpty }
-    }
+    @StateObject var systemViewModel: SystemViewModel
     
     var body: some View {
         ScrollView {
@@ -27,7 +16,8 @@ struct SystemView: View {
                         .foregroundColor(.secondary)
                 }
                 .padding(.horizontal)
-                if dataPoints.isEmpty {
+                
+                if systemViewModel.chartDataManager.systemDataPoints.isEmpty {
                     VStack {
                         ProgressView("system.loading")
                     }
@@ -37,30 +27,30 @@ struct SystemView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 24) {
                             SystemCpuChartView(
-                                xAxisFormat: xAxisFormat,
-                                dataPoints: dataPoints,
-                                isPinned: dashboardManager.isPinned(.systemCPU),
-                                onPinToggle: { dashboardManager.togglePin(for: .systemCPU) }
+                                xAxisFormat: systemViewModel.chartDataManager.xAxisFormat,
+                                dataPoints: systemViewModel.chartDataManager.systemDataPoints,
+                                isPinned: systemViewModel.chartDataManager.isPinned(.systemCPU),
+                                onPinToggle: { systemViewModel.chartDataManager.togglePin(for: .systemCPU) }
                             )
                             SystemMemoryChartView(
-                                xAxisFormat: xAxisFormat,
-                                dataPoints: dataPoints,
-                                isPinned: dashboardManager.isPinned(.systemMemory),
-                                onPinToggle: { dashboardManager.togglePin(for: .systemMemory) }
+                                xAxisFormat: systemViewModel.chartDataManager.xAxisFormat,
+                                dataPoints: systemViewModel.chartDataManager.systemDataPoints,
+                                isPinned: systemViewModel.chartDataManager.isPinned(.systemMemory),
+                                onPinToggle: { systemViewModel.chartDataManager.togglePin(for: .systemMemory) }
                             )
-                            if hasTemperatureData {
+                            if systemViewModel.chartDataManager.hasTemperatureData {
                                 SystemTemperatureChartView(
-                                    xAxisFormat: xAxisFormat,
-                                    dataPoints: dataPoints,
-                                    isPinned: dashboardManager.isPinned(.systemTemperature),
-                                    onPinToggle: { dashboardManager.togglePin(for: .systemTemperature) }
+                                    xAxisFormat: systemViewModel.chartDataManager.xAxisFormat,
+                                    dataPoints: systemViewModel.chartDataManager.systemDataPoints,
+                                    isPinned: systemViewModel.chartDataManager.isPinned(.systemTemperature),
+                                    onPinToggle: { systemViewModel.chartDataManager.togglePin(for: .systemTemperature) }
                                 )
                             }
                         }
                         .padding(.horizontal)
                     }
                     .refreshable {
-                        await fetchData()
+                        systemViewModel.chartDataManager.fetchData()
                     }
                 }
             }

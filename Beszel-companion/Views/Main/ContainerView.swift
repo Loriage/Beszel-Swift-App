@@ -21,10 +21,18 @@ struct ContainerView: View {
                 .padding(.horizontal)
                 
                 if !processedData.isEmpty {
-                    StackedContainerChartView(
-                        settingsManager: settingsManager,
-                        processedData: processedData
-                    )
+                    VStack(alignment: .leading, spacing: 24) {
+                        StackedCpuChartView(
+                            settingsManager: settingsManager,
+                            processedData: processedData
+                        )
+                        
+                        StackedMemoryChartView(
+                            settingsManager: settingsManager,
+                            processedData: processedData
+                        )
+                    }
+                    .padding(.horizontal)
                 }
 
                 VStack(alignment: .leading, spacing: 0) {

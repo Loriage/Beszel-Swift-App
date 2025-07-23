@@ -78,6 +78,7 @@
 		87FE4D942E0D24E200163BCE /* Exceptions for "Beszel-companion" folder in "BeszelWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Helpers/ChartUtils.swift,
 				Helpers/DataProcessor.swift,
 				Helpers/DataSimplifier.swift,
 				"Helpers/DateFormatter+Extensions.swift",

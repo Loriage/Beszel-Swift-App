@@ -11,6 +11,7 @@ struct MainView: View {
     @StateObject private var chartDataManager: ChartDataManager
     @StateObject private var homeViewModel: HomeViewModel
     @StateObject private var systemViewModel: SystemViewModel
+    @StateObject private var containerViewModel: ContainerViewModel
 
     @ObservedObject var instanceManager: InstanceManager
     @Binding var isShowingSettings: Bool
@@ -43,6 +44,10 @@ struct MainView: View {
         ))
         
         _systemViewModel = StateObject(wrappedValue: SystemViewModel(
+            chartDataManager: chartDataManager
+        ))
+
+        _containerViewModel = StateObject(wrappedValue: ContainerViewModel(
             chartDataManager: chartDataManager
         ))
     }
@@ -80,8 +85,7 @@ struct MainView: View {
                 .tag(Tab.system)
                 
                 ContainerView(
-                    processedData: activeContainerDataBinding,
-                    fetchData: { dataService.fetchData() }
+                    viewModel: containerViewModel
                 )
                 .tabItem {
                     Label("container.title", systemImage: "shippingbox.fill")

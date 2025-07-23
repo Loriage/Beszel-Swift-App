@@ -1,12 +1,10 @@
 import SwiftUI
 
 struct ContainerView: View {
+    @StateObject var viewModel: ContainerViewModel
     @EnvironmentObject var settingsManager: SettingsManager
-    
-    @Binding var processedData: [ProcessedContainerData]
-    
-    var fetchData: () async -> Void
-    
+    @EnvironmentObject var dashboardManager: DashboardManager
+
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 10) {
@@ -20,16 +18,16 @@ struct ContainerView: View {
                 }
                 .padding(.horizontal)
                 
-                if !processedData.isEmpty {
+                if !viewModel.processedData.isEmpty {
                     VStack(alignment: .leading, spacing: 24) {
                         StackedCpuChartView(
                             settingsManager: settingsManager,
-                            processedData: processedData
+                            processedData: viewModel.processedData
                         )
                         
                         StackedMemoryChartView(
                             settingsManager: settingsManager,
-                            processedData: processedData
+                            processedData: viewModel.processedData
                         )
                     }
                     .padding(.horizontal)
@@ -37,9 +35,12 @@ struct ContainerView: View {
 
                 VStack(alignment: .leading, spacing: 0) {
                     VStack(alignment: .leading, spacing: 4) {
-                        let sortedData = processedData.sorted(by: { $0.name < $1.name })
-                        ForEach(Array(sortedData.enumerated()), id: \.element.id) { index, container in
-                            NavigationLink(destination: ContainerDetailView(container: container, settingsManager: settingsManager)) {
+                        ForEach(Array(viewModel.sortedData.enumerated()), id: \.element.id) { index, container in
+                            NavigationLink(destination: ContainerDetailView(
+                                container: container,
+                                settingsManager: settingsManager,
+                                dashboardManager: dashboardManager
+                            )) {
                                 HStack {
                                     Text(container.name)
                                         .foregroundColor(.primary)
@@ -52,7 +53,7 @@ struct ContainerView: View {
                                 .padding(.horizontal)
                             }
 
-                            if index < sortedData.count - 1 {
+                            if index < viewModel.sortedData.count - 1 {
                                 Divider()
                                     .padding(.horizontal, 16)
                             }
@@ -66,7 +67,7 @@ struct ContainerView: View {
             }
         }
         .refreshable {
-            await fetchData()
+            await viewModel.fetchData()
         }
     }
 }

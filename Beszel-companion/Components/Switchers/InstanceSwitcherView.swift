@@ -5,7 +5,7 @@ struct InstanceSwitcherView: View {
 
     var body: some View {
         Menu {
-            Picker("Instances", selection: instanceManager.activeInstanceSelection) {
+            Picker("switcher.instances.title", selection: instanceManager.activeInstanceSelection) {
                 ForEach(instanceManager.instances) { instance in
                     Text(instance.name).tag(instance.id.uuidString as String?)
                 }

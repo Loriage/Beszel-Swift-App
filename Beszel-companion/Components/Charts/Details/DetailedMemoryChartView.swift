@@ -9,13 +9,10 @@ struct DetailedMemoryChartView: View {
     let memoryLabelScale: Double
     let xAxisFormat: Date.FormatStyle
     @ObservedObject var settingsManager: SettingsManager
+    @Environment(\.locale) private var locale
 
     @State private var snappedDate: Date?
     @State private var dragLocation: CGPoint?
-
-    private var title: String {
-        "Détails Utilisation Mémoire (\(memoryUnit))"
-    }
 
     private var unit: String {
         memoryUnit
@@ -60,8 +57,16 @@ struct DetailedMemoryChartView: View {
                     dragLocation: $dragLocation
                 )
 
-                Text(snappedDate != nil ? "Valeurs le \(snappedDate!.formatted(date: .abbreviated, time: .shortened))" : "Faites glisser sur l'axe X pour sélectionner une date.")
-                    .font(.headline)
+                if let date = snappedDate {
+                    let style = Date.FormatStyle(date: .abbreviated, time: .shortened)
+                    let localizedStyle = style.locale(locale)
+
+                    Text("details.chart.values_at_date \(date.formatted(localizedStyle))")
+                        .font(.headline)
+                } else {
+                    Text("details.chart.drag_prompt")
+                        .font(.headline)
+                }
 
                 MemoryDetailedValuesSectionView(
                     values: valuesForDate(snappedDate),
@@ -74,6 +79,6 @@ struct DetailedMemoryChartView: View {
             }
             .padding()
         }
-        .navigationTitle(title)
+        .navigationTitle(Text("details.memory.title \(memoryUnit)"))
     }
 }

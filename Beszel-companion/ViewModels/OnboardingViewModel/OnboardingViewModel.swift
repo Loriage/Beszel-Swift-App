@@ -28,7 +28,7 @@ class OnboardingViewModel: ObservableObject {
 
     func fetchAuthMethods() {
         guard !url.isEmpty else {
-            self.errorMessage = "Veuillez entrer une URL valide."
+            self.errorMessage = String(localized: "onboarding.error.invalid_url")
             return
         }
         
@@ -41,7 +41,7 @@ class OnboardingViewModel: ObservableObject {
                 let methods = try await apiService.fetchAuthMethods(from: url)
                 self.authMethods = methods
             } catch {
-                self.errorMessage = (error as? LocalizedError)?.errorDescription ?? "Erreur inconnue"
+                self.errorMessage = (error as? LocalizedError)?.errorDescription ?? String(localized: "common.error.unknown")
             }
             self.isLoading = false
         }

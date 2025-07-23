@@ -81,7 +81,7 @@ struct StackedCpuChartView: View {
     var body: some View {
         NavigationLink(destination: DetailedCpuChartView(stackedData: stackedCpu, domain: cpuDomainValue, uniqueDates: uniqueCpuDates, xAxisFormat: xAxisFormat, settingsManager: settingsManager)) {
             GroupBox(label: HStack {
-                Text("Utilisation CPU totale des conteneurs (%)")
+                Text("charts.stacked_cpu.title")
                     .font(.headline)
                 Spacer()
                 Image(systemName: "chevron.right")
@@ -200,7 +200,7 @@ struct CpuDetailedValuesSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text("Total : ")
+                Text("details.chart.total")
                 Text(String(format: valueFormatString, values.values.reduce(0, +), unit))
             }
             .font(.title3)

@@ -40,7 +40,7 @@ struct OnboardingView: View {
                     if authMethods.password.enabled {
                         HStack {
                             VStack { Divider() }
-                            Text("ou")
+                            Text("common.or")
                                 .foregroundColor(.secondary)
                             VStack { Divider() }
                         }
@@ -48,7 +48,7 @@ struct OnboardingView: View {
                     }
                     
                     ForEach(authMethods.oauth2.providers) { provider in
-                        Button("Se connecter avec \(provider.displayName)") {
+                        Button(.init(String(format: String(localized: "onboarding.connect_with_provider"), provider.displayName))) {
                             viewModel.startWebLogin(provider: provider)
                         }
                     }

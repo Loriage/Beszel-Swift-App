@@ -93,7 +93,7 @@ struct StackedMemoryChartView: View {
     var body: some View {
         NavigationLink(destination: DetailedMemoryChartView(stackedData: stackedMemory, domain: memoryDomainValue, uniqueDates: uniqueMemoryDates, memoryUnit: memoryUnit, memoryLabelScale: memoryLabelScale, xAxisFormat: xAxisFormat, settingsManager: settingsManager)) {
             GroupBox(label: HStack {
-                Text("Utilisation Mémoire totale des conteneurs (\(memoryUnit))")
+                Text("charts.stacked_memory.title \(memoryUnit)")
                     .font(.headline)
                 Spacer()
                 Image(systemName: "chevron.right")
@@ -225,7 +225,7 @@ struct MemoryDetailedValuesSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text("Total : ")
+                Text("details.chart.total")
                 Text(String(format: valueFormatString, values.values.reduce(0, +), unit))
             }
             .font(.title3)

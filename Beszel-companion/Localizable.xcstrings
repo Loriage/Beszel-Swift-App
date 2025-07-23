@@ -177,6 +177,38 @@
         }
       }
     },
+    "charts.stacked_cpu.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Container CPU Usage (%)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation CPU totale des conteneurs (%)"
+          }
+        }
+      }
+    },
+    "charts.stacked_memory.title %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Container Memory Usage (%@)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation Mémoire totale des conteneurs (%@)"
+          }
+        }
+      }
+    },
     "common.cancel" : {
       "localizations" : {
         "en" : {
@@ -193,23 +225,6 @@
         }
       }
     },
-    "common.confirm" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Confirm"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Confirmer"
-          }
-        }
-      }
-    },
     "common.delete" : {
       "localizations" : {
         "en" : {
@@ -222,6 +237,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Supprimer"
+          }
+        }
+      }
+    },
+    "common.error.unknown" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown error"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erreur inconnue"
+          }
+        }
+      }
+    },
+    "common.or" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "or"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ou"
           }
         }
       }
@@ -259,7 +306,20 @@
       }
     },
     "Conteneur" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Container"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conteneur"
+          }
+        }
+      }
     },
     "CPU" : {
       "localizations" : {
@@ -396,11 +456,101 @@
         }
       }
     },
-    "End" : {
-
+    "details.chart.drag_prompt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drag on the X axis to select a date."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faites glisser sur l'axe X pour sélectionner une date."
+          }
+        }
+      }
     },
-    "Faites glisser sur l'axe X pour sélectionner une date." : {
-
+    "details.chart.total" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total:"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total :"
+          }
+        }
+      }
+    },
+    "details.chart.values_at_date %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Values at %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valeurs le %@"
+          }
+        }
+      }
+    },
+    "details.cpu.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU Usage Details (%)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détails Utilisation CPU (%)"
+          }
+        }
+      }
+    },
+    "details.memory.title %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory Usage Details (%@)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détails Utilisation Mémoire (%@)"
+          }
+        }
+      }
+    },
+    "End" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fin"
+          }
+        }
+      }
     },
     "filter.byMetric" : {
       "extractionState" : "manual",
@@ -533,22 +683,6 @@
         }
       }
     },
-    "Instances" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hubs"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hubs"
-          }
-        }
-      }
-    },
     "Mémoire" : {
       "localizations" : {
         "en" : {
@@ -561,6 +695,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Memory"
+          }
+        }
+      }
+    },
+    "onboarding.connect_with_provider" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect with %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se connecter avec %@"
+          }
+        }
+      }
+    },
+    "onboarding.error.invalid_url" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter a valid URL."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veuillez entrer une URL valide."
           }
         }
       }
@@ -707,46 +873,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "URL (ex: https://beszel.domaine.com)"
-          }
-        }
-      }
-    },
-    "ou" : {
-
-    },
-    "Se connecter avec %@" : {
-
-    },
-    "settings.account.disconnect.alert.message" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Are you sure you want to log out? Your connection details will be erased."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Êtes-vous sûr de vouloir vous déconnecter ? Vos informations de connexion seront effacées."
-          }
-        }
-      }
-    },
-    "settings.account.disconnect.alert.title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Log out"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se déconnecter"
           }
         }
       }
@@ -928,7 +1054,52 @@
       }
     },
     "Start" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Début"
+          }
+        }
+      }
+    },
+    "switcher.instance.header" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hub"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hub"
+          }
+        }
+      }
+    },
+    "switcher.instances.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hubs"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hubs"
+          }
+        }
+      }
     },
     "switcher.loading" : {
       "localizations" : {
@@ -1138,18 +1309,6 @@
           }
         }
       }
-    },
-    "Total : " : {
-
-    },
-    "Utilisation CPU totale des conteneurs (%)" : {
-
-    },
-    "Utilisation Mémoire totale des conteneurs (%@)" : {
-
-    },
-    "Valeurs le %@" : {
-
     },
     "widget.chart.systemCPU.title" : {
       "localizations" : {

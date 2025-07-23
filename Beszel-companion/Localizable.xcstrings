@@ -194,6 +194,7 @@
       }
     },
     "common.confirm" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -717,6 +718,7 @@
 
     },
     "settings.account.disconnect.alert.message" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -733,6 +735,7 @@
       }
     },
     "settings.account.disconnect.alert.title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

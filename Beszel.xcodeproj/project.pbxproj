@@ -107,6 +107,7 @@
 				Services/DataService.swift,
 				Services/InstanceManager.swift,
 				Services/LanguageManager.swift,
+				Services/OnboardingAPIService.swift,
 				Services/RefreshManager.swift,
 				Services/SettingsManager.swift,
 			);

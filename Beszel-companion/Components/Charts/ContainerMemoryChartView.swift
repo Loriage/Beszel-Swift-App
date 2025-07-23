@@ -30,6 +30,11 @@ struct ContainerMemoryChartView: View {
                     y: .value("Mémoire", point.memory)
                 )
                 .foregroundStyle(.green)
+                AreaMark(
+                    x: .value("Date", point.date),
+                    y: .value("Mémoire", point.memory)
+                )
+                .foregroundStyle(LinearGradient(colors: [.green.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
             }
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in

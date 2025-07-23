@@ -29,6 +29,11 @@ struct ContainerCpuChartView: View {
                     y: .value("CPU", point.cpu)
                 )
                 .foregroundStyle(.blue)
+                AreaMark(
+                    x: .value("Date", point.date),
+                    y: .value("CPU", point.cpu)
+                )
+                .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
             }
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in

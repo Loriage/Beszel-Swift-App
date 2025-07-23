@@ -2,14 +2,6 @@ import Foundation
 import SwiftUI
 import Combine
 
-enum SortOption: String, CaseIterable, Identifiable {
-    case bySystem = "filter.bySystem"
-    case byMetric = "filter.byMetric"
-    case byService = "filter.byService"
-
-    var id: String { self.rawValue }
-}
-
 class HomeViewModel: ObservableObject {
     @Published var isShowingFilterSheet = false
     @Published var searchText = ""

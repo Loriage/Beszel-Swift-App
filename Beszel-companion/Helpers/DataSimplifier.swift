@@ -1,11 +1,5 @@
 import Foundation
 
-enum DownsampleMethod {
-    case average
-    case max
-    case median
-}
-
 extension Array where Element == StatPoint {
     func downsampled(bucketInterval: TimeInterval, method: DownsampleMethod) -> [StatPoint] {
         guard !isEmpty else { return [] }

@@ -2,12 +2,6 @@ import WidgetKit
 import SwiftUI
 import Charts
 
-public enum WidgetChartType: String, Sendable, CaseIterable {
-    case systemCPU
-    case systemMemory
-    case systemTemperature
-}
-
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let chartType: WidgetChartType

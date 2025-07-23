@@ -1,11 +1,5 @@
 import SwiftUI
 
-enum Tab {
-    case home
-    case system
-    case container
-}
-
 struct MainView: View {
     @StateObject private var dataService: DataService
     @StateObject private var chartDataManager: ChartDataManager

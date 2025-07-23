@@ -2,20 +2,20 @@ import Foundation
 import SwiftUI
 import Combine
 
-class ContainerViewModel: ObservableObject {
+class ContainerViewModel: BaseViewModel {
     @Published var processedData: [ProcessedContainerData] = []
 
     private let chartDataManager: ChartDataManager
-    private var cancellables = Set<AnyCancellable>()
 
     init(chartDataManager: ChartDataManager) {
         self.chartDataManager = chartDataManager
+        super.init()
 
+        forwardChanges(from: chartDataManager)
         chartDataManager.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.processedData = chartDataManager.containerData
-                self?.objectWillChange.send()
+                self?.processedData = self?.chartDataManager.containerData ?? []
             }
             .store(in: &cancellables)
 

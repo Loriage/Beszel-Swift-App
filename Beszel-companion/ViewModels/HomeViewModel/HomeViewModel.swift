@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import Combine
 
-class HomeViewModel: ObservableObject {
+class HomeViewModel: BaseViewModel {
     @Published var isShowingFilterSheet = false
     @Published var searchText = ""
     @Published var sortOption: SortOption = .bySystem
@@ -10,23 +10,14 @@ class HomeViewModel: ObservableObject {
 
     let chartDataManager: ChartDataManager
     private let dashboardManager: DashboardManager
-    private var cancellables = Set<AnyCancellable>()
 
     init(chartDataManager: ChartDataManager, dashboardManager: DashboardManager) {
         self.chartDataManager = chartDataManager
         self.dashboardManager = dashboardManager
+        super.init()
 
-        chartDataManager.objectWillChange
-            .sink { [weak self] _ in
-                self?.objectWillChange.send()
-            }
-            .store(in: &cancellables)
-            
-        dashboardManager.objectWillChange
-            .sink { [weak self] _ in
-                self?.objectWillChange.send()
-            }
-            .store(in: &cancellables)
+        forwardChanges(from: chartDataManager)
+        forwardChanges(from: dashboardManager)
     }
 
     var filteredAndSortedPins: [ResolvedPinnedItem] {

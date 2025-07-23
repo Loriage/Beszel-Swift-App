@@ -2,17 +2,13 @@ import Foundation
 import SwiftUI
 import Combine
 
-class SystemViewModel: ObservableObject {
+class SystemViewModel: BaseViewModel {
     let chartDataManager: ChartDataManager
-    private var cancellables = Set<AnyCancellable>()
 
     init(chartDataManager: ChartDataManager) {
         self.chartDataManager = chartDataManager
+        super.init()
 
-        chartDataManager.objectWillChange
-            .sink { [weak self] _ in
-                self?.objectWillChange.send()
-            }
-            .store(in: &cancellables)
+        forwardChanges(from: chartDataManager)
     }
 }

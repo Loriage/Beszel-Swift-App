@@ -8,15 +8,7 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                VStack(alignment: .leading) {
-                    Text("home.title")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                    Text("home.subtitle")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .padding(.horizontal)
+                ScreenHeaderView(title: "home.title", subtitle: "home.subtitle")
 
                 if dashboardManager.allPinsForActiveInstance.isEmpty {
                     emptyStateView

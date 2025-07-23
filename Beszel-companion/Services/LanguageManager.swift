@@ -2,11 +2,6 @@ import Foundation
 import SwiftUI
 import Combine
 
-struct Language: Hashable {
-    let code: String
-    let name: String
-}
-
 class LanguageManager: ObservableObject {
     @AppStorage("selectedLanguage", store: .sharedSuite)
     var currentLanguageCode: String = ""

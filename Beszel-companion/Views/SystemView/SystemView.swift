@@ -7,15 +7,7 @@ struct SystemView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                VStack(alignment: .leading) {
-                    Text("system.title")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                    Text("system.subtitle")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .padding(.horizontal)
+                ScreenHeaderView(title: "system.title", subtitle: "system.subtitle")
                 
                 if systemViewModel.chartDataManager.systemDataPoints.isEmpty {
                     VStack {

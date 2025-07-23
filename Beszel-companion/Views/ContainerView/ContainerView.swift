@@ -8,15 +8,7 @@ struct ContainerView: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 10) {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("container.title")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                    Text("container.subtitle")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .padding(.horizontal)
+                ScreenHeaderView(title: "container.title", subtitle: "container.subtitle")
                 
                 if !viewModel.processedData.isEmpty {
                     VStack(alignment: .leading, spacing: 24) {

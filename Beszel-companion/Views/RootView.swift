@@ -13,9 +13,9 @@ struct RootView: View {
     var body: some View {
         Group {
             if instanceManager.instances.isEmpty {
-                OnboardingView(onComplete: { name, url, email, password in
+                OnboardingView(viewModel: OnboardingViewModel(onComplete: { name, url, email, password in
                     instanceManager.addInstance(name: name, url: url, email: email, password: password)
-                })
+                }))
             } else if let activeInstance = instanceManager.activeInstance {
                 if instanceManager.isLoadingSystems {
                     VStack {
@@ -38,7 +38,12 @@ struct RootView: View {
             }
         }
         .sheet(isPresented: $isShowingSettings) {
-            SettingsView(instanceManager: instanceManager)
+            SettingsView(
+                dashboardManager: dashboardManager,
+                settingsManager: settingsManager,
+                languageManager: languageManager,
+                instanceManager: instanceManager
+            )
         }
         .environmentObject(settingsManager)
         .environmentObject(dashboardManager)

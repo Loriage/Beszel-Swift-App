@@ -1,13 +1,11 @@
 import SwiftUI
 
-enum Tab {
-    case home
-    case system
-    case container
-}
-
 struct MainView: View {
-    @StateObject private var viewModel: MainViewModel
+    @StateObject private var dataService: DataService
+    @StateObject private var chartDataManager: ChartDataManager
+    @StateObject private var homeViewModel: HomeViewModel
+    @StateObject private var systemViewModel: SystemViewModel
+    @StateObject private var containerViewModel: ContainerViewModel
 
     @ObservedObject var instanceManager: InstanceManager
     @Binding var isShowingSettings: Bool
@@ -18,36 +16,45 @@ struct MainView: View {
         self._isShowingSettings = isShowingSettings
         self._selectedTab = selectedTab
 
-        _viewModel = StateObject(wrappedValue: MainViewModel(
+        let dataService = DataService(
             instance: instance,
             settingsManager: settingsManager,
             refreshManager: refreshManager,
-            instanceManager: instanceManager,
-        ))
-    }
-
-    private var activeSystemDataPointsBinding: Binding<[SystemDataPoint]> {
-        Binding<[SystemDataPoint]>(
-            get: {
-                guard let activeSystemID = instanceManager.activeSystem?.id else { return [] }
-                return viewModel.systemDataPointsBySystem[activeSystemID] ?? []
-            },
-            set: { newValue in
-                guard let activeSystemID = instanceManager.activeSystem?.id else { return }
-                viewModel.systemDataPointsBySystem[activeSystemID] = newValue
-            }
+            instanceManager: instanceManager
         )
+        _dataService = StateObject(wrappedValue: dataService)
+        
+        let chartDataManager = ChartDataManager(
+            dataService: dataService,
+            settingsManager: settingsManager,
+            dashboardManager: dashboardManager,
+            instanceManager: instanceManager
+        )
+        _chartDataManager = StateObject(wrappedValue: chartDataManager)
+
+        _homeViewModel = StateObject(wrappedValue: HomeViewModel(
+            chartDataManager: chartDataManager,
+            dashboardManager: dashboardManager
+        ))
+        
+        _systemViewModel = StateObject(wrappedValue: SystemViewModel(
+            chartDataManager: chartDataManager
+        ))
+
+        _containerViewModel = StateObject(wrappedValue: ContainerViewModel(
+            chartDataManager: chartDataManager
+        ))
     }
 
     private var activeContainerDataBinding: Binding<[ProcessedContainerData]> {
         Binding<[ProcessedContainerData]>(
             get: {
                 guard let activeSystemID = instanceManager.activeSystem?.id else { return [] }
-                return viewModel.containerDataBySystem[activeSystemID] ?? []
+                return dataService.containerDataBySystem[activeSystemID] ?? []
             },
             set: { newValue in
                 guard let activeSystemID = instanceManager.activeSystem?.id else { return }
-                viewModel.containerDataBySystem[activeSystemID] = newValue
+                dataService.containerDataBySystem[activeSystemID] = newValue
             }
         )
     }
@@ -56,7 +63,7 @@ struct MainView: View {
         NavigationStack {
             TabView(selection: $selectedTab) {
                 HomeView(
-                    viewModel: viewModel
+                    homeViewModel: homeViewModel
                 )
                 .tabItem {
                     Label("home.title", systemImage: "house.fill")
@@ -64,8 +71,7 @@ struct MainView: View {
                 .tag(Tab.home)
                 
                 SystemView(
-                    dataPoints: activeSystemDataPointsBinding,
-                    fetchData: { viewModel.fetchData() },
+                    systemViewModel: systemViewModel
                 )
                 .tabItem {
                     Label("system.title", systemImage: "cpu.fill")
@@ -73,8 +79,7 @@ struct MainView: View {
                 .tag(Tab.system)
                 
                 ContainerView(
-                    processedData: activeContainerDataBinding,
-                    fetchData: { viewModel.fetchData() },
+                    viewModel: containerViewModel
                 )
                 .tabItem {
                     Label("container.title", systemImage: "shippingbox.fill")

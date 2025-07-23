@@ -5,7 +5,7 @@ struct SystemSwitcherView: View {
 
     var body: some View {
         Menu {
-            Section(header: Text(instanceManager.activeInstance?.name ?? "Instance")) {
+            Section(header: Text(instanceManager.activeInstance?.name ?? String(localized: "switcher.instance.header"))) {
                 Picker("Systèmes", selection: instanceManager.activeSystemSelection) {
                     ForEach(instanceManager.systems) { system in
                         Text(system.name).tag(system.id as String?)

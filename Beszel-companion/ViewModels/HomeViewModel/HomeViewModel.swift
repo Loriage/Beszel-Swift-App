@@ -1,0 +1,72 @@
+import Foundation
+import SwiftUI
+import Combine
+
+class HomeViewModel: BaseViewModel {
+    @Published var isShowingFilterSheet = false
+    @Published var searchText = ""
+    @Published var sortOption: SortOption = .bySystem
+    @Published var sortDescending = false
+
+    let chartDataManager: ChartDataManager
+    private let dashboardManager: DashboardManager
+
+    init(chartDataManager: ChartDataManager, dashboardManager: DashboardManager) {
+        self.chartDataManager = chartDataManager
+        self.dashboardManager = dashboardManager
+        super.init()
+
+        forwardChanges(from: chartDataManager)
+        forwardChanges(from: dashboardManager)
+    }
+
+    var filteredAndSortedPins: [ResolvedPinnedItem] {
+        let pins = dashboardManager.allPinsForActiveInstance
+        
+        let filteredPins: [ResolvedPinnedItem]
+        if searchText.isEmpty {
+            filteredPins = pins
+        } else {
+            filteredPins = pins.filter { resolvedItem in
+                let systemName = chartDataManager.systemName(forSystemID: resolvedItem.systemID) ?? ""
+                let itemName = resolvedItem.item.displayName
+                
+                return systemName.localizedCaseInsensitiveContains(searchText) ||
+                itemName.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+        
+        var sortedPins: [ResolvedPinnedItem]
+        switch sortOption {
+        case .bySystem:
+            sortedPins = filteredPins.sorted { (lhs, rhs) in
+                let lhsSystemName = chartDataManager.systemName(forSystemID: lhs.systemID) ?? ""
+                let rhsSystemName = chartDataManager.systemName(forSystemID: rhs.systemID) ?? ""
+                if lhsSystemName != rhsSystemName {
+                    return lhsSystemName < rhsSystemName
+                }
+                return lhs.item.displayName < rhs.item.displayName
+            }
+        case .byMetric:
+            sortedPins = filteredPins.sorted { lhs, rhs in
+                if lhs.item.metricName != rhs.item.metricName {
+                    return lhs.item.metricName < rhs.item.metricName
+                }
+                return lhs.item.displayName < rhs.item.displayName
+            }
+        case .byService:
+            sortedPins = filteredPins.sorted { lhs, rhs in
+                if lhs.item.serviceName != rhs.item.serviceName {
+                    return lhs.item.serviceName < rhs.item.serviceName
+                }
+                return lhs.item.displayName < rhs.item.displayName
+            }
+        }
+        
+        if sortDescending {
+            return sortedPins.reversed()
+        } else {
+            return sortedPins
+        }
+    }
+}

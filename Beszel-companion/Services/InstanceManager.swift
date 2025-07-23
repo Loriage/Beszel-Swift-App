@@ -88,55 +88,41 @@ class InstanceManager: ObservableObject {
 
     func fetchSystemsForInstance(_ instance: Instance) {
         Task {
-            await MainActor.run {
-                self.isLoadingSystems = true
-            }
-
-            guard let password = self.loadPassword(for: instance), !password.isEmpty else {
+            await MainActor.run { self.isLoadingSystems = true }
+            
+            let apiService = BeszelAPIService(instance: instance, instanceManager: self)
+            
+            do {
+                let fetchedSystems = try await apiService.fetchSystems()
                 await MainActor.run {
+                    self.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
+                    self.updateActiveSystem()
                     self.isLoadingSystems = false
                 }
-                return
-            }
-            
-            await self.performFetch(for: instance, with: password)
-        }
-    }
-
-    private func performFetch(for instance: Instance, with password: String) async {
-        await MainActor.run { self.isLoadingSystems = true }
-        
-        let apiService = BeszelAPIService(url: instance.url, email: instance.email, password: password)
-        
-        do {
-            let fetchedSystems = try await apiService.fetchSystems()
-            await MainActor.run {
-                self.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
-                self.updateActiveSystem()
-                self.isLoadingSystems = false
-            }
-        } catch {
-            await MainActor.run {
-                self.systems = []
-                self.activeSystem = nil
-                self.isLoadingSystems = false
+            } catch {
+                await MainActor.run {
+                    self.systems = []
+                    self.activeSystem = nil
+                    self.isLoadingSystems = false
+                }
             }
         }
     }
 
     func addInstance(name: String, url: String, email: String, password: String) {
         let newInstance = Instance(id: UUID(), name: name, url: url, email: email)
-        
-        savePassword(password: password, forInstanceID: newInstance.id)
-        
+        saveCredential(credential: password, for: newInstance)
         instances.append(newInstance)
         saveInstances()
-
         setActiveInstance(newInstance)
     }
 
+    func updateCredential(for instance: Instance, newCredential: String) {
+        saveCredential(credential: newCredential, for: instance)
+    }
+
     func deleteInstance(_ instance: Instance) {
-        deletePassword(forInstanceID: instance.id)
+        deleteCredential(for: instance)
         instances.removeAll { $0.id == instance.id }
         saveInstances()
         
@@ -155,15 +141,15 @@ class InstanceManager: ObservableObject {
         updateActiveInstance()
     }
 
-    func loadPassword(for instance: Instance) -> String? {
-        if let passwordData = KeychainHelper.load(service: keychainService, account: instance.id.uuidString, useSharedKeychain: true),
-           let password = String(data: passwordData, encoding: .utf8), !password.isEmpty {
-            return password
+    func loadCredential(for instance: Instance) -> String? {
+        if let data = KeychainHelper.load(service: keychainService, account: instance.id.uuidString, useSharedKeychain: true),
+           let credential = String(data: data, encoding: .utf8), !credential.isEmpty {
+            return credential
         }
         
-        if let passwordData = KeychainHelper.load(service: keychainService, account: instance.id.uuidString, useSharedKeychain: false),
-           let password = String(data: passwordData, encoding: .utf8), !password.isEmpty {
-            return password
+        if let data = KeychainHelper.load(service: keychainService, account: instance.id.uuidString, useSharedKeychain: false),
+           let credential = String(data: data, encoding: .utf8), !credential.isEmpty {
+            return credential
         }
         
         return nil
@@ -171,7 +157,7 @@ class InstanceManager: ObservableObject {
     
     func logoutAll() {
         for instance in instances {
-            deletePassword(forInstanceID: instance.id)
+            deleteCredential(for: instance)
         }
         instances.removeAll()
         saveInstances()
@@ -214,18 +200,18 @@ class InstanceManager: ObservableObject {
         return decodedInstances
     }
     
-    private func savePassword(password: String, forInstanceID instanceID: UUID) {
-        guard let passwordData = password.data(using: .utf8) else { return }
+    private func saveCredential(credential: String, for instance: Instance) {
+        guard let data = credential.data(using: .utf8) else { return }
 
-        let didSaveToShared = KeychainHelper.save(data: passwordData, service: keychainService, account: instanceID.uuidString, useSharedKeychain: true)
+        let didSaveToShared = KeychainHelper.save(data: data, service: keychainService, account: instance.id.uuidString, useSharedKeychain: true)
         
         if !didSaveToShared {
-            _ = KeychainHelper.save(data: passwordData, service: keychainService, account: instanceID.uuidString, useSharedKeychain: false)
+            _ = KeychainHelper.save(data: data, service: keychainService, account: instance.id.uuidString, useSharedKeychain: false)
         }
     }
 
-    private func deletePassword(forInstanceID instanceID: UUID) {
-        KeychainHelper.delete(service: keychainService, account: instanceID.uuidString, useSharedKeychain: true)
-        KeychainHelper.delete(service: keychainService, account: instanceID.uuidString, useSharedKeychain: false)
+    private func deleteCredential(for instance: Instance) {
+        KeychainHelper.delete(service: keychainService, account: instance.id.uuidString, useSharedKeychain: true)
+        KeychainHelper.delete(service: keychainService, account: instance.id.uuidString, useSharedKeychain: false)
     }
 }

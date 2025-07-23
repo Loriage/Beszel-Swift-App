@@ -2,17 +2,140 @@ import Foundation
 import Combine
 
 class BeszelAPIService: ObservableObject {
+    private let instance: Instance
+    private let instanceManager: InstanceManager
+    
     private let baseURL: String
     private let email: String
-    private let password: String
+    private var credential: String
     private var authToken: String?
 
-    init(url: String, email: String, password: String) {
-        self.baseURL = url
-        self.email = email
-        self.password = password
+    init(instance: Instance, instanceManager: InstanceManager) {
+        self.instance = instance
+        self.instanceManager = instanceManager
+        self.baseURL = instance.url
+        self.email = instance.email
+        self.credential = instanceManager.loadCredential(for: instance) ?? ""
     }
 
+    private func ensureAuthenticated() async throws {
+        if authToken != nil {
+            return
+        }
+
+        let parts = credential.components(separatedBy: ".")
+        if parts.count == 3 {
+            self.authToken = credential
+            return
+        }
+
+        guard !email.isEmpty, !credential.isEmpty else {
+            throw URLError(.userAuthenticationRequired)
+        }
+        
+        guard let url = URL(string: "\(baseURL)/api/collections/users/auth-with-password") else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        let body: [String: String] = ["identity": self.email, "password": self.credential]
+        request.httpBody = try JSONEncoder().encode(body)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.userAuthenticationRequired)
+        }
+        
+        let authResponse = try JSONDecoder().decode(AuthResponse.self, from: data)
+        self.authToken = authResponse.token
+    }
+
+    private func refreshToken() async throws {
+        guard let url = URL(string: "\(baseURL)/api/collections/users/auth-refresh") else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        
+        if let currentToken = self.authToken {
+            request.addValue("Bearer \(currentToken)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.userAuthenticationRequired)
+        }
+        
+        let authResponse = try JSONDecoder().decode(AuthResponse.self, from: data)
+        let newToken = authResponse.token
+        
+        self.authToken = newToken
+        self.credential = newToken
+        instanceManager.updateCredential(for: self.instance, newCredential: newToken)
+    }
+
+    private func performRequest<T: Decodable>(with url: URL) async throws -> T {
+        try await ensureAuthenticated()
+        
+        guard let token = authToken else {
+            throw URLError(.userAuthenticationRequired)
+        }
+        
+        var request = URLRequest(url: url)
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
+            try await refreshToken()
+            
+            guard let refreshedToken = authToken else {
+                throw URLError(.userAuthenticationRequired)
+            }
+            
+            var refreshedRequest = URLRequest(url: url)
+            refreshedRequest.addValue("Bearer \(refreshedToken)", forHTTPHeaderField: "Authorization")
+            
+            let (refreshedData, refreshedResponse) = try await URLSession.shared.data(for: refreshedRequest)
+            
+            guard let finalHttpResponse = refreshedResponse as? HTTPURLResponse, finalHttpResponse.statusCode == 200 else {
+                throw URLError(.badServerResponse)
+            }
+            
+            return try JSONDecoder().decode(T.self, from: refreshedData)
+            
+        } else if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+            return try JSONDecoder().decode(T.self, from: data)
+        } else {
+            throw URLError(.badServerResponse)
+        }
+    }
+
+    func fetchSystems() async throws -> [SystemRecord] {
+        guard let url = URL(string: "\(baseURL)/api/collections/systems/records") else {
+            throw URLError(.badURL)
+        }
+        let response: PocketBaseListResponse<SystemRecord> = try await performRequest(with: url)
+        return response.items
+    }
+
+    func fetchMonitors(filter: String?) async throws -> [ContainerStatsRecord] {
+        let url = try buildURL(for: "/api/collections/container_stats/records", filter: filter)
+        let response: PocketBaseListResponse<ContainerStatsRecord> = try await performRequest(with: url)
+        return response.items
+    }
+
+    func fetchSystemStats(filter: String?) async throws -> [SystemStatsRecord] {
+        let url = try buildURL(for: "/api/collections/system_stats/records", filter: filter)
+        let response: PocketBaseListResponse<SystemStatsRecord> = try await performRequest(with: url)
+        return response.items
+    }
+    
     private func buildURL(for path: String, filter: String?) throws -> URL {
         guard var components = URLComponents(string: baseURL) else {
             throw URLError(.badURL)
@@ -33,94 +156,5 @@ class BeszelAPIService: ObservableObject {
         }
         
         return url
-    }
-
-    private func authenticate() async throws {
-        guard let url = URL(string: "\(baseURL)/api/collections/users/auth-with-password") else {
-            throw URLError(.badURL)
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        let body: [String: String] = ["identity": self.email, "password": self.password]
-        request.httpBody = try JSONEncoder().encode(body)
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-        let authResponse = try JSONDecoder().decode(AuthResponse.self, from: data)
-        self.authToken = authResponse.token
-    }
-
-    func fetchMonitors(filter: String?) async throws -> [ContainerStatsRecord] {
-        if authToken == nil {
-            try await authenticate()
-        }
-        guard let token = authToken else {
-            throw URLError(.userAuthenticationRequired)
-        }
-
-        let url = try buildURL(for: "/api/collections/container_stats/records", filter: filter)
-
-        var request = URLRequest(url: url)
-        request.addValue(token, forHTTPHeaderField: "Authorization")
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-        let decodedResponse = try JSONDecoder().decode(PocketBaseListResponse<ContainerStatsRecord>.self, from: data)
-        return decodedResponse.items
-    }
-
-    func fetchSystemStats(filter: String?) async throws -> [SystemStatsRecord] {
-        if authToken == nil {
-            try await authenticate()
-        }
-        guard let token = authToken else {
-            throw URLError(.userAuthenticationRequired)
-        }
-
-        let url = try buildURL(for: "/api/collections/system_stats/records", filter: filter)
-
-        var request = URLRequest(url: url)
-        request.addValue(token, forHTTPHeaderField: "Authorization")
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-
-        let decodedResponse = try JSONDecoder().decode(PocketBaseListResponse<SystemStatsRecord>.self, from: data)
-        return decodedResponse.items
-    }
-
-    func fetchSystems() async throws -> [SystemRecord] {
-        if authToken == nil {
-            try await authenticate()
-        }
-        guard let token = authToken else {
-            throw URLError(.userAuthenticationRequired)
-        }
-        
-        let urlString = "\(baseURL)/api/collections/systems/records"
-        
-        guard let url = URL(string: urlString) else {
-            throw URLError(.badURL)
-        }
-        
-        var request = URLRequest(url: url)
-        request.addValue(token, forHTTPHeaderField: "Authorization")
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-        
-        let decodedResponse = try JSONDecoder().decode(PocketBaseListResponse<SystemRecord>.self, from: data)
-        return decodedResponse.items
     }
 }

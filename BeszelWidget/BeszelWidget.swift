@@ -2,12 +2,6 @@ import WidgetKit
 import SwiftUI
 import Charts
 
-public enum WidgetChartType: String, Sendable, CaseIterable {
-    case systemCPU
-    case systemMemory
-    case systemTemperature
-}
-
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let chartType: WidgetChartType
@@ -117,21 +111,16 @@ struct Provider: AppIntentTimelineProvider {
               let instanceID = UUID(uuidString: selectedInstanceEntity.id),
               let instanceToFetch = instanceManager.instances.first(where: { $0.id == instanceID })
         else {
-            let entry = SimpleEntry(date: .now, chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.selectInstance")
+            let entry = SimpleEntry(date: .now, chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.notConnected")
             return Timeline(entries: [entry], policy: .atEnd)
         }
 
         guard let selectedSystemEntity = configuration.system else {
-            let entry = SimpleEntry(date: .now, chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.selectSystem")
+            let entry = SimpleEntry(date: .now, chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.notConnected")
             return Timeline(entries: [entry], policy: .atEnd)
         }
         
-        guard let password = instanceManager.loadPassword(for: instanceToFetch) else {
-            let entry = SimpleEntry(date: .now, chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.loadingError")
-            return Timeline(entries: [entry], policy: .atEnd)
-        }
-        
-        let apiService = BeszelAPIService(url: instanceToFetch.url, email: instanceToFetch.email, password: password)
+        let apiService = BeszelAPIService(instance: instanceToFetch, instanceManager: instanceManager)
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
         
         do {

@@ -16,4 +16,5 @@ private func aDummyFunctionToSilenceWarnings() {
     let _ = NSLocalizedString("widget.configuration.parameter.title", comment: "")
     let _ = NSLocalizedString("widget.description", comment: "")
     let _ = NSLocalizedString("widget.displayName", comment: "")
+    let _ = NSLocalizedString("onboarding.subtitle", comment: "")
 }

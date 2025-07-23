@@ -56,20 +56,20 @@ public struct SystemQuery: EntityQuery {
     private func allSystemsForSelectedInstance() async -> [SystemEntity] {
         let instanceManager = InstanceManager.shared
 
-        guard let activeInstanceIDString = UserDefaults.sharedSuite.string(forKey: "activeInstanceID"),
+        guard let activeInstanceIDString = UserDefaults(suiteName: InstanceManager.appGroupIdentifier)?.string(forKey: "activeInstanceID"),
               let instanceID = UUID(uuidString: activeInstanceIDString),
-              let instance = instanceManager.instances.first(where: { $0.id == instanceID }),
-              let password = instanceManager.loadPassword(for: instance)
+              let instance = instanceManager.instances.first(where: { $0.id == instanceID })
         else {
             return []
         }
         
-        let apiService = BeszelAPIService(url: instance.url, email: instance.email, password: password)
+        let apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
         
         do {
             let systems = try await apiService.fetchSystems()
             return systems.map { SystemEntity(id: $0.id, name: $0.name) }
         } catch {
+            print("Failed to fetch systems for widget: \(error)")
             return []
         }
     }
@@ -118,6 +118,7 @@ public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
     public var chart: ChartTypeEntity?
 
     public init() {}
+    
     public init(instance: InstanceEntity?, system: SystemEntity?, chart: ChartTypeEntity?) {
         self.instance = instance
         self.system = system

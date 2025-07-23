@@ -2,7 +2,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-class MainViewModel: ObservableObject {
+class DataService: ObservableObject {
     @Published var containerDataBySystem: [String: [ProcessedContainerData]] = [:]
     @Published var systemDataPointsBySystem: [String: [SystemDataPoint]] = [:]
     @Published var isLoading = true
@@ -10,15 +10,11 @@ class MainViewModel: ObservableObject {
 
     private let apiService: BeszelAPIService
     private let settingsManager: SettingsManager
-    private let instanceManager: InstanceManager
     private var cancellables = Set<AnyCancellable>()
 
     init(instance: Instance, settingsManager: SettingsManager, refreshManager: RefreshManager, instanceManager: InstanceManager) {
         self.settingsManager = settingsManager
-        self.instanceManager = instanceManager
-
-        let password = InstanceManager.shared.loadPassword(for: instance) ?? ""
-        self.apiService = BeszelAPIService(url: instance.url, email: instance.email, password: password)
+        self.apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
 
         settingsManager.objectWillChange
             .sink { [weak self] _ in
@@ -28,7 +24,7 @@ class MainViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        instanceManager.$activeSystem
+        instanceManager.objectWillChange
             .dropFirst()
             .sink { [weak self] _ in
                 self?.fetchData()
@@ -46,6 +42,38 @@ class MainViewModel: ObservableObject {
 
         fetchData()
     }
+    
+    private func downsampleStatPoints(_ statPoints: [StatPoint], timeRange: TimeRangeOption) -> [StatPoint] {
+        guard !statPoints.isEmpty else { return [] }
+        
+        let targetCount: Int
+        switch timeRange {
+        case .lastHour:
+            targetCount = 600
+        default:
+            targetCount = 300
+        }
+
+        let minDate = statPoints.min(by: { $0.date < $1.date })?.date ?? Date()
+        let maxDate = statPoints.max(by: { $0.date < $1.date })?.date ?? Date()
+        let totalDuration = maxDate.timeIntervalSince(minDate)
+
+        let minInterval: TimeInterval
+        switch timeRange {
+        case .lastHour, .last12Hours:
+            minInterval = 30
+        case .last24Hours:
+            minInterval = 60
+        case .last7Days:
+            minInterval = 300
+        case .last30Days:
+            minInterval = 900
+        }
+
+        let calculatedInterval = max(minInterval, totalDuration / Double(targetCount))
+
+        return statPoints.downsampled(bucketInterval: calculatedInterval, method: .average)
+    }
 
     func fetchData() {
         Task {
@@ -54,8 +82,7 @@ class MainViewModel: ObservableObject {
                 self.errorMessage = nil
             }
 
-            let systemsToFetch = instanceManager.systems
-
+            let systemsToFetch = InstanceManager.shared.systems
             let timeFilter = self.settingsManager.apiFilterString
 
             guard !systemsToFetch.isEmpty else {
@@ -92,7 +119,13 @@ class MainViewModel: ObservableObject {
                                 return (system, containers)
                             }
 
-                            return (system.id, transformedSystem, transformedContainers)
+                            let downsampledContainers = transformedContainers.map { container in
+                                var downsampled = container
+                                downsampled.statPoints = self.downsampleStatPoints(container.statPoints, timeRange: self.settingsManager.selectedTimeRange)
+                                return downsampled
+                            }
+
+                            return (system.id, transformedSystem, downsampledContainers)
                         }
                     }
 

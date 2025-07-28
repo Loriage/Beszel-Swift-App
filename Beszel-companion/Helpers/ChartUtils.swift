@@ -40,6 +40,23 @@ func gradientRange(for domain: [String]) -> [LinearGradient] {
     }
 }
 
+func formatMemory(value: Double, fromUnit unit: String) -> String {
+    let megaBytes = (unit == "GB") ? (value * 1024) : value
+
+    if megaBytes >= 1024 {
+        let gigaBytes = megaBytes / 1024
+
+        return String(format: "%.1f GB", gigaBytes)
+    } else {
+        if megaBytes < 10 && megaBytes > 0 {
+            return String(format: "%.1f MB", megaBytes)
+        }
+
+        return String(format: "%.0f MB", megaBytes)
+    }
+}
+
+
 extension View {
     func commonChartCustomization(xAxisFormat: Date.FormatStyle) -> some View {
         self

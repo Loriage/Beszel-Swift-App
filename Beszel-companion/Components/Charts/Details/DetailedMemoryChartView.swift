@@ -72,13 +72,57 @@ struct DetailedMemoryChartView: View {
                     values: valuesForDate(snappedDate),
                     sortedDomain: sortedDomain,
                     domain: domain,
-                    unit: unit,
-                    valueFormatString: "%.1f %@",
+                    unit: memoryUnit,
                     settingsManager: settingsManager
                 )
             }
             .padding()
         }
         .navigationTitle(Text("details.memory.title \(memoryUnit)"))
+    }
+}
+
+struct MemoryDetailedValuesSectionView: View {
+    let values: [String: Double]
+    let sortedDomain: [String]
+    let domain: [String]
+    let unit: String
+    @ObservedObject var settingsManager: SettingsManager
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text("details.chart.total")
+                Text(formatMemory(value: values.values.reduce(0, +), fromUnit: unit))
+            }
+            .font(.title3)
+            .bold()
+            .padding(.vertical, 12)
+            .padding(.horizontal)
+
+            Divider()
+                .padding(.horizontal, 16)
+
+            ForEach(Array(sortedDomain.enumerated()), id: \.element) { index, name in
+                HStack {
+                    Circle().fill(color(for: name, in: domain)).frame(width: 10, height: 10)
+                    Text(name)
+                    Spacer()
+                    let value = values[name] ?? 0.0
+                    Text(formatMemory(value: value, fromUnit: unit))
+                        .foregroundColor(.secondary)
+                }
+                .padding(.vertical, 12)
+                .padding(.horizontal)
+
+                if index < sortedDomain.count - 1 {
+                    Divider()
+                        .padding(.horizontal, 16)
+                }
+            }
+        }
+        .padding(.vertical, 8)
+        .background(Color(.systemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }

@@ -86,12 +86,12 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "CPU Usage (%)"
+            "value" : "Docker CPU Usage (%)"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Utilisation CPU (%)"
           }
         }
@@ -102,12 +102,12 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory Usage (Mb)"
+            "value" : "Memory Usage (MB)"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Utilisation mémoire (Mo)"
           }
         }
@@ -182,12 +182,12 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Total Container CPU Usage (%)"
+            "value" : "Docker CPU Usage (%)"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Utilisation CPU totale des conteneurs (%)"
           }
         }
@@ -198,12 +198,12 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Total Container Memory Usage (%@)"
+            "value" : "Docker Memory Usage (%@)"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Utilisation Mémoire totale des conteneurs (%@)"
           }
         }
@@ -509,12 +509,12 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "CPU Usage Details (%)"
+            "value" : "Docker CPU Usage (%)"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Détails Utilisation CPU (%)"
           }
         }

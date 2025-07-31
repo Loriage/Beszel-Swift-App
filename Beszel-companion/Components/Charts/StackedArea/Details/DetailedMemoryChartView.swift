@@ -8,11 +8,23 @@ struct DetailedMemoryChartView: View {
     let memoryUnit: String
     let memoryLabelScale: Double
     let xAxisFormat: Date.FormatStyle
+    let systemID: String?
     @ObservedObject var settingsManager: SettingsManager
+    @EnvironmentObject var dashboardManager: DashboardManager
     @Environment(\.locale) private var locale
 
     @State private var snappedDate: Date?
     @State private var dragLocation: CGPoint?
+
+    private var isPinned: Bool {
+        guard let systemID = systemID else { return false }
+        return dashboardManager.isPinned(.stackedContainerMemory, onSystem: systemID)
+    }
+
+    private func togglePin() {
+        guard let systemID = systemID else { return }
+        dashboardManager.togglePin(for: .stackedContainerMemory, onSystem: systemID)
+    }
 
     private var unit: String {
         memoryUnit
@@ -54,7 +66,9 @@ struct DetailedMemoryChartView: View {
                     xAxisFormat: xAxisFormat,
                     settingsManager: settingsManager,
                     snappedDate: $snappedDate,
-                    dragLocation: $dragLocation
+                    dragLocation: $dragLocation,
+                    isPinned: isPinned,
+                    onPinToggle: togglePin
                 )
 
                 if let date = snappedDate {
@@ -134,11 +148,15 @@ struct MemoryChartSectionView: View {
     let labelScale: Double
     let xAxisFormat: Date.FormatStyle
     @ObservedObject var settingsManager: SettingsManager
+    @EnvironmentObject var dashboardManager: DashboardManager
 
     @Binding var snappedDate: Date?
     @Binding var dragLocation: CGPoint?
 
-    init(stackedData: [StackedMemoryData], domain: [String], uniqueDates: [Date], labelScale: Double = 1.0, xAxisFormat: Date.FormatStyle, settingsManager: SettingsManager, snappedDate: Binding<Date?>, dragLocation: Binding<CGPoint?>) {
+    var isPinned: Bool
+    var onPinToggle: () -> Void
+
+    init(stackedData: [StackedMemoryData], domain: [String], uniqueDates: [Date], labelScale: Double = 1.0, xAxisFormat: Date.FormatStyle, settingsManager: SettingsManager, snappedDate: Binding<Date?>, dragLocation: Binding<CGPoint?>, isPinned: Bool, onPinToggle: @escaping () -> Void) {
         self.stackedData = stackedData
         self.domain = domain
         self.uniqueDates = uniqueDates
@@ -147,10 +165,17 @@ struct MemoryChartSectionView: View {
         self.settingsManager = settingsManager
         self._snappedDate = snappedDate
         self._dragLocation = dragLocation
+        self.isPinned = isPinned
+        self.onPinToggle = onPinToggle
     }
 
     var body: some View {
-        GroupBox {
+        GroupBox(label: HStack {
+            Text("details.memory.title \(labelScale == 1 ? "MB" : "GB")")
+                .font(.headline)
+            Spacer()
+            PinButtonView(isPinned: isPinned, action: onPinToggle)
+        }) {
             Chart(stackedData) { data in
                 AreaMark(
                     x: .value("Date", data.date),

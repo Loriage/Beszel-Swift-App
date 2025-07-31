@@ -19,6 +19,8 @@ struct StackedMemoryData: Identifiable {
 struct StackedMemoryChartView: View {
     @ObservedObject var settingsManager: SettingsManager
     let processedData: [ProcessedContainerData]
+    let systemID: String?
+    var systemName: String? = nil
 
     func memoryDomain() -> [String] {
         let averageUsage = processedData.map { container -> (name: String, avg: Double) in
@@ -91,10 +93,17 @@ struct StackedMemoryChartView: View {
     }
 
     var body: some View {
-        NavigationLink(destination: DetailedMemoryChartView(stackedData: stackedMemory, domain: memoryDomainValue, uniqueDates: uniqueMemoryDates, memoryUnit: memoryUnit, memoryLabelScale: memoryLabelScale, xAxisFormat: xAxisFormat, settingsManager: settingsManager)) {
+        NavigationLink(destination: DetailedMemoryChartView(stackedData: stackedMemory, domain: memoryDomainValue, uniqueDates: uniqueMemoryDates, memoryUnit: memoryUnit, memoryLabelScale: memoryLabelScale, xAxisFormat: xAxisFormat, systemID: systemID, settingsManager: settingsManager)) {
             GroupBox(label: HStack {
-                Text("charts.stacked_memory.title \(memoryUnit)")
-                    .font(.headline)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("charts.stacked_memory.title \(memoryUnit)")
+                        .font(.headline)
+                    if let systemName = systemName {
+                        Text(systemName)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.footnote.weight(.semibold))

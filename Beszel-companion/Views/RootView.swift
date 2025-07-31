@@ -28,6 +28,7 @@ struct RootView: View {
                         settingsManager: settingsManager,
                         refreshManager: refreshManager,
                         dashboardManager: dashboardManager,
+                        languageManager: languageManager,
                         isShowingSettings: $isShowingSettings,
                         selectedTab: $selectedTab
                     )

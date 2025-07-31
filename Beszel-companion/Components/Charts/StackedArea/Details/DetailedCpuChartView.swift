@@ -6,11 +6,23 @@ struct DetailedCpuChartView: View {
     let domain: [String]
     let uniqueDates: [Date]
     let xAxisFormat: Date.FormatStyle
+    let systemID: String?
     @ObservedObject var settingsManager: SettingsManager
+    @EnvironmentObject var dashboardManager: DashboardManager
     @Environment(\.locale) private var locale
 
     @State private var snappedDate: Date?
     @State private var dragLocation: CGPoint?
+
+    private var isPinned: Bool {
+        guard let systemID = systemID else { return false }
+        return dashboardManager.isPinned(.stackedContainerCPU, onSystem: systemID)
+    }
+
+    private func togglePin() {
+        guard let systemID = systemID else { return }
+        dashboardManager.togglePin(for: .stackedContainerCPU, onSystem: systemID)
+    }
 
     private var unit: String {
         "%"
@@ -52,7 +64,9 @@ struct DetailedCpuChartView: View {
                     xAxisFormat: xAxisFormat,
                     settingsManager: settingsManager,
                     snappedDate: $snappedDate,
-                    dragLocation: $dragLocation
+                    dragLocation: $dragLocation,
+                    isPinned: isPinned,
+                    onPinToggle: togglePin
                 )
 
                 if let date = snappedDate {
@@ -138,7 +152,10 @@ struct CpuChartSectionView: View {
     @Binding var snappedDate: Date?
     @Binding var dragLocation: CGPoint?
 
-    init(stackedData: [StackedCpuData], domain: [String], uniqueDates: [Date], labelScale: Double = 1.0, xAxisFormat: Date.FormatStyle, settingsManager: SettingsManager, snappedDate: Binding<Date?>, dragLocation: Binding<CGPoint?>) {
+    var isPinned: Bool
+    var onPinToggle: () -> Void
+
+    init(stackedData: [StackedCpuData], domain: [String], uniqueDates: [Date], labelScale: Double = 1.0, xAxisFormat: Date.FormatStyle, settingsManager: SettingsManager, snappedDate: Binding<Date?>, dragLocation: Binding<CGPoint?>, isPinned: Bool, onPinToggle: @escaping () -> Void) {
         self.stackedData = stackedData
         self.domain = domain
         self.uniqueDates = uniqueDates
@@ -147,10 +164,17 @@ struct CpuChartSectionView: View {
         self.settingsManager = settingsManager
         self._snappedDate = snappedDate
         self._dragLocation = dragLocation
+        self.isPinned = isPinned
+        self.onPinToggle = onPinToggle
     }
 
     var body: some View {
-        GroupBox {
+        GroupBox(label: HStack {
+            Text("details.cpu.title")
+                .font(.headline)
+            Spacer()
+            PinButtonView(isPinned: isPinned, action: onPinToggle)
+        }) {
             Chart(stackedData) { data in
                 AreaMark(
                     x: .value("Date", data.date),

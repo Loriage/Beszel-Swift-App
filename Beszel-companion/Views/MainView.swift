@@ -11,7 +11,7 @@ struct MainView: View {
     @Binding var isShowingSettings: Bool
     @Binding var selectedTab: Tab
 
-    init(instance: Instance, instanceManager: InstanceManager, settingsManager: SettingsManager, refreshManager: RefreshManager, dashboardManager: DashboardManager, isShowingSettings: Binding<Bool>, selectedTab: Binding<Tab>) {
+    init(instance: Instance, instanceManager: InstanceManager, settingsManager: SettingsManager, refreshManager: RefreshManager, dashboardManager: DashboardManager, languageManager: LanguageManager, isShowingSettings: Binding<Bool>, selectedTab: Binding<Tab>) {
         self.instanceManager = instanceManager
         self._isShowingSettings = isShowingSettings
         self._selectedTab = selectedTab
@@ -28,13 +28,14 @@ struct MainView: View {
             dataService: dataService,
             settingsManager: settingsManager,
             dashboardManager: dashboardManager,
-            instanceManager: instanceManager
+            instanceManager: instanceManager,
         )
         _chartDataManager = StateObject(wrappedValue: chartDataManager)
 
         _homeViewModel = StateObject(wrappedValue: HomeViewModel(
             chartDataManager: chartDataManager,
-            dashboardManager: dashboardManager
+            dashboardManager: dashboardManager,
+            languageManager: languageManager
         ))
         
         _systemViewModel = StateObject(wrappedValue: SystemViewModel(

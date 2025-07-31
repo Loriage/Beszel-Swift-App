@@ -76,7 +76,7 @@ struct SettingsView: View {
             .alert("settings.dashboard.clearPins.alert.title", isPresented: $viewModel.isShowingClearPinsAlert) {
                 Button("common.cancel", role: .cancel) { }
                 Button("common.delete", role: .destructive) {
-                    viewModel.clearAllPins()
+                    viewModel.nukeAllPins()
                 }
             } message: {
                 Text("settings.dashboard.clearPins.alert.message")

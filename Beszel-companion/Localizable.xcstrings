@@ -91,8 +91,8 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Utilisation CPU (%)"
+            "state" : "translated",
+            "value" : "Utilisation du CPU Docker (%)"
           }
         }
       }
@@ -102,13 +102,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory Usage (MB)"
+            "value" : "Docker Memory Usage (MB)"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Utilisation mémoire (Mo)"
+            "state" : "translated",
+            "value" : "Utilisation de la mémoire Docker (Mo)"
           }
         }
       }
@@ -187,8 +187,8 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Utilisation CPU totale des conteneurs (%)"
+            "state" : "translated",
+            "value" : "Utilisation du CPU Docker (%)"
           }
         }
       }
@@ -203,8 +203,8 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Utilisation Mémoire totale des conteneurs (%@)"
+            "state" : "translated",
+            "value" : "Utilisation de la mémoire Docker (%@)"
           }
         }
       }
@@ -514,8 +514,8 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Détails Utilisation CPU (%)"
+            "state" : "translated",
+            "value" : "Utilisation du CPU Docker (%)"
           }
         }
       }
@@ -873,6 +873,118 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "URL (ex: https://beszel.domaine.com)"
+          }
+        }
+      }
+    },
+    "pinned.item.container.cpu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Docker Container CPU"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU Conteneurs Docker"
+          }
+        }
+      }
+    },
+    "pinned.item.container.memory" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Docker Container Memory"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mémoire Conteneurs Docker"
+          }
+        }
+      }
+    },
+    "pinned.item.stacked.cpu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Docker CPU"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU Docker"
+          }
+        }
+      }
+    },
+    "pinned.item.stacked.memory" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Docker Memory"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mémoire Docker"
+          }
+        }
+      }
+    },
+    "pinned.item.system.cpu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System CPU"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU Système"
+          }
+        }
+      }
+    },
+    "pinned.item.system.memory" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Memory"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mémoire Système"
+          }
+        }
+      }
+    },
+    "pinned.item.system.temperature" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Temperature"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Température Système"
           }
         }
       }

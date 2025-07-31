@@ -19,6 +19,8 @@ struct StackedCpuData: Identifiable {
 struct StackedCpuChartView: View {
     @ObservedObject var settingsManager: SettingsManager
     let processedData: [ProcessedContainerData]
+    let systemID: String?
+    var systemName: String? = nil
 
     func cpuDomain() -> [String] {
         let averageUsage = processedData.map { container -> (name: String, avg: Double) in
@@ -79,10 +81,17 @@ struct StackedCpuChartView: View {
     }
 
     var body: some View {
-        NavigationLink(destination: DetailedCpuChartView(stackedData: stackedCpu, domain: cpuDomainValue, uniqueDates: uniqueCpuDates, xAxisFormat: xAxisFormat, settingsManager: settingsManager)) {
+        NavigationLink(destination: DetailedCpuChartView(stackedData: stackedCpu, domain: cpuDomainValue, uniqueDates: uniqueCpuDates, xAxisFormat: xAxisFormat, systemID: systemID, settingsManager: settingsManager)) {
             GroupBox(label: HStack {
-                Text("charts.stacked_cpu.title")
-                    .font(.headline)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("charts.stacked_cpu.title")
+                        .font(.headline)
+                    if let systemName = systemName {
+                        Text(systemName)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.footnote.weight(.semibold))

@@ -4,6 +4,7 @@ struct ContainerView: View {
     @StateObject var viewModel: ContainerViewModel
     @EnvironmentObject var settingsManager: SettingsManager
     @EnvironmentObject var dashboardManager: DashboardManager
+    @EnvironmentObject var instanceManager: InstanceManager
 
     var body: some View {
         ScrollView {
@@ -14,12 +15,14 @@ struct ContainerView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         StackedCpuChartView(
                             settingsManager: settingsManager,
-                            processedData: viewModel.processedData
+                            processedData: viewModel.processedData,
+                            systemID: instanceManager.activeSystem?.id
                         )
                         
                         StackedMemoryChartView(
                             settingsManager: settingsManager,
-                            processedData: viewModel.processedData
+                            processedData: viewModel.processedData,
+                            systemID: instanceManager.activeSystem?.id
                         )
                     }
                     .padding(.horizontal)

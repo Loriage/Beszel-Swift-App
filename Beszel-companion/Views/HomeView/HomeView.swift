@@ -4,6 +4,7 @@ import Charts
 struct HomeView: View {
     @ObservedObject var homeViewModel: HomeViewModel
     @EnvironmentObject var dashboardManager: DashboardManager
+    @EnvironmentObject var settingsManager: SettingsManager
 
     var body: some View {
         ScrollView {
@@ -123,6 +124,20 @@ struct HomeView: View {
                     onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .containerMemory(name: container.name)) }
                 )
             }
+        case .stackedContainerCPU:
+            StackedCpuChartView(
+                settingsManager: settingsManager,
+                processedData: containerData,
+                systemID: resolvedItem.systemID,
+                systemName: systemName
+            )
+        case .stackedContainerMemory:
+            StackedMemoryChartView(
+                settingsManager: settingsManager,
+                processedData: containerData,
+                systemID: resolvedItem.systemID,
+                systemName: systemName,
+            )
         }
     }
 }

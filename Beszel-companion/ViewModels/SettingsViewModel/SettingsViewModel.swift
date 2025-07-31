@@ -61,4 +61,8 @@ class SettingsViewModel: ObservableObject {
     func clearAllPins() {
         dashboardManager.removeAllPinsForActiveSystem()
     }
+
+    func nukeAllPins() {
+        dashboardManager.nukeAllPins()
+    }
 }

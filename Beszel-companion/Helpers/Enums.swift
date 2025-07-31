@@ -25,6 +25,8 @@ enum PinnedItem: Codable, Hashable, Identifiable {
     case systemTemperature
     case containerCPU(name: String)
     case containerMemory(name: String)
+    case stackedContainerCPU
+    case stackedContainerMemory
 
     var id: String {
         switch self {
@@ -33,24 +35,37 @@ enum PinnedItem: Codable, Hashable, Identifiable {
         case .systemTemperature: return "system_temperature"
         case .containerCPU(let name): return "container_cpu_\(name)"
         case .containerMemory(let name): return "container_memory_\(name)"
+        case .stackedContainerCPU: return "stacked_container_cpu"
+        case .stackedContainerMemory: return "stacked_container_memory"
         }
     }
 
-    var displayName: String {
+    func localizedDisplayName(for bundle: Bundle) -> String {
         switch self {
-        case .systemCPU: return "CPU Système"
-        case .systemMemory: return "Mémoire Système"
-        case .systemTemperature: return "Température Système"
-        case .containerCPU(let name): return "CPU: \(name)"
-        case .containerMemory(let name): return "Mémoire: \(name)"
+        case .systemCPU:
+            return NSLocalizedString("pinned.item.system.cpu", bundle: bundle, comment: "")
+        case .systemMemory:
+            return NSLocalizedString("pinned.item.system.memory", bundle: bundle, comment: "")
+        case .systemTemperature:
+            return NSLocalizedString("pinned.item.system.temperature", bundle: bundle, comment: "")
+        case .containerCPU(let name):
+            let format = NSLocalizedString("pinned.item.container.cpu", bundle: bundle, comment: "")
+            return String(format: format, name)
+        case .containerMemory(let name):
+            let format = NSLocalizedString("pinned.item.container.memory", bundle: bundle, comment: "")
+            return String(format: format, name)
+        case .stackedContainerCPU:
+            return NSLocalizedString("pinned.item.stacked.cpu", bundle: bundle, comment: "")
+        case .stackedContainerMemory:
+            return NSLocalizedString("pinned.item.stacked.memory", bundle: bundle, comment: "")
         }
     }
 
     var metricName: String {
         switch self {
-        case .systemCPU, .containerCPU: return "CPU"
-        case .systemMemory, .containerMemory: return "Mémoire"
-        case .systemTemperature: return "Température"
+        case .systemCPU, .containerCPU, .stackedContainerCPU: return "CPU"
+        case .systemMemory, .containerMemory, .stackedContainerMemory: return "Memory"
+        case .systemTemperature: return "Temperature"
         }
     }
 
@@ -58,8 +73,10 @@ enum PinnedItem: Codable, Hashable, Identifiable {
         switch self {
         case .containerCPU(let name), .containerMemory(let name):
             return name
+        case .stackedContainerCPU, .stackedContainerMemory:
+            return "Containers"
         default:
-            return "ZZZ_Système"
+            return "ZZZ_System"
         }
     }
 }

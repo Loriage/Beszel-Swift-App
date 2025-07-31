@@ -10,17 +10,29 @@ class HomeViewModel: BaseViewModel {
 
     let chartDataManager: ChartDataManager
     private let dashboardManager: DashboardManager
+    private let languageManager: LanguageManager
 
-    init(chartDataManager: ChartDataManager, dashboardManager: DashboardManager) {
+    init(chartDataManager: ChartDataManager, dashboardManager: DashboardManager, languageManager: LanguageManager) {
         self.chartDataManager = chartDataManager
         self.dashboardManager = dashboardManager
+        self.languageManager = languageManager
         super.init()
 
         forwardChanges(from: chartDataManager)
         forwardChanges(from: dashboardManager)
+        
     }
 
     var filteredAndSortedPins: [ResolvedPinnedItem] {
+        let bundle: Bundle
+
+        if let path = Bundle.main.path(forResource: languageManager.currentLanguageCode, ofType: "lproj"),
+            let specificBundle = Bundle(path: path) {
+            bundle = specificBundle
+        } else {
+            bundle = .main
+        }
+        
         let pins = dashboardManager.allPinsForActiveInstance
         
         let filteredPins: [ResolvedPinnedItem]
@@ -29,7 +41,7 @@ class HomeViewModel: BaseViewModel {
         } else {
             filteredPins = pins.filter { resolvedItem in
                 let systemName = chartDataManager.systemName(forSystemID: resolvedItem.systemID) ?? ""
-                let itemName = resolvedItem.item.displayName
+                let itemName = resolvedItem.item.localizedDisplayName(for: bundle)
                 
                 return systemName.localizedCaseInsensitiveContains(searchText) ||
                 itemName.localizedCaseInsensitiveContains(searchText)
@@ -45,21 +57,21 @@ class HomeViewModel: BaseViewModel {
                 if lhsSystemName != rhsSystemName {
                     return lhsSystemName < rhsSystemName
                 }
-                return lhs.item.displayName < rhs.item.displayName
+                return lhs.item.localizedDisplayName(for: bundle) < rhs.item.localizedDisplayName(for: bundle)
             }
         case .byMetric:
             sortedPins = filteredPins.sorted { lhs, rhs in
                 if lhs.item.metricName != rhs.item.metricName {
                     return lhs.item.metricName < rhs.item.metricName
                 }
-                return lhs.item.displayName < rhs.item.displayName
+                return lhs.item.localizedDisplayName(for: bundle) < rhs.item.localizedDisplayName(for: bundle)
             }
         case .byService:
             sortedPins = filteredPins.sorted { lhs, rhs in
                 if lhs.item.serviceName != rhs.item.serviceName {
                     return lhs.item.serviceName < rhs.item.serviceName
                 }
-                return lhs.item.displayName < rhs.item.displayName
+                return lhs.item.localizedDisplayName(for: bundle) < rhs.item.localizedDisplayName(for: bundle)
             }
         }
         

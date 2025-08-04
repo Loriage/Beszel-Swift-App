@@ -71,6 +71,10 @@ The Home Screen widgets will not function if you install the app by sideloading 
 
 For the best experience, including widget support, please download the official version from the App Store.
 
+### SSO / OAuth Authentication
+
+Some SSO providers, like Google, have security policies that do not support custom URL schemes for redirects. This means that authentication through these providers will not work unless the Beszel API is updated to support a `https` redirect endpoint for mobile clients.
+
 ## Acknowledgements
 
 A huge thank you to [henrygd](https://github.com/henrygd) for creating Beszel, a fantastic, lightweight, and open-source monitoring tool. This mobile client would not exist without his remarkable work.

@@ -14,6 +14,11 @@ This application allows you to view your server and container statistics directl
 >
 > By default, only an `admin` user can read all data. For better security, you can create a `readonly` user by modifying API route access in your PocketBase settings.
 
+> [!NOTE]
+> You can log in to your instance via the SSO configured on Beszel.
+> 
+> Please note that you will need to add `beszel-companion://redirect` to the redirect_uris of your SSO providers.
+ 
 ## Overview
 
 |                                                 Home                                                 |                                                 System                                                 |                                                 Containers                                                 |                                               Detail View                                               |

@@ -38,13 +38,14 @@ This application allows you to view your server and container statistics directl
 -   [x] **Dark Mode Support**: The interface automatically adapts to your device's theme.
 -   [x] **Widgets**: Display key information directly on your Home Screen.
 -   [x] **Multiple hub management**: Easily manage and monitor multiple Beszel hubs and their associated systems
+-   [x] **SSO support**
+-   [x] **Enhanced chart interactivity**
 
 ## Roadmap
 
 -   [ ] Lock Screen Widgets.
 -   [ ] Push notifications.
--   [ ] Enhanced chart interactivity.
--   [ ] Localization into other languages.
+-   [ ] Localization into other languages (Open to contributions)
 
 ## Technologies Used
 

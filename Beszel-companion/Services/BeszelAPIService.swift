@@ -8,12 +8,21 @@ class BeszelAPIService: ObservableObject {
     private let baseURL: String
     private let email: String
     private var credential: String
-    private var authToken: String?
+
+    private static var tokenCache: [UUID: String] = [:]
+    private var authToken: String? {
+        get { BeszelAPIService.tokenCache[instance.id] }
+        set { BeszelAPIService.tokenCache[instance.id] = newValue }
+    }
 
     init(instance: Instance, instanceManager: InstanceManager) {
         self.instance = instance
         self.instanceManager = instanceManager
-        self.baseURL = instance.url
+        var url = instance.url
+        if url.hasSuffix("/") {
+            url.removeLast()
+        }
+        self.baseURL = url
         self.email = instance.email
         self.credential = instanceManager.loadCredential(for: instance) ?? ""
     }
@@ -25,8 +34,13 @@ class BeszelAPIService: ObservableObject {
 
         let parts = credential.components(separatedBy: ".")
         if parts.count == 3 {
-            self.authToken = credential
-            return
+            let header = parts[0]
+
+            if let headerData = Data(base64Encoded: header.padding(toLength: ((header.count + 3) / 4) * 4, withPad: "=", startingAt: 0)),
+               let _ = try? JSONSerialization.jsonObject(with: headerData, options: []) as? [String: Any] {
+                self.authToken = credential
+                return
+            }
         }
 
         guard !email.isEmpty, !credential.isEmpty else {
@@ -51,6 +65,7 @@ class BeszelAPIService: ObservableObject {
         
         let authResponse = try JSONDecoder().decode(AuthResponse.self, from: data)
         self.authToken = authResponse.token
+        instanceManager.updateCredential(for: self.instance, newCredential: authResponse.token)
     }
 
     private func refreshToken() async throws {
@@ -106,7 +121,7 @@ class BeszelAPIService: ObservableObject {
             guard let finalHttpResponse = refreshedResponse as? HTTPURLResponse, finalHttpResponse.statusCode == 200 else {
                 throw URLError(.badServerResponse)
             }
-            
+
             return try JSONDecoder().decode(T.self, from: refreshedData)
             
         } else if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
@@ -154,7 +169,7 @@ class BeszelAPIService: ObservableObject {
         guard let url = components.url else {
             throw URLError(.badURL)
         }
-        
+
         return url
     }
 }

@@ -2,10 +2,10 @@ import SwiftUI
 import Charts
 
 struct ContainerDetailView: View {
-    @StateObject var viewModel: ContainerDetailViewModel
+    @State var viewModel: ContainerDetailViewModel
 
     init(container: ProcessedContainerData, settingsManager: SettingsManager, dashboardManager: DashboardManager) {
-        _viewModel = StateObject(wrappedValue: ContainerDetailViewModel(
+        _viewModel = State(wrappedValue: ContainerDetailViewModel(
             container: container,
             dashboardManager: dashboardManager,
             settingsManager: settingsManager

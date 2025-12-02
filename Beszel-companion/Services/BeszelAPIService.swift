@@ -1,7 +1,6 @@
 import Foundation
-import Combine
 
-class BeszelAPIService: ObservableObject {
+actor BeszelAPIService {
     private let instance: Instance
     private let instanceManager: InstanceManager
     
@@ -9,11 +8,7 @@ class BeszelAPIService: ObservableObject {
     private let email: String
     private var credential: String
 
-    private static var tokenCache: [UUID: String] = [:]
-    private var authToken: String? {
-        get { BeszelAPIService.tokenCache[instance.id] }
-        set { BeszelAPIService.tokenCache[instance.id] = newValue }
-    }
+    private var authToken: String?
 
     init(instance: Instance, instanceManager: InstanceManager) {
         self.instance = instance
@@ -37,19 +32,12 @@ class BeszelAPIService: ObservableObject {
     }
 
     private func ensureAuthenticated() async throws {
-        if authToken != nil {
-            return
-        }
+        if authToken != nil { return }
 
         let parts = credential.components(separatedBy: ".")
         if parts.count == 3 {
-            let header = parts[0]
-
-            if let headerData = Data(base64Encoded: header.padding(toLength: ((header.count + 3) / 4) * 4, withPad: "=", startingAt: 0)),
-               let _ = try? JSONSerialization.jsonObject(with: headerData, options: []) as? [String: Any] {
-                self.authToken = credential
-                return
-            }
+            self.authToken = credential
+            return
         }
 
         guard !email.isEmpty, !credential.isEmpty else {
@@ -72,9 +60,16 @@ class BeszelAPIService: ObservableObject {
             throw URLError(.userAuthenticationRequired)
         }
         
+        // Décodage direct
         let authResponse = try JSONDecoder().decode(AuthResponse.self, from: data)
         self.authToken = authResponse.token
-        instanceManager.updateCredential(for: self.instance, newCredential: authResponse.token)
+        
+        let newToken = authResponse.token
+        let localInstance = self.instance
+        
+        await MainActor.run {
+            self.instanceManager.updateCredential(for: localInstance, newCredential: newToken)
+        }
     }
 
     private func refreshToken() async throws {
@@ -100,10 +95,14 @@ class BeszelAPIService: ObservableObject {
         
         self.authToken = newToken
         self.credential = newToken
-        instanceManager.updateCredential(for: self.instance, newCredential: newToken)
+        
+        let localInstance = self.instance
+        await MainActor.run {
+            self.instanceManager.updateCredential(for: localInstance, newCredential: newToken)
+        }
     }
 
-    private func performRequest<T: Decodable>(with url: URL) async throws -> T {
+    private func performRequest<T: Decodable & Sendable>(with url: URL) async throws -> T {
         try await ensureAuthenticated()
         
         guard let token = authToken else {
@@ -112,24 +111,16 @@ class BeszelAPIService: ObservableObject {
         
         var request = URLRequest(url: url)
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-
+        
         let (data, response) = try await self.session.data(for: request)
-
+        
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
             try await refreshToken()
-            
-            guard let refreshedToken = authToken else {
-                throw URLError(.userAuthenticationRequired)
-            }
-            
+
+            guard let refreshedToken = authToken else { throw URLError(.userAuthenticationRequired) }
             var refreshedRequest = URLRequest(url: url)
             refreshedRequest.addValue("Bearer \(refreshedToken)", forHTTPHeaderField: "Authorization")
-            
-            let (refreshedData, refreshedResponse) = try await self.session.data(for: refreshedRequest)
-            
-            guard let finalHttpResponse = refreshedResponse as? HTTPURLResponse, finalHttpResponse.statusCode == 200 else {
-                throw URLError(.badServerResponse)
-            }
+            let (refreshedData, _) = try await self.session.data(for: refreshedRequest)
 
             return try JSONDecoder().decode(T.self, from: refreshedData)
             

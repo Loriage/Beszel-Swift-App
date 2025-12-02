@@ -1,13 +1,16 @@
 import SwiftUI
 
 struct InstanceSwitcherView: View {
-    @ObservedObject var instanceManager: InstanceManager
+    let instanceManager: InstanceManager
 
     var body: some View {
+        @Bindable var manager = instanceManager
+        
         Menu {
-            Picker("switcher.instances.title", selection: instanceManager.activeInstanceSelection) {
-                ForEach(instanceManager.instances) { instance in
-                    Text(instance.name).tag(instance.id.uuidString as String?)
+            Picker("switcher.instances.title", selection: $manager.activeInstanceID) {
+                ForEach(manager.instances) { instance in
+                    Text(instance.name)
+                        .tag(instance.id.uuidString as String?)
                 }
             }
         } label: {

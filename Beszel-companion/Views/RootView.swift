@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct RootView: View {
-    @ObservedObject var languageManager: LanguageManager
-    @ObservedObject var settingsManager: SettingsManager
-    @ObservedObject var dashboardManager: DashboardManager
-    @ObservedObject var refreshManager: RefreshManager
-    @ObservedObject var instanceManager: InstanceManager
+    let languageManager: LanguageManager
+    let settingsManager: SettingsManager
+    let dashboardManager: DashboardManager
+    let refreshManager: RefreshManager
+    let instanceManager: InstanceManager
     
     @State private var isShowingSettings = false
     @State private var selectedTab: Tab = .home
@@ -32,6 +32,7 @@ struct RootView: View {
                         isShowingSettings: $isShowingSettings,
                         selectedTab: $selectedTab
                     )
+                    // L'ID force le rafraîchissement complet si l'instance ou la langue change
                     .id("\(activeInstance.id.uuidString)-\(instanceManager.activeSystem?.id ?? "no-system")-\(languageManager.currentLanguageCode)-\(settingsManager.selectedTimeRange.rawValue)")
                 }
             } else {
@@ -46,10 +47,9 @@ struct RootView: View {
                 instanceManager: instanceManager
             )
         }
-        .environmentObject(settingsManager)
-        .environmentObject(dashboardManager)
-        .environmentObject(languageManager)
-        .environmentObject(instanceManager)
         .environment(\.locale, Locale(identifier: languageManager.currentLanguageCode))
+        .onChange(of: refreshManager.refreshSignal) {
+             // Trigger global refresh logic if needed handled by views observing dataService
+        }
     }
 }

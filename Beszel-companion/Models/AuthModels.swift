@@ -1,20 +1,20 @@
 import Foundation
 
-struct AuthMethodsResponse: Decodable {
+nonisolated struct AuthMethodsResponse: Decodable, Sendable {
     let password: PasswordAuth
     let oauth2: OAuth2Auth
 }
 
-struct PasswordAuth: Decodable {
+nonisolated struct PasswordAuth: Decodable, Sendable {
     let enabled: Bool
 }
 
-struct OAuth2Auth: Decodable {
+nonisolated struct OAuth2Auth: Decodable, Sendable {
     let enabled: Bool
     let providers: [OAuth2Provider]
 }
 
-struct OAuth2Provider: Decodable, Identifiable {
+nonisolated struct OAuth2Provider: Decodable, Identifiable, Sendable {
     var id: String { name }
     let name: String
     let displayName: String

@@ -17,7 +17,9 @@ struct StackedCpuData: Identifiable {
 }
 
 struct StackedCpuChartView: View {
-    @ObservedObject var settingsManager: SettingsManager
+    // Changement ici : let au lieu de @ObservedObject car l'objet est injecté ou passé
+    let settingsManager: SettingsManager
+    
     let processedData: [ProcessedContainerData]
     let systemID: String?
     var systemName: String? = nil
@@ -81,7 +83,14 @@ struct StackedCpuChartView: View {
     }
 
     var body: some View {
-        NavigationLink(destination: DetailedCpuChartView(stackedData: stackedCpu, domain: cpuDomainValue, uniqueDates: uniqueCpuDates, xAxisFormat: xAxisFormat, systemID: systemID, settingsManager: settingsManager)) {
+        NavigationLink(destination: DetailedCpuChartView(
+            stackedData: stackedCpu,
+            domain: cpuDomainValue,
+            uniqueDates: uniqueCpuDates,
+            xAxisFormat: xAxisFormat,
+            systemID: systemID,
+            settingsManager: settingsManager
+        )) {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("charts.stacked_cpu.title")

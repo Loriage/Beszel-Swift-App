@@ -2,7 +2,7 @@ import Foundation
 import Security
 
 struct KeychainHelper {
-    private static let accessGroup = InstanceManager.appGroupIdentifier
+    private static let accessGroup = "group.com.nohitdev.Beszel"
 
     static func save(data: Data, service: String, account: String, useSharedKeychain: Bool) -> Bool {
         var query: [String: Any] = [

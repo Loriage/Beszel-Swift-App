@@ -2,7 +2,7 @@ import SwiftUI
 import Charts
 
 struct SystemView: View {
-    @StateObject var systemViewModel: SystemViewModel
+    let systemViewModel: SystemViewModel
     
     var body: some View {
         ScrollView {
@@ -36,6 +36,7 @@ struct SystemView: View {
             }
         }
         .refreshable {
+            // Task implicite
             systemViewModel.chartDataManager.fetchData()
         }
         .overlay {

@@ -1,10 +1,11 @@
 import SwiftUI
 
 struct ContainerView: View {
-    @StateObject var viewModel: ContainerViewModel
-    @EnvironmentObject var settingsManager: SettingsManager
-    @EnvironmentObject var dashboardManager: DashboardManager
-    @EnvironmentObject var instanceManager: InstanceManager
+    let viewModel: ContainerViewModel
+
+    @Environment(SettingsManager.self) var settingsManager
+    @Environment(DashboardManager.self) var dashboardManager
+    @Environment(InstanceManager.self) var instanceManager
 
     var body: some View {
         ScrollView {

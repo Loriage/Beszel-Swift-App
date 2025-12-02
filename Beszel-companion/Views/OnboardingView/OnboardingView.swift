@@ -2,9 +2,11 @@ import SwiftUI
 import AuthenticationServices
 
 struct OnboardingView: View {
-    @StateObject var viewModel: OnboardingViewModel
+    @State var viewModel: OnboardingViewModel
 
     var body: some View {
+        @Bindable var bindableViewModel = viewModel
+        
         VStack(spacing: 20) {
             Spacer()
 
@@ -17,13 +19,15 @@ struct OnboardingView: View {
                 .fontWeight(.bold)
             
             GroupBox {
-                TextField("onboarding.instanceNamePlaceholder", text: $viewModel.instanceName)
+                TextField("onboarding.instanceNamePlaceholder", text: $bindableViewModel.instanceName)
                     .autocapitalization(.words)
                 Divider()
-                TextField("onboarding.urlPlaceholder", text: $viewModel.url)
+                TextField("onboarding.urlPlaceholder", text: $bindableViewModel.url)
                     .keyboardType(.URL)
                     .autocapitalization(.none)
-                    .onSubmit(viewModel.fetchAuthMethods)
+                    .onSubmit {
+                        viewModel.fetchAuthMethods()
+                    }
             }
             .padding(.horizontal)
 
@@ -67,13 +71,15 @@ struct OnboardingView: View {
     }
 
     private var passwordLoginView: some View {
-        Group {
+        @Bindable var bindableViewModel = viewModel
+        
+        return Group {
             GroupBox {
-                TextField("onboarding.input.email", text: $viewModel.email)
+                TextField("onboarding.input.email", text: $bindableViewModel.email)
                     .keyboardType(.emailAddress)
                     .autocapitalization(.none)
                 Divider()
-                SecureField("onboarding.input.password", text: $viewModel.password)
+                SecureField("onboarding.input.password", text: $bindableViewModel.password)
             }
             .padding(.horizontal)
             

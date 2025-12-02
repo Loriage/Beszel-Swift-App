@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import Observation
 
 struct DetailedMemoryChartView: View {
     let stackedData: [StackedMemoryData]
@@ -9,8 +10,9 @@ struct DetailedMemoryChartView: View {
     let memoryLabelScale: Double
     let xAxisFormat: Date.FormatStyle
     let systemID: String?
-    @ObservedObject var settingsManager: SettingsManager
-    @EnvironmentObject var dashboardManager: DashboardManager
+
+    let settingsManager: SettingsManager
+    @Environment(DashboardManager.self) var dashboardManager
     @Environment(\.locale) private var locale
 
     @State private var snappedDate: Date?
@@ -101,7 +103,7 @@ struct MemoryDetailedValuesSectionView: View {
     let sortedDomain: [String]
     let domain: [String]
     let unit: String
-    @ObservedObject var settingsManager: SettingsManager
+    let settingsManager: SettingsManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -147,8 +149,7 @@ struct MemoryChartSectionView: View {
     let uniqueDates: [Date]
     let labelScale: Double
     let xAxisFormat: Date.FormatStyle
-    @ObservedObject var settingsManager: SettingsManager
-    @EnvironmentObject var dashboardManager: DashboardManager
+    let settingsManager: SettingsManager
 
     @Binding var snappedDate: Date?
     @Binding var dragLocation: CGPoint?

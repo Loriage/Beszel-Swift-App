@@ -1,15 +1,23 @@
 import Foundation
 import SwiftUI
-import Combine
+import Observation
 
-class SettingsManager: ObservableObject {
-    let objectWillChange = PassthroughSubject<Void, Never>()
-    @AppStorage("selectedTimeRange", store: .sharedSuite)
-    var selectedTimeRange: TimeRangeOption = .last24Hours {
-            didSet {
-                objectWillChange.send()
-            }
+@Observable
+final class SettingsManager {
+    var selectedTimeRange: TimeRangeOption {
+        didSet {
+            UserDefaults.sharedSuite.set(selectedTimeRange.rawValue, forKey: "selectedTimeRange")
         }
+    }
+
+    init() {
+        if let savedValue = UserDefaults.sharedSuite.string(forKey: "selectedTimeRange"),
+           let option = TimeRangeOption(rawValue: savedValue) {
+            self.selectedTimeRange = option
+        } else {
+            self.selectedTimeRange = .last24Hours
+        }
+    }
 
     var apiFilterString: String? {
         let now = Date().addingTimeInterval(5 * 60)
@@ -35,7 +43,6 @@ class SettingsManager: ObservableObject {
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
         let dateString = formatter.string(from: startDate)
 
-        let filter = "created >= '\(dateString)'"
-        return filter
+        return "created >= '\(dateString)'"
     }
 }

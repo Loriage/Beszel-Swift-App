@@ -18,12 +18,18 @@ public struct InstanceEntity: AppEntity {
 
 public struct InstanceQuery: EntityQuery {
     public init() {}
+    
     public func entities(for identifiers: [String]) async throws -> [InstanceEntity] {
         let all = try await suggestedEntities()
         return all.filter { identifiers.contains($0.id) }
     }
+    
     public func suggestedEntities() async throws -> [InstanceEntity] {
-        return InstanceManager.shared.instances.map { InstanceEntity(id: $0.id.uuidString, name: $0.name) }
+        // CORRECTION : Accès sécurisé à InstanceManager via MainActor.run
+        let instances = await MainActor.run {
+            return InstanceManager.shared.instances
+        }
+        return instances.map { InstanceEntity(id: $0.id.uuidString, name: $0.name) }
     }
 }
 
@@ -50,20 +56,37 @@ public struct SystemQuery: EntityQuery {
     }
 
     public func suggestedEntities() async throws -> [SystemEntity] {
+        // CORRECTION : Ajout de await manquant
         return await allSystemsForSelectedInstance()
     }
 
     private func allSystemsForSelectedInstance() async -> [SystemEntity] {
-        let instanceManager = InstanceManager.shared
+        // CORRECTION : Récupération isolée de l'instance et de l'ID
+        let (instance, instanceIDString) = await MainActor.run {
+            let manager = InstanceManager.shared
+            let idString = UserDefaults(suiteName: "group.com.nohitdev.Beszel")?.string(forKey: "activeInstanceID")
+            // On cherche l'instance correspondante
+            let foundInstance = manager.instances.first(where: { $0.id.uuidString == idString })
+            return (foundInstance, idString)
+        }
 
-        guard let activeInstanceIDString = UserDefaults(suiteName: InstanceManager.appGroupIdentifier)?.string(forKey: "activeInstanceID"),
-              let instanceID = UUID(uuidString: activeInstanceIDString),
-              let instance = instanceManager.instances.first(where: { $0.id == instanceID })
+        guard let activeInstanceIDString = instanceIDString,
+              let _ = UUID(uuidString: activeInstanceIDString),
+              let instance = instance // Instance récupérée plus haut
         else {
             return []
         }
         
-        let apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
+        // On recrée un service API temporaire pour le widget (qui est un actor, donc OK)
+        // Note: BeszelAPIService attend un InstanceManager.
+        // Comme nous sommes dans une Query async, nous pouvons utiliser le singleton partagé,
+        // mais nous devons passer une référence safe.
+        // L'idéal ici est de créer une version allégée du service ou d'utiliser le shared via MainActor.
+        
+        // Pour simplifier et faire fonctionner le code :
+        let apiService = await MainActor.run {
+             return BeszelAPIService(instance: instance, instanceManager: InstanceManager.shared)
+        }
         
         do {
             let systems = try await apiService.fetchSystems()

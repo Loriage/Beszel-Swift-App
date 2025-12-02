@@ -2,11 +2,11 @@ import SwiftUI
 
 @main
 struct Beszel_companionApp: App {
-    @StateObject private var settingsManager = SettingsManager()
-    @StateObject private var dashboardManager = DashboardManager.shared
-    @StateObject private var languageManager = LanguageManager()
-    @StateObject private var refreshManager = RefreshManager()
-    @StateObject private var instanceManager = InstanceManager.shared
+    @State private var settingsManager = SettingsManager()
+    @State private var dashboardManager = DashboardManager.shared
+    @State private var languageManager = LanguageManager()
+    @State private var refreshManager = RefreshManager()
+    @State private var instanceManager = InstanceManager.shared
 
     var body: some Scene {
         WindowGroup {
@@ -17,6 +17,11 @@ struct Beszel_companionApp: App {
                 refreshManager: refreshManager,
                 instanceManager: instanceManager
             )
+            .environment(settingsManager)
+            .environment(dashboardManager)
+            .environment(languageManager)
+            .environment(instanceManager)
+            .environment(refreshManager)
         }
     }
 }

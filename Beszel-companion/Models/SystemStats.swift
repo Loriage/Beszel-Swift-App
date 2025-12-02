@@ -1,13 +1,13 @@
 import Foundation
 
-struct SystemStatsRecord: Identifiable, Codable {
+nonisolated struct SystemStatsRecord: Identifiable, Codable, Sendable {
     let id: String
     let created: String
     let stats: SystemStatsDetail
     let type: String
 }
 
-struct SystemStatsDetail: Codable {
+nonisolated struct SystemStatsDetail: Codable, Sendable {
     let cpu: Double
     let memoryPercent: Double
     let memoryUsed: Double

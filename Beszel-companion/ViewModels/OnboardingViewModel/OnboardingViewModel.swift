@@ -1,17 +1,18 @@
 import SwiftUI
 @preconcurrency import AuthenticationServices
-import Combine
+import Observation
 
+@Observable
 @MainActor
-class OnboardingViewModel: ObservableObject {
-    @Published var instanceName = ""
-    @Published var url = ""
-    @Published var email = ""
-    @Published var password = ""
+final class OnboardingViewModel {
+    var instanceName = ""
+    var url = ""
+    var email = ""
+    var password = ""
 
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    @Published var authMethods: AuthMethodsResponse?
+    var isLoading = false
+    var errorMessage: String?
+    var authMethods: AuthMethodsResponse?
     
     var onComplete: (String, String, String, String) -> Void
     
@@ -63,6 +64,7 @@ class OnboardingViewModel: ObservableObject {
                     throw OnboardingAPIService.OnboardingError.invalidURL
                 }
 
+                // CORRECTION : Appel à la méthode statique async définie dans l'extension ci-dessous
                 let callbackURL = try await ASWebAuthenticationSession.async(
                     url: authURL,
                     callbackURLScheme: "beszel-companion",

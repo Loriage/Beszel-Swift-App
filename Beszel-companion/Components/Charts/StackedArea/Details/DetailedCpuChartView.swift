@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import Observation
 
 struct DetailedCpuChartView: View {
     let stackedData: [StackedCpuData]
@@ -7,8 +8,11 @@ struct DetailedCpuChartView: View {
     let uniqueDates: [Date]
     let xAxisFormat: Date.FormatStyle
     let systemID: String?
-    @ObservedObject var settingsManager: SettingsManager
-    @EnvironmentObject var dashboardManager: DashboardManager
+    
+    // Changement : let pour settingsManager, @Environment pour dashboardManager
+    let settingsManager: SettingsManager
+    @Environment(DashboardManager.self) var dashboardManager
+    
     @Environment(\.locale) private var locale
 
     @State private var snappedDate: Date?
@@ -101,7 +105,7 @@ struct CpuDetailedValuesSectionView: View {
     let domain: [String]
     let unit: String
     let valueFormatString: String
-    @ObservedObject var settingsManager: SettingsManager
+    let settingsManager: SettingsManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -147,7 +151,7 @@ struct CpuChartSectionView: View {
     let uniqueDates: [Date]
     let labelScale: Double
     let xAxisFormat: Date.FormatStyle
-    @ObservedObject var settingsManager: SettingsManager
+    let settingsManager: SettingsManager
 
     @Binding var snappedDate: Date?
     @Binding var dragLocation: CGPoint?

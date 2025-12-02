@@ -104,13 +104,18 @@ struct Provider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        let instanceManager = InstanceManager.shared
         let settingsManager = SettingsManager()
 
-        guard let selectedInstanceEntity = configuration.instance,
-              let instanceID = UUID(uuidString: selectedInstanceEntity.id),
-              let instanceToFetch = instanceManager.instances.first(where: { $0.id == instanceID })
-        else {
+        // CORRECTION : On récupère l'instance de manière sécurisée via MainActor.run
+        let instanceToFetch: Instance? = await MainActor.run {
+            guard let selectedInstanceEntity = configuration.instance,
+                  let instanceID = UUID(uuidString: selectedInstanceEntity.id) else {
+                return nil
+            }
+            return InstanceManager.shared.instances.first(where: { $0.id == instanceID })
+        }
+
+        guard let instanceToFetch = instanceToFetch else {
             let entry = SimpleEntry(date: .now, chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.notConnected")
             return Timeline(entries: [entry], policy: .atEnd)
         }
@@ -120,22 +125,30 @@ struct Provider: AppIntentTimelineProvider {
             return Timeline(entries: [entry], policy: .atEnd)
         }
         
-        let apiService = BeszelAPIService(instance: instanceToFetch, instanceManager: instanceManager)
+        // Création du service sur le MainActor pour l'injection, puis utilisation
+        let apiService = await MainActor.run {
+            return BeszelAPIService(instance: instanceToFetch, instanceManager: InstanceManager.shared)
+        }
+        
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
         
         do {
-            let timeFilter = settingsManager.apiFilterString ?? "1=1"
+            // Lecture des settings isolés
+            let timeFilter = await MainActor.run { settingsManager.apiFilterString ?? "1=1" }
+            let timeRange = await MainActor.run { settingsManager.selectedTimeRange }
+            
             let systemFilter = "system = '\(selectedSystemEntity.id)'"
             let finalFilter = "(\(systemFilter) && \(timeFilter))"
 
             let records = try await apiService.fetchSystemStats(filter: finalFilter)
             let dataPoints = DataProcessor.transformSystem(records: records)
             
-            let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: dataPoints, timeRange: settingsManager.selectedTimeRange)
+            let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: dataPoints, timeRange: timeRange)
             let nextUpdate = Date().addingTimeInterval(15 * 60)
             return Timeline(entries: [entry], policy: .after(nextUpdate))
         } catch {
-            let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: [], timeRange: settingsManager.selectedTimeRange, errorMessage: "widget.loadingError")
+            let timeRange = await MainActor.run { settingsManager.selectedTimeRange }
+            let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: [], timeRange: timeRange, errorMessage: "widget.loadingError")
             let nextUpdate = Date().addingTimeInterval(15 * 60)
             return Timeline(entries: [entry], policy: .after(nextUpdate))
         }

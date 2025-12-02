@@ -1,10 +1,14 @@
 import Foundation
 import SwiftUI
-import Combine
+import Observation
 
-class LanguageManager: ObservableObject {
-    @AppStorage("selectedLanguage", store: .sharedSuite)
-    var currentLanguageCode: String = ""
+@Observable
+final class LanguageManager {
+    var currentLanguageCode: String {
+        didSet {
+            UserDefaults.sharedSuite.set(currentLanguageCode, forKey: "selectedLanguage")
+        }
+    }
     
     let availableLanguages: [Language]
 
@@ -16,13 +20,15 @@ class LanguageManager: ObservableObject {
             guard let name = locale.localizedString(forIdentifier: $0) else { return nil }
             return Language(code: $0, name: name.capitalized)
         }
+        
+        let savedCode = UserDefaults.sharedSuite.string(forKey: "selectedLanguage") ?? ""
 
-        if currentLanguageCode.isEmpty {
-            if let bestMatch = Bundle.preferredLocalizations(from: supportedLanguageCodes).first {
-                self.currentLanguageCode = bestMatch
-            } else {
-                self.currentLanguageCode = Bundle.main.developmentLocalization ?? "en"
-            }
+        if !savedCode.isEmpty {
+            self.currentLanguageCode = savedCode
+        } else if let bestMatch = Bundle.preferredLocalizations(from: supportedLanguageCodes).first {
+            self.currentLanguageCode = bestMatch
+        } else {
+            self.currentLanguageCode = Bundle.main.developmentLocalization ?? "en"
         }
     }
 }

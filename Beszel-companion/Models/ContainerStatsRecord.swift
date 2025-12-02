@@ -1,6 +1,6 @@
 import Foundation
 
-struct ContainerStatsRecord: Identifiable, Codable {
+nonisolated struct ContainerStatsRecord: Identifiable, Codable, Sendable {
     let id: String
     let collectionId: String
     let collectionName: String
@@ -11,7 +11,7 @@ struct ContainerStatsRecord: Identifiable, Codable {
     let stats: [ContainerStat]
 }
 
-struct ContainerStat: Identifiable, Codable, Hashable {
+nonisolated struct ContainerStat: Identifiable, Codable, Hashable, Sendable {
     let name: String
     let cpu: Double
     let memory: Double

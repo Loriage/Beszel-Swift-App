@@ -1,13 +1,13 @@
 import SwiftUI
 
 struct MainView: View {
-    @StateObject private var dataService: DataService
-    @StateObject private var chartDataManager: ChartDataManager
-    @StateObject private var homeViewModel: HomeViewModel
-    @StateObject private var systemViewModel: SystemViewModel
-    @StateObject private var containerViewModel: ContainerViewModel
+    @State private var dataService: DataService
+    @State private var chartDataManager: ChartDataManager
+    @State private var homeViewModel: HomeViewModel
+    @State private var systemViewModel: SystemViewModel
+    @State private var containerViewModel: ContainerViewModel
 
-    @ObservedObject var instanceManager: InstanceManager
+    let instanceManager: InstanceManager
     @Binding var isShowingSettings: Bool
     @Binding var selectedTab: Tab
 
@@ -19,69 +19,49 @@ struct MainView: View {
         let dataService = DataService(
             instance: instance,
             settingsManager: settingsManager,
-            refreshManager: refreshManager,
             instanceManager: instanceManager
         )
-        _dataService = StateObject(wrappedValue: dataService)
+        _dataService = State(wrappedValue: dataService)
         
         let chartDataManager = ChartDataManager(
             dataService: dataService,
             settingsManager: settingsManager,
             dashboardManager: dashboardManager,
-            instanceManager: instanceManager,
+            instanceManager: instanceManager
         )
-        _chartDataManager = StateObject(wrappedValue: chartDataManager)
+        _chartDataManager = State(wrappedValue: chartDataManager)
 
-        _homeViewModel = StateObject(wrappedValue: HomeViewModel(
+        _homeViewModel = State(wrappedValue: HomeViewModel(
             chartDataManager: chartDataManager,
             dashboardManager: dashboardManager,
             languageManager: languageManager
         ))
         
-        _systemViewModel = StateObject(wrappedValue: SystemViewModel(
+        _systemViewModel = State(wrappedValue: SystemViewModel(
             chartDataManager: chartDataManager
         ))
 
-        _containerViewModel = StateObject(wrappedValue: ContainerViewModel(
+        _containerViewModel = State(wrappedValue: ContainerViewModel(
             chartDataManager: chartDataManager
         ))
-    }
-
-    private var activeContainerDataBinding: Binding<[ProcessedContainerData]> {
-        Binding<[ProcessedContainerData]>(
-            get: {
-                guard let activeSystemID = instanceManager.activeSystem?.id else { return [] }
-                return dataService.containerDataBySystem[activeSystemID] ?? []
-            },
-            set: { newValue in
-                guard let activeSystemID = instanceManager.activeSystem?.id else { return }
-                dataService.containerDataBySystem[activeSystemID] = newValue
-            }
-        )
     }
 
     var body: some View {
         NavigationStack {
             TabView(selection: $selectedTab) {
-                HomeView(
-                    homeViewModel: homeViewModel
-                )
+                HomeView(homeViewModel: homeViewModel)
                 .tabItem {
                     Label("home.title", systemImage: "house.fill")
                 }
                 .tag(Tab.home)
                 
-                SystemView(
-                    systemViewModel: systemViewModel
-                )
+                SystemView(systemViewModel: systemViewModel)
                 .tabItem {
                     Label("system.title", systemImage: "cpu.fill")
                 }
                 .tag(Tab.system)
                 
-                ContainerView(
-                    viewModel: containerViewModel
-                )
+                ContainerView(viewModel: containerViewModel)
                 .tabItem {
                     Label("container.title", systemImage: "shippingbox.fill")
                 }
@@ -97,6 +77,13 @@ struct MainView: View {
                     }
                 }
             }
+        }
+        .task {
+            // Initial fetch
+            await dataService.fetchData()
+        }
+        .onChange(of: instanceManager.activeSystem) {
+            chartDataManager.updateData()
         }
     }
 }

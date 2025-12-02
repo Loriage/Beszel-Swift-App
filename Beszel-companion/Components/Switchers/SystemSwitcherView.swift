@@ -1,22 +1,25 @@
 import SwiftUI
 
 struct SystemSwitcherView: View {
-    @ObservedObject var instanceManager: InstanceManager
+    let instanceManager: InstanceManager
 
     var body: some View {
+        @Bindable var manager = instanceManager
+        
         Menu {
-            Section(header: Text(instanceManager.activeInstance?.name ?? String(localized: "switcher.instance.header"))) {
-                Picker("Systèmes", selection: instanceManager.activeSystemSelection) {
-                    ForEach(instanceManager.systems) { system in
-                        Text(system.name).tag(system.id as String?)
+            Section(header: Text(manager.activeInstance?.name ?? String(localized: "switcher.instance.header"))) {
+                Picker("Systèmes", selection: $manager.activeSystemID) {
+                    ForEach(manager.systems) { system in
+                        Text(system.name)
+                            .tag(system.id as String?)
                     }
                 }
             }
         } label: {
             HStack(spacing: 12) {
-                if let systemName = instanceManager.activeSystem?.name {
+                if let systemName = manager.activeSystem?.name {
                     Text(systemName)
-                } else if instanceManager.isLoadingSystems {
+                } else if manager.isLoadingSystems {
                     Text("switcher.loading")
                     ProgressView()
                         .controlSize(.mini)

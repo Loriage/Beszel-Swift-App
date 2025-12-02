@@ -1,12 +1,14 @@
 import Foundation
 import SwiftUI
-import Combine
+import Observation
 
-class HomeViewModel: BaseViewModel {
-    @Published var isShowingFilterSheet = false
-    @Published var searchText = ""
-    @Published var sortOption: SortOption = .bySystem
-    @Published var sortDescending = false
+@Observable
+@MainActor
+final class HomeViewModel {
+    var isShowingFilterSheet = false
+    var searchText = ""
+    var sortOption: SortOption = .bySystem
+    var sortDescending = false
 
     let chartDataManager: ChartDataManager
     private let dashboardManager: DashboardManager
@@ -16,11 +18,6 @@ class HomeViewModel: BaseViewModel {
         self.chartDataManager = chartDataManager
         self.dashboardManager = dashboardManager
         self.languageManager = languageManager
-        super.init()
-
-        forwardChanges(from: chartDataManager)
-        forwardChanges(from: dashboardManager)
-        
     }
 
     var filteredAndSortedPins: [ResolvedPinnedItem] {

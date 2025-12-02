@@ -1,8 +1,10 @@
 import Foundation
-import Combine
 import SwiftUI
+import Observation
 
-class InstanceManager: ObservableObject {
+@Observable
+@MainActor
+final class InstanceManager {
     static let shared = InstanceManager()
     static let appGroupIdentifier = "group.com.nohitdev.Beszel"
 
@@ -16,110 +18,85 @@ class InstanceManager: ObservableObject {
         return InstanceManager.getStore()
     }
 
-    private var instancesData: Data {
-        get { userDefaultsStore.data(forKey: "instances") ?? Data() }
-        set { userDefaultsStore.set(newValue, forKey: "instances") }
+    var instances: [Instance] = []
+    var activeInstance: Instance?
+    var systems: [SystemRecord] = []
+    var activeSystem: SystemRecord?
+    var isLoadingSystems = false
+
+    // MARK: - Properties for Bindings
+    // Ces propriétés remplacent les anciens Bindings calculés.
+    // Elles gèrent la logique métier (mise à jour des UserDefaults, fetch, etc.) dans leurs setters.
+
+    var activeInstanceID: String? {
+        didSet {
+            guard activeInstanceID != oldValue else { return }
+            userDefaultsStore.set(activeInstanceID, forKey: "activeInstanceID")
+            
+            // Réinitialiser le système si on change d'instance
+            if activeInstanceID != oldValue {
+                activeSystemID = nil
+                activeSystem = nil
+                systems = []
+            }
+            
+            updateActiveInstance()
+            
+            if let instance = activeInstance {
+                fetchSystemsForInstance(instance)
+            }
+        }
     }
 
-    var activeInstanceIDString: String? {
-        get { userDefaultsStore.string(forKey: "activeInstanceID") }
-        set { userDefaultsStore.set(newValue, forKey: "activeInstanceID") }
+    var activeSystemID: String? {
+        didSet {
+            guard activeSystemID != oldValue else { return }
+            userDefaultsStore.set(activeSystemID, forKey: "activeSystemID")
+            updateActiveSystem()
+        }
     }
-
-    var activeSystemIDString: String? {
-        get { userDefaultsStore.string(forKey: "activeSystemID") }
-        set { userDefaultsStore.set(newValue, forKey: "activeSystemID") }
-    }
-
-    @Published var instances: [Instance] = []
-    @Published var activeInstance: Instance?
-    @Published var systems: [SystemRecord] = []
-    @Published var activeSystem: SystemRecord?
-    @Published var isLoadingSystems = false
-
-    private var cancellables = Set<AnyCancellable>()
 
     init() {
-        self.instances = decodeInstances()
+        // Chargement initial
+        if let data = userDefaultsStore.data(forKey: "instances"),
+           let decoded = try? JSONDecoder().decode([Instance].self, from: data) {
+            self.instances = decoded
+        }
+        
+        // Initialisation des IDs depuis le stockage
+        self.activeInstanceID = userDefaultsStore.string(forKey: "activeInstanceID")
+        self.activeSystemID = userDefaultsStore.string(forKey: "activeSystemID")
+        
         updateActiveInstance()
 
+        // Si aucune instance active mais qu'il en existe, on prend la première
         if self.activeInstance == nil, let firstInstance = self.instances.first {
             setActiveInstance(firstInstance)
+        } else if let instance = self.activeInstance {
+            fetchSystemsForInstance(instance)
         }
-
-        self.$activeInstance
-            .removeDuplicates(by: { $0?.id == $1?.id })
-            .sink { [weak self] instance in
-                guard let self = self else { return }
-                if let instance = instance {
-                    self.fetchSystemsForInstance(instance)
-                } else {
-                    self.systems = []
-                    self.activeSystem = nil
-                }
-            }
-            .store(in: &cancellables)
     }
     
-    var activeInstanceSelection: Binding<String?> {
-        Binding<String?>(
-            get: {
-                self.activeInstanceIDString
-            },
-            set: { newID in
-                if let newID = newID, let uuid = UUID(uuidString: newID), let instance = self.instances.first(where: { $0.id == uuid }) {
-                    self.setActiveInstance(instance)
-                } else {
-                    self.setActiveInstance(nil)
-                }
-            }
-        )
-    }
+    // ... (Le reste des méthodes fetchSystems, addInstance, credentials reste identique à la version précédente) ...
     
-    var activeSystemSelection: Binding<String?> {
-        Binding<String?>(
-            get: { self.activeSystemIDString },
-            set: { newID in
-                self.activeSystemIDString = newID
-                self.updateActiveSystem()
-            }
-        )
-    }
-
     func fetchSystemsForInstance(_ instance: Instance) {
         Task {
-            await MainActor.run { self.isLoadingSystems = true }
+            self.isLoadingSystems = true
             
             let apiService = BeszelAPIService(instance: instance, instanceManager: self)
             
             do {
                 let fetchedSystems = try await apiService.fetchSystems()
-                await MainActor.run {
-                    self.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
-                    self.updateActiveSystem()
-                    self.isLoadingSystems = false
-                }
+                self.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
+                self.updateActiveSystem()
+                self.isLoadingSystems = false
+                DashboardManager.shared.refreshPins()
             } catch {
-                if let decodingError = error as? DecodingError {
-                    switch decodingError {
-                    case .keyNotFound(let key, let context):
-                        print("Key '\(key)' not found:", context.debugDescription)
-                    case .valueNotFound(let value, let context):
-                        print("Value '\(value)' not found:", context.debugDescription)
-                    case .typeMismatch(let type, let context):
-                        print("Type '\(type)' mismatch:", context.debugDescription)
-                    case .dataCorrupted(let context):
-                        print("Data corrupted:", context.debugDescription)
-                    @unknown default:
-                        print("Unknown decoding error")
-                    }
-                }
-
-                await MainActor.run {
-                    self.systems = []
-                    self.activeSystem = nil
-                    self.isLoadingSystems = false
-                }
+                print("Error fetching systems: \(error)")
+                self.systems = []
+                self.activeSystem = nil
+                self.isLoadingSystems = false
+                DashboardManager.shared.refreshPins()
             }
         }
     }
@@ -147,22 +124,17 @@ class InstanceManager: ObservableObject {
     }
 
     func setActiveInstance(_ instance: Instance?) {
-        if activeInstanceIDString != instance?.id.uuidString {
-            activeSystemIDString = nil
-            activeSystem = nil
-            systems = []
-        }
-        self.activeInstanceIDString = instance?.id.uuidString
-        updateActiveInstance()
+        // Cette méthode met à jour la propriété observable, ce qui déclenchera le didSet
+        self.activeInstanceID = instance?.id.uuidString
     }
 
-    func loadCredential(for instance: Instance) -> String? {
-        if let data = KeychainHelper.load(service: keychainService, account: instance.id.uuidString, useSharedKeychain: true),
+    nonisolated func loadCredential(for instance: Instance) -> String? {
+        if let data = KeychainHelper.load(service: "com.nohitdev.Beszel.instances", account: instance.id.uuidString, useSharedKeychain: true),
            let credential = String(data: data, encoding: .utf8), !credential.isEmpty {
             return credential
         }
         
-        if let data = KeychainHelper.load(service: keychainService, account: instance.id.uuidString, useSharedKeychain: false),
+        if let data = KeychainHelper.load(service: "com.nohitdev.Beszel.instances", account: instance.id.uuidString, useSharedKeychain: false),
            let credential = String(data: data, encoding: .utf8), !credential.isEmpty {
             return credential
         }
@@ -180,7 +152,7 @@ class InstanceManager: ObservableObject {
     }
     
     private func updateActiveInstance() {
-        guard let activeIDString = self.activeInstanceIDString,
+        guard let activeIDString = self.activeInstanceID,
               let uuid = UUID(uuidString: activeIDString) else {
             self.activeInstance = nil
             return
@@ -194,39 +166,37 @@ class InstanceManager: ObservableObject {
             return
         }
         
-        if let activeID = self.activeSystemIDString, let system = systems.first(where: { $0.id == activeID }) {
+        // Si un ID est sélectionné et valide, on le garde
+        if let activeID = self.activeSystemID, let system = systems.first(where: { $0.id == activeID }) {
             self.activeSystem = system
         } else {
+            // Sinon on prend le premier par défaut
             self.activeSystem = systems.first
-            self.activeSystemIDString = systems.first?.id
+            // On met à jour l'ID sans déclencher de boucle infinie (le guard au début de didSet protège)
+            self.activeSystemID = systems.first?.id
         }
     }
 
     private func saveInstances() {
         if let data = try? JSONEncoder().encode(instances) {
-            instancesData = data
+            userDefaultsStore.set(data, forKey: "instances")
         }
-    }
-
-    private func decodeInstances() -> [Instance] {
-        guard let decodedInstances = try? JSONDecoder().decode([Instance].self, from: instancesData), !decodedInstances.isEmpty else {
-            return []
-        }
-        return decodedInstances
     }
     
     private func saveCredential(credential: String, for instance: Instance) {
         guard let data = credential.data(using: .utf8) else { return }
+        let service = keychainService
 
-        let didSaveToShared = KeychainHelper.save(data: data, service: keychainService, account: instance.id.uuidString, useSharedKeychain: true)
+        let didSaveToShared = KeychainHelper.save(data: data, service: service, account: instance.id.uuidString, useSharedKeychain: true)
         
         if !didSaveToShared {
-            _ = KeychainHelper.save(data: data, service: keychainService, account: instance.id.uuidString, useSharedKeychain: false)
+            _ = KeychainHelper.save(data: data, service: service, account: instance.id.uuidString, useSharedKeychain: false)
         }
     }
 
     private func deleteCredential(for instance: Instance) {
-        KeychainHelper.delete(service: keychainService, account: instance.id.uuidString, useSharedKeychain: true)
-        KeychainHelper.delete(service: keychainService, account: instance.id.uuidString, useSharedKeychain: false)
+        let service = keychainService
+        KeychainHelper.delete(service: service, account: instance.id.uuidString, useSharedKeychain: true)
+        KeychainHelper.delete(service: service, account: instance.id.uuidString, useSharedKeychain: false)
     }
 }

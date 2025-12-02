@@ -1,33 +1,27 @@
 import Foundation
 import SwiftUI
-import Combine
+import Observation
 
-class ContainerDetailViewModel: BaseViewModel {
+@Observable
+@MainActor
+final class ContainerDetailViewModel {
     let container: ProcessedContainerData
     private let dashboardManager: DashboardManager
     private let settingsManager: SettingsManager
 
-    @Published var isCpuChartPinned: Bool
-    @Published var isMemoryChartPinned: Bool
+    // Ces propriétés sont calculées dynamiquement pour refléter l'état réel sans duplication
+    var isCpuChartPinned: Bool {
+        dashboardManager.isPinned(.containerCPU(name: container.name))
+    }
+    
+    var isMemoryChartPinned: Bool {
+        dashboardManager.isPinned(.containerMemory(name: container.name))
+    }
 
     init(container: ProcessedContainerData, dashboardManager: DashboardManager, settingsManager: SettingsManager) {
         self.container = container
         self.dashboardManager = dashboardManager
         self.settingsManager = settingsManager
-
-        self.isCpuChartPinned = dashboardManager.isPinned(.containerCPU(name: container.name))
-        self.isMemoryChartPinned = dashboardManager.isPinned(.containerMemory(name: container.name))
-
-        super.init()
-
-        forwardChanges(from: dashboardManager)
-
-        dashboardManager.objectWillChange
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.updatePinState()
-            }
-            .store(in: &cancellables)
     }
 
     var containerName: String {
@@ -44,10 +38,5 @@ class ContainerDetailViewModel: BaseViewModel {
 
     func toggleMemoryPin() {
         dashboardManager.togglePin(for: .containerMemory(name: container.name))
-    }
-
-    private func updatePinState() {
-        self.isCpuChartPinned = dashboardManager.isPinned(.containerCPU(name: container.name))
-        self.isMemoryChartPinned = dashboardManager.isPinned(.containerMemory(name: container.name))
     }
 }

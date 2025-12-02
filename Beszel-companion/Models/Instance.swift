@@ -1,6 +1,6 @@
 import Foundation
 
-struct Instance: Codable, Identifiable, Hashable {
+struct Instance: Codable, Identifiable, Hashable, Sendable {
     let id: UUID
     var name: String
     let url: String

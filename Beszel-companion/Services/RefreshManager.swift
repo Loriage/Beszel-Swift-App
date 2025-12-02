@@ -1,9 +1,10 @@
 import Foundation
 import Combine
+import Observation
 
-class RefreshManager: ObservableObject {
-    @Published var refreshSignal = Date()
-    
+@Observable
+final class RefreshManager {
+    var refreshSignal = Date()
     private var timerCancellable: AnyCancellable?
     
     func adjustTimer(for timeRange: TimeRangeOption) {

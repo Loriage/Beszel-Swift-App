@@ -1,14 +1,13 @@
 import Foundation
 import SwiftUI
-import Combine
+import Observation
 
-class SystemViewModel: BaseViewModel {
+@Observable
+@MainActor
+final class SystemViewModel {
     let chartDataManager: ChartDataManager
 
     init(chartDataManager: ChartDataManager) {
         self.chartDataManager = chartDataManager
-        super.init()
-
-        forwardChanges(from: chartDataManager)
     }
 }

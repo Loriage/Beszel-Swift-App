@@ -1,15 +1,18 @@
 import Foundation
 import SwiftUI
-import Combine
+import Observation
 
-class DashboardManager: ObservableObject {
+@Observable
+@MainActor
+final class DashboardManager {
     static let shared = DashboardManager()
 
-    @AppStorage("pinnedItemsByInstance", store: .sharedSuite) private var allPinsData: Data = Data()
+    var pinnedItems: [PinnedItem] = []
 
-    @Published var pinnedItems: [PinnedItem] = []
-
-    private var cancellables = Set<AnyCancellable>()
+    private var allPinsData: Data {
+        get { UserDefaults.sharedSuite.data(forKey: "pinnedItemsByInstance") ?? Data() }
+        set { UserDefaults.sharedSuite.set(newValue, forKey: "pinnedItemsByInstance") }
+    }
 
     var allPinsForActiveInstance: [ResolvedPinnedItem] {
         guard let activeInstanceID = InstanceManager.shared.activeInstance?.id.uuidString else {
@@ -34,21 +37,18 @@ class DashboardManager: ObservableObject {
     }
 
     init() {
-        InstanceManager.shared.$activeSystem
-            .sink { [weak self] activeSystem in
-                self?.loadPins(
-                    for: InstanceManager.shared.activeInstance,
-                    system: activeSystem
-                )
-            }
-            .store(in: &cancellables)
+        // L'observation de InstanceManager se fera via les vues ou explicitement si nécessaire
+    }
+    
+    func refreshPins() {
+        loadPins(for: InstanceManager.shared.activeInstance, system: InstanceManager.shared.activeSystem)
     }
 
     private func compositeKey(for instanceID: String, systemID: String) -> String {
         return "\(instanceID)-\(systemID)"
     }
 
-    private func loadPins(for instance: Instance?, system: SystemRecord?) {
+    func loadPins(for instance: Instance?, system: SystemRecord?) {
         guard let instanceID = instance?.id.uuidString, let systemID = system?.id else {
             self.pinnedItems = []
             return
@@ -90,8 +90,6 @@ class DashboardManager: ObservableObject {
         
         if systemID == InstanceManager.shared.activeSystem?.id {
             loadPins(for: InstanceManager.shared.activeInstance, system: InstanceManager.shared.activeSystem)
-        } else {
-            objectWillChange.send()
         }
     }
 

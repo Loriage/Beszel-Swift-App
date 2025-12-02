@@ -1,6 +1,6 @@
 import Foundation
 
-struct SystemRecord: Codable, Identifiable, Hashable {
+nonisolated struct SystemRecord: Codable, Identifiable, Hashable, Sendable {
     let id: String
     let name: String
     let status: String?
@@ -8,11 +8,11 @@ struct SystemRecord: Codable, Identifiable, Hashable {
     let info: SystemInfo?
 }
 
-struct SystemInfo: Codable, Hashable {
+nonisolated struct SystemInfo: Codable, Hashable, Sendable {
     let h: String? // hostname
     let k: String? // kernel version
     let c: Int?    // cpu cores
     let t: Int?    // cpu threads
     let m: String? // cpu model
-    let os: Int?   // os identifier (parfois null ou format inattendu)
+    let os: Int?   // os identifier
 }

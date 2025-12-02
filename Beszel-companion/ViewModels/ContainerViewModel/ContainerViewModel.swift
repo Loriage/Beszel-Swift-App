@@ -1,25 +1,21 @@
 import Foundation
 import SwiftUI
-import Combine
+import Observation
 
-class ContainerViewModel: BaseViewModel {
-    @Published var processedData: [ProcessedContainerData] = []
-
+@Observable
+@MainActor
+final class ContainerViewModel {
+    // Avec @Observable, les propriétés calculées sont observées si elles dépendent d'autres propriétés observées.
+    // Ici on expose directement les données du chartDataManager.
+    
     private let chartDataManager: ChartDataManager
 
     init(chartDataManager: ChartDataManager) {
         self.chartDataManager = chartDataManager
-        super.init()
-
-        forwardChanges(from: chartDataManager)
-        chartDataManager.objectWillChange
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.processedData = self?.chartDataManager.containerData ?? []
-            }
-            .store(in: &cancellables)
-
-        self.processedData = chartDataManager.containerData
+    }
+    
+    var processedData: [ProcessedContainerData] {
+        chartDataManager.containerData
     }
 
     var sortedData: [ProcessedContainerData] {

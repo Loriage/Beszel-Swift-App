@@ -1,17 +1,18 @@
 import Foundation
 import SwiftUI
-import Combine
+import Observation
 import WidgetKit
 
+@Observable
 @MainActor
-class SettingsViewModel: ObservableObject {
+final class SettingsViewModel {
     private let dashboardManager: DashboardManager
-    private let settingsManager: SettingsManager
+    let settingsManager: SettingsManager
     let languageManager: LanguageManager
     let instanceManager: InstanceManager
 
-    @Published var isShowingClearPinsAlert = false
-    @Published var isAddingInstance = false
+    var isShowingClearPinsAlert = false
+    var isAddingInstance = false
 
     init(dashboardManager: DashboardManager, settingsManager: SettingsManager, languageManager: LanguageManager, instanceManager: InstanceManager) {
         self.dashboardManager = dashboardManager
@@ -22,26 +23,6 @@ class SettingsViewModel: ObservableObject {
 
     var arePinsEmpty: Bool {
         dashboardManager.allPinsForActiveInstance.isEmpty
-    }
-
-    var languageCodeBinding: Binding<String> {
-        Binding(
-            get: { self.languageManager.currentLanguageCode },
-            set: {
-                self.languageManager.currentLanguageCode = $0
-                WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
-            }
-        )
-    }
-
-    var timeRangeBinding: Binding<TimeRangeOption> {
-        Binding(
-            get: { self.settingsManager.selectedTimeRange },
-            set: {
-                self.settingsManager.selectedTimeRange = $0
-                WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
-            }
-        )
     }
 
     func setActiveInstance(_ instance: Instance) {

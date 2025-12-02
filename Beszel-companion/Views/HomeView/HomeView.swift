@@ -2,11 +2,13 @@ import SwiftUI
 import Charts
 
 struct HomeView: View {
-    @ObservedObject var homeViewModel: HomeViewModel
-    @EnvironmentObject var dashboardManager: DashboardManager
-    @EnvironmentObject var settingsManager: SettingsManager
+    let homeViewModel: HomeViewModel
+    @Environment(DashboardManager.self) var dashboardManager
+    @Environment(SettingsManager.self) var settingsManager
 
     var body: some View {
+        @Bindable var viewModel = homeViewModel
+        
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 ScreenHeaderView(title: "home.title", subtitle: "home.subtitle")
@@ -15,7 +17,7 @@ struct HomeView: View {
                     emptyStateView
                 } else {
                     HStack {
-                        TextField("dashboard.searchPlaceholder", text: $homeViewModel.searchText)
+                        TextField("dashboard.searchPlaceholder", text: $viewModel.searchText)
                             .padding(8)
                             .padding(.leading, 24)
                             .background(Color(.systemGray6))
@@ -46,11 +48,13 @@ struct HomeView: View {
                 }
             }
         }
-        .onAppear { Task { homeViewModel.chartDataManager.fetchData() } }
-        .sheet(isPresented: $homeViewModel.isShowingFilterSheet) {
-            FilterView(
-                sortOption: $homeViewModel.sortOption,
-                sortDescending: $homeViewModel.sortDescending
+        .task {
+             homeViewModel.chartDataManager.fetchData()
+        }
+        .sheet(isPresented: $viewModel.isShowingFilterSheet) {
+             FilterView(
+                sortOption: $viewModel.sortOption,
+                sortDescending: $viewModel.sortDescending
             )
         }
     }
@@ -86,7 +90,7 @@ struct HomeView: View {
                 dataPoints: systemData,
                 systemName: systemName,
                 isPinned: homeViewModel.chartDataManager.isPinned(.systemCPU, onSystem: resolvedItem.systemID),
-                onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .systemCPU) }
+                onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .systemCPU, onSystem: resolvedItem.systemID) }
             )
         case .systemMemory:
             SystemMemoryChartView(
@@ -94,7 +98,7 @@ struct HomeView: View {
                 dataPoints: systemData,
                 systemName: systemName,
                 isPinned: homeViewModel.chartDataManager.isPinned(.systemMemory, onSystem: resolvedItem.systemID),
-                onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .systemMemory) }
+                onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .systemMemory, onSystem: resolvedItem.systemID) }
             )
         case .systemTemperature:
             SystemTemperatureChartView(
@@ -102,7 +106,7 @@ struct HomeView: View {
                 dataPoints: systemData,
                 systemName: systemName,
                 isPinned: homeViewModel.chartDataManager.isPinned(.systemTemperature, onSystem: resolvedItem.systemID),
-                onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .systemTemperature) }
+                onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .systemTemperature, onSystem: resolvedItem.systemID) }
             )
         case .containerCPU(let name):
             if let container = containerData.first(where: { $0.id == name }) {
@@ -111,7 +115,7 @@ struct HomeView: View {
                     container: container,
                     systemName: systemName,
                     isPinned: homeViewModel.chartDataManager.isPinned(.containerCPU(name: container.name), onSystem: resolvedItem.systemID),
-                    onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .containerCPU(name: container.name)) }
+                    onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .containerCPU(name: container.name), onSystem: resolvedItem.systemID) }
                 )
             }
         case .containerMemory(let name):
@@ -121,7 +125,7 @@ struct HomeView: View {
                     container: container,
                     systemName: systemName,
                     isPinned: homeViewModel.chartDataManager.isPinned(.containerMemory(name: container.name), onSystem: resolvedItem.systemID),
-                    onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .containerMemory(name: container.name)) }
+                    onPinToggle: { homeViewModel.chartDataManager.togglePin(for: .containerMemory(name: container.name), onSystem: resolvedItem.systemID) }
                 )
             }
         case .stackedContainerCPU:
@@ -136,7 +140,7 @@ struct HomeView: View {
                 settingsManager: settingsManager,
                 processedData: containerData,
                 systemID: resolvedItem.systemID,
-                systemName: systemName,
+                systemName: systemName
             )
         }
     }

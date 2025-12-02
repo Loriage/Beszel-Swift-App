@@ -44,6 +44,7 @@ This application allows you to view your server and container statistics directl
 ## Roadmap
 
 -   [ ] Lock Screen Widgets.
+-   [ ] MacOS support
 -   [ ] Push notifications.
 -   [ ] Localization into other languages (Open to contributions)
 

@@ -16,8 +16,12 @@ struct SystemSwitcherView: View {
             HStack(spacing: 12) {
                 if let systemName = instanceManager.activeSystem?.name {
                     Text(systemName)
-                } else {
+                } else if instanceManager.isLoadingSystems {
                     Text("switcher.loading")
+                    ProgressView()
+                        .controlSize(.mini)
+                } else {
+                    Text("No system found")
                 }
                 
                 Image(systemName: "chevron.up.chevron.down")

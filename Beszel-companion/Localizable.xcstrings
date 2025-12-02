@@ -552,6 +552,9 @@
         }
       }
     },
+    "Error" : {
+
+    },
     "filter.byMetric" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -698,6 +701,12 @@
           }
         }
       }
+    },
+    "No Data" : {
+
+    },
+    "No system found" : {
+
     },
     "onboarding.connect_with_provider" : {
       "localizations" : {
@@ -989,6 +998,9 @@
         }
       }
     },
+    "Retry" : {
+
+    },
     "settings.dashboard" : {
       "localizations" : {
         "en" : {
@@ -1230,6 +1242,7 @@
       }
     },
     "system.loading" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

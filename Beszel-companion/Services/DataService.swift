@@ -82,6 +82,12 @@ class DataService: ObservableObject {
                 self.errorMessage = nil
             }
 
+            defer {
+                Task { @MainActor in
+                    self.isLoading = false
+                }
+            }
+
             let systemsToFetch = InstanceManager.shared.systems
             let timeFilter = self.settingsManager.apiFilterString
 
@@ -89,7 +95,6 @@ class DataService: ObservableObject {
                 await MainActor.run {
                     self.systemDataPointsBySystem = [:]
                     self.containerDataBySystem = [:]
-                    self.isLoading = false
                 }
                 return
             }
@@ -146,10 +151,6 @@ class DataService: ObservableObject {
                     self.systemDataPointsBySystem = [:]
                     self.containerDataBySystem = [:]
                 }
-            }
-
-            await MainActor.run {
-                self.isLoading = false
             }
         }
     }

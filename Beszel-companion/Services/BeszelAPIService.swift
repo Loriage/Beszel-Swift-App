@@ -18,13 +18,22 @@ class BeszelAPIService: ObservableObject {
     init(instance: Instance, instanceManager: InstanceManager) {
         self.instance = instance
         self.instanceManager = instanceManager
-        var url = instance.url
-        if url.hasSuffix("/") {
-            url.removeLast()
+        
+        var cleanUrl = instance.url.trimmingCharacters(in: .whitespacesAndNewlines)
+        if cleanUrl.hasSuffix("/") {
+            cleanUrl.removeLast()
         }
-        self.baseURL = url
+        
+        self.baseURL = cleanUrl
         self.email = instance.email
         self.credential = instanceManager.loadCredential(for: instance) ?? ""
+    }
+
+    private var session: URLSession {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15
+        config.timeoutIntervalForResource = 30
+        return URLSession(configuration: config)
     }
 
     private func ensureAuthenticated() async throws {
@@ -57,7 +66,7 @@ class BeszelAPIService: ObservableObject {
         let body: [String: String] = ["identity": self.email, "password": self.credential]
         request.httpBody = try JSONEncoder().encode(body)
         
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await self.session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw URLError(.userAuthenticationRequired)
@@ -80,7 +89,7 @@ class BeszelAPIService: ObservableObject {
             request.addValue("Bearer \(currentToken)", forHTTPHeaderField: "Authorization")
         }
         
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await self.session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw URLError(.userAuthenticationRequired)
@@ -104,7 +113,7 @@ class BeszelAPIService: ObservableObject {
         var request = URLRequest(url: url)
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await self.session.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
             try await refreshToken()
@@ -116,7 +125,7 @@ class BeszelAPIService: ObservableObject {
             var refreshedRequest = URLRequest(url: url)
             refreshedRequest.addValue("Bearer \(refreshedToken)", forHTTPHeaderField: "Authorization")
             
-            let (refreshedData, refreshedResponse) = try await URLSession.shared.data(for: refreshedRequest)
+            let (refreshedData, refreshedResponse) = try await self.session.data(for: refreshedRequest)
             
             guard let finalHttpResponse = refreshedResponse as? HTTPURLResponse, finalHttpResponse.statusCode == 200 else {
                 throw URLError(.badServerResponse)

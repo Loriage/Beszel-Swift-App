@@ -35,6 +35,14 @@ class ChartDataManager: ObservableObject {
         updateData()
     }
 
+    var isLoading: Bool {
+        dataService.isLoading
+    }
+
+    var errorMessage: String? {
+        dataService.errorMessage
+    }
+
     private func updateData() {
         guard let activeSystemID = instanceManager.activeSystem?.id else {
             self.systemDataPoints = []

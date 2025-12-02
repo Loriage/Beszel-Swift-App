@@ -100,6 +100,21 @@ class InstanceManager: ObservableObject {
                     self.isLoadingSystems = false
                 }
             } catch {
+                if let decodingError = error as? DecodingError {
+                    switch decodingError {
+                    case .keyNotFound(let key, let context):
+                        print("Key '\(key)' not found:", context.debugDescription)
+                    case .valueNotFound(let value, let context):
+                        print("Value '\(value)' not found:", context.debugDescription)
+                    case .typeMismatch(let type, let context):
+                        print("Type '\(type)' mismatch:", context.debugDescription)
+                    case .dataCorrupted(let context):
+                        print("Data corrupted:", context.debugDescription)
+                    @unknown default:
+                        print("Unknown decoding error")
+                    }
+                }
+
                 await MainActor.run {
                     self.systems = []
                     self.activeSystem = nil

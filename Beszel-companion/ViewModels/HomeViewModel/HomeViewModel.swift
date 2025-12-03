@@ -6,18 +6,29 @@ import Observation
 @MainActor
 final class HomeViewModel {
     var isShowingFilterSheet = false
-    var searchText = ""
-    var sortOption: SortOption = .bySystem
-    var sortDescending = false
 
+    var searchText = "" {
+        didSet { updatePins() }
+    }
+    var sortOption: SortOption = .bySystem {
+        didSet { updatePins() }
+    }
+    var sortDescending = false {
+        didSet { updatePins() }
+    }
+
+    var filteredAndSortedPins: [ResolvedPinnedItem] = []
+    
     let chartDataManager: ChartDataManager
     private let dashboardManager: DashboardManager
     private let languageManager: LanguageManager
-
+    
     init(chartDataManager: ChartDataManager, dashboardManager: DashboardManager, languageManager: LanguageManager) {
         self.chartDataManager = chartDataManager
         self.dashboardManager = dashboardManager
         self.languageManager = languageManager
+
+        updatePins()
     }
 
     private struct SortablePin {
@@ -28,7 +39,7 @@ final class HomeViewModel {
         let serviceName: String
     }
 
-    var filteredAndSortedPins: [ResolvedPinnedItem] {
+    func updatePins() {
         let bundle = languageManager.currentBundle
         let pins = dashboardManager.allPinsForActiveInstance
 
@@ -39,7 +50,6 @@ final class HomeViewModel {
             filteredPins = pins.filter { resolvedItem in
                 let systemName = chartDataManager.systemName(forSystemID: resolvedItem.systemID) ?? ""
                 let itemName = resolvedItem.item.localizedDisplayName(for: bundle)
-                
                 return systemName.localizedCaseInsensitiveContains(searchText) ||
                 itemName.localizedCaseInsensitiveContains(searchText)
             }
@@ -84,11 +94,6 @@ final class HomeViewModel {
         }
 
         let result = sortedItems.map { $0.resolvedItem }
-        
-        if sortDescending {
-            return result.reversed()
-        } else {
-            return result
-        }
+        self.filteredAndSortedPins = sortDescending ? result.reversed() : result
     }
 }

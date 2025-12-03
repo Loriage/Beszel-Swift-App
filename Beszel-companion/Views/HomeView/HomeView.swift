@@ -5,84 +5,76 @@ struct HomeView: View {
     let homeViewModel: HomeViewModel
     @Environment(DashboardManager.self) var dashboardManager
     @Environment(SettingsManager.self) var settingsManager
-
+    
     var body: some View {
         @Bindable var viewModel = homeViewModel
         
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 ScreenHeaderView(title: "home.title", subtitle: "home.subtitle")
-
-                if dashboardManager.allPinsForActiveInstance.isEmpty {
-                    emptyStateView
-                } else {
-                    HStack {
-                        TextField("dashboard.searchPlaceholder", text: $viewModel.searchText)
-                            .padding(8)
-                            .padding(.leading, 24)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(10)
-                            .overlay(
-                                HStack {
-                                    Image(systemName: "magnifyingglass")
-                                        .foregroundColor(.gray)
-                                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                                        .padding(.leading, 8)
-                                }
-                            )
-                        Button(action: {
-                            homeViewModel.isShowingFilterSheet = true
-                        }) {
-                            Image(systemName: "line.3.horizontal.decrease.circle")
-                                .font(.title)
-                        }
+                HStack {
+                    TextField("dashboard.searchPlaceholder", text: $viewModel.searchText)
+                        .padding(8)
+                        .padding(.leading, 24)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                        .overlay(
+                            HStack {
+                                Image(systemName: "magnifyingglass")
+                                    .foregroundColor(.gray)
+                                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                                    .padding(.leading, 8)
+                            }
+                        )
+                    Button(action: {
+                        homeViewModel.isShowingFilterSheet = true
+                    }) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .font(.title)
                     }
-                    .padding(.horizontal)
-
-                    LazyVGrid(columns: [GridItem(.flexible())], spacing: 24) {
-                        ForEach(homeViewModel.filteredAndSortedPins) { resolvedItem in
-                            pinnedItemView(for: resolvedItem)
-                        }
+                }
+                .padding(.horizontal)
+                
+                LazyVGrid(columns: [GridItem(.flexible())], spacing: 24) {
+                    ForEach(homeViewModel.filteredAndSortedPins) { resolvedItem in
+                        pinnedItemView(for: resolvedItem)
                     }
-                    .padding(.horizontal)
+                }
+                .padding(.horizontal)
+            }
+        }
+        .overlay {
+            if dashboardManager.allPinsForActiveInstance.isEmpty {
+                ContentUnavailableView {
+                    Label("home.empty.title", systemImage: "pin.slash")
+                } description: {
+                    Text("home.empty.message")
                 }
             }
         }
         .task {
+            try? await Task.sleep(for: .seconds(0.35))
             await homeViewModel.chartDataManager.fetchData()
+
+            homeViewModel.updatePins()
+        }
+        .onChange(of: dashboardManager.allPinsForActiveInstance) {
+            homeViewModel.updatePins()
         }
         .sheet(isPresented: $viewModel.isShowingFilterSheet) {
-             FilterView(
+            FilterView(
                 sortOption: $viewModel.sortOption,
                 sortDescending: $viewModel.sortDescending
             )
         }
     }
-
-    private var emptyStateView: some View {
-        VStack (alignment: .center, spacing: 8) {
-            Image(systemName: "pin.slash")
-                .font(.largeTitle)
-                .foregroundColor(.secondary)
-            Text("home.empty.title")
-                .font(.title2)
-                .fontWeight(.bold)
-                .padding(.top, 8)
-            Text("home.empty.message")
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal)
-        .padding(.top, 80)
-    }
-
+    
     @ViewBuilder
     private func pinnedItemView(for resolvedItem: ResolvedPinnedItem) -> some View {
         let systemData = homeViewModel.chartDataManager.systemData(forSystemID: resolvedItem.systemID)
         let containerData = homeViewModel.chartDataManager.containerData(forSystemID: resolvedItem.systemID)
         let systemName = homeViewModel.chartDataManager.systemName(forSystemID: resolvedItem.systemID)
-
+        
         switch resolvedItem.item {
         case .systemCPU:
             SystemCpuChartView(

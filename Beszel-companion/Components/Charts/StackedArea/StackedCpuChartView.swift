@@ -17,7 +17,6 @@ struct StackedCpuData: Identifiable {
 }
 
 struct StackedCpuChartView: View {
-    // Changement ici : let au lieu de @ObservedObject car l'objet est injecté ou passé
     let settingsManager: SettingsManager
     
     let processedData: [ProcessedContainerData]
@@ -117,6 +116,7 @@ struct StackedCpuChartView: View {
                         .interpolationMethod(.monotone)
                     }
                     .chartForegroundStyleScale(domain: cpuDomainValue, range: gradientRange(for: cpuDomainValue))
+                    .drawingGroup()
                 }
                 .commonChartCustomization(xAxisFormat: xAxisFormat)
             }

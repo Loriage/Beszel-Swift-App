@@ -87,10 +87,12 @@ enum DownsampleMethod {
     case median
 }
 
-enum Tab {
+enum AppTab: String, CaseIterable, Identifiable {
     case home
     case system
     case container
+    
+    var id: String { self.rawValue }
 }
 
 public enum WidgetChartType: String, Sendable, CaseIterable {

@@ -4,7 +4,7 @@ import WidgetKit
 struct SettingsView: View {
     @State private var viewModel: SettingsViewModel
     @Environment(\.dismiss) var dismiss
-
+    
     init(dashboardManager: DashboardManager, settingsManager: SettingsManager, languageManager: LanguageManager, instanceManager: InstanceManager) {
         _viewModel = State(wrappedValue: SettingsViewModel(
             dashboardManager: dashboardManager,
@@ -13,14 +13,13 @@ struct SettingsView: View {
             instanceManager: instanceManager
         ))
     }
-
+    
     var body: some View {
-        // Pour créer des bindings ($viewModel.property), on utilise @Bindable
         @Bindable var bindableViewModel = viewModel
         @Bindable var bindableLanguageManager = viewModel.languageManager
-        @Bindable var bindableSettingsManager = viewModel.settingsManager // Nécessite d'exposer SettingsManager via ViewModel ou Environment
+        @Bindable var bindableSettingsManager = viewModel.settingsManager
 
-        NavigationView {
+        NavigationStack {
             Form {
                 Section(header: Text("settings.display")) {
                     Picker("settings.display.language", selection: $bindableLanguageManager.currentLanguageCode) {
@@ -37,8 +36,8 @@ struct SettingsView: View {
                             Text(LocalizedStringKey(option.rawValue)).tag(option)
                         }
                     }
-                    .onChange(of: viewModel.settingsManager.selectedTimeRange) { // Utilisation correcte du SettingsManager exposé
-                         WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
+                    .onChange(of: viewModel.settingsManager.selectedTimeRange) {
+                        WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                     }
                 }
                 
@@ -78,6 +77,8 @@ struct SettingsView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark")
+                            .font(.body.weight(.semibold))
+                            .foregroundColor(.secondary)
                     }
                 }
             }

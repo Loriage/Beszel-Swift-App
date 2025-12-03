@@ -83,5 +83,6 @@ struct SystemTemperatureChartView: View {
                 .foregroundStyle(by: .value("Source", temp.name))
             }
         }
+        .drawingGroup()
     }
 }

@@ -91,5 +91,6 @@ struct SystemMemoryChartView: View {
                 AxisValueLabel(format: xAxisFormat, centered: true)
             }
         }
+        .drawingGroup()
     }
 }

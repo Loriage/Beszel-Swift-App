@@ -27,8 +27,6 @@ final class HomeViewModel {
         self.chartDataManager = chartDataManager
         self.dashboardManager = dashboardManager
         self.languageManager = languageManager
-
-        updatePins()
     }
 
     private struct SortablePin {

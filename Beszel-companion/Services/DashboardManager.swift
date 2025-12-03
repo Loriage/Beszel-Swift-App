@@ -66,6 +66,14 @@ final class DashboardManager {
         pinnedItems.contains(item)
     }
 
+    func hasPinsForActiveInstance() -> Bool {
+        guard let instanceID = InstanceManager.shared.activeInstance?.id.uuidString else {
+            return false
+        }
+        let prefix = "\(instanceID)-"
+        return allPins.keys.contains { $0.hasPrefix(prefix) }
+    }
+
     func togglePin(for item: PinnedItem, onSystem systemID: String) {
         guard let instanceID = InstanceManager.shared.activeInstance?.id.uuidString else { return }
         let key = compositeKey(for: instanceID, systemID: systemID)

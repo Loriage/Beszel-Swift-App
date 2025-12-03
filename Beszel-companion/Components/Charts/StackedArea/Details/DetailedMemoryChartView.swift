@@ -230,6 +230,7 @@ struct MemoryChartSectionView: View {
                     }
                 }
             }
+            .drawingGroup()
             .commonChartCustomization(xAxisFormat: xAxisFormat)
         }
     }

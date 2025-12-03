@@ -53,9 +53,7 @@ struct HomeView: View {
             }
         }
         .task {
-            try? await Task.sleep(for: .seconds(0.35))
             await homeViewModel.chartDataManager.fetchData()
-
             homeViewModel.updatePins()
         }
         .onChange(of: dashboardManager.allPinsForActiveInstance) {

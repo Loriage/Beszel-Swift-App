@@ -6,8 +6,8 @@ actor BeszelAPIService {
     
     private let baseURL: String
     private let email: String
-    private var credential: String
 
+    private var credential: String?
     private var authToken: String?
 
     private nonisolated static let jsonDecoder: JSONDecoder = {
@@ -18,6 +18,13 @@ actor BeszelAPIService {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         decoder.dateDecodingStrategy = .formatted(formatter)
         return decoder
+    }()
+
+    private lazy var session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15
+        config.timeoutIntervalForResource = 30
+        return URLSession(configuration: config)
     }()
 
     init(instance: Instance, instanceManager: InstanceManager) {
@@ -31,26 +38,26 @@ actor BeszelAPIService {
         
         self.baseURL = cleanUrl
         self.email = instance.email
-        self.credential = instanceManager.loadCredential(for: instance) ?? ""
     }
 
-    private var session: URLSession {
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 15
-        config.timeoutIntervalForResource = 30
-        return URLSession(configuration: config)
+    private func getCredential() -> String {
+        if let cred = credential { return cred }
+        let loaded = instanceManager.loadCredential(for: instance) ?? ""
+        self.credential = loaded
+        return loaded
     }
 
     private func ensureAuthenticated() async throws {
         if authToken != nil { return }
+        let currentCredential = getCredential()
 
-        let parts = credential.components(separatedBy: ".")
+        let parts = currentCredential.components(separatedBy: ".")
         if parts.count == 3 {
             self.authToken = credential
             return
         }
 
-        guard !email.isEmpty, !credential.isEmpty else {
+        guard !email.isEmpty, !currentCredential.isEmpty else {
             throw URLError(.userAuthenticationRequired)
         }
         
@@ -61,7 +68,7 @@ actor BeszelAPIService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        let body: [String: String] = ["identity": self.email, "password": self.credential]
+        let body: [String: String] = ["identity": self.email, "password": currentCredential]
         request.httpBody = try JSONEncoder().encode(body)
         
         let (data, response) = try await self.session.data(for: request)

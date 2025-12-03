@@ -142,6 +142,7 @@ struct StackedMemoryChartView: View {
                             }
                         }
                     }
+                    .drawingGroup()
                 }
                 .commonChartCustomization(xAxisFormat: xAxisFormat)
             }

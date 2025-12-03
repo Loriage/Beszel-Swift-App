@@ -232,6 +232,7 @@ struct CpuChartSectionView: View {
                     }
                 }
             }
+            .drawingGroup()
             .commonChartCustomization(xAxisFormat: xAxisFormat)
         }
     }

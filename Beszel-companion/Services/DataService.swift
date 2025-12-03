@@ -17,18 +17,20 @@ final class DataService {
         self.settingsManager = settingsManager
         self.apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
     }
-    
-    nonisolated private func downsampleStatPoints(_ statPoints: [StatPoint], timeRange: TimeRangeOption) -> [StatPoint] {
+
+    nonisolated private static func downsampleStatPoints(_ statPoints: [StatPoint], timeRange: TimeRangeOption) async -> [StatPoint] {
         guard !statPoints.isEmpty else { return [] }
+
+        if statPoints.count < 150 { return statPoints }
         
         let targetCount: Int
         switch timeRange {
-        case .lastHour: targetCount = 600
-        default: targetCount = 300
+        case .lastHour: targetCount = 120
+        default: targetCount = 100
         }
         
-        let minDate = statPoints.min(by: { $0.date < $1.date })?.date ?? Date()
-        let maxDate = statPoints.max(by: { $0.date < $1.date })?.date ?? Date()
+        let minDate = statPoints.first?.date ?? Date()
+        let maxDate = statPoints.last?.date ?? Date()
         let totalDuration = maxDate.timeIntervalSince(minDate)
         
         let minInterval: TimeInterval
@@ -38,8 +40,8 @@ final class DataService {
         case .last7Days: minInterval = 300
         case .last30Days: minInterval = 900
         }
-        
-        let calculatedInterval = max(minInterval, totalDuration / Double(targetCount))
+
+        let calculatedInterval = max(minInterval, totalDuration / Double(max(1, targetCount)))
         
         return statPoints.downsampled(bucketInterval: calculatedInterval, method: .average)
     }
@@ -47,13 +49,12 @@ final class DataService {
     func fetchData() async {
         self.isLoading = true
         self.errorMessage = nil
-        
-        defer { self.isLoading = false }
-        
+
         let systemsToFetch = InstanceManager.shared.systems
-        
         let timeFilter = self.settingsManager.apiFilterString
         let currentTimeRange = self.settingsManager.selectedTimeRange
+        
+        defer { self.isLoading = false }
         
         guard !systemsToFetch.isEmpty else {
             self.systemDataPointsBySystem = [:]
@@ -62,7 +63,10 @@ final class DataService {
         }
         
         do {
-            let (finalSystemData, finalContainerData) = try await withThrowingTaskGroup(of: (systemId: String, systemData: [SystemDataPoint], containerData: [ProcessedContainerData]).self, returning: ([String: [SystemDataPoint]], [String: [ProcessedContainerData]]).self) { group in
+            let (finalSystemData, finalContainerData) = try await withThrowingTaskGroup(
+                of: (String, [SystemDataPoint], [ProcessedContainerData]).self,
+                returning: ([String: [SystemDataPoint]], [String: [ProcessedContainerData]]).self
+            ) { group in
                 
                 for system in systemsToFetch {
                     group.addTask {
@@ -73,31 +77,29 @@ final class DataService {
                             filters.append(capturedTimeFilter)
                         }
                         let finalFilter = "(\(filters.joined(separator: " && ")))"
-                        
+
                         async let containerRecords = self.apiService.fetchMonitors(filter: finalFilter)
                         async let systemRecords = self.apiService.fetchSystemStats(filter: finalFilter)
                         
                         let fetchedContainers = try await containerRecords
                         let fetchedSystem = try await systemRecords
 
-                        return await Task.detached(priority: .userInitiated) {
-                            let transformedSystem = DataProcessor.transformSystem(records: fetchedSystem)
-                            let transformedContainers = DataProcessor.transform(records: fetchedContainers)
+                        let transformedSystem = DataProcessor.transformSystem(records: fetchedSystem)
+                        let rawContainers = DataProcessor.transform(records: fetchedContainers)
 
-                            return (system.id, transformedSystem, transformedContainers)
-                        }.value
+                        var processedContainers: [ProcessedContainerData] = []
+                        for container in rawContainers {
+                            var c = container
+                            c.statPoints = await DataService.downsampleStatPoints(container.statPoints, timeRange: currentTimeRange)
+                            processedContainers.append(c)
+                        }
+
+                        return (system.id, transformedSystem, processedContainers)
                     }
                 }
-                
-                return try await group.reduce(into: ([:], [:])) { (partialResult, taskResult) in
-                    let (systemId, sysData, rawContainers) = taskResult
 
-                    let processedContainers = rawContainers.map { container in
-                        var c = container
-                        c.statPoints = self.downsampleStatPoints(container.statPoints, timeRange: currentTimeRange)
-                        return c
-                    }
-                    
+                return try await group.reduce(into: ([:], [:])) { (partialResult, taskResult) in
+                    let (systemId, sysData, processedContainers) = taskResult
                     partialResult.0[systemId] = sysData
                     partialResult.1[systemId] = processedContainers
                 }
@@ -107,9 +109,8 @@ final class DataService {
             self.containerDataBySystem = finalContainerData
             
         } catch {
+            print("Error fetching data: \(error)")
             self.errorMessage = "Failed to fetch data: \(error.localizedDescription)"
-            self.systemDataPointsBySystem = [:]
-            self.containerDataBySystem = [:]
         }
     }
 }

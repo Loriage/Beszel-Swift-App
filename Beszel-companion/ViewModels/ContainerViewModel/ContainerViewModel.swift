@@ -7,19 +7,23 @@ import Observation
 final class ContainerViewModel {
     private let chartDataManager: ChartDataManager
 
+    var sortedData: [ProcessedContainerData] = []
+
     init(chartDataManager: ChartDataManager) {
         self.chartDataManager = chartDataManager
+        updateSortedData()
     }
-    
+
     var processedData: [ProcessedContainerData] {
         chartDataManager.containerData
     }
 
-    var sortedData: [ProcessedContainerData] {
-        processedData.sorted(by: { $0.name < $1.name })
-    }
-
     func fetchData() async {
         await chartDataManager.fetchData()
+        updateSortedData()
+    }
+
+    func updateSortedData() {
+        self.sortedData = processedData.sorted(by: { $0.name < $1.name })
     }
 }

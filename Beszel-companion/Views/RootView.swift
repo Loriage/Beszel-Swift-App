@@ -6,9 +6,6 @@ struct RootView: View {
     let dashboardManager: DashboardManager
     let refreshManager: RefreshManager
     let instanceManager: InstanceManager
-    
-    @State private var isShowingSettings = false
-    @State private var selectedTab: Tab = .home
 
     var body: some View {
         Group {
@@ -18,9 +15,7 @@ struct RootView: View {
                 }))
             } else if let activeInstance = instanceManager.activeInstance {
                 if instanceManager.isLoadingSystems {
-                    VStack {
-                        ProgressView("systems.loading")
-                    }
+                    VStack { ProgressView("systems.loading") }
                 } else {
                     MainView(
                         instance: activeInstance,
@@ -28,28 +23,14 @@ struct RootView: View {
                         settingsManager: settingsManager,
                         refreshManager: refreshManager,
                         dashboardManager: dashboardManager,
-                        languageManager: languageManager,
-                        isShowingSettings: $isShowingSettings,
-                        selectedTab: $selectedTab
+                        languageManager: languageManager
                     )
-                    // L'ID force le rafraîchissement complet si l'instance ou la langue change
-                    .id("\(activeInstance.id.uuidString)-\(instanceManager.activeSystem?.id ?? "no-system")-\(languageManager.currentLanguageCode)-\(settingsManager.selectedTimeRange.rawValue)")
+                    .id("\(activeInstance.id.uuidString)-\(languageManager.currentLanguageCode)")
                 }
             } else {
                 ProgressView()
             }
         }
-        .sheet(isPresented: $isShowingSettings) {
-            SettingsView(
-                dashboardManager: dashboardManager,
-                settingsManager: settingsManager,
-                languageManager: languageManager,
-                instanceManager: instanceManager
-            )
-        }
         .environment(\.locale, Locale(identifier: languageManager.currentLanguageCode))
-        .onChange(of: refreshManager.refreshSignal) {
-             // Trigger global refresh logic if needed handled by views observing dataService
-        }
     }
 }

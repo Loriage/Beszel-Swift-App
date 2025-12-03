@@ -1,6 +1,12 @@
 import Foundation
 
 struct DataProcessor {
+    private static let keyFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withYear, .withMonth, .withDay, .withTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
+        return formatter
+    }()
+
     nonisolated private static func parseTypeDuration(_ typeString: String) -> Int {
         return Int(typeString.replacingOccurrences(of: "m", with: "")) ?? Int.max
     }
@@ -34,9 +40,6 @@ struct DataProcessor {
     }
     
     nonisolated static func transformSystem(records: [SystemStatsRecord]) -> [SystemDataPoint] {
-        let keyFormatter = ISO8601DateFormatter()
-        keyFormatter.formatOptions = [.withYear, .withMonth, .withDay, .withTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
-
         let groupedByDate = Dictionary(grouping: records, by: { record in
             return Int(record.created.timeIntervalSince1970 / 60)
         })

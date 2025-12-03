@@ -9,7 +9,6 @@ final class ContainerDetailViewModel {
     private let dashboardManager: DashboardManager
     private let settingsManager: SettingsManager
 
-    // Ces propriétés sont calculées dynamiquement pour refléter l'état réel sans duplication
     var isCpuChartPinned: Bool {
         dashboardManager.isPinned(.containerCPU(name: container.name))
     }

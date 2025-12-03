@@ -22,7 +22,7 @@ final class SettingsViewModel {
     }
 
     var arePinsEmpty: Bool {
-        dashboardManager.allPinsForActiveInstance.isEmpty
+        !dashboardManager.hasPinsForActiveInstance()
     }
 
     func setActiveInstance(_ instance: Instance) {

@@ -5,8 +5,16 @@ import Observation
 @Observable
 @MainActor
 final class OnboardingViewModel {
+    enum ServerScheme: String, CaseIterable, Identifiable {
+        case http = "http://"
+        case https = "https://"
+        
+        var id: String { self.rawValue }
+    }
+
     var instanceName = ""
-    var url = ""
+    var selectedScheme: ServerScheme = .https
+    var serverAddress = ""
     var email = ""
     var password = ""
 
@@ -22,7 +30,14 @@ final class OnboardingViewModel {
     init(onComplete: @escaping (String, String, String, String) -> Void) {
         self.onComplete = onComplete
     }
-    
+
+    var url: String {
+        selectedScheme.rawValue + serverAddress
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "http://", with: "")
+            .replacingOccurrences(of: "https://", with: "")
+    }
+
     var isPasswordLoginDisabled: Bool {
         instanceName.isEmpty || url.isEmpty || email.isEmpty || password.isEmpty
     }
@@ -64,7 +79,6 @@ final class OnboardingViewModel {
                     throw OnboardingAPIService.OnboardingError.invalidURL
                 }
 
-                // CORRECTION : Appel à la méthode statique async définie dans l'extension ci-dessous
                 let callbackURL = try await ASWebAuthenticationSession.async(
                     url: authURL,
                     callbackURLScheme: "beszel-companion",

@@ -875,13 +875,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "URL (e.g., https://beszel.domain.tld)"
+            "value" : "beszel.domain.tld"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "URL (ex: https://beszel.domaine.com)"
+            "value" : "beszel.domaine.fr"
           }
         }
       }
@@ -997,6 +997,9 @@
           }
         }
       }
+    },
+    "Scheme" : {
+
     },
     "settings.dashboard" : {
       "localizations" : {

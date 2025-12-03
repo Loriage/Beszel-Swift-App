@@ -17,17 +17,36 @@ struct OnboardingView: View {
             Text("onboarding.title")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-            
-            GroupBox {
+
+            VStack {
                 TextField("onboarding.instanceNamePlaceholder", text: $bindableViewModel.instanceName)
-                    .autocapitalization(.words)
-                Divider()
-                TextField("onboarding.urlPlaceholder", text: $bindableViewModel.url)
-                    .keyboardType(.URL)
-                    .autocapitalization(.none)
-                    .onSubmit {
-                        viewModel.fetchAuthMethods()
+                    .padding()
+                    .background(.thinMaterial)
+                    .cornerRadius(10)
+
+                HStack(spacing: 10) {
+                    Picker("Scheme", selection: $viewModel.selectedScheme) {
+                        ForEach(OnboardingViewModel.ServerScheme.allCases) { scheme in
+                            Text(scheme.rawValue).tag(scheme)
+                        }
                     }
+                    .pickerStyle(.menu)
+                    .frame(height: 54)
+                    .background(.thinMaterial)
+                    .cornerRadius(10)
+                    .tint(Color.primary)
+
+                    TextField("onboarding.urlPlaceholder", text: $bindableViewModel.serverAddress)
+                        .keyboardType(.URL)
+                        .textContentType(.URL)
+                        .autocapitalization(.none)
+                        .padding()
+                        .background(.thinMaterial)
+                        .cornerRadius(10)
+                        .onSubmit {
+                            viewModel.fetchAuthMethods()
+                        }
+                }
             }
             .padding(.horizontal)
 
@@ -74,12 +93,19 @@ struct OnboardingView: View {
         @Bindable var bindableViewModel = viewModel
         
         return Group {
-            GroupBox {
+            VStack {
                 TextField("onboarding.input.email", text: $bindableViewModel.email)
                     .keyboardType(.emailAddress)
                     .autocapitalization(.none)
-                Divider()
+                    .padding()
+                    .background(.thinMaterial)
+                    .cornerRadius(10)
+
                 SecureField("onboarding.input.password", text: $bindableViewModel.password)
+                    .textContentType(.password)
+                    .padding()
+                    .background(.thinMaterial)
+                    .cornerRadius(10)
             }
             .padding(.horizontal)
             

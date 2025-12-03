@@ -4,8 +4,8 @@ nonisolated struct ContainerStatsRecord: Identifiable, Codable, Sendable {
     let id: String
     let collectionId: String
     let collectionName: String
-    let created: String
-    let updated: String
+    let created: Date
+    let updated: Date
     let system: String
     let type: String
     let stats: [ContainerStat]

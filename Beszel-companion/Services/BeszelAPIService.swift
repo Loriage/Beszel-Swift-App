@@ -10,6 +10,16 @@ actor BeszelAPIService {
 
     private var authToken: String?
 
+    private nonisolated static let jsonDecoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS'Z'"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        decoder.dateDecodingStrategy = .formatted(formatter)
+        return decoder
+    }()
+
     init(instance: Instance, instanceManager: InstanceManager) {
         self.instance = instance
         self.instanceManager = instanceManager
@@ -59,9 +69,8 @@ actor BeszelAPIService {
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw URLError(.userAuthenticationRequired)
         }
-        
-        // Décodage direct
-        let authResponse = try JSONDecoder().decode(AuthResponse.self, from: data)
+
+        let authResponse = try Self.jsonDecoder.decode(AuthResponse.self, from: data)
         self.authToken = authResponse.token
         
         let newToken = authResponse.token
@@ -90,7 +99,7 @@ actor BeszelAPIService {
             throw URLError(.userAuthenticationRequired)
         }
         
-        let authResponse = try JSONDecoder().decode(AuthResponse.self, from: data)
+        let authResponse = try Self.jsonDecoder.decode(AuthResponse.self, from: data)
         let newToken = authResponse.token
         
         self.authToken = newToken
@@ -122,10 +131,10 @@ actor BeszelAPIService {
             refreshedRequest.addValue("Bearer \(refreshedToken)", forHTTPHeaderField: "Authorization")
             let (refreshedData, _) = try await self.session.data(for: refreshedRequest)
 
-            return try JSONDecoder().decode(T.self, from: refreshedData)
+            return try Self.jsonDecoder.decode(T.self, from: refreshedData)
             
         } else if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-            return try JSONDecoder().decode(T.self, from: data)
+            return try Self.jsonDecoder.decode(T.self, from: data)
         } else {
             throw URLError(.badServerResponse)
         }

@@ -2,7 +2,7 @@ import Foundation
 
 nonisolated struct SystemStatsRecord: Identifiable, Codable, Sendable {
     let id: String
-    let created: String
+    let created: Date
     let stats: SystemStatsDetail
     let type: String
 }

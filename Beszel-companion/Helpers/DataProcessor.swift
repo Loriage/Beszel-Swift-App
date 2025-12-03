@@ -4,15 +4,7 @@ struct DataProcessor {
     nonisolated private static func parseTypeDuration(_ typeString: String) -> Int {
         return Int(typeString.replacingOccurrences(of: "m", with: "")) ?? Int.max
     }
-    
-    nonisolated private static func makeFormatter() -> DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS'Z'"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        return formatter
-    }
-    
+
     nonisolated static func applyMovingAverage(to dataPoints: [SystemDataPoint], windowSize: Int) -> [SystemDataPoint] {
         guard dataPoints.count >= windowSize else {
             return dataPoints
@@ -42,9 +34,12 @@ struct DataProcessor {
     }
     
     nonisolated static func transformSystem(records: [SystemStatsRecord]) -> [SystemDataPoint] {
-        let formatter = makeFormatter()
-        
-        let groupedByDate = Dictionary(grouping: records, by: { String($0.created.prefix(16)) })
+        let keyFormatter = ISO8601DateFormatter()
+        keyFormatter.formatOptions = [.withYear, .withMonth, .withDay, .withTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
+
+        let groupedByDate = Dictionary(grouping: records, by: { record in
+            return Int(record.created.timeIntervalSince1970 / 60)
+        })
         
         let uniqueBestRecords = groupedByDate.compactMap { (_, recordsForMinute) -> SystemStatsRecord? in
             if recordsForMinute.count == 1 {
@@ -57,14 +52,10 @@ struct DataProcessor {
         }
         
         let dataPoints = uniqueBestRecords.compactMap { record -> SystemDataPoint? in
-            guard let date = formatter.date(from: record.created) else {
-                return nil
-            }
-            
             let tempsArray = (record.stats.temperatures ?? [:]).map { (name: $0.key, value: $0.value) }
             
             return SystemDataPoint(
-                date: date,
+                date: record.created,
                 cpu: record.stats.cpu,
                 memoryPercent: record.stats.memoryPercent,
                 temperatures: tempsArray
@@ -75,14 +66,10 @@ struct DataProcessor {
     }
     
     nonisolated static func transform(records: [ContainerStatsRecord]) -> [ProcessedContainerData] {
-        let formatter = makeFormatter()
-        
         var containerDict = [String: [StatPoint]]()
         
         for record in records {
-            guard let date = formatter.date(from: record.created) else {
-                continue
-            }
+            let date = record.created
             
             for stat in record.stats {
                 let point = StatPoint(date: date, cpu: stat.cpu, memory: stat.memory)

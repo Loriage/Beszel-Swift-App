@@ -7,21 +7,27 @@ import Observation
 final class DashboardManager {
     static let shared = DashboardManager()
 
-    var pinnedItems: [PinnedItem] = []
+    var allPins: [String: [PinnedItem]] = [:] {
+        didSet {
+            saveAllPins()
+        }
+    }
 
-    private var allPinsData: Data {
-        get { UserDefaults.sharedSuite.data(forKey: "pinnedItemsByInstance") ?? Data() }
-        set { UserDefaults.sharedSuite.set(newValue, forKey: "pinnedItemsByInstance") }
+    var pinnedItems: [PinnedItem] {
+        guard let instanceID = InstanceManager.shared.activeInstance?.id.uuidString,
+              let systemID = InstanceManager.shared.activeSystem?.id else {
+            return []
+        }
+        let key = compositeKey(for: instanceID, systemID: systemID)
+        return allPins[key] ?? []
     }
 
     var allPinsForActiveInstance: [ResolvedPinnedItem] {
         guard let activeInstanceID = InstanceManager.shared.activeInstance?.id.uuidString else {
             return []
         }
-        
-        let allSystemPins = decodeAllPins()
-        
-        let resolvedItems = allSystemPins.flatMap { (key, items) -> [ResolvedPinnedItem] in
+
+        let resolvedItems = allPins.flatMap { (key, items) -> [ResolvedPinnedItem] in
             let prefix = "\(activeInstanceID)-"
 
             guard key.hasPrefix(prefix) else {
@@ -37,26 +43,15 @@ final class DashboardManager {
     }
 
     init() {
-        // L'observation de InstanceManager se fera via les vues ou explicitement si nécessaire
+        self.allPins = decodeAllPins()
     }
-    
+
     func refreshPins() {
-        loadPins(for: InstanceManager.shared.activeInstance, system: InstanceManager.shared.activeSystem)
+        self.allPins = decodeAllPins()
     }
 
     private func compositeKey(for instanceID: String, systemID: String) -> String {
         return "\(instanceID)-\(systemID)"
-    }
-
-    func loadPins(for instance: Instance?, system: SystemRecord?) {
-        guard let instanceID = instance?.id.uuidString, let systemID = system?.id else {
-            self.pinnedItems = []
-            return
-        }
-        
-        let key = compositeKey(for: instanceID, systemID: systemID)
-        let allPins = decodeAllPins()
-        self.pinnedItems = allPins[key] ?? []
     }
 
     func isPinned(_ item: PinnedItem, onSystem systemID: String) -> Bool {
@@ -64,7 +59,6 @@ final class DashboardManager {
             return false
         }
         let key = compositeKey(for: instanceID, systemID: systemID)
-        let allPins = decodeAllPins()
         return allPins[key]?.contains(item) ?? false
     }
 
@@ -76,7 +70,6 @@ final class DashboardManager {
         guard let instanceID = InstanceManager.shared.activeInstance?.id.uuidString else { return }
         let key = compositeKey(for: instanceID, systemID: systemID)
         
-        var allPins = decodeAllPins()
         var currentPins = allPins[key] ?? []
         
         if let index = currentPins.firstIndex(of: item) {
@@ -84,12 +77,11 @@ final class DashboardManager {
         } else {
             currentPins.append(item)
         }
-        
-        allPins[key] = currentPins.isEmpty ? nil : currentPins
-        saveAllPins(allPins)
-        
-        if systemID == InstanceManager.shared.activeSystem?.id {
-            loadPins(for: InstanceManager.shared.activeInstance, system: InstanceManager.shared.activeSystem)
+
+        if currentPins.isEmpty {
+            allPins.removeValue(forKey: key)
+        } else {
+            allPins[key] = currentPins
         }
     }
 
@@ -103,26 +95,22 @@ final class DashboardManager {
               let systemID = InstanceManager.shared.activeSystem?.id else { return }
         let key = compositeKey(for: instanceID, systemID: systemID)
         
-        var allPins = decodeAllPins()
         allPins.removeValue(forKey: key)
-        saveAllPins(allPins)
-        
-        self.pinnedItems = []
     }
 
     func nukeAllPins() {
-        allPinsData = Data()
-        self.pinnedItems = []
+        allPins = [:]
     }
 
-    private func saveAllPins(_ allPins: [String: [PinnedItem]]) {
+    private func saveAllPins() {
         if let data = try? JSONEncoder().encode(allPins) {
-            allPinsData = data
+            UserDefaults.sharedSuite.set(data, forKey: "pinnedItemsByInstance")
         }
     }
 
     private func decodeAllPins() -> [String: [PinnedItem]] {
-        if let items = try? JSONDecoder().decode([String: [PinnedItem]].self, from: allPinsData) {
+        if let data = UserDefaults.sharedSuite.data(forKey: "pinnedItemsByInstance"),
+           let items = try? JSONDecoder().decode([String: [PinnedItem]].self, from: data) {
             return items
         }
         return [:]

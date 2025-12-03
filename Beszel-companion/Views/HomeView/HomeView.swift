@@ -49,7 +49,7 @@ struct HomeView: View {
             }
         }
         .task {
-             homeViewModel.chartDataManager.fetchData()
+            await homeViewModel.chartDataManager.fetchData()
         }
         .sheet(isPresented: $viewModel.isShowingFilterSheet) {
              FilterView(

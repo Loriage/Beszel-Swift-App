@@ -37,7 +37,7 @@ struct SystemView: View {
         }
         .refreshable {
             // Task implicite
-            systemViewModel.chartDataManager.fetchData()
+            await systemViewModel.chartDataManager.fetchData()
         }
         .overlay {
             if systemViewModel.chartDataManager.isLoading && systemViewModel.chartDataManager.systemDataPoints.isEmpty {
@@ -47,10 +47,6 @@ struct SystemView: View {
                     Label("Error", systemImage: "exclamationmark.triangle")
                 } description: {
                     Text(errorMessage)
-                } actions: {
-                    Button("Retry") {
-                        systemViewModel.chartDataManager.fetchData()
-                    }
                 }
             } else if systemViewModel.chartDataManager.systemDataPoints.isEmpty {
                 ContentUnavailableView(

@@ -20,18 +20,18 @@ final class HomeViewModel {
         self.languageManager = languageManager
     }
 
-    var filteredAndSortedPins: [ResolvedPinnedItem] {
-        let bundle: Bundle
+    private struct SortablePin {
+        let resolvedItem: ResolvedPinnedItem
+        let systemName: String
+        let displayName: String
+        let metricName: String
+        let serviceName: String
+    }
 
-        if let path = Bundle.main.path(forResource: languageManager.currentLanguageCode, ofType: "lproj"),
-            let specificBundle = Bundle(path: path) {
-            bundle = specificBundle
-        } else {
-            bundle = .main
-        }
-        
+    var filteredAndSortedPins: [ResolvedPinnedItem] {
+        let bundle = languageManager.currentBundle
         let pins = dashboardManager.allPinsForActiveInstance
-        
+
         let filteredPins: [ResolvedPinnedItem]
         if searchText.isEmpty {
             filteredPins = pins
@@ -44,38 +44,51 @@ final class HomeViewModel {
                 itemName.localizedCaseInsensitiveContains(searchText)
             }
         }
-        
-        var sortedPins: [ResolvedPinnedItem]
+
+        let sortableItems = filteredPins.map { pin -> SortablePin in
+            let sysName = chartDataManager.systemName(forSystemID: pin.systemID) ?? ""
+            let dispName = pin.item.localizedDisplayName(for: bundle)
+            
+            return SortablePin(
+                resolvedItem: pin,
+                systemName: sysName,
+                displayName: dispName,
+                metricName: pin.item.metricName,
+                serviceName: pin.item.serviceName
+            )
+        }
+
+        let sortedItems: [SortablePin]
         switch sortOption {
         case .bySystem:
-            sortedPins = filteredPins.sorted { (lhs, rhs) in
-                let lhsSystemName = chartDataManager.systemName(forSystemID: lhs.systemID) ?? ""
-                let rhsSystemName = chartDataManager.systemName(forSystemID: rhs.systemID) ?? ""
-                if lhsSystemName != rhsSystemName {
-                    return lhsSystemName < rhsSystemName
+            sortedItems = sortableItems.sorted { (lhs, rhs) in
+                if lhs.systemName != rhs.systemName {
+                    return lhs.systemName < rhs.systemName
                 }
-                return lhs.item.localizedDisplayName(for: bundle) < rhs.item.localizedDisplayName(for: bundle)
+                return lhs.displayName < rhs.displayName
             }
         case .byMetric:
-            sortedPins = filteredPins.sorted { lhs, rhs in
-                if lhs.item.metricName != rhs.item.metricName {
-                    return lhs.item.metricName < rhs.item.metricName
+            sortedItems = sortableItems.sorted { (lhs, rhs) in
+                if lhs.metricName != rhs.metricName {
+                    return lhs.metricName < rhs.metricName
                 }
-                return lhs.item.localizedDisplayName(for: bundle) < rhs.item.localizedDisplayName(for: bundle)
+                return lhs.displayName < rhs.displayName
             }
         case .byService:
-            sortedPins = filteredPins.sorted { lhs, rhs in
-                if lhs.item.serviceName != rhs.item.serviceName {
-                    return lhs.item.serviceName < rhs.item.serviceName
+            sortedItems = sortableItems.sorted { (lhs, rhs) in
+                if lhs.serviceName != rhs.serviceName {
+                    return lhs.serviceName < rhs.serviceName
                 }
-                return lhs.item.localizedDisplayName(for: bundle) < rhs.item.localizedDisplayName(for: bundle)
+                return lhs.displayName < rhs.displayName
             }
         }
+
+        let result = sortedItems.map { $0.resolvedItem }
         
         if sortDescending {
-            return sortedPins.reversed()
+            return result.reversed()
         } else {
-            return sortedPins
+            return result
         }
     }
 }

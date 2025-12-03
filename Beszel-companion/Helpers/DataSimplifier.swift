@@ -1,7 +1,7 @@
 import Foundation
 
 extension Array where Element == StatPoint {
-    func downsampled(bucketInterval: TimeInterval, method: DownsampleMethod) -> [StatPoint] {
+    nonisolated func downsampled(bucketInterval: TimeInterval, method: DownsampleMethod) -> [StatPoint] {
         guard !isEmpty else { return [] }
 
         let sortedPoints = self.sorted { $0.date < $1.date }
@@ -32,7 +32,7 @@ extension Array where Element == StatPoint {
         return downsampled
     }
     
-    private func aggregateBucket(_ points: [StatPoint], method: DownsampleMethod, bucketStart: Date) -> StatPoint {
+    nonisolated private func aggregateBucket(_ points: [StatPoint], method: DownsampleMethod, bucketStart: Date) -> StatPoint {
         guard !points.isEmpty else { fatalError("Bucket vide") }
         
         let dates = points.map { $0.date }

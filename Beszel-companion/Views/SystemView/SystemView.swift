@@ -2,7 +2,7 @@ import SwiftUI
 import Charts
 
 struct SystemView: View {
-    @Environment(ChartDataManager.self) var chartData
+    @Environment(BeszelStore.self) var store
     
     var body: some View {
         ScrollView {
@@ -11,43 +11,43 @@ struct SystemView: View {
                 
                 VStack(alignment: .leading, spacing: 24) {
                     SystemCpuChartView(
-                        xAxisFormat: chartData.xAxisFormat,
-                        dataPoints: chartData.systemDataPoints,
-                        isPinned: chartData.isPinned(.systemCPU),
-                        onPinToggle: { chartData.togglePin(for: .systemCPU) }
+                        xAxisFormat: store.xAxisFormat,
+                        dataPoints: store.systemDataPoints,
+                        isPinned: store.isPinned(.systemCPU),
+                        onPinToggle: { store.togglePin(for: .systemCPU) }
                     )
                     SystemMemoryChartView(
-                        xAxisFormat: chartData.xAxisFormat,
-                        dataPoints: chartData.systemDataPoints,
-                        isPinned: chartData.isPinned(.systemMemory),
-                        onPinToggle: { chartData.togglePin(for: .systemMemory) }
+                        xAxisFormat: store.xAxisFormat,
+                        dataPoints: store.systemDataPoints,
+                        isPinned: store.isPinned(.systemMemory),
+                        onPinToggle: { store.togglePin(for: .systemMemory) }
                     )
-                    if chartData.hasTemperatureData {
+                    if store.hasTemperatureData {
                         SystemTemperatureChartView(
-                            xAxisFormat: chartData.xAxisFormat,
-                            dataPoints: chartData.systemDataPoints,
-                            isPinned: chartData.isPinned(.systemTemperature),
-                            onPinToggle: { chartData.togglePin(for: .systemTemperature) }
+                            xAxisFormat: store.xAxisFormat,
+                            dataPoints: store.systemDataPoints,
+                            isPinned: store.isPinned(.systemTemperature),
+                            onPinToggle: { store.togglePin(for: .systemTemperature) }
                         )
                     }
                 }
                 .padding(.horizontal)
-                .opacity(chartData.systemDataPoints.isEmpty ? 0 : 1)
+                .opacity(store.systemDataPoints.isEmpty ? 0 : 1)
             }
         }
         .refreshable {
-            await chartData.fetchData()
+            await store.fetchData()
         }
         .overlay {
-            if chartData.isLoading && chartData.systemDataPoints.isEmpty {
+            if store.isLoading && store.systemDataPoints.isEmpty {
                 ProgressView()
-            } else if let errorMessage = chartData.errorMessage, chartData.systemDataPoints.isEmpty {
+            } else if let errorMessage = store.errorMessage, store.systemDataPoints.isEmpty {
                 ContentUnavailableView {
                     Label("Error", systemImage: "exclamationmark.triangle")
                 } description: {
                     Text(errorMessage)
                 }
-            } else if chartData.systemDataPoints.isEmpty {
+            } else if store.systemDataPoints.isEmpty {
                 ContentUnavailableView(
                     "No Data",
                     systemImage: "chart.bar.xaxis",

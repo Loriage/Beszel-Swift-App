@@ -2,32 +2,29 @@ import SwiftUI
 import WidgetKit
 
 struct SettingsView: View {
-    @State private var viewModel: SettingsViewModel
+    @Environment(DashboardManager.self) var dashboardManager
+    @Environment(SettingsManager.self) var settingsManager
+    @Environment(LanguageManager.self) var languageManager
+    @Environment(InstanceManager.self) var instanceManager
+    
     @Environment(\.dismiss) var dismiss
     
-    init(dashboardManager: DashboardManager, settingsManager: SettingsManager, languageManager: LanguageManager, instanceManager: InstanceManager) {
-        _viewModel = State(wrappedValue: SettingsViewModel(
-            dashboardManager: dashboardManager,
-            settingsManager: settingsManager,
-            languageManager: languageManager,
-            instanceManager: instanceManager
-        ))
-    }
+    @State private var isShowingClearPinsAlert = false
+    @State private var isAddingInstance = false
     
     var body: some View {
-        @Bindable var bindableViewModel = viewModel
-        @Bindable var bindableLanguageManager = viewModel.languageManager
-        @Bindable var bindableSettingsManager = viewModel.settingsManager
+        @Bindable var bindableLanguageManager = languageManager
+        @Bindable var bindableSettingsManager = settingsManager
         
         NavigationStack {
             Form {
                 Section(header: Text("settings.display")) {
                     Picker("settings.display.language", selection: $bindableLanguageManager.currentLanguageCode) {
-                        ForEach(viewModel.languageManager.availableLanguages, id: \.code) { lang in
+                        ForEach(languageManager.availableLanguages, id: \.code) { lang in
                             Text(lang.name).tag(lang.code)
                         }
                     }
-                    .onChange(of: viewModel.languageManager.currentLanguageCode) {
+                    .onChange(of: languageManager.currentLanguageCode) {
                         WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                     }
                     
@@ -36,39 +33,42 @@ struct SettingsView: View {
                             Text(LocalizedStringKey(option.rawValue)).tag(option)
                         }
                     }
-                    .onChange(of: viewModel.settingsManager.selectedTimeRange) {
+                    .onChange(of: settingsManager.selectedTimeRange) {
                         WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                     }
                 }
                 
                 Section(header: Text("settings.instances.title")) {
-                    ForEach(viewModel.instanceManager.instances) { instance in
+                    ForEach(instanceManager.instances) { instance in
                         HStack {
                             Image(systemName: "server.rack")
                             Text(instance.name)
                             Spacer()
-                            if instance.id == viewModel.instanceManager.activeInstance?.id {
+                            if instance.id == instanceManager.activeInstance?.id {
                                 Image(systemName: "checkmark")
                                     .foregroundColor(.accentColor)
                             }
                         }
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            viewModel.setActiveInstance(instance)
+                            instanceManager.setActiveInstance(instance)
+                            WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                         }
                     }
-                    .onDelete(perform: viewModel.deleteInstance)
+                    .onDelete { offsets in
+                        offsets.map { instanceManager.instances[$0] }.forEach(instanceManager.deleteInstance)
+                    }
                     
                     Button("settings.instances.add") {
-                        viewModel.isAddingInstance = true
+                        isAddingInstance = true
                     }
                 }
                 
                 Section(header: Text("settings.dashboard")) {
                     Button("settings.dashboard.clearPins", role: .destructive) {
-                        viewModel.isShowingClearPinsAlert = true
+                        isShowingClearPinsAlert = true
                     }
-                    .disabled(viewModel.arePinsEmpty)
+                    .disabled(!dashboardManager.hasPinsForActiveInstance())
                 }
             }
             .navigationTitle("settings.title")
@@ -82,13 +82,16 @@ struct SettingsView: View {
                     }
                 }
             }
-            .sheet(isPresented: $bindableViewModel.isAddingInstance) {
-                OnboardingView(viewModel: OnboardingViewModel(onComplete: viewModel.addInstance))
+            .sheet(isPresented: $isAddingInstance) {
+                OnboardingView { name, url, email, password in
+                    instanceManager.addInstance(name: name, url: url, email: email, password: password)
+                    isAddingInstance = false
+                }
             }
-            .alert("settings.dashboard.clearPins.alert.title", isPresented: $bindableViewModel.isShowingClearPinsAlert) {
+            .alert("settings.dashboard.clearPins.alert.title", isPresented: $isShowingClearPinsAlert) {
                 Button("common.cancel", role: .cancel) { }
                 Button("common.delete", role: .destructive) {
-                    viewModel.nukeAllPins()
+                    dashboardManager.nukeAllPins()
                 }
             } message: {
                 Text("settings.dashboard.clearPins.alert.message")

@@ -10,9 +10,9 @@ struct RootView: View {
     var body: some View {
         Group {
             if instanceManager.instances.isEmpty {
-                OnboardingView(viewModel: OnboardingViewModel(onComplete: { name, url, email, password in
+                OnboardingView { name, url, email, password in
                     instanceManager.addInstance(name: name, url: url, email: email, password: password)
-                }))
+                }
             } else if let activeInstance = instanceManager.activeInstance {
                 if instanceManager.isLoadingSystems {
                     VStack { ProgressView("systems.loading") }

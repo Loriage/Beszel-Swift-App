@@ -2,11 +2,39 @@ import SwiftUI
 import AuthenticationServices
 
 struct OnboardingView: View {
-    @State var viewModel: OnboardingViewModel
+    var onComplete: (String, String, String, String) -> Void
+    
+    @State private var instanceName = ""
+    @State private var selectedScheme: ServerScheme = .https
+    @State private var serverAddress = ""
+    @State private var email = ""
+    @State private var password = ""
+    
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    @State private var authMethods: AuthMethodsResponse?
+    
+    private let apiService = OnboardingAPIService()
+    private let contextProvider = WebAuthSessionContextProvider()
+    
+    enum ServerScheme: String, CaseIterable, Identifiable {
+        case http = "http://"
+        case https = "https://"
+        var id: String { self.rawValue }
+    }
+    
+    private var url: String {
+        selectedScheme.rawValue + serverAddress
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "http://", with: "")
+            .replacingOccurrences(of: "https://", with: "")
+    }
+    
+    private var isPasswordLoginDisabled: Bool {
+        instanceName.isEmpty || url.isEmpty || email.isEmpty || password.isEmpty
+    }
     
     var body: some View {
-        @Bindable var bindableViewModel = viewModel
-        
         VStack(spacing: 20) {
             Spacer()
             
@@ -19,14 +47,14 @@ struct OnboardingView: View {
                 .fontWeight(.bold)
             
             VStack {
-                TextField("onboarding.instanceNamePlaceholder", text: $bindableViewModel.instanceName)
+                TextField("onboarding.instanceNamePlaceholder", text: $instanceName)
                     .padding()
                     .background(.thinMaterial)
                     .cornerRadius(10)
                 
                 HStack(spacing: 10) {
-                    Picker("Scheme", selection: $viewModel.selectedScheme) {
-                        ForEach(OnboardingViewModel.ServerScheme.allCases) { scheme in
+                    Picker("Scheme", selection: $selectedScheme) {
+                        ForEach(ServerScheme.allCases) { scheme in
                             Text(scheme.rawValue).tag(scheme)
                         }
                     }
@@ -36,7 +64,7 @@ struct OnboardingView: View {
                     .cornerRadius(10)
                     .tint(Color.primary)
                     
-                    TextField("onboarding.urlPlaceholder", text: $bindableViewModel.serverAddress)
+                    TextField("onboarding.urlPlaceholder", text: $serverAddress)
                         .keyboardType(.URL)
                         .textContentType(.URL)
                         .autocapitalization(.none)
@@ -44,17 +72,17 @@ struct OnboardingView: View {
                         .background(.thinMaterial)
                         .cornerRadius(10)
                         .onSubmit {
-                            viewModel.fetchAuthMethods()
+                            fetchAuthMethods()
                         }
                 }
             }
             .padding(.horizontal)
             
-            if viewModel.isLoading {
+            if isLoading {
                 ProgressView()
             }
             
-            if let authMethods = viewModel.authMethods {
+            if let authMethods = authMethods {
                 if authMethods.password.enabled {
                     passwordLoginView
                 }
@@ -72,13 +100,13 @@ struct OnboardingView: View {
                     
                     ForEach(authMethods.oauth2.providers) { provider in
                         Button(.init(String(format: String(localized: "onboarding.connect_with_provider"), provider.displayName))) {
-                            viewModel.startWebLogin(provider: provider)
+                            startWebLogin(provider: provider)
                         }
                     }
                 }
             }
             
-            if let errorMessage = viewModel.errorMessage {
+            if let errorMessage = errorMessage {
                 Text(LocalizedStringKey(errorMessage))
                     .foregroundColor(.red)
                     .font(.caption)
@@ -90,18 +118,16 @@ struct OnboardingView: View {
     }
     
     private var passwordLoginView: some View {
-        @Bindable var bindableViewModel = viewModel
-        
-        return Group {
+        Group {
             VStack {
-                TextField("onboarding.input.email", text: $bindableViewModel.email)
+                TextField("onboarding.input.email", text: $email)
                     .keyboardType(.emailAddress)
                     .autocapitalization(.none)
                     .padding()
                     .background(.thinMaterial)
                     .cornerRadius(10)
                 
-                SecureField("onboarding.input.password", text: $bindableViewModel.password)
+                SecureField("onboarding.input.password", text: $password)
                     .textContentType(.password)
                     .padding()
                     .background(.thinMaterial)
@@ -109,17 +135,110 @@ struct OnboardingView: View {
             }
             .padding(.horizontal)
             
-            Button(action: viewModel.connectWithPassword) {
+            Button(action: connectWithPassword) {
                 Text("onboarding.loginButton")
                     .fontWeight(.semibold)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(viewModel.isPasswordLoginDisabled ? Color.gray : Color.accentColor)
+                    .background(isPasswordLoginDisabled ? Color.gray : Color.accentColor)
                     .foregroundColor(.white)
                     .cornerRadius(10)
             }
             .padding(.horizontal)
-            .disabled(viewModel.isPasswordLoginDisabled)
+            .disabled(isPasswordLoginDisabled)
+        }
+    }
+    
+    private func fetchAuthMethods() {
+        guard !url.isEmpty else {
+            self.errorMessage = String(localized: "onboarding.error.invalid_url")
+            return
+        }
+        
+        isLoading = true
+        authMethods = nil
+        errorMessage = nil
+        
+        Task {
+            do {
+                let methods = try await apiService.fetchAuthMethods(from: url)
+                self.authMethods = methods
+            } catch {
+                self.errorMessage = (error as? LocalizedError)?.errorDescription ?? String(localized: "common.error.unknown")
+            }
+            self.isLoading = false
+        }
+    }
+    
+    private func connectWithPassword() {
+        onComplete(instanceName, url, email, password)
+    }
+    
+    private func startWebLogin(provider: OAuth2Provider) {
+        Task {
+            isLoading = true
+            errorMessage = nil
+            
+            do {
+                let appRedirectURL = "beszel-companion://redirect"
+                guard let encodedRedirectURL = appRedirectURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                      let authURL = URL(string: "\(provider.authUrl)\(encodedRedirectURL)") else {
+                    throw OnboardingAPIService.OnboardingError.invalidURL
+                }
+                
+                let callbackURL = try await ASWebAuthenticationSession.async(
+                    url: authURL,
+                    callbackURLScheme: "beszel-companion",
+                    presentationContextProvider: self.contextProvider
+                )
+                
+                guard let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
+                      let code = components.queryItems?.first(where: { $0.name == "code" })?.value else {
+                    throw URLError(.badServerResponse)
+                }
+                
+                let (accessToken, userEmail) = try await apiService.exchangeCodeForToken(code: code, provider: provider, hubURL: self.url)
+                
+                self.isLoading = false
+                onComplete(self.instanceName, self.url, userEmail, accessToken)
+                
+            } catch {
+                self.isLoading = false
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
+}
+
+class WebAuthSessionContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        let scenes = UIApplication.shared.connectedScenes
+        let windowScene = scenes.first as? UIWindowScene
+        guard let window = windowScene?.windows.first(where: { $0.isKeyWindow }) else {
+            fatalError("No key window available")
+        }
+        return window
+    }
+}
+
+extension ASWebAuthenticationSession {
+    static func async(url: URL, callbackURLScheme: String?, presentationContextProvider: ASWebAuthenticationPresentationContextProviding) async throws -> URL {
+        try await withCheckedThrowingContinuation { continuation in
+            let session = ASWebAuthenticationSession(url: url, callbackURLScheme: callbackURLScheme) { url, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let url = url {
+                    continuation.resume(returning: url)
+                } else {
+                    continuation.resume(throwing: URLError(.badServerResponse))
+                }
+            }
+            session.presentationContextProvider = presentationContextProvider
+            session.prefersEphemeralWebBrowserSession = true
+            
+            DispatchQueue.main.async {
+                session.start()
+            }
         }
     }
 }

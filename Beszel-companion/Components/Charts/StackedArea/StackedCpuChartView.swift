@@ -18,7 +18,6 @@ struct StackedCpuData: Identifiable {
 
 struct StackedCpuChartView: View {
     let settingsManager: SettingsManager
-    
     let processedData: [ProcessedContainerData]
     let systemID: String?
     var systemName: String? = nil
@@ -116,6 +115,7 @@ struct StackedCpuChartView: View {
                         .interpolationMethod(.monotone)
                     }
                     .chartForegroundStyleScale(domain: cpuDomainValue, range: gradientRange(for: cpuDomainValue))
+                    .padding(.top, 5)
                     .drawingGroup()
                 }
                 .commonChartCustomization(xAxisFormat: xAxisFormat)

@@ -91,6 +91,7 @@ struct SystemCpuChartView: View {
                 AxisValueLabel(format: xAxisFormat, centered: true)
             }
         }
+        .padding(.top, 5)
         .drawingGroup()
     }
 }

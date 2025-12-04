@@ -96,8 +96,8 @@ final class BeszelStore {
                         let fetchedContainers = try await containerRecords
                         let fetchedSystem = try await systemRecords
                         
-                        let transformedSystem = DataProcessor.transformSystem(records: fetchedSystem)
-                        let rawContainers = DataProcessor.transform(records: fetchedContainers)
+                        let transformedSystem = fetchedSystem.asDataPoints()
+                        let rawContainers = fetchedContainers.asProcessedData()
                         
                         var processedContainers: [ProcessedContainerData] = []
                         for container in rawContainers {

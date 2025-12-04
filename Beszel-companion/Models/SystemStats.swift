@@ -28,3 +28,32 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
         case temperatures = "t"
     }
 }
+
+extension Array where Element == SystemStatsRecord {
+    nonisolated func asDataPoints() -> [SystemDataPoint] {
+        let groupedByDate = Dictionary(grouping: self, by: { record in
+            return Int(record.created.timeIntervalSince1970 / 60)
+        })
+        
+        let uniqueBestRecords = groupedByDate.compactMap { (_, recordsForMinute) -> SystemStatsRecord? in
+            if recordsForMinute.count == 1 { return recordsForMinute.first }
+            
+            return recordsForMinute.min(by: {
+                let durA = Int($0.type.replacingOccurrences(of: "m", with: "")) ?? Int.max
+                let durB = Int($1.type.replacingOccurrences(of: "m", with: "")) ?? Int.max
+                return durA < durB
+            })
+        }
+        
+        return uniqueBestRecords.compactMap { record -> SystemDataPoint? in
+            let tempsArray = (record.stats.temperatures ?? [:]).map { (name: $0.key, value: $0.value) }
+            
+            return SystemDataPoint(
+                date: record.created,
+                cpu: record.stats.cpu,
+                memoryPercent: record.stats.memoryPercent,
+                temperatures: tempsArray
+            )
+        }.sorted(by: { $0.date < $1.date })
+    }
+}

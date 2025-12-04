@@ -152,7 +152,7 @@ struct Provider: AppIntentTimelineProvider {
             let finalFilter = "(\(systemFilter) && \(timeFilter))"
             
             let records = try await apiService.fetchSystemStats(filter: finalFilter)
-            let dataPoints = DataProcessor.transformSystem(records: records)
+            let dataPoints = records.asDataPoints()
             
             let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: dataPoints, timeRange: timeRange)
             let nextUpdate = Date().addingTimeInterval(15 * 60)

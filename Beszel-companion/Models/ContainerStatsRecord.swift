@@ -28,3 +28,21 @@ nonisolated struct ContainerStat: Identifiable, Codable, Hashable, Sendable {
         case netReceived = "nr"
     }
 }
+
+extension Array where Element == ContainerStatsRecord {
+    nonisolated func asProcessedData() -> [ProcessedContainerData] {
+        var containerDict = [String: [StatPoint]]()
+        
+        for record in self {
+            let date = record.created
+            for stat in record.stats {
+                let point = StatPoint(date: date, cpu: stat.cpu, memory: stat.memory)
+                containerDict[stat.name, default: []].append(point)
+            }
+        }
+        
+        return containerDict.map { name, points in
+            ProcessedContainerData(id: name, statPoints: points.sorted(by: { $0.date < $1.date }))
+        }
+    }
+}

@@ -6,9 +6,9 @@ import Observation
 @MainActor
 final class InstanceManager {
     static let shared = InstanceManager()
-    static let appGroupIdentifier = "group.com.nohitdev.Beszel"
+    static let appGroupIdentifier = Constants.appGroupId
     
-    private let keychainService = "com.nohitdev.Beszel.instances"
+    private let keychainService = Constants.keychainService
     
     private static func getStore() -> UserDefaults {
         return UserDefaults(suiteName: appGroupIdentifier) ?? .standard

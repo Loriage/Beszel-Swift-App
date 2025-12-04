@@ -85,7 +85,7 @@
 				Components/Switchers/InstanceSwitcherView.swift,
 				Components/Switchers/SystemSwitcherView.swift,
 				Helpers/ChartUtils.swift,
-				Helpers/DataProcessor.swift,
+				Helpers/Constants.swift,
 				Helpers/DataSimplifier.swift,
 				"Helpers/DateFormatter+Extensions.swift",
 				Helpers/Enums.swift,

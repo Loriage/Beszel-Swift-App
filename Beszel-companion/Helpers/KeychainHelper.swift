@@ -3,7 +3,7 @@ import Security
 
 struct KeychainHelper {
     nonisolated private static var accessGroup: String {
-        return "group.com.nohitdev.Beszel"
+        return Constants.appGroupId
     }
     
     nonisolated static func save(data: Data, service: String, account: String, useSharedKeychain: Bool) -> Bool {

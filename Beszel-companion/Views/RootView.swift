@@ -6,7 +6,7 @@ struct RootView: View {
     let dashboardManager: DashboardManager
     let refreshManager: RefreshManager
     let instanceManager: InstanceManager
-
+    
     var body: some View {
         Group {
             if instanceManager.instances.isEmpty {

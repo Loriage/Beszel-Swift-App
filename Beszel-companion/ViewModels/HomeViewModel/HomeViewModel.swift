@@ -6,7 +6,7 @@ import Observation
 @MainActor
 final class HomeViewModel {
     var isShowingFilterSheet = false
-
+    
     var searchText = "" {
         didSet { updatePins() }
     }
@@ -16,7 +16,7 @@ final class HomeViewModel {
     var sortDescending = false {
         didSet { updatePins() }
     }
-
+    
     var filteredAndSortedPins: [ResolvedPinnedItem] = []
     
     let chartDataManager: ChartDataManager
@@ -28,7 +28,7 @@ final class HomeViewModel {
         self.dashboardManager = dashboardManager
         self.languageManager = languageManager
     }
-
+    
     private struct SortablePin {
         let resolvedItem: ResolvedPinnedItem
         let systemName: String
@@ -36,11 +36,11 @@ final class HomeViewModel {
         let metricName: String
         let serviceName: String
     }
-
+    
     func updatePins() {
         let bundle = languageManager.currentBundle
         let pins = dashboardManager.allPinsForActiveInstance
-
+        
         let filteredPins: [ResolvedPinnedItem]
         if searchText.isEmpty {
             filteredPins = pins
@@ -52,7 +52,7 @@ final class HomeViewModel {
                 itemName.localizedCaseInsensitiveContains(searchText)
             }
         }
-
+        
         let sortableItems = filteredPins.map { pin -> SortablePin in
             let sysName = chartDataManager.systemName(forSystemID: pin.systemID) ?? ""
             let dispName = pin.item.localizedDisplayName(for: bundle)
@@ -65,7 +65,7 @@ final class HomeViewModel {
                 serviceName: pin.item.serviceName
             )
         }
-
+        
         let sortedItems: [SortablePin]
         switch sortOption {
         case .bySystem:
@@ -90,7 +90,7 @@ final class HomeViewModel {
                 return lhs.displayName < rhs.displayName
             }
         }
-
+        
         let result = sortedItems.map { $0.resolvedItem }
         self.filteredAndSortedPins = sortDescending ? result.reversed() : result
     }

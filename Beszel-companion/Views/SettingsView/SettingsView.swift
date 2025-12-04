@@ -18,7 +18,7 @@ struct SettingsView: View {
         @Bindable var bindableViewModel = viewModel
         @Bindable var bindableLanguageManager = viewModel.languageManager
         @Bindable var bindableSettingsManager = viewModel.settingsManager
-
+        
         NavigationStack {
             Form {
                 Section(header: Text("settings.display")) {

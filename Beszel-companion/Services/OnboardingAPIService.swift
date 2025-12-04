@@ -1,13 +1,12 @@
 import Foundation
 
 struct OnboardingAPIService {
-    // Les types d'erreur doivent être Sendable (Error l'est généralement).
     enum OnboardingError: Error, LocalizedError {
         case invalidURL
         case networkError(Error)
         case decodingError(Error)
         case hubUnreachable
-
+        
         var errorDescription: String? {
             switch self {
             case .hubUnreachable:
@@ -17,8 +16,6 @@ struct OnboardingAPIService {
             }
         }
     }
-
-    // Le service peut être une struct car il n'a pas d'état mutable interne.
     
     func fetchAuthMethods(from urlString: String) async throws -> AuthMethodsResponse {
         guard let hubURL = URL(string: urlString) else {
@@ -37,7 +34,7 @@ struct OnboardingAPIService {
             throw OnboardingError.hubUnreachable
         }
     }
-
+    
     private struct SSOUserRecord: Decodable {
         let email: String
     }
@@ -55,7 +52,6 @@ struct OnboardingAPIService {
             let provider: String, code: String, codeVerifier: String, redirectUrl: String
         }
         
-        // Assurez-vous que l'URL de redirection correspond à votre configuration
         let body = TokenRequestBody(provider: provider.name, code: code, codeVerifier: provider.codeVerifier, redirectUrl: "beszel-companion://redirect")
         request.httpBody = try JSONEncoder().encode(body)
         

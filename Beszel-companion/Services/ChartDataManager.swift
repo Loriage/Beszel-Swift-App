@@ -47,12 +47,12 @@ final class ChartDataManager {
     var hasTemperatureData: Bool {
         systemDataPoints.contains { !$0.temperatures.isEmpty }
     }
-
+    
     func fetchData() async {
         await dataService.fetchData()
         self.updateData()
     }
-
+    
     func isPinned(_ item: PinnedItem, onSystem systemID: String) -> Bool {
         dashboardManager.isPinned(item, onSystem: systemID)
     }

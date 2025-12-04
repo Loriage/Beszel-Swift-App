@@ -8,7 +8,7 @@ struct SystemView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 ScreenHeaderView(title: "system.title", subtitle: "system.subtitle")
-
+                
                 VStack(alignment: .leading, spacing: 24) {
                     SystemCpuChartView(
                         xAxisFormat: systemViewModel.chartDataManager.xAxisFormat,
@@ -36,7 +36,6 @@ struct SystemView: View {
             }
         }
         .refreshable {
-            // Task implicite
             await systemViewModel.chartDataManager.fetchData()
         }
         .overlay {

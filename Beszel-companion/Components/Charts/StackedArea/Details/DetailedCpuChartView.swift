@@ -9,7 +9,6 @@ struct DetailedCpuChartView: View {
     let xAxisFormat: Date.FormatStyle
     let systemID: String?
     
-    // Changement : let pour settingsManager, @Environment pour dashboardManager
     let settingsManager: SettingsManager
     @Environment(DashboardManager.self) var dashboardManager
     
@@ -152,13 +151,13 @@ struct CpuChartSectionView: View {
     let labelScale: Double
     let xAxisFormat: Date.FormatStyle
     let settingsManager: SettingsManager
-
+    
     @Binding var snappedDate: Date?
     @Binding var dragLocation: CGPoint?
-
+    
     var isPinned: Bool
     var onPinToggle: () -> Void
-
+    
     init(stackedData: [StackedCpuData], domain: [String], uniqueDates: [Date], labelScale: Double = 1.0, xAxisFormat: Date.FormatStyle, settingsManager: SettingsManager, snappedDate: Binding<Date?>, dragLocation: Binding<CGPoint?>, isPinned: Bool, onPinToggle: @escaping () -> Void) {
         self.stackedData = stackedData
         self.domain = domain
@@ -171,7 +170,7 @@ struct CpuChartSectionView: View {
         self.isPinned = isPinned
         self.onPinToggle = onPinToggle
     }
-
+    
     var body: some View {
         GroupBox(label: HStack {
             Text("details.cpu.title")
@@ -213,7 +212,7 @@ struct CpuChartSectionView: View {
                             }
                             .stroke(Color.gray.opacity(0.5), style: StrokeStyle(lineWidth: 1, dash: [5]))
                         }
-
+                        
                         Rectangle()
                             .fill(Color.clear)
                             .contentShape(Rectangle())

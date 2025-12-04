@@ -3,27 +3,27 @@ import AuthenticationServices
 
 struct OnboardingView: View {
     @State var viewModel: OnboardingViewModel
-
+    
     var body: some View {
         @Bindable var bindableViewModel = viewModel
         
         VStack(spacing: 20) {
             Spacer()
-
+            
             Image(systemName: "server.rack")
                 .font(.system(size: 60))
                 .foregroundColor(.accentColor)
-
+            
             Text("onboarding.title")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-
+            
             VStack {
                 TextField("onboarding.instanceNamePlaceholder", text: $bindableViewModel.instanceName)
                     .padding()
                     .background(.thinMaterial)
                     .cornerRadius(10)
-
+                
                 HStack(spacing: 10) {
                     Picker("Scheme", selection: $viewModel.selectedScheme) {
                         ForEach(OnboardingViewModel.ServerScheme.allCases) { scheme in
@@ -35,7 +35,7 @@ struct OnboardingView: View {
                     .background(.thinMaterial)
                     .cornerRadius(10)
                     .tint(Color.primary)
-
+                    
                     TextField("onboarding.urlPlaceholder", text: $bindableViewModel.serverAddress)
                         .keyboardType(.URL)
                         .textContentType(.URL)
@@ -49,11 +49,11 @@ struct OnboardingView: View {
                 }
             }
             .padding(.horizontal)
-
+            
             if viewModel.isLoading {
                 ProgressView()
             }
-
+            
             if let authMethods = viewModel.authMethods {
                 if authMethods.password.enabled {
                     passwordLoginView
@@ -84,11 +84,11 @@ struct OnboardingView: View {
                     .font(.caption)
                     .padding(.horizontal)
             }
-
+            
             Spacer()
         }
     }
-
+    
     private var passwordLoginView: some View {
         @Bindable var bindableViewModel = viewModel
         
@@ -100,7 +100,7 @@ struct OnboardingView: View {
                     .padding()
                     .background(.thinMaterial)
                     .cornerRadius(10)
-
+                
                 SecureField("onboarding.input.password", text: $bindableViewModel.password)
                     .textContentType(.password)
                     .padding()

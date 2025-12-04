@@ -11,13 +11,13 @@ final class OnboardingViewModel {
         
         var id: String { self.rawValue }
     }
-
+    
     var instanceName = ""
     var selectedScheme: ServerScheme = .https
     var serverAddress = ""
     var email = ""
     var password = ""
-
+    
     var isLoading = false
     var errorMessage: String?
     var authMethods: AuthMethodsResponse?
@@ -26,22 +26,22 @@ final class OnboardingViewModel {
     
     private let apiService = OnboardingAPIService()
     private let contextProvider = WebAuthSessionContextProvider()
-
+    
     init(onComplete: @escaping (String, String, String, String) -> Void) {
         self.onComplete = onComplete
     }
-
+    
     var url: String {
         selectedScheme.rawValue + serverAddress
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "http://", with: "")
             .replacingOccurrences(of: "https://", with: "")
     }
-
+    
     var isPasswordLoginDisabled: Bool {
         instanceName.isEmpty || url.isEmpty || email.isEmpty || password.isEmpty
     }
-
+    
     func fetchAuthMethods() {
         guard !url.isEmpty else {
             self.errorMessage = String(localized: "onboarding.error.invalid_url")
@@ -62,11 +62,11 @@ final class OnboardingViewModel {
             self.isLoading = false
         }
     }
-
+    
     func connectWithPassword() {
         onComplete(instanceName, url, email, password)
     }
-
+    
     func startWebLogin(provider: OAuth2Provider) {
         Task {
             isLoading = true
@@ -78,7 +78,7 @@ final class OnboardingViewModel {
                       let authURL = URL(string: "\(provider.authUrl)\(encodedRedirectURL)") else {
                     throw OnboardingAPIService.OnboardingError.invalidURL
                 }
-
+                
                 let callbackURL = try await ASWebAuthenticationSession.async(
                     url: authURL,
                     callbackURLScheme: "beszel-companion",
@@ -89,7 +89,7 @@ final class OnboardingViewModel {
                       let code = components.queryItems?.first(where: { $0.name == "code" })?.value else {
                     throw URLError(.badServerResponse)
                 }
-
+                
                 let (accessToken, userEmail) = try await apiService.exchangeCodeForToken(code: code, provider: provider, hubURL: self.url)
                 
                 self.isLoading = false

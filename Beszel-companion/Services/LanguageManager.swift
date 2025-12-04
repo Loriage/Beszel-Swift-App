@@ -10,7 +10,7 @@ final class LanguageManager {
             updateCurrentBundle()
         }
     }
-
+    
     var currentBundle: Bundle = .main
     
     let availableLanguages: [Language]

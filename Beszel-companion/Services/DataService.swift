@@ -17,10 +17,10 @@ final class DataService {
         self.settingsManager = settingsManager
         self.apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
     }
-
+    
     nonisolated private static func downsampleStatPoints(_ statPoints: [StatPoint], timeRange: TimeRangeOption) async -> [StatPoint] {
         guard !statPoints.isEmpty else { return [] }
-
+        
         if statPoints.count < 150 { return statPoints }
         
         let targetCount: Int
@@ -40,7 +40,7 @@ final class DataService {
         case .last7Days: minInterval = 300
         case .last30Days: minInterval = 900
         }
-
+        
         let calculatedInterval = max(minInterval, totalDuration / Double(max(1, targetCount)))
         
         return statPoints.downsampled(bucketInterval: calculatedInterval, method: .average)
@@ -49,7 +49,7 @@ final class DataService {
     func fetchData() async {
         self.isLoading = true
         self.errorMessage = nil
-
+        
         let systemsToFetch = InstanceManager.shared.systems
         let timeFilter = self.settingsManager.apiFilterString
         let currentTimeRange = self.settingsManager.selectedTimeRange
@@ -77,27 +77,27 @@ final class DataService {
                             filters.append(capturedTimeFilter)
                         }
                         let finalFilter = "(\(filters.joined(separator: " && ")))"
-
+                        
                         async let containerRecords = self.apiService.fetchMonitors(filter: finalFilter)
                         async let systemRecords = self.apiService.fetchSystemStats(filter: finalFilter)
                         
                         let fetchedContainers = try await containerRecords
                         let fetchedSystem = try await systemRecords
-
+                        
                         let transformedSystem = DataProcessor.transformSystem(records: fetchedSystem)
                         let rawContainers = DataProcessor.transform(records: fetchedContainers)
-
+                        
                         var processedContainers: [ProcessedContainerData] = []
                         for container in rawContainers {
                             var c = container
                             c.statPoints = await DataService.downsampleStatPoints(container.statPoints, timeRange: currentTimeRange)
                             processedContainers.append(c)
                         }
-
+                        
                         return (system.id, transformedSystem, processedContainers)
                     }
                 }
-
+                
                 return try await group.reduce(into: ([:], [:])) { (partialResult, taskResult) in
                     let (systemId, sysData, processedContainers) = taskResult
                     partialResult.0[systemId] = sysData

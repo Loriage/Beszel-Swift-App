@@ -3,7 +3,7 @@ import Charts
 
 struct ContainerDetailView: View {
     @State var viewModel: ContainerDetailViewModel
-
+    
     init(container: ProcessedContainerData, settingsManager: SettingsManager, dashboardManager: DashboardManager) {
         _viewModel = State(wrappedValue: ContainerDetailViewModel(
             container: container,
@@ -11,7 +11,7 @@ struct ContainerDetailView: View {
             settingsManager: settingsManager
         ))
     }
-
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {

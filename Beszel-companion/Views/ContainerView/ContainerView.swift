@@ -2,11 +2,11 @@ import SwiftUI
 
 struct ContainerView: View {
     let viewModel: ContainerViewModel
-
+    
     @Environment(SettingsManager.self) var settingsManager
     @Environment(DashboardManager.self) var dashboardManager
     @Environment(InstanceManager.self) var instanceManager
-
+    
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 10) {
@@ -28,7 +28,7 @@ struct ContainerView: View {
                     }
                     .padding(.horizontal)
                 }
-
+                
                 VStack(alignment: .leading, spacing: 0) {
                     VStack(alignment: .leading, spacing: 4) {
                         ForEach(Array(viewModel.sortedData.enumerated()), id: \.element.id) { index, container in
@@ -48,7 +48,7 @@ struct ContainerView: View {
                                 .padding(.vertical, 12)
                                 .padding(.horizontal)
                             }
-
+                            
                             if index < viewModel.sortedData.count - 1 {
                                 Divider()
                                     .padding(.horizontal, 16)

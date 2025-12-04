@@ -6,10 +6,10 @@ actor BeszelAPIService {
     
     private let baseURL: String
     private let email: String
-
+    
     private var credential: String?
     private var authToken: String?
-
+    
     private nonisolated static let jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
         let formatter = DateFormatter()
@@ -19,14 +19,14 @@ actor BeszelAPIService {
         decoder.dateDecodingStrategy = .formatted(formatter)
         return decoder
     }()
-
+    
     private lazy var session: URLSession = {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 15
         config.timeoutIntervalForResource = 30
         return URLSession(configuration: config)
     }()
-
+    
     init(instance: Instance, instanceManager: InstanceManager) {
         self.instance = instance
         self.instanceManager = instanceManager
@@ -39,24 +39,24 @@ actor BeszelAPIService {
         self.baseURL = cleanUrl
         self.email = instance.email
     }
-
+    
     private func getCredential() -> String {
         if let cred = credential { return cred }
         let loaded = instanceManager.loadCredential(for: instance) ?? ""
         self.credential = loaded
         return loaded
     }
-
+    
     private func ensureAuthenticated() async throws {
         if authToken != nil { return }
         let currentCredential = getCredential()
-
+        
         let parts = currentCredential.components(separatedBy: ".")
         if parts.count == 3 {
             self.authToken = credential
             return
         }
-
+        
         guard !email.isEmpty, !currentCredential.isEmpty else {
             throw URLError(.userAuthenticationRequired)
         }
@@ -76,7 +76,7 @@ actor BeszelAPIService {
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw URLError(.userAuthenticationRequired)
         }
-
+        
         let authResponse = try Self.jsonDecoder.decode(AuthResponse.self, from: data)
         self.authToken = authResponse.token
         
@@ -87,7 +87,7 @@ actor BeszelAPIService {
             self.instanceManager.updateCredential(for: localInstance, newCredential: newToken)
         }
     }
-
+    
     private func refreshToken() async throws {
         guard let url = URL(string: "\(baseURL)/api/collections/users/auth-refresh") else {
             throw URLError(.badURL)
@@ -117,7 +117,7 @@ actor BeszelAPIService {
             self.instanceManager.updateCredential(for: localInstance, newCredential: newToken)
         }
     }
-
+    
     private func performRequest<T: Decodable & Sendable>(with url: URL) async throws -> T {
         try await ensureAuthenticated()
         
@@ -132,12 +132,12 @@ actor BeszelAPIService {
         
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
             try await refreshToken()
-
+            
             guard let refreshedToken = authToken else { throw URLError(.userAuthenticationRequired) }
             var refreshedRequest = URLRequest(url: url)
             refreshedRequest.addValue("Bearer \(refreshedToken)", forHTTPHeaderField: "Authorization")
             let (refreshedData, _) = try await self.session.data(for: refreshedRequest)
-
+            
             return try Self.jsonDecoder.decode(T.self, from: refreshedData)
             
         } else if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
@@ -146,7 +146,7 @@ actor BeszelAPIService {
             throw URLError(.badServerResponse)
         }
     }
-
+    
     func fetchSystems() async throws -> [SystemRecord] {
         guard let url = URL(string: "\(baseURL)/api/collections/systems/records") else {
             throw URLError(.badURL)
@@ -154,13 +154,13 @@ actor BeszelAPIService {
         let response: PocketBaseListResponse<SystemRecord> = try await performRequest(with: url)
         return response.items
     }
-
+    
     func fetchMonitors(filter: String?) async throws -> [ContainerStatsRecord] {
         let url = try buildURL(for: "/api/collections/container_stats/records", filter: filter)
         let response: PocketBaseListResponse<ContainerStatsRecord> = try await performRequest(with: url)
         return response.items
     }
-
+    
     func fetchSystemStats(filter: String?) async throws -> [SystemStatsRecord] {
         let url = try buildURL(for: "/api/collections/system_stats/records", filter: filter)
         let response: PocketBaseListResponse<SystemStatsRecord> = try await performRequest(with: url)
@@ -185,7 +185,7 @@ actor BeszelAPIService {
         guard let url = components.url else {
             throw URLError(.badURL)
         }
-
+        
         return url
     }
 }

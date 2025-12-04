@@ -8,7 +8,7 @@ final class ContainerDetailViewModel {
     let container: ProcessedContainerData
     private let dashboardManager: DashboardManager
     private let settingsManager: SettingsManager
-
+    
     var isCpuChartPinned: Bool {
         dashboardManager.isPinned(.containerCPU(name: container.name))
     }
@@ -16,25 +16,25 @@ final class ContainerDetailViewModel {
     var isMemoryChartPinned: Bool {
         dashboardManager.isPinned(.containerMemory(name: container.name))
     }
-
+    
     init(container: ProcessedContainerData, dashboardManager: DashboardManager, settingsManager: SettingsManager) {
         self.container = container
         self.dashboardManager = dashboardManager
         self.settingsManager = settingsManager
     }
-
+    
     var containerName: String {
         container.name
     }
-
+    
     var xAxisFormat: Date.FormatStyle {
         settingsManager.selectedTimeRange.xAxisFormat
     }
-
+    
     func toggleCpuPin() {
         dashboardManager.togglePin(for: .containerCPU(name: container.name))
     }
-
+    
     func toggleMemoryPin() {
         dashboardManager.togglePin(for: .containerMemory(name: container.name))
     }

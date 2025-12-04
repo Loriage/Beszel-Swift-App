@@ -7,7 +7,7 @@ struct Beszel_companionApp: App {
     @State private var languageManager = LanguageManager()
     @State private var refreshManager = RefreshManager()
     @State private var instanceManager = InstanceManager.shared
-
+    
     var body: some Scene {
         WindowGroup {
             RootView(

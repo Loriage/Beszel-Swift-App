@@ -17,7 +17,7 @@ struct BeszelWidgetEntryView : View {
     private var widgetXAxisFormat: Date.FormatStyle {
         return entry.timeRange.xAxisFormat
     }
-
+    
     var body: some View {
         VStack(alignment: .leading) {
             if let errorMessage = entry.errorMessage {
@@ -44,7 +44,7 @@ struct BeszelWidgetEntryView : View {
         .containerBackground(.fill.tertiary, for: .widget)
         .environment(\.locale, Locale(identifier: languageManager.currentLanguageCode))
     }
-
+    
     @ViewBuilder
     private var chartView: some View {
         switch entry.chartType {
@@ -93,20 +93,19 @@ struct BeszelWidgetEntryView : View {
 
 struct Provider: AppIntentTimelineProvider {
     private let defaultChartType = WidgetChartType.systemCPU
-
+    
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(date: Date(), chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours)
     }
-
+    
     func snapshot(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> SimpleEntry {
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
         return SimpleEntry(date: Date(), chartType: chartType, dataPoints: sampleDataPoints(), timeRange: .last24Hours)
     }
-
+    
     func timeline(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> Timeline<SimpleEntry> {
         let settingsManager = SettingsManager()
-
-        // CORRECTION : On récupère l'instance de manière sécurisée via MainActor.run
+        
         let instanceToFetch: Instance? = await MainActor.run {
             guard let selectedInstanceEntity = configuration.instance,
                   let instanceID = UUID(uuidString: selectedInstanceEntity.id) else {
@@ -114,18 +113,17 @@ struct Provider: AppIntentTimelineProvider {
             }
             return InstanceManager.shared.instances.first(where: { $0.id == instanceID })
         }
-
+        
         guard let instanceToFetch = instanceToFetch else {
             let entry = SimpleEntry(date: .now, chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.notConnected")
             return Timeline(entries: [entry], policy: .atEnd)
         }
-
+        
         guard let selectedSystemEntity = configuration.system else {
             let entry = SimpleEntry(date: .now, chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.notConnected")
             return Timeline(entries: [entry], policy: .atEnd)
         }
         
-        // Création du service sur le MainActor pour l'injection, puis utilisation
         let apiService = await MainActor.run {
             return BeszelAPIService(instance: instanceToFetch, instanceManager: InstanceManager.shared)
         }
@@ -133,13 +131,12 @@ struct Provider: AppIntentTimelineProvider {
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
         
         do {
-            // Lecture des settings isolés
             let timeFilter = await MainActor.run { settingsManager.apiFilterString ?? "1=1" }
             let timeRange = await MainActor.run { settingsManager.selectedTimeRange }
             
             let systemFilter = "system = '\(selectedSystemEntity.id)'"
             let finalFilter = "(\(systemFilter) && \(timeFilter))"
-
+            
             let records = try await apiService.fetchSystemStats(filter: finalFilter)
             let dataPoints = DataProcessor.transformSystem(records: records)
             
@@ -166,7 +163,7 @@ struct Provider: AppIntentTimelineProvider {
 
 struct BeszelWidget: Widget {
     let kind: String = "BeszelWidget"
-
+    
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: SelectInstanceAndChartIntent.self, provider: Provider()) { entry in
             BeszelWidgetEntryView(entry: entry)

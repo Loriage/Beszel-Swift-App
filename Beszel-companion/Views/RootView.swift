@@ -4,7 +4,6 @@ struct RootView: View {
     let languageManager: LanguageManager
     let settingsManager: SettingsManager
     let dashboardManager: DashboardManager
-    let refreshManager: RefreshManager
     let instanceManager: InstanceManager
     
     var body: some View {
@@ -21,7 +20,6 @@ struct RootView: View {
                         instance: activeInstance,
                         instanceManager: instanceManager,
                         settingsManager: settingsManager,
-                        refreshManager: refreshManager,
                         dashboardManager: dashboardManager,
                         languageManager: languageManager
                     )

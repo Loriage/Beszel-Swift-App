@@ -81,13 +81,10 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                ScreenHeaderView(title: "home.title", subtitle: "home.subtitle")
-                
-                if store.isLoading {
-                    ProgressView()
-                        .progressViewStyle(.linear)
-                        .padding(.horizontal)
-                }
+                ScreenHeaderView(
+                    title: "home.title",
+                    subtitle: store.isLoading ? "switcher.loading" : "home.subtitle"
+                )
                 
                 HStack {
                     TextField("dashboard.searchPlaceholder", text: $searchText)
@@ -121,7 +118,7 @@ struct HomeView: View {
             }
         }
         .overlay {
-            if dashboardManager.allPinsForActiveInstance.isEmpty {
+            if dashboardManager.allPinsForActiveInstance.isEmpty && !store.isLoading {
                 ContentUnavailableView {
                     Label("home.empty.title", systemImage: "pin.slash")
                 } description: {

@@ -112,7 +112,6 @@
 				Services/InstanceManager.swift,
 				Services/LanguageManager.swift,
 				Services/OnboardingAPIService.swift,
-				Services/RefreshManager.swift,
 				Services/SettingsManager.swift,
 			);
 			target = 87FE4D6E2E0D241200163BCE /* BeszelWidgetExtension */;

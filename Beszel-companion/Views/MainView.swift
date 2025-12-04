@@ -9,7 +9,6 @@ struct MainView: View {
     let instance: Instance
     let instanceManager: InstanceManager
     let settingsManager: SettingsManager
-    let refreshManager: RefreshManager
     let dashboardManager: DashboardManager
     let languageManager: LanguageManager
     
@@ -45,18 +44,23 @@ struct MainView: View {
                     }
                 }
                 .environment(store)
-                .sheet(isPresented: $isShowingSettings) {
-                    LazyView(SettingsView())
-                }
                 .task(id: settingsManager.selectedTimeRange) {
                     await store.fetchData()
+
+                    while !Task.isCancelled {
+                        let interval = settingsManager.selectedTimeRange.refreshInterval
+
+                        try? await Task.sleep(for: .seconds(interval))
+                        if !Task.isCancelled && !isShowingSettings {
+                            await store.fetchData()
+                        }
+                    }
                 }
                 .task(id: instanceManager.activeSystem) {
                     store.updateDataForActiveSystem()
                 }
-                .onChange(of: refreshManager.refreshSignal) {
-                    guard !isShowingSettings else { return }
-                    Task { await store.fetchData() }
+                .sheet(isPresented: $isShowingSettings) {
+                    LazyView(SettingsView())
                 }
             } else {
                 ProgressView()

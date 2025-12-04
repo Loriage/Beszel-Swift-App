@@ -51,7 +51,7 @@ final class BeszelStore {
         self.errorMessage = nil
         
         let systemsToFetch = instanceManager.systems
-        let timeFilter = settingsManager.apiFilterString
+        let timeFilter = settingsManager.selectedTimeRange.apiFilterString
         let currentTimeRange = settingsManager.selectedTimeRange
         
         defer { self.isLoading = false }
@@ -72,11 +72,7 @@ final class BeszelStore {
                 for system in systemsToFetch {
                     group.addTask {
                         let systemFilter = "system = '\(system.id)'"
-                        var filters: [String] = [systemFilter]
-                        
-                        if let capturedTimeFilter = timeFilter {
-                            filters.append(capturedTimeFilter)
-                        }
+                        let filters: [String] = [systemFilter, timeFilter]
                         let finalFilter = "(\(filters.joined(separator: " && ")))"
                         
                         async let containerRecords = self.apiService.fetchMonitors(filter: finalFilter)

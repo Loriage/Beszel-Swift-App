@@ -131,7 +131,7 @@ struct Provider: AppIntentTimelineProvider {
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
         
         do {
-            let timeFilter = await MainActor.run { settingsManager.apiFilterString ?? "1=1" }
+            let timeFilter = await MainActor.run { settingsManager.selectedTimeRange.apiFilterString }
             let timeRange = await MainActor.run { settingsManager.selectedTimeRange }
             
             let systemFilter = "system = '\(selectedSystemEntity.id)'"

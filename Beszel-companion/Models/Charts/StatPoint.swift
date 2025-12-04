@@ -1,5 +1,12 @@
 import Foundation
 
+struct StatPoint: Identifiable, Sendable, Hashable {
+    var id: Date { date }
+    let date: Date
+    let cpu: Double
+    let memory: Double
+}
+
 extension Array where Element == StatPoint {
     nonisolated func downsampled(bucketInterval: TimeInterval, method: DownsampleMethod) -> [StatPoint] {
         guard !isEmpty else { return [] }

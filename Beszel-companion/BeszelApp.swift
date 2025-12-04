@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct Beszel_companionApp: App {
+struct BeszelApp: App {
     @State private var settingsManager = SettingsManager()
     @State private var dashboardManager = DashboardManager.shared
     @State private var languageManager = LanguageManager()

@@ -1,5 +1,14 @@
 import Foundation
-import SwiftUI
+
+enum TimeRangeOption: String, CaseIterable, Identifiable {
+    case lastHour = "timeRange.lastHour"
+    case last12Hours = "timeRange.last12Hours"
+    case last24Hours = "timeRange.last24Hours"
+    case last7Days = "timeRange.last7Days"
+    case last30Days = "timeRange.last30Days"
+    
+    var id: String { self.rawValue }
+}
 
 extension TimeRangeOption {
     var xAxisFormat: Date.FormatStyle {

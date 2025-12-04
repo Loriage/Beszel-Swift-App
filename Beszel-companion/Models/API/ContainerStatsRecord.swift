@@ -29,6 +29,12 @@ nonisolated struct ContainerStat: Identifiable, Codable, Hashable, Sendable {
     }
 }
 
+struct ProcessedContainerData: Identifiable, Sendable, Hashable {
+    let id: String
+    var name: String { id }
+    var statPoints: [StatPoint]
+}
+
 extension Array where Element == ContainerStatsRecord {
     nonisolated func asProcessedData() -> [ProcessedContainerData] {
         var containerDict = [String: [StatPoint]]()

@@ -1,5 +1,13 @@
 import SwiftUI
 
+enum SortOption: String, CaseIterable, Identifiable {
+    case bySystem = "filter.bySystem"
+    case byMetric = "filter.byMetric"
+    case byService = "filter.byService"
+
+    var id: String { self.rawValue }
+}
+
 struct FilterView: View {
     @Binding var sortOption: SortOption
     @Binding var sortDescending: Bool

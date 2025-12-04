@@ -96,3 +96,13 @@ extension View {
         }
     }
 }
+
+extension MainView {
+    enum AppTab: String, CaseIterable, Identifiable {
+        case home
+        case system
+        case container
+        
+        var id: String { self.rawValue }
+    }
+}

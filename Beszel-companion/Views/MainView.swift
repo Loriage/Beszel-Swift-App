@@ -28,7 +28,7 @@ struct MainView: View {
 
                     Tab(value: .system) {
                         NavigationStack {
-                            SystemView(systemViewModel: deps.systemViewModel)
+                            SystemView()
                                 .withMainToolbar(instanceManager: instanceManager, onSettingsTap: { isShowingSettings = true })
                         }
                     } label: {
@@ -44,14 +44,13 @@ struct MainView: View {
                         Label("container.title", systemImage: "shippingbox.fill")
                     }
                 }
+                .environment(deps.chartDataManager)
                 .sheet(isPresented: $isShowingSettings) {
-                    LazyView(
-                        SettingsView(
-                            dashboardManager: dashboardManager,
-                            settingsManager: settingsManager,
-                            languageManager: languageManager,
-                            instanceManager: instanceManager
-                        )
+                    SettingsView(
+                        dashboardManager: dashboardManager,
+                        settingsManager: settingsManager,
+                        languageManager: languageManager,
+                        instanceManager: instanceManager
                     )
                 }
                 .onChange(of: settingsManager.selectedTimeRange) {
@@ -87,7 +86,6 @@ struct MainView: View {
         )
 
         let hvm = HomeViewModel(chartDataManager: cdm, dashboardManager: dashboardManager, languageManager: languageManager)
-        let svm = SystemViewModel(chartDataManager: cdm)
         let cvm = ContainerViewModel(chartDataManager: cdm)
 
         await ds.fetchData()
@@ -97,7 +95,6 @@ struct MainView: View {
             dataService: ds,
             chartDataManager: cdm,
             homeViewModel: hvm,
-            systemViewModel: svm,
             containerViewModel: cvm
         )
     }
@@ -128,30 +125,17 @@ final class AppDependencies {
     let dataService: DataService
     let chartDataManager: ChartDataManager
     let homeViewModel: HomeViewModel
-    let systemViewModel: SystemViewModel
     let containerViewModel: ContainerViewModel
     
     init(
         dataService: DataService,
         chartDataManager: ChartDataManager,
         homeViewModel: HomeViewModel,
-        systemViewModel: SystemViewModel,
         containerViewModel: ContainerViewModel
     ) {
         self.dataService = dataService
         self.chartDataManager = chartDataManager
         self.homeViewModel = homeViewModel
-        self.systemViewModel = systemViewModel
         self.containerViewModel = containerViewModel
-    }
-}
-
-struct LazyView<Content: View>: View {
-    let build: () -> Content
-    init(_ build: @autoclosure @escaping () -> Content) {
-        self.build = build
-    }
-    var body: Content {
-        build()
     }
 }

@@ -34,8 +34,8 @@ struct ContainerView: View {
                 
                 VStack(alignment: .leading, spacing: 0) {
                     VStack(alignment: .leading, spacing: 4) {
-                        ForEach(Array(sortedData.enumerated()), id: \.element.id) { index, container in
-                            NavigationLink(destination: ContainerDetailView(container: container)) {
+                        ForEach(Array(store.sortedContainerData.enumerated()), id: \.element.id) { index, container in
+                            NavigationLink(value: container) {
                                 HStack {
                                     Text(container.name)
                                         .foregroundColor(.primary)
@@ -60,6 +60,9 @@ struct ContainerView: View {
                 }
                 .padding()
             }
+        }
+        .navigationDestination(for: ProcessedContainerData.self) { container in
+            ContainerDetailView(container: container)
         }
         .refreshable {
             await store.fetchData()

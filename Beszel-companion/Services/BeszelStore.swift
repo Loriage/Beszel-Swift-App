@@ -6,7 +6,12 @@ import Observation
 @MainActor
 final class BeszelStore {
     var systemDataPoints: [SystemDataPoint] = []
-    var containerData: [ProcessedContainerData] = []
+    var containerData: [ProcessedContainerData] = [] {
+        didSet {
+            self.sortedContainerData = containerData.sorted { $0.name < $1.name }
+        }
+    }
+    var sortedContainerData: [ProcessedContainerData] = []
     
     var isLoading = true
     var errorMessage: String?

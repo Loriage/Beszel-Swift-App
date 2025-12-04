@@ -171,7 +171,24 @@ struct OnboardingView: View {
     }
     
     private func connectWithPassword() {
-        onComplete(instanceName, url, email, password)
+        isLoading = true
+        errorMessage = nil
+        
+        Task {
+            do {
+                try await apiService.verifyCredentials(url: self.url, email: email, password: password)
+
+                await MainActor.run {
+                    isLoading = false
+                    onComplete(instanceName, url, email, password)
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    self.errorMessage = String(localized: "onboarding.loginFailed")
+                }
+            }
+        }
     }
     
     private func startWebLogin(provider: OAuth2Provider) {

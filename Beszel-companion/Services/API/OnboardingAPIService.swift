@@ -69,4 +69,22 @@ struct OnboardingAPIService {
         let responseBody = try JSONDecoder().decode(TokenResponseBody.self, from: data)
         return (responseBody.token, responseBody.record.email)
     }
+
+    func verifyCredentials(url: String, email: String, password: String) async throws {
+        guard let authURL = URL(string: "\(url)/api/collections/users/auth-with-password") else {
+            throw OnboardingError.invalidURL
+        }
+        
+        var request = URLRequest(url: authURL)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        let body: [String: String] = ["identity": email, "password": password]
+        request.httpBody = try JSONEncoder().encode(body)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+            throw OnboardingError.decodingError(URLError(.userAuthenticationRequired))
+        }
+    }
 }

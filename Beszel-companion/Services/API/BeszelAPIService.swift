@@ -12,11 +12,20 @@ actor BeszelAPIService {
     
     private nonisolated static let jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS'Z'"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        decoder.dateDecodingStrategy = .formatted(formatter)
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateStr = try container.decode(String.self)
+            
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS'Z'"
+            formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            
+            if let date = formatter.date(from: dateStr) {
+                return date
+            }
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date format")
+        }
         return decoder
     }()
     
@@ -52,8 +61,8 @@ actor BeszelAPIService {
         let currentCredential = getCredential()
         
         let parts = currentCredential.components(separatedBy: ".")
-        if parts.count == 3 {
-            self.authToken = credential
+        if parts.count == 3 && currentCredential.hasPrefix("ey") {
+            self.authToken = currentCredential
             return
         }
         
@@ -74,6 +83,9 @@ actor BeszelAPIService {
         let (data, response) = try await self.session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            if let httpResponse = response as? HTTPURLResponse {
+                print("Auth failed with status: \(httpResponse.statusCode)")
+            }
             throw URLError(.userAuthenticationRequired)
         }
         

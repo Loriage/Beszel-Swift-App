@@ -78,9 +78,8 @@
 		87FE4D942E0D24E200163BCE /* Exceptions for "Beszel-companion" folder in "BeszelWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Components/Charts/System/SystemCpuChartView.swift,
-				Components/Charts/System/SystemMemoryChartView.swift,
-				Components/Charts/System/SystemTemperatureChartView.swift,
+				Components/Charts/SystemMetricChartView.swift,
+				Components/Charts/SystemTemperatureChartView.swift,
 				Components/PinButtonView.swift,
 				Components/ScreenHeaderView.swift,
 				Components/Switchers/InstanceSwitcherView.swift,

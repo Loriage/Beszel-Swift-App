@@ -9,22 +9,25 @@ struct ContainerDetailView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                Text(container.name)
-                    .font(.title2)
-                    .fontWeight(.bold)
-            }
             VStack(alignment: .leading, spacing: 24) {
-                ContainerCpuChartView(
+                ContainerMetricChartView(
+                    titleKey: "chart.container.cpuUsage.percent",
+                    containerName: container.name,
                     xAxisFormat: settingsManager.selectedTimeRange.xAxisFormat,
                     container: container,
+                    valueKeyPath: \.cpu,
+                    color: .blue,
                     isPinned: dashboardManager.isPinned(.containerCPU(name: container.name)),
                     onPinToggle: { dashboardManager.togglePin(for: .containerCPU(name: container.name)) }
                 )
-                
-                ContainerMemoryChartView(
+
+                ContainerMetricChartView(
+                    titleKey: "chart.container.memoryUsage.bytes",
+                    containerName: container.name,
                     xAxisFormat: settingsManager.selectedTimeRange.xAxisFormat,
                     container: container,
+                    valueKeyPath: \.memory,
+                    color: .green,
                     isPinned: dashboardManager.isPinned(.containerMemory(name: container.name)),
                     onPinToggle: { dashboardManager.togglePin(for: .containerMemory(name: container.name)) }
                 )
@@ -32,5 +35,6 @@ struct ContainerDetailView: View {
             }
             .padding()
         }
+        .navigationTitle(container.name)
     }
 }

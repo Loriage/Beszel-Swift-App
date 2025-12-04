@@ -1,19 +1,22 @@
 import SwiftUI
 import Charts
 
-struct ContainerMemoryChartView: View {
+struct ContainerMetricChartView: View {
+    let titleKey: String
+    let containerName: String
     let xAxisFormat: Date.FormatStyle
     let container: ProcessedContainerData
-    var systemName: String? = nil
+    let valueKeyPath: KeyPath<StatPoint, Double>
+    let color: Color
     
+    var systemName: String? = nil
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
     var body: some View {
-        GroupBox(label:
-                    HStack {
+        GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(LocalizedStringResource("chart.container.memoryUsage.bytes")) \(container.name)")
+                Text("\(LocalizedStringResource(stringLiteral: titleKey)) \(containerName)")
                     .font(.headline)
                 if let systemName = systemName {
                     Text(systemName)
@@ -25,16 +28,19 @@ struct ContainerMemoryChartView: View {
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {
             Chart(container.statPoints) { point in
+                let value = point[keyPath: valueKeyPath]
+                
                 LineMark(
                     x: .value("Date", point.date),
-                    y: .value("Mémoire", point.memory)
+                    y: .value("Valeur", value)
                 )
-                .foregroundStyle(.green)
+                .foregroundStyle(color)
+                
                 AreaMark(
                     x: .value("Date", point.date),
-                    y: .value("Mémoire", point.memory)
+                    y: .value("Valeur", value)
                 )
-                .foregroundStyle(LinearGradient(colors: [.green.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
+                .foregroundStyle(LinearGradient(colors: [color.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
             }
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in

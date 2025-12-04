@@ -49,9 +49,23 @@ struct BeszelWidgetEntryView : View {
     private var chartView: some View {
         switch entry.chartType {
         case .systemCPU:
-            SystemCpuChartView(xAxisFormat: widgetXAxisFormat, dataPoints: entry.dataPoints, isForWidget: true )
+            SystemMetricChartView(
+                title: "widget.chart.systemCPU.title",
+                xAxisFormat: widgetXAxisFormat,
+                dataPoints: entry.dataPoints,
+                valueKeyPath: \.cpu,
+                color: .blue,
+                isForWidget: true
+            )
         case .systemMemory:
-            SystemMemoryChartView(xAxisFormat: widgetXAxisFormat, dataPoints: entry.dataPoints, isForWidget: true)
+            SystemMetricChartView(
+                title: "widget.chart.systemMemory.title",
+                xAxisFormat: widgetXAxisFormat,
+                dataPoints: entry.dataPoints,
+                valueKeyPath: \.memoryPercent,
+                color: .green,
+                isForWidget: true
+            )
         case .systemTemperature:
             if entry.dataPoints.contains(where: { !$0.temperatures.isEmpty }) {
                 SystemTemperatureChartView(xAxisFormat: widgetXAxisFormat, dataPoints: entry.dataPoints, isForWidget: true)

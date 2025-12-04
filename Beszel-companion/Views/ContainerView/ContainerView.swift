@@ -13,19 +13,23 @@ struct ContainerView: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 10) {
-                ScreenHeaderView(title: "container.title", subtitle: "container.subtitle")
+            LazyVStack(alignment: .leading, spacing: 24) {
+                ScreenHeaderView(
+                    title: "container.title",
+                    subtitle: store.isLoading ? "switcher.loading" : "container.subtitle"
+                )
 
                 if !store.containerData.isEmpty {
                     VStack(alignment: .leading, spacing: 24) {
                         StackedCpuChartView(
-                            settingsManager: settingsManager,
-                            processedData: store.containerData,
+                            stackedData: store.stackedCpuData,
+                            domain: store.cpuDomain,
                             systemID: instanceManager.activeSystem?.id
                         )
+                        
                         StackedMemoryChartView(
-                            settingsManager: settingsManager,
-                            processedData: store.containerData,
+                            stackedData: store.stackedMemoryData,
+                            domain: store.memoryDomain,
                             systemID: instanceManager.activeSystem?.id
                         )
                     }
@@ -58,7 +62,7 @@ struct ContainerView: View {
                     .background(Color(.systemGroupedBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
-                .padding()
+                .padding(.horizontal)
             }
         }
         .navigationDestination(for: ProcessedContainerData.self) { container in

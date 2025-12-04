@@ -142,17 +142,23 @@ struct HomeView: View {
         
         switch resolvedItem.item {
         case .systemCPU:
-            SystemCpuChartView(
+            SystemMetricChartView(
+                title: "chart.cpuUsage",
                 xAxisFormat: store.xAxisFormat,
                 dataPoints: systemData,
+                valueKeyPath: \.cpu,
+                color: .blue,
                 systemName: systemName,
                 isPinned: store.isPinned(.systemCPU, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemCPU, onSystem: resolvedItem.systemID) }
             )
         case .systemMemory:
-            SystemMemoryChartView(
+            SystemMetricChartView(
+                title: "chart.memoryUsage",
                 xAxisFormat: store.xAxisFormat,
                 dataPoints: systemData,
+                valueKeyPath: \.memoryPercent,
+                color: .green,
                 systemName: systemName,
                 isPinned: store.isPinned(.systemMemory, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemMemory, onSystem: resolvedItem.systemID) }
@@ -167,9 +173,13 @@ struct HomeView: View {
             )
         case .containerCPU(let name):
             if let container = containerData.first(where: { $0.id == name }) {
-                ContainerCpuChartView(
+                ContainerMetricChartView(
+                    titleKey: "chart.container.cpuUsage.percent",
+                    containerName: container.name,
                     xAxisFormat: store.xAxisFormat,
                     container: container,
+                    valueKeyPath: \.cpu,
+                    color: .blue,
                     systemName: systemName,
                     isPinned: store.isPinned(.containerCPU(name: container.name), onSystem: resolvedItem.systemID),
                     onPinToggle: { store.togglePin(for: .containerCPU(name: container.name), onSystem: resolvedItem.systemID) }
@@ -177,25 +187,31 @@ struct HomeView: View {
             }
         case .containerMemory(let name):
             if let container = containerData.first(where: { $0.id == name }) {
-                ContainerMemoryChartView(
+                ContainerMetricChartView(
+                    titleKey: "chart.container.memoryUsage.bytes",
+                    containerName: container.name,
                     xAxisFormat: store.xAxisFormat,
                     container: container,
+                    valueKeyPath: \.memory,
+                    color: .green,
                     systemName: systemName,
                     isPinned: store.isPinned(.containerMemory(name: container.name), onSystem: resolvedItem.systemID),
                     onPinToggle: { store.togglePin(for: .containerMemory(name: container.name), onSystem: resolvedItem.systemID) }
                 )
             }
         case .stackedContainerCPU:
+            let (stacked, domain) = store.getStackedCpuData(for: resolvedItem.systemID)
             StackedCpuChartView(
-                settingsManager: settingsManager,
-                processedData: containerData,
+                stackedData: stacked,
+                domain: domain,
                 systemID: resolvedItem.systemID,
                 systemName: systemName
             )
         case .stackedContainerMemory:
+            let (stacked, domain) = store.getStackedMemoryData(for: resolvedItem.systemID)
             StackedMemoryChartView(
-                settingsManager: settingsManager,
-                processedData: containerData,
+                stackedData: stacked,
+                domain: domain,
                 systemID: resolvedItem.systemID,
                 systemName: systemName
             )

@@ -5,10 +5,20 @@ import Observation
 @Observable
 @MainActor
 final class BeszelStore {
+    var stackedCpuData: [StackedCpuData] = []
+    var cpuDomain: [String] = []
+        
+    var stackedMemoryData: [StackedMemoryData] = []
+    var memoryDomain: [String] = []
+
     var systemDataPoints: [SystemDataPoint] = []
     var containerData: [ProcessedContainerData] = [] {
         didSet {
             self.sortedContainerData = containerData.sorted { $0.name < $1.name }
+
+            Task { @MainActor in
+                self.calculateStackedData()
+            }
         }
     }
     var sortedContainerData: [ProcessedContainerData] = []
@@ -170,5 +180,128 @@ final class BeszelStore {
         let calculatedInterval = max(minInterval, totalDuration / Double(max(1, targetCount)))
         
         return statPoints.downsampled(bucketInterval: calculatedInterval, method: .average)
+    }
+    
+    private func calculateStackedData() {
+        let avgCpu = containerData.map { container -> (name: String, avg: Double) in
+            let total = container.statPoints.reduce(0) { $0 + $1.cpu }
+            let average = container.statPoints.isEmpty ? 0 : total / Double(container.statPoints.count)
+            return (name: container.name, avg: average)
+        }
+        self.cpuDomain = avgCpu.sorted { $0.avg < $1.avg }.map { $0.name }
+        
+        self.stackedCpuData = buildStackedCpuData(from: containerData, domain: cpuDomain)
+
+        let avgMem = containerData.map { container -> (name: String, avg: Double) in
+            let total = container.statPoints.reduce(0) { $0 + $1.memory }
+            let average = container.statPoints.isEmpty ? 0 : total / Double(container.statPoints.count)
+            return (name: container.name, avg: average)
+        }
+        self.memoryDomain = avgMem.sorted { $0.avg < $1.avg }.map { $0.name }
+        
+        self.stackedMemoryData = buildStackedMemoryData(from: containerData, domain: memoryDomain)
+    }
+    
+    func getStackedCpuData(for systemID: String) -> (data: [StackedCpuData], domain: [String]) {
+        if systemID == instanceManager.activeSystem?.id {
+            return (stackedCpuData, cpuDomain)
+        }
+
+        let data = containerDataBySystem[systemID] ?? []
+
+        let avg = data.map { c -> (String, Double) in
+            let total = c.statPoints.reduce(0) { $0 + $1.cpu }
+            let mean = c.statPoints.isEmpty ? 0 : total / Double(c.statPoints.count)
+            return (c.name, mean)
+        }
+        let domain = avg.sorted { $0.1 < $1.1 }.map { $0.0 }
+        
+        return (buildStackedCpuData(from: data, domain: domain), domain)
+    }
+        
+    func getStackedMemoryData(for systemID: String) -> (data: [StackedMemoryData], domain: [String]) {
+        if systemID == instanceManager.activeSystem?.id {
+            return (stackedMemoryData, memoryDomain)
+        }
+        
+        let data = containerDataBySystem[systemID] ?? []
+        
+        let avg = data.map { c -> (String, Double) in
+            let total = c.statPoints.reduce(0) { $0 + $1.memory }
+            let mean = c.statPoints.isEmpty ? 0 : total / Double(c.statPoints.count)
+            return (c.name, mean)
+        }
+        let domain = avg.sorted { $0.1 < $1.1 }.map { $0.0 }
+        
+        return (buildStackedMemoryData(from: data, domain: domain), domain)
+    }
+    
+    func buildStackedCpuData(from data: [ProcessedContainerData], domain: [String]) -> [StackedCpuData] {
+        let allPoints = data.flatMap { container in
+            container.statPoints.map { AggregatedCpuData(date: $0.date, name: container.name, cpu: $0.cpu) }
+        }
+        guard !allPoints.isEmpty else { return [] }
+        
+        let uniqueDates = Set(allPoints.map { $0.date }).sorted()
+        let uniqueNames = Set(allPoints.map { $0.name })
+        let pointDict = Dictionary(grouping: allPoints, by: { $0.date })
+        
+        var stacked: [StackedCpuData] = []
+        
+        for date in uniqueDates {
+            var pointsForDate = pointDict[date] ?? []
+
+            let namesWithData = Set(pointsForDate.map { $0.name })
+            let missingNames = uniqueNames.subtracting(namesWithData)
+            for name in missingNames {
+                pointsForDate.append(AggregatedCpuData(date: date, name: name, cpu: 0))
+            }
+
+            pointsForDate.sort {
+                (domain.firstIndex(of: $0.name) ?? 0) < (domain.firstIndex(of: $1.name) ?? 0)
+            }
+            
+            var cumulative = 0.0
+            for point in pointsForDate {
+                let val = point.cpu
+                stacked.append(StackedCpuData(date: date, name: point.name, yStart: cumulative, yEnd: cumulative + val))
+                cumulative += val
+            }
+        }
+        return stacked
+    }
+
+    func buildStackedMemoryData(from data: [ProcessedContainerData], domain: [String]) -> [StackedMemoryData] {
+        let allPoints = data.flatMap { container in
+            container.statPoints.map { AggregatedMemoryData(date: $0.date, name: container.name, memory: $0.memory) }
+        }
+        guard !allPoints.isEmpty else { return [] }
+        
+        let uniqueDates = Set(allPoints.map { $0.date }).sorted()
+        let uniqueNames = Set(allPoints.map { $0.name })
+        let pointDict = Dictionary(grouping: allPoints, by: { $0.date })
+        
+        var stacked: [StackedMemoryData] = []
+        
+        for date in uniqueDates {
+            var pointsForDate = pointDict[date] ?? []
+            let namesWithData = Set(pointsForDate.map { $0.name })
+            let missingNames = uniqueNames.subtracting(namesWithData)
+            for name in missingNames {
+                pointsForDate.append(AggregatedMemoryData(date: date, name: name, memory: 0))
+            }
+            
+            pointsForDate.sort {
+                (domain.firstIndex(of: $0.name) ?? 0) < (domain.firstIndex(of: $1.name) ?? 0)
+            }
+            
+            var cumulative = 0.0
+            for point in pointsForDate {
+                let val = point.memory
+                stacked.append(StackedMemoryData(date: date, name: point.name, yStart: cumulative, yEnd: cumulative + val))
+                cumulative += val
+            }
+        }
+        return stacked
     }
 }

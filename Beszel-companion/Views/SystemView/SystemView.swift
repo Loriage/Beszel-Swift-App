@@ -7,18 +7,27 @@ struct SystemView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                ScreenHeaderView(title: "system.title", subtitle: "system.subtitle")
+                ScreenHeaderView(
+                    title: "system.title",
+                    subtitle: store.isLoading ? "switcher.loading" : "system.subtitle"
+                )
                 
                 VStack(alignment: .leading, spacing: 24) {
-                    SystemCpuChartView(
+                    SystemMetricChartView(
+                        title: "chart.cpuUsage",
                         xAxisFormat: store.xAxisFormat,
                         dataPoints: store.systemDataPoints,
+                        valueKeyPath: \.cpu,
+                        color: .blue,
                         isPinned: store.isPinned(.systemCPU),
                         onPinToggle: { store.togglePin(for: .systemCPU) }
                     )
-                    SystemMemoryChartView(
+                    SystemMetricChartView(
+                        title: "chart.memoryUsage",
                         xAxisFormat: store.xAxisFormat,
                         dataPoints: store.systemDataPoints,
+                        valueKeyPath: \.memoryPercent,
+                        color: .green,
                         isPinned: store.isPinned(.systemMemory),
                         onPinToggle: { store.togglePin(for: .systemMemory) }
                     )

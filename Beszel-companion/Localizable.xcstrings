@@ -82,6 +82,7 @@
       }
     },
     "chart.container.cpuUsage.percent" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -98,6 +99,7 @@
       }
     },
     "chart.container.memoryUsage.bytes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -322,6 +324,7 @@
       }
     },
     "CPU" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -687,6 +690,7 @@
       }
     },
     "Mémoire" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1434,6 +1438,9 @@
           }
         }
       }
+    },
+    "Valeur" : {
+
     },
     "widget.chart.systemCPU.title" : {
       "localizations" : {

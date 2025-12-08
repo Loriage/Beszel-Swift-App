@@ -12,9 +12,6 @@ actor BeszelAPIService {
     
     private var refreshTask: Task<String, Error>?
     
-    // Variable statique pour le test (à supprimer une fois validé)
-    private static var hasSimulatedExpiry = false
-    
     private nonisolated static let jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .custom { decoder in
@@ -73,15 +70,12 @@ actor BeszelAPIService {
         let task = Task { () -> String in
             let cred = getStoredCredential()
             guard !cred.isEmpty else {
-                print("🚨 Erreur: Aucun identifiant dans le Keychain.")
                 throw URLError(.userAuthenticationRequired)
             }
             
             if isJWT(cred) {
-                print("🔄 Refresh via Token existant...")
                 return try await refreshToken(currentToken: cred)
             } else {
-                print("🔑 Login via Mot de passe...")
                 return try await loginWithPassword(password: cred)
             }
         }
@@ -94,7 +88,6 @@ actor BeszelAPIService {
             self.refreshTask = nil
             return newToken
         } catch {
-            print("❌ Echec de l'authentification : \(error)")
             self.refreshTask = nil
             self.authToken = nil
             throw error
@@ -140,16 +133,12 @@ actor BeszelAPIService {
         let (data, response) = try await self.session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            // Si le refresh échoue (token trop vieux), on lance une erreur
-            print("⚠️ Le refresh token a été rejeté (Status: \((response as? HTTPURLResponse)?.statusCode ?? 0))")
             throw URLError(.userAuthenticationRequired)
         }
         
         let authResponse = try Self.jsonDecoder.decode(AuthResponse.self, from: data)
         let newToken = authResponse.token
         
-        // On ne met à jour le credential que si c'était déjà un token
-        // Si c'était un mot de passe, on le garde précieusement dans le Keychain
         self.credential = newToken
         let localInstance = self.instance
         
@@ -164,38 +153,23 @@ actor BeszelAPIService {
         let token = try await getValidToken()
         
         var request = URLRequest(url: url)
-        
-        // --- 🧪 DÉBUT DU TEST DE REFRESH ---
-        if !BeszelAPIService.hasSimulatedExpiry {
-            print("🧪 TEST: Envoi volontaire d'un token invalide pour forcer le refresh...")
-            request.addValue("Bearer TOKEN_POUBELLE", forHTTPHeaderField: "Authorization")
-            BeszelAPIService.hasSimulatedExpiry = true
-        } else {
-            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        }
-        // --- 🏁 FIN DU TEST ---
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
         let (data, response) = try await self.session.data(for: request)
         
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
-            print("⚠️ Reçu 401 - Tentative de récupération...")
             self.authToken = nil
             
-            // On récupère un token tout neuf
             let newToken = try await getValidToken()
             
-            // CORRECTION MAJEURE ICI : On copie la requête originale
             var retryRequest = request
-            // On écrase juste le header d'auth avec le bon token
             retryRequest.setValue("Bearer \(newToken)", forHTTPHeaderField: "Authorization")
             
             let (retryData, retryResponse) = try await self.session.data(for: retryRequest)
             
             if let retryHttpResponse = retryResponse as? HTTPURLResponse, retryHttpResponse.statusCode == 200 {
-                print("✅ Récupération réussie !")
                 return try Self.jsonDecoder.decode(T.self, from: retryData)
             } else {
-                print("❌ Echec de la récupération (Status: \((retryResponse as? HTTPURLResponse)?.statusCode ?? 0))")
                 throw URLError(.userAuthenticationRequired)
             }
         }

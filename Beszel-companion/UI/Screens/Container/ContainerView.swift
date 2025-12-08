@@ -13,28 +13,27 @@ struct ContainerView: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 24) {
                 ScreenHeaderView(
                     title: "container.title",
                     subtitle: store.isLoading ? "switcher.loading" : "container.subtitle"
                 )
 
-                if !store.containerData.isEmpty {
-                    VStack(alignment: .leading, spacing: 24) {
-                        StackedCpuChartView(
-                            stackedData: store.stackedCpuData,
-                            domain: store.cpuDomain,
-                            systemID: instanceManager.activeSystem?.id
-                        )
-                        
-                        StackedMemoryChartView(
-                            stackedData: store.stackedMemoryData,
-                            domain: store.memoryDomain,
-                            systemID: instanceManager.activeSystem?.id
-                        )
-                    }
-                    .padding(.horizontal)
+                VStack(alignment: .leading, spacing: 24) {
+                    StackedCpuChartView(
+                        stackedData: store.stackedCpuData,
+                        domain: store.cpuDomain,
+                        systemID: instanceManager.activeSystem?.id
+                    )
+                    
+                    StackedMemoryChartView(
+                        stackedData: store.stackedMemoryData,
+                        domain: store.memoryDomain,
+                        systemID: instanceManager.activeSystem?.id
+                    )
                 }
+                .padding(.horizontal)
+                .opacity(store.containerData.isEmpty ? 0 : 1)
                 
                 VStack(alignment: .leading, spacing: 0) {
                     VStack(alignment: .leading, spacing: 4) {
@@ -63,6 +62,7 @@ struct ContainerView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
                 .padding(.horizontal)
+                .opacity(store.containerData.isEmpty ? 0 : 1)
             }
         }
         .navigationDestination(for: ProcessedContainerData.self) { container in
@@ -70,6 +70,23 @@ struct ContainerView: View {
         }
         .refreshable {
             await store.fetchData()
+        }
+        .overlay {
+            if store.isLoading && store.containerData.isEmpty {
+                ProgressView()
+            } else if let errorMessage = store.errorMessage, store.containerData.isEmpty {
+                ContentUnavailableView {
+                    Label("Error", systemImage: "exclamationmark.triangle")
+                } description: {
+                    Text(errorMessage)
+                }
+            } else if store.containerData.isEmpty {
+                ContentUnavailableView(
+                    "No Data",
+                    systemImage: "chart.bar.xaxis",
+                    description: Text("widget.noData")
+                )
+            }
         }
     }
 }

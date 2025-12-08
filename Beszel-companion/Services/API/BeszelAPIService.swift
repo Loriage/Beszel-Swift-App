@@ -10,6 +10,11 @@ actor BeszelAPIService {
     private var credential: String?
     private var authToken: String?
     
+    private var refreshTask: Task<String, Error>?
+    
+    // Variable statique pour le test (à supprimer une fois validé)
+    private static var hasSimulatedExpiry = false
+    
     private nonisolated static let jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .custom { decoder in
@@ -49,27 +54,59 @@ actor BeszelAPIService {
         self.email = instance.email
     }
     
-    private func getCredential() -> String {
+    private func getStoredCredential() -> String {
         if let cred = credential { return cred }
         let loaded = instanceManager.loadCredential(for: instance) ?? ""
         self.credential = loaded
         return loaded
     }
     
-    private func ensureAuthenticated() async throws {
-        if authToken != nil { return }
-        let currentCredential = getCredential()
-        
-        let parts = currentCredential.components(separatedBy: ".")
-        if parts.count == 3 && currentCredential.hasPrefix("ey") {
-            self.authToken = currentCredential
-            return
+    private func getValidToken() async throws -> String {
+        if let currentToken = authToken {
+            return currentToken
         }
         
-        guard !email.isEmpty, !currentCredential.isEmpty else {
-            throw URLError(.userAuthenticationRequired)
+        if let existingTask = refreshTask {
+            return try await existingTask.value
         }
         
+        let task = Task { () -> String in
+            let cred = getStoredCredential()
+            guard !cred.isEmpty else {
+                print("🚨 Erreur: Aucun identifiant dans le Keychain.")
+                throw URLError(.userAuthenticationRequired)
+            }
+            
+            if isJWT(cred) {
+                print("🔄 Refresh via Token existant...")
+                return try await refreshToken(currentToken: cred)
+            } else {
+                print("🔑 Login via Mot de passe...")
+                return try await loginWithPassword(password: cred)
+            }
+        }
+        
+        self.refreshTask = task
+        
+        do {
+            let newToken = try await task.value
+            self.authToken = newToken
+            self.refreshTask = nil
+            return newToken
+        } catch {
+            print("❌ Echec de l'authentification : \(error)")
+            self.refreshTask = nil
+            self.authToken = nil
+            throw error
+        }
+    }
+    
+    private func isJWT(_ str: String) -> Bool {
+        let parts = str.components(separatedBy: ".")
+        return parts.count == 3 && str.hasPrefix("ey")
+    }
+    
+    private func loginWithPassword(password: String) async throws -> String {
         guard let url = URL(string: "\(baseURL)/api/collections/users/auth-with-password") else {
             throw URLError(.badURL)
         }
@@ -77,82 +114,93 @@ actor BeszelAPIService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        let body: [String: String] = ["identity": self.email, "password": currentCredential]
+        
+        let body: [String: String] = ["identity": self.email, "password": password]
         request.httpBody = try JSONEncoder().encode(body)
         
         let (data, response) = try await self.session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            if let httpResponse = response as? HTTPURLResponse {
-                print("Auth failed with status: \(httpResponse.statusCode)")
-            }
             throw URLError(.userAuthenticationRequired)
         }
         
         let authResponse = try Self.jsonDecoder.decode(AuthResponse.self, from: data)
-        self.authToken = authResponse.token
-        
-        let newToken = authResponse.token
-        let localInstance = self.instance
-        
-        await MainActor.run {
-            self.instanceManager.updateCredential(for: localInstance, newCredential: newToken)
-        }
+        return authResponse.token
     }
     
-    private func refreshToken() async throws {
+    private func refreshToken(currentToken: String) async throws -> String {
         guard let url = URL(string: "\(baseURL)/api/collections/users/auth-refresh") else {
             throw URLError(.badURL)
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        
-        if let currentToken = self.authToken {
-            request.addValue("Bearer \(currentToken)", forHTTPHeaderField: "Authorization")
-        }
+        request.addValue("Bearer \(currentToken)", forHTTPHeaderField: "Authorization")
         
         let (data, response) = try await self.session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            // Si le refresh échoue (token trop vieux), on lance une erreur
+            print("⚠️ Le refresh token a été rejeté (Status: \((response as? HTTPURLResponse)?.statusCode ?? 0))")
             throw URLError(.userAuthenticationRequired)
         }
         
         let authResponse = try Self.jsonDecoder.decode(AuthResponse.self, from: data)
         let newToken = authResponse.token
         
-        self.authToken = newToken
+        // On ne met à jour le credential que si c'était déjà un token
+        // Si c'était un mot de passe, on le garde précieusement dans le Keychain
         self.credential = newToken
-        
         let localInstance = self.instance
+        
         await MainActor.run {
             self.instanceManager.updateCredential(for: localInstance, newCredential: newToken)
         }
+        
+        return newToken
     }
     
     private func performRequest<T: Decodable & Sendable>(with url: URL) async throws -> T {
-        try await ensureAuthenticated()
-        
-        guard let token = authToken else {
-            throw URLError(.userAuthenticationRequired)
-        }
+        let token = try await getValidToken()
         
         var request = URLRequest(url: url)
-        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        // --- 🧪 DÉBUT DU TEST DE REFRESH ---
+        if !BeszelAPIService.hasSimulatedExpiry {
+            print("🧪 TEST: Envoi volontaire d'un token invalide pour forcer le refresh...")
+            request.addValue("Bearer TOKEN_POUBELLE", forHTTPHeaderField: "Authorization")
+            BeszelAPIService.hasSimulatedExpiry = true
+        } else {
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        // --- 🏁 FIN DU TEST ---
         
         let (data, response) = try await self.session.data(for: request)
         
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
-            try await refreshToken()
+            print("⚠️ Reçu 401 - Tentative de récupération...")
+            self.authToken = nil
             
-            guard let refreshedToken = authToken else { throw URLError(.userAuthenticationRequired) }
-            var refreshedRequest = URLRequest(url: url)
-            refreshedRequest.addValue("Bearer \(refreshedToken)", forHTTPHeaderField: "Authorization")
-            let (refreshedData, _) = try await self.session.data(for: refreshedRequest)
+            // On récupère un token tout neuf
+            let newToken = try await getValidToken()
             
-            return try Self.jsonDecoder.decode(T.self, from: refreshedData)
+            // CORRECTION MAJEURE ICI : On copie la requête originale
+            var retryRequest = request
+            // On écrase juste le header d'auth avec le bon token
+            retryRequest.setValue("Bearer \(newToken)", forHTTPHeaderField: "Authorization")
             
-        } else if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+            let (retryData, retryResponse) = try await self.session.data(for: retryRequest)
+            
+            if let retryHttpResponse = retryResponse as? HTTPURLResponse, retryHttpResponse.statusCode == 200 {
+                print("✅ Récupération réussie !")
+                return try Self.jsonDecoder.decode(T.self, from: retryData)
+            } else {
+                print("❌ Echec de la récupération (Status: \((retryResponse as? HTTPURLResponse)?.statusCode ?? 0))")
+                throw URLError(.userAuthenticationRequired)
+            }
+        }
+        
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
             return try Self.jsonDecoder.decode(T.self, from: data)
         } else {
             throw URLError(.badServerResponse)

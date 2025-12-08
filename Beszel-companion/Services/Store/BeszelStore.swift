@@ -7,15 +7,15 @@ import Observation
 final class BeszelStore {
     var stackedCpuData: [StackedCpuData] = []
     var cpuDomain: [String] = []
-        
+    
     var stackedMemoryData: [StackedMemoryData] = []
     var memoryDomain: [String] = []
-
+    
     var systemDataPoints: [SystemDataPoint] = []
     var containerData: [ProcessedContainerData] = [] {
         didSet {
             self.sortedContainerData = containerData.sorted { $0.name < $1.name }
-
+            
             Task { @MainActor in
                 self.calculateStackedData()
             }
@@ -29,12 +29,14 @@ final class BeszelStore {
     private var systemDataPointsBySystem: [String: [SystemDataPoint]] = [:]
     private var containerDataBySystem: [String: [ProcessedContainerData]] = [:]
     
+    private let instance: Instance
     private let apiService: BeszelAPIService
     private let settingsManager: SettingsManager
     private let dashboardManager: DashboardManager
     private let instanceManager: InstanceManager
     
     init(instance: Instance, settingsManager: SettingsManager, dashboardManager: DashboardManager, instanceManager: InstanceManager) {
+        self.instance = instance
         self.apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
         self.settingsManager = settingsManager
         self.dashboardManager = dashboardManager
@@ -65,17 +67,26 @@ final class BeszelStore {
         self.isLoading = true
         self.errorMessage = nil
         
-        let systemsToFetch = instanceManager.systems
+        var systemsToFetch = instanceManager.systems
         let timeFilter = settingsManager.selectedTimeRange.apiFilterString
         let currentTimeRange = settingsManager.selectedTimeRange
         
         defer { self.isLoading = false }
         
-        guard !systemsToFetch.isEmpty else {
-            self.systemDataPointsBySystem = [:]
-            self.containerDataBySystem = [:]
-            updateDataForActiveSystem()
-            return
+        if systemsToFetch.isEmpty {
+            do {
+                let fetchedSystems = try await apiService.fetchSystems()
+                instanceManager.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
+                systemsToFetch = instanceManager.systems
+
+                if systemsToFetch.isEmpty {
+                    updateDataForActiveSystem()
+                    return
+                }
+            } catch {
+                handleError(error)
+                return
+            }
         }
         
         do {
@@ -122,7 +133,14 @@ final class BeszelStore {
             self.updateDataForActiveSystem()
             
         } catch {
-            print("Error fetching data: \(error)")
+            handleError(error)
+        }
+    }
+    
+    private func handleError(_ error: Error) {
+        if let urlError = error as? URLError, urlError.code == .userAuthenticationRequired {
+            instanceManager.deleteInstance(self.instance)
+        } else {
             self.errorMessage = "Failed to fetch data: \(error.localizedDescription)"
         }
     }
@@ -191,7 +209,7 @@ final class BeszelStore {
         self.cpuDomain = avgCpu.sorted { $0.avg < $1.avg }.map { $0.name }
         
         self.stackedCpuData = buildStackedCpuData(from: containerData, domain: cpuDomain)
-
+        
         let avgMem = containerData.map { container -> (name: String, avg: Double) in
             let total = container.statPoints.reduce(0) { $0 + $1.memory }
             let average = container.statPoints.isEmpty ? 0 : total / Double(container.statPoints.count)
@@ -206,9 +224,9 @@ final class BeszelStore {
         if systemID == instanceManager.activeSystem?.id {
             return (stackedCpuData, cpuDomain)
         }
-
+        
         let data = containerDataBySystem[systemID] ?? []
-
+        
         let avg = data.map { c -> (String, Double) in
             let total = c.statPoints.reduce(0) { $0 + $1.cpu }
             let mean = c.statPoints.isEmpty ? 0 : total / Double(c.statPoints.count)
@@ -218,7 +236,7 @@ final class BeszelStore {
         
         return (buildStackedCpuData(from: data, domain: domain), domain)
     }
-        
+    
     func getStackedMemoryData(for systemID: String) -> (data: [StackedMemoryData], domain: [String]) {
         if systemID == instanceManager.activeSystem?.id {
             return (stackedMemoryData, memoryDomain)
@@ -250,13 +268,13 @@ final class BeszelStore {
         
         for date in uniqueDates {
             var pointsForDate = pointDict[date] ?? []
-
+            
             let namesWithData = Set(pointsForDate.map { $0.name })
             let missingNames = uniqueNames.subtracting(namesWithData)
             for name in missingNames {
                 pointsForDate.append(AggregatedCpuData(date: date, name: name, cpu: 0))
             }
-
+            
             pointsForDate.sort {
                 (domain.firstIndex(of: $0.name) ?? 0) < (domain.firstIndex(of: $1.name) ?? 0)
             }
@@ -270,7 +288,7 @@ final class BeszelStore {
         }
         return stacked
     }
-
+    
     func buildStackedMemoryData(from data: [ProcessedContainerData], domain: [String]) -> [StackedMemoryData] {
         let allPoints = data.flatMap { container in
             container.statPoints.map { AggregatedMemoryData(date: $0.date, name: container.name, memory: $0.memory) }

@@ -2,6 +2,30 @@ import WidgetKit
 import AppIntents
 import SwiftUI
 
+public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
+    public static var title: LocalizedStringResource = "widget.configuration.title"
+    public static var description: IntentDescription = "widget.configuration.description"
+    
+    public static var openAppWhenRun: Bool = true
+    
+    @Parameter(title: "chart.configuration.instance.title")
+    public var instance: InstanceEntity?
+    
+    @Parameter(title: "chart.configuration.system.title")
+    public var system: SystemEntity?
+    
+    @Parameter(title: "chart.configuration.chartType.title")
+    public var chart: ChartTypeEntity?
+    
+    public init() {}
+    
+    public init(instance: InstanceEntity?, system: SystemEntity?, chart: ChartTypeEntity?) {
+        self.instance = instance
+        self.system = system
+        self.chart = chart
+    }
+}
+
 public struct InstanceEntity: AppEntity {
     public let id: String
     public let name: String
@@ -109,31 +133,10 @@ public struct ChartTypeQuery: EntityQuery {
     }
     public func suggestedEntities() async throws -> [ChartTypeEntity] {
         return [
+            ChartTypeEntity(id: "systemInfo", title: "System Info"),
             ChartTypeEntity(id: "systemCPU", title: "widget.chart.systemCPU.title"),
             ChartTypeEntity(id: "systemMemory", title: "widget.chart.systemMemory.title"),
             ChartTypeEntity(id: "systemTemperature", title: "widget.chart.systemTemperature.title")
         ]
-    }
-}
-
-public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
-    public static var title: LocalizedStringResource = "widget.configuration.title"
-    public static var description: IntentDescription = "widget.configuration.description"
-    
-    @Parameter(title: "chart.configuration.instance.title")
-    public var instance: InstanceEntity?
-    
-    @Parameter(title: "chart.configuration.system.title")
-    public var system: SystemEntity?
-    
-    @Parameter(title: "chart.configuration.chartType.title")
-    public var chart: ChartTypeEntity?
-    
-    public init() {}
-    
-    public init(instance: InstanceEntity?, system: SystemEntity?, chart: ChartTypeEntity?) {
-        self.instance = instance
-        self.system = system
-        self.chart = chart
     }
 }

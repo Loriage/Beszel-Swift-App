@@ -68,13 +68,13 @@ struct SystemMetricChartView: View {
             
             LineMark(
                 x: .value("Date", point.date),
-                y: .value("Valeur", value)
+                y: .value("Value", value)
             )
             .foregroundStyle(color)
             
             AreaMark(
                 x: .value("Date", point.date),
-                y: .value("Valeur", value)
+                y: .value("Value", value)
             )
             .foregroundStyle(LinearGradient(colors: [color.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
         }

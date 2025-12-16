@@ -57,6 +57,7 @@ struct SystemView: View {
                 .padding(.horizontal)
                 .opacity(store.systemDataPoints.isEmpty ? 0 : 1)
             }
+            .padding(.bottom, 24)
         }
         .refreshable {
             await store.fetchData()

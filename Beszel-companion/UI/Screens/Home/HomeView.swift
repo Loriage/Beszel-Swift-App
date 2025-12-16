@@ -124,6 +124,7 @@ struct HomeView: View {
                 }
                 .padding(.horizontal)
             }
+            .padding(.bottom, 24)
         }
         .overlay {
             if dashboardManager.allPinsForActiveInstance.isEmpty && !store.isLoading {
@@ -133,6 +134,9 @@ struct HomeView: View {
                     Text("home.empty.message")
                 }
             }
+        }
+        .refreshable {
+            await store.fetchData()
         }
         .sheet(isPresented: $isShowingFilterSheet) {
             FilterView(

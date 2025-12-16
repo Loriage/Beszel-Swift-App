@@ -28,9 +28,8 @@ struct SystemSummaryCard: View {
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .lineLimit(1)
+                            Spacer()
                         }
-
-                        Spacer()
                         
                         statusView
                     }
@@ -41,8 +40,9 @@ struct SystemSummaryCard: View {
                 VStack(spacing: 8) {
                     MetricRow(label: "CPU:", value: stats.cpu / 100, displayValue: String(format: "%.1f%%", stats.cpu))
                     MetricRow(label: "MEM:", value: stats.memoryPercent / 100, displayValue: String(format: "%.1f%%", stats.memoryPercent))
+                    MetricRow(label: "DSK:", value: stats.diskPercent / 100, displayValue: String(format: "%.1f%%", stats.diskPercent))
                     
-                    if let load = stats.load {
+                    if let load = stats.load, let oneMinLoad = load.first {
                         HStack(spacing: 8) {
                             Text("SYS:")
                                 .font(.caption)
@@ -50,31 +50,31 @@ struct SystemSummaryCard: View {
                                 .monospaced()
                                 .foregroundColor(.secondary)
                                 .frame(width: 35, alignment: .leading)
-                            Text(load.map { String(format: "%.2f", $0) }.joined(separator: "  "))
+                            Circle()
+                                .fill(colorForLoad(oneMinLoad))
+                                .frame(width: 8, height: 8)
+                            Text(load.map { String(format: "%.2f", $0) }.joined(separator: " "))
                                 .font(.caption)
                                 .monospacedDigit()
                                 .foregroundColor(.primary)
                             Spacer()
-                            Text("1/5/15")
-                                .font(.caption)
-                                .monospacedDigit()
-                                .foregroundColor(.secondary)
-                        }
-                    }
 
-                    if let bandwidth = systemInfo?.b {
-                        HStack(spacing: 8) {
-                            Text("NET:")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .monospaced()
-                                .foregroundColor(.secondary)
-                                .frame(width: 35, alignment: .leading)
-                            Text("\(String(format: "%.2f", bandwidth)) MB/s")
-                                .font(.caption)
-                                .monospacedDigit()
-                                .foregroundColor(.primary)
-                            Spacer()
+                            let netUsageBytes = stats.networkReceived + stats.networkSent
+                            let netUsageMB = netUsageBytes
+
+                            HStack(spacing: 8) {
+                                Text("NET:")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .monospaced()
+                                    .foregroundColor(.secondary)
+                                    .frame(width: 35, alignment: .leading)
+
+                                Text("\(String(format: "%.2f", netUsageMB)) MB/s")
+                                    .font(.caption)
+                                    .monospacedDigit()
+                                    .foregroundColor(.primary)
+                            }
                         }
                     }
                 }
@@ -124,6 +124,19 @@ struct SystemSummaryCard: View {
         formatter.allowedUnits = [.day, .hour]
         formatter.unitsStyle = .abbreviated
         return formatter.string(from: TimeInterval(seconds)) ?? ""
+    }
+    private func colorForLoad(_ val: Double) -> Color {
+        guard let cores = systemInfo?.c, cores > 0 else { return .primary }
+        
+        let limit = Double(cores)
+
+        if val >= limit * 1.5 {
+            return .red
+        } else if val >= limit {
+            return .orange
+        } else {
+            return .green
+        }
     }
 }
 

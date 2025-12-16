@@ -15,6 +15,7 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
     let diskPercent: Double
     let networkSent: Double
     let networkReceived: Double
+    let bandwidth: [Double]?
     let temperatures: [String: Double]?
     let load: [Double]?
     
@@ -28,6 +29,7 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
         case networkReceived = "nr"
         case temperatures = "t"
         case load = "la"
+        case bandwidth = "b"
     }
 }
 

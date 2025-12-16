@@ -64,9 +64,7 @@ struct ContainerView: View {
                 .padding(.horizontal)
                 .opacity(store.containerData.isEmpty ? 0 : 1)
             }
-        }
-        .navigationDestination(for: ProcessedContainerData.self) { container in
-            ContainerDetailView(container: container)
+            .padding(.bottom, 24)
         }
         .refreshable {
             await store.fetchData()

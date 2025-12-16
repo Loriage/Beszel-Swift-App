@@ -112,6 +112,7 @@
 				UI/Common/Components/LazyView.swift,
 				UI/Common/Components/PinButtonView.swift,
 				UI/Common/Components/ScreenHeaderView.swift,
+				UI/Common/Components/SystemSummaryCard.swift,
 				UI/Common/Switchers/InstanceSwitcherView.swift,
 				UI/Common/Switchers/SystemSwitcherView.swift,
 			);

@@ -16,7 +16,8 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
     let networkSent: Double
     let networkReceived: Double
     let temperatures: [String: Double]?
-
+    let load: [Double]?
+    
     enum CodingKeys: String, CodingKey {
         case cpu
         case memoryPercent = "mp"
@@ -26,6 +27,7 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
         case networkSent = "ns"
         case networkReceived = "nr"
         case temperatures = "t"
+        case load = "la"
     }
 }
 

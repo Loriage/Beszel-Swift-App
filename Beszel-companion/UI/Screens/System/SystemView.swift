@@ -3,6 +3,7 @@ import Charts
 
 struct SystemView: View {
     @Environment(BeszelStore.self) var store
+    @Environment(InstanceManager.self) var instanceManager
     
     var body: some View {
         ScrollView {
@@ -11,6 +12,19 @@ struct SystemView: View {
                     title: "system.title",
                     subtitle: store.isLoading ? "switcher.loading" : "system.subtitle"
                 )
+                
+                if let latestStats = store.latestSystemStats, let system = instanceManager.activeSystem {
+                    SystemSummaryCard(
+                        systemInfo: system.info,
+                        stats: latestStats.stats,
+                        systemName: system.name,
+                        status: system.status,
+                        isPinned: store.isPinned(.systemInfo),
+                        onPinToggle: { store.togglePin(for: .systemInfo) }
+                    )
+                    .padding(.horizontal)
+                    .transition(.scale.combined(with: .opacity))
+                }
                 
                 VStack(alignment: .leading, spacing: 24) {
                     SystemMetricChartView(

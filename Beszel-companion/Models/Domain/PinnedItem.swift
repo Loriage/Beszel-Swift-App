@@ -1,6 +1,7 @@
 import Foundation
 
 enum PinnedItem: Codable, Hashable, Identifiable {
+    case systemInfo
     case systemCPU
     case systemMemory
     case systemTemperature
@@ -11,6 +12,7 @@ enum PinnedItem: Codable, Hashable, Identifiable {
     
     var id: String {
         switch self {
+        case .systemInfo: return "system_info"
         case .systemCPU: return "system_cpu"
         case .systemMemory: return "system_memory"
         case .systemTemperature: return "system_temperature"
@@ -23,6 +25,8 @@ enum PinnedItem: Codable, Hashable, Identifiable {
     
     func localizedDisplayName(for bundle: Bundle) -> String {
         switch self {
+        case .systemInfo:
+            return NSLocalizedString("pinned.item.system.info", bundle: bundle, comment: "")
         case .systemCPU:
             return NSLocalizedString("pinned.item.system.cpu", bundle: bundle, comment: "")
         case .systemMemory:
@@ -44,6 +48,7 @@ enum PinnedItem: Codable, Hashable, Identifiable {
     
     var metricName: String {
         switch self {
+        case .systemInfo: return "Info"
         case .systemCPU, .containerCPU, .stackedContainerCPU: return "CPU"
         case .systemMemory, .containerMemory, .stackedContainerMemory: return "Memory"
         case .systemTemperature: return "Temperature"
@@ -52,12 +57,14 @@ enum PinnedItem: Codable, Hashable, Identifiable {
     
     var serviceName: String {
         switch self {
+        case .systemInfo:
+            return "System_Info"
         case .containerCPU(let name), .containerMemory(let name):
             return name
         case .stackedContainerCPU, .stackedContainerMemory:
             return "Containers"
         default:
-            return "ZZZ_System"
+            return "System"
         }
     }
 }

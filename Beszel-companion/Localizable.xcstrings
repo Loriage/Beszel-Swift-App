@@ -33,6 +33,12 @@
         }
       }
     },
+    "%@ MB/s" : {
+
+    },
+    "1/5/15" : {
+
+    },
     "chart.configuration.chartType.title" : {
       "localizations" : {
         "en" : {
@@ -539,6 +545,9 @@
         }
       }
     },
+    "DOWN" : {
+
+    },
     "End" : {
       "localizations" : {
         "en" : {
@@ -705,6 +714,9 @@
           }
         }
       }
+    },
+    "NET:" : {
+
     },
     "No Data" : {
 
@@ -890,6 +902,12 @@
         }
       }
     },
+    "PAUSED" : {
+
+    },
+    "PENDING" : {
+
+    },
     "pinned.item.container.cpu" : {
       "localizations" : {
         "en" : {
@@ -969,6 +987,9 @@
           }
         }
       }
+    },
+    "pinned.item.system.info" : {
+
     },
     "pinned.item.system.memory" : {
       "localizations" : {
@@ -1245,6 +1266,9 @@
         }
       }
     },
+    "SYS:" : {
+
+    },
     "system.loading" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1438,6 +1462,12 @@
           }
         }
       }
+    },
+    "UP" : {
+
+    },
+    "UP: %@" : {
+
     },
     "Valeur" : {
 

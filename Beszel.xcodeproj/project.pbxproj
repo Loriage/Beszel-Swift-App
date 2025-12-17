@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		878F14842E282B94001A5DD1 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 878F14832E282B94001A5DD1 /* AppIcon.icon */; };
-		878F14882E282C13001A5DD1 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 878F14832E282B94001A5DD1 /* AppIcon.icon */; };
-		878F14892E282C13001A5DD1 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 878F14832E282B94001A5DD1 /* AppIcon.icon */; };
 		878F148A2E282C13001A5DD1 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 878F14832E282B94001A5DD1 /* AppIcon.icon */; };
 		87FE4D722E0D241200163BCE /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87FE4D712E0D241200163BCE /* WidgetKit.framework */; };
 		87FE4D742E0D241200163BCE /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87FE4D732E0D241200163BCE /* SwiftUI.framework */; };
@@ -17,20 +15,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		87EB26832E05AAB0002A98E2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 87EB266D2E05AAAE002A98E2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 87EB26742E05AAAE002A98E2;
-			remoteInfo = "Beszel-companion";
-		};
-		87EB268D2E05AAB0002A98E2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 87EB266D2E05AAAE002A98E2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 87EB26742E05AAAE002A98E2;
-			remoteInfo = "Beszel-companion";
-		};
 		87FE4D812E0D241300163BCE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 87EB266D2E05AAAE002A98E2 /* Project object */;
@@ -58,8 +42,6 @@
 		878F14832E282B94001A5DD1 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		87AB833C2E283E9D002B66DB /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
 		87EB26752E05AAAE002A98E2 /* Beszel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Beszel.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		87EB26822E05AAB0002A98E2 /* BeszelTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BeszelTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		87EB268C2E05AAB0002A98E2 /* BeszelUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BeszelUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		87FE4D6F2E0D241200163BCE /* BeszelWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BeszelWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		87FE4D712E0D241200163BCE /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		87FE4D732E0D241200163BCE /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -68,6 +50,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8762CB6D2EF1AB8B004E45A0 /* Exceptions for "BeszelWidget" folder in "Beszel" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AppIntent.swift,
+			);
+			target = 87EB26742E05AAAE002A98E2 /* Beszel */;
+		};
 		87FE4D872E0D241300163BCE /* Exceptions for "BeszelWidget" folder in "BeszelWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -112,6 +101,7 @@
 				UI/Common/Components/LazyView.swift,
 				UI/Common/Components/PinButtonView.swift,
 				UI/Common/Components/ScreenHeaderView.swift,
+				UI/Common/Components/SystemSummaryCard.swift,
 				UI/Common/Switchers/InstanceSwitcherView.swift,
 				UI/Common/Switchers/SystemSwitcherView.swift,
 			);
@@ -128,19 +118,10 @@
 			path = "Beszel-companion";
 			sourceTree = "<group>";
 		};
-		87EB26852E05AAB0002A98E2 /* Beszel-companionTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Beszel-companionTests";
-			sourceTree = "<group>";
-		};
-		87EB268F2E05AAB0002A98E2 /* Beszel-companionUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Beszel-companionUITests";
-			sourceTree = "<group>";
-		};
 		87FE4D752E0D241200163BCE /* BeszelWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				8762CB6D2EF1AB8B004E45A0 /* Exceptions for "BeszelWidget" folder in "Beszel" target */,
 				87FE4D872E0D241300163BCE /* Exceptions for "BeszelWidget" folder in "BeszelWidgetExtension" target */,
 			);
 			path = BeszelWidget;
@@ -150,20 +131,6 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		87EB26722E05AAAE002A98E2 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		87EB267F2E05AAB0002A98E2 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		87EB26892E05AAB0002A98E2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -189,8 +156,6 @@
 				87FE4DA72E0D25F300163BCE /* Beszel.entitlements */,
 				87FE4DA62E0D25CD00163BCE /* BeszelWidgetExtension.entitlements */,
 				87EB26772E05AAAE002A98E2 /* Beszel-companion */,
-				87EB26852E05AAB0002A98E2 /* Beszel-companionTests */,
-				87EB268F2E05AAB0002A98E2 /* Beszel-companionUITests */,
 				87FE4D752E0D241200163BCE /* BeszelWidget */,
 				87FE4D702E0D241200163BCE /* Frameworks */,
 				87EB26762E05AAAE002A98E2 /* Products */,
@@ -201,8 +166,6 @@
 			isa = PBXGroup;
 			children = (
 				87EB26752E05AAAE002A98E2 /* Beszel.app */,
-				87EB26822E05AAB0002A98E2 /* BeszelTests.xctest */,
-				87EB268C2E05AAB0002A98E2 /* BeszelUITests.xctest */,
 				87FE4D6F2E0D241200163BCE /* BeszelWidgetExtension.appex */,
 			);
 			name = Products;
@@ -245,52 +208,6 @@
 			productReference = 87EB26752E05AAAE002A98E2 /* Beszel.app */;
 			productType = "com.apple.product-type.application";
 		};
-		87EB26812E05AAB0002A98E2 /* BeszelTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 87EB26992E05AAB0002A98E2 /* Build configuration list for PBXNativeTarget "BeszelTests" */;
-			buildPhases = (
-				87EB267E2E05AAB0002A98E2 /* Sources */,
-				87EB267F2E05AAB0002A98E2 /* Frameworks */,
-				87EB26802E05AAB0002A98E2 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				87EB26842E05AAB0002A98E2 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				87EB26852E05AAB0002A98E2 /* Beszel-companionTests */,
-			);
-			name = BeszelTests;
-			packageProductDependencies = (
-			);
-			productName = "Beszel-companionTests";
-			productReference = 87EB26822E05AAB0002A98E2 /* BeszelTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		87EB268B2E05AAB0002A98E2 /* BeszelUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 87EB269C2E05AAB0002A98E2 /* Build configuration list for PBXNativeTarget "BeszelUITests" */;
-			buildPhases = (
-				87EB26882E05AAB0002A98E2 /* Sources */,
-				87EB26892E05AAB0002A98E2 /* Frameworks */,
-				87EB268A2E05AAB0002A98E2 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				87EB268E2E05AAB0002A98E2 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				87EB268F2E05AAB0002A98E2 /* Beszel-companionUITests */,
-			);
-			name = BeszelUITests;
-			packageProductDependencies = (
-			);
-			productName = "Beszel-companionUITests";
-			productReference = 87EB268C2E05AAB0002A98E2 /* BeszelUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 		87FE4D6E2E0D241200163BCE /* BeszelWidgetExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 87FE4D882E0D241300163BCE /* Build configuration list for PBXNativeTarget "BeszelWidgetExtension" */;
@@ -326,14 +243,6 @@
 					87EB26742E05AAAE002A98E2 = {
 						CreatedOnToolsVersion = 26.0;
 					};
-					87EB26812E05AAB0002A98E2 = {
-						CreatedOnToolsVersion = 26.0;
-						TestTargetID = 87EB26742E05AAAE002A98E2;
-					};
-					87EB268B2E05AAB0002A98E2 = {
-						CreatedOnToolsVersion = 26.0;
-						TestTargetID = 87EB26742E05AAAE002A98E2;
-					};
 					87FE4D6E2E0D241200163BCE = {
 						CreatedOnToolsVersion = 26.0;
 					};
@@ -354,8 +263,6 @@
 			projectRoot = "";
 			targets = (
 				87EB26742E05AAAE002A98E2 /* Beszel */,
-				87EB26812E05AAB0002A98E2 /* BeszelTests */,
-				87EB268B2E05AAB0002A98E2 /* BeszelUITests */,
 				87FE4D6E2E0D241200163BCE /* BeszelWidgetExtension */,
 			);
 		};
@@ -367,22 +274,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				878F14842E282B94001A5DD1 /* AppIcon.icon in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		87EB26802E05AAB0002A98E2 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				878F14882E282C13001A5DD1 /* AppIcon.icon in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		87EB268A2E05AAB0002A98E2 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				878F14892E282C13001A5DD1 /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -404,20 +295,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		87EB267E2E05AAB0002A98E2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		87EB26882E05AAB0002A98E2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		87FE4D6B2E0D241200163BCE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -428,16 +305,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		87EB26842E05AAB0002A98E2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 87EB26742E05AAAE002A98E2 /* Beszel */;
-			targetProxy = 87EB26832E05AAB0002A98E2 /* PBXContainerItemProxy */;
-		};
-		87EB268E2E05AAB0002A98E2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 87EB26742E05AAAE002A98E2 /* Beszel */;
-			targetProxy = 87EB268D2E05AAB0002A98E2 /* PBXContainerItemProxy */;
-		};
 		87FE4D822E0D241300163BCE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 87FE4D6E2E0D241200163BCE /* BeszelWidgetExtension */;
@@ -596,7 +463,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nohitdev.Beszel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -637,7 +504,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nohitdev.Beszel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -650,86 +517,6 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
-		};
-		87EB269A2E05AAB0002A98E2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VZFD28P342;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.nohitdev.Beszel-companionTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Beszel.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Beszel";
-			};
-			name = Debug;
-		};
-		87EB269B2E05AAB0002A98E2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VZFD28P342;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.nohitdev.Beszel-companionTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Beszel.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Beszel";
-			};
-			name = Release;
-		};
-		87EB269D2E05AAB0002A98E2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VZFD28P342;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.nohitdev.Beszel-companionUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "Beszel-companion";
-			};
-			name = Debug;
-		};
-		87EB269E2E05AAB0002A98E2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VZFD28P342;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.nohitdev.Beszel-companionUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "Beszel-companion";
 			};
 			name = Release;
 		};
@@ -752,7 +539,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nohitdev.Beszel.BeszelWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -787,7 +574,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nohitdev.Beszel.BeszelWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -820,24 +607,6 @@
 			buildConfigurations = (
 				87EB26972E05AAB0002A98E2 /* Debug */,
 				87EB26982E05AAB0002A98E2 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		87EB26992E05AAB0002A98E2 /* Build configuration list for PBXNativeTarget "BeszelTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				87EB269A2E05AAB0002A98E2 /* Debug */,
-				87EB269B2E05AAB0002A98E2 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		87EB269C2E05AAB0002A98E2 /* Build configuration list for PBXNativeTarget "BeszelUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				87EB269D2E05AAB0002A98E2 /* Debug */,
-				87EB269E2E05AAB0002A98E2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

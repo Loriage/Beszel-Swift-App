@@ -33,6 +33,22 @@
         }
       }
     },
+    "%@ MB/s" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ MB/s"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ MB/s"
+          }
+        }
+      }
+    },
     "chart.configuration.chartType.title" : {
       "localizations" : {
         "en" : {
@@ -82,7 +98,7 @@
       }
     },
     "chart.container.cpuUsage.percent" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -99,7 +115,7 @@
       }
     },
     "chart.container.memoryUsage.bytes" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -324,7 +340,7 @@
       }
     },
     "CPU" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -539,6 +555,22 @@
         }
       }
     },
+    "DOWN" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DOWN"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "INJOIGNABLE"
+          }
+        }
+      }
+    },
     "End" : {
       "localizations" : {
         "en" : {
@@ -556,7 +588,20 @@
       }
     },
     "Error" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erreur"
+          }
+        }
+      }
     },
     "filter.byMetric" : {
       "extractionState" : "manual",
@@ -690,7 +735,7 @@
       }
     },
     "Mémoire" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -706,11 +751,56 @@
         }
       }
     },
-    "No Data" : {
+    "NET" : {
 
     },
+    "NET:" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NET:"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NET:"
+          }
+        }
+      }
+    },
+    "No Data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No data"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune données"
+          }
+        }
+      }
+    },
     "No system found" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No system found"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun système trouvé"
+          }
+        }
+      }
     },
     "onboarding.connect_with_provider" : {
       "localizations" : {
@@ -890,6 +980,38 @@
         }
       }
     },
+    "PAUSED" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PAUSED"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EN PAUSE"
+          }
+        }
+      }
+    },
+    "PENDING" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PENDING"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EN ATTENTE"
+          }
+        }
+      }
+    },
     "pinned.item.container.cpu" : {
       "localizations" : {
         "en" : {
@@ -970,6 +1092,22 @@
         }
       }
     },
+    "pinned.item.system.info" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Info"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Infos Système"
+          }
+        }
+      }
+    },
     "pinned.item.system.memory" : {
       "localizations" : {
         "en" : {
@@ -1003,7 +1141,20 @@
       }
     },
     "Scheme" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scheme"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schéma"
+          }
+        }
+      }
     },
     "settings.dashboard" : {
       "localizations" : {
@@ -1245,8 +1396,30 @@
         }
       }
     },
+    "SYS" : {
+
+    },
+    "SYS:" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SYS:"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SYS:"
+          }
+        }
+      }
+    },
+    "System Info" : {
+
+    },
     "system.loading" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1439,8 +1612,53 @@
         }
       }
     },
-    "Valeur" : {
-
+    "UP" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UP"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JOIGNABLE"
+          }
+        }
+      }
+    },
+    "UP: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UP: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UP : %@"
+          }
+        }
+      }
+    },
+    "Value" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Value"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valeur"
+          }
+        }
+      }
     },
     "widget.chart.systemCPU.title" : {
       "localizations" : {
@@ -1596,7 +1814,7 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Aucune donnée disponible pour la période sélectionnée. Une reconnexion peut être nécessaire."
           }
         }

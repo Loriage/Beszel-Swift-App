@@ -15,4 +15,6 @@ nonisolated struct SystemInfo: Codable, Hashable, Sendable {
     let t: Int?    // cpu threads
     let m: String? // cpu model
     let os: Int?   // os identifier
+    let b: Double? // bandwidth
+    let u: Double? // uptime
 }

@@ -6,6 +6,7 @@ struct HomeView: View {
     @Environment(DashboardManager.self) var dashboardManager
     @Environment(SettingsManager.self) var settingsManager
     @Environment(LanguageManager.self) var languageManager
+    @Environment(InstanceManager.self) var instanceManager
     
     @State private var isShowingFilterSheet = false
     @State private var searchText = ""
@@ -53,6 +54,9 @@ struct HomeView: View {
         switch sortOption {
         case .bySystem:
             sortedItems = sortableItems.sorted { (lhs, rhs) in
+                if lhs.resolvedItem.item == .systemInfo && rhs.resolvedItem.item != .systemInfo { return true }
+                if lhs.resolvedItem.item != .systemInfo && rhs.resolvedItem.item == .systemInfo { return false }
+                
                 if lhs.systemName != rhs.systemName {
                     return lhs.systemName < rhs.systemName
                 }
@@ -60,6 +64,8 @@ struct HomeView: View {
             }
         case .byMetric:
             sortedItems = sortableItems.sorted { (lhs, rhs) in
+                if lhs.resolvedItem.item == .systemInfo && rhs.resolvedItem.item != .systemInfo { return true }
+                if lhs.resolvedItem.item != .systemInfo && rhs.resolvedItem.item == .systemInfo { return false }
                 if lhs.metricName != rhs.metricName {
                     return lhs.metricName < rhs.metricName
                 }
@@ -67,6 +73,8 @@ struct HomeView: View {
             }
         case .byService:
             sortedItems = sortableItems.sorted { (lhs, rhs) in
+                if lhs.resolvedItem.item == .systemInfo && rhs.resolvedItem.item != .systemInfo { return true }
+                if lhs.resolvedItem.item != .systemInfo && rhs.resolvedItem.item == .systemInfo { return false }
                 if lhs.serviceName != rhs.serviceName {
                     return lhs.serviceName < rhs.serviceName
                 }
@@ -116,6 +124,7 @@ struct HomeView: View {
                 }
                 .padding(.horizontal)
             }
+            .padding(.bottom, 24)
         }
         .overlay {
             if dashboardManager.allPinsForActiveInstance.isEmpty && !store.isLoading {
@@ -125,6 +134,9 @@ struct HomeView: View {
                     Text("home.empty.message")
                 }
             }
+        }
+        .refreshable {
+            await store.fetchData()
         }
         .sheet(isPresented: $isShowingFilterSheet) {
             FilterView(
@@ -141,6 +153,18 @@ struct HomeView: View {
         let systemName = store.systemName(forSystemID: resolvedItem.systemID)
         
         switch resolvedItem.item {
+        case .systemInfo:
+            if let system = instanceManager.systems.first(where: { $0.id == resolvedItem.systemID }),
+               let stats = store.latestStats(for: resolvedItem.systemID)?.stats {
+                SystemSummaryCard(
+                    systemInfo: system.info,
+                    stats: stats,
+                    systemName: system.name,
+                    status: system.status,
+                    isPinned: store.isPinned(.systemInfo, onSystem: resolvedItem.systemID),
+                    onPinToggle: { store.togglePin(for: .systemInfo, onSystem: resolvedItem.systemID) }
+                )
+            }
         case .systemCPU:
             SystemMetricChartView(
                 title: "chart.cpuUsage",

@@ -15,19 +15,19 @@ final class BeszelStore {
     var containerData: [ProcessedContainerData] = [] {
         didSet {
             self.sortedContainerData = containerData.sorted { $0.name < $1.name }
-            
-            Task { @MainActor in
-                self.calculateStackedData()
-            }
+            Task { @MainActor in self.calculateStackedData() }
         }
     }
     var sortedContainerData: [ProcessedContainerData] = []
+    
+    var latestSystemStats: SystemStatsRecord?
     
     var isLoading = true
     var errorMessage: String?
     
     private var systemDataPointsBySystem: [String: [SystemDataPoint]] = [:]
     private var containerDataBySystem: [String: [ProcessedContainerData]] = [:]
+    private var latestStatsBySystem: [String: SystemStatsRecord] = [:]
     
     private let instance: Instance
     private let apiService: BeszelAPIService
@@ -57,10 +57,12 @@ final class BeszelStore {
         guard let activeSystemID = instanceManager.activeSystem?.id else {
             self.systemDataPoints = []
             self.containerData = []
+            self.latestSystemStats = nil
             return
         }
         self.systemDataPoints = systemDataPointsBySystem[activeSystemID] ?? []
         self.containerData = containerDataBySystem[activeSystemID] ?? []
+        self.latestSystemStats = latestStatsBySystem[activeSystemID]
     }
     
     func fetchData() async {
@@ -78,7 +80,7 @@ final class BeszelStore {
                 let fetchedSystems = try await apiService.fetchSystems()
                 instanceManager.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
                 systemsToFetch = instanceManager.systems
-
+                
                 if systemsToFetch.isEmpty {
                     updateDataForActiveSystem()
                     return
@@ -90,9 +92,9 @@ final class BeszelStore {
         }
         
         do {
-            let (finalSystemData, finalContainerData) = try await withThrowingTaskGroup(
-                of: (String, [SystemDataPoint], [ProcessedContainerData]).self,
-                returning: ([String: [SystemDataPoint]], [String: [ProcessedContainerData]]).self
+            let (finalSystemData, finalContainerData, finalLatestStats) = try await withThrowingTaskGroup(
+                of: (String, [SystemDataPoint], [ProcessedContainerData], SystemStatsRecord?).self,
+                returning: ([String: [SystemDataPoint]], [String: [ProcessedContainerData]], [String: SystemStatsRecord]).self
             ) { group in
                 
                 for system in systemsToFetch {
@@ -110,6 +112,8 @@ final class BeszelStore {
                         let transformedSystem = fetchedSystem.asDataPoints()
                         let rawContainers = fetchedContainers.asProcessedData()
                         
+                        let latestRecord = fetchedSystem.max(by: { $0.created < $1.created })
+                        
                         var processedContainers: [ProcessedContainerData] = []
                         for container in rawContainers {
                             var c = container
@@ -117,19 +121,30 @@ final class BeszelStore {
                             processedContainers.append(c)
                         }
                         
-                        return (system.id, transformedSystem, processedContainers)
+                        return (system.id, transformedSystem, processedContainers, latestRecord)
                     }
                 }
                 
-                return try await group.reduce(into: ([:], [:])) { (partialResult, taskResult) in
-                    let (systemId, sysData, processedContainers) = taskResult
+                return try await group.reduce(into: ([:], [:], [:])) { (partialResult, taskResult) in
+                    let (systemId, sysData, processedContainers, latestRec) = taskResult
                     partialResult.0[systemId] = sysData
                     partialResult.1[systemId] = processedContainers
+                    if let latestRec = latestRec {
+                        partialResult.2[systemId] = latestRec
+                    }
                 }
             }
             
             self.systemDataPointsBySystem = finalSystemData
             self.containerDataBySystem = finalContainerData
+            
+            for (id, stat) in finalLatestStats {
+                if let existing = self.latestStatsBySystem[id], existing.created > stat.created {
+                    continue
+                }
+                self.latestStatsBySystem[id] = stat
+            }
+            
             self.updateDataForActiveSystem()
             
         } catch {
@@ -137,11 +152,24 @@ final class BeszelStore {
         }
     }
     
+    func refreshLatestStatsOnly() async {
+        guard let activeSystemID = instanceManager.activeSystem?.id else { return }
+        
+        do {
+            if let latest = try await apiService.fetchLatestSystemStats(systemID: activeSystemID) {
+                self.latestStatsBySystem[activeSystemID] = latest
+                self.latestSystemStats = latest
+            }
+        } catch {
+            print("Erreur polling system stats: \(error)")
+        }
+    }
+    
     private func handleError(_ error: Error) {
         if let urlError = error as? URLError, urlError.code == .userAuthenticationRequired {
             instanceManager.deleteInstance(self.instance)
         } else {
-            self.errorMessage = "Failed to fetch data: \(error.localizedDescription)"
+            self.errorMessage = "Impossible de récupérer les données: \(error.localizedDescription)"
         }
     }
     
@@ -171,6 +199,10 @@ final class BeszelStore {
     
     func systemName(forSystemID systemID: String) -> String? {
         instanceManager.systems.first { $0.id == systemID }?.name
+    }
+    
+    func latestStats(for systemID: String) -> SystemStatsRecord? {
+        latestStatsBySystem[systemID]
     }
     
     nonisolated private static func downsampleStatPoints(_ statPoints: [StatPoint], timeRange: TimeRangeOption) async -> [StatPoint] {

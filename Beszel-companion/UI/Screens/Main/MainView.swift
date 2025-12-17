@@ -15,52 +15,59 @@ struct MainView: View {
     var body: some View {
         Group {
             if let store = store {
-                TabView(selection: $selectedTab) {
-                    Tab(value: .home) {
-                        NavigationStack {
+                NavigationStack {
+                    TabView(selection: $selectedTab) {
+                        Tab(value: .home) {
                             HomeView()
-                                .withMainToolbar(instanceManager: instanceManager, onSettingsTap: { isShowingSettings = true })
+                        } label: {
+                            Label("home.title", systemImage: "house.fill")
                         }
-                    } label: {
-                        Label("home.title", systemImage: "house.fill")
-                    }
-                    
-                    Tab(value: .system) {
-                        NavigationStack {
+                        Tab(value: .system) {
                             SystemView()
-                                .withMainToolbar(instanceManager: instanceManager, onSettingsTap: { isShowingSettings = true })
+                        } label: {
+                            Label("system.title", systemImage: "cpu.fill")
                         }
-                    } label: {
-                        Label("system.title", systemImage: "cpu.fill")
-                    }
-                    
-                    Tab(value: .container) {
-                        NavigationStack {
+                        Tab(value: .container) {
                             ContainerView()
-                                .withMainToolbar(instanceManager: instanceManager, onSettingsTap: { isShowingSettings = true })
-                        }
-                    } label: {
-                        Label("container.title", systemImage: "shippingbox.fill")
-                    }
-                }
-                .environment(store)
-                .task(id: settingsManager.selectedTimeRange) {
-                    await store.fetchData()
-
-                    while !Task.isCancelled {
-                        let interval = settingsManager.selectedTimeRange.refreshInterval
-
-                        try? await Task.sleep(for: .seconds(interval))
-                        if !Task.isCancelled && !isShowingSettings {
-                            await store.fetchData()
+                        } label: {
+                            Label("container.title", systemImage: "shippingbox.fill")
                         }
                     }
-                }
-                .task(id: instanceManager.activeSystem) {
-                    store.updateDataForActiveSystem()
-                }
-                .sheet(isPresented: $isShowingSettings) {
-                    LazyView(SettingsView())
+                    .environment(store)
+                    .toolbar {
+                        if selectedTab != .home {
+                            ToolbarItem(placement: .topBarLeading) {
+                                SystemSwitcherView(instanceManager: instanceManager)
+                            }
+                        }
+
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button(action: { isShowingSettings = true }) {
+                                Image(systemName: "gearshape.fill")
+                            }
+                        }
+                    }
+                    .task(id: settingsManager.selectedTimeRange) {
+                        await store.fetchData()
+                        
+                        while !Task.isCancelled {
+                            let interval = settingsManager.selectedTimeRange.refreshInterval
+                            
+                            try? await Task.sleep(for: .seconds(interval))
+                            if !Task.isCancelled && !isShowingSettings {
+                                await store.fetchData()
+                            }
+                        }
+                    }
+                    .task(id: instanceManager.activeSystem) {
+                        store.updateDataForActiveSystem()
+                    }
+                    .sheet(isPresented: $isShowingSettings) {
+                        LazyView(SettingsView())
+                    }
+                    .navigationDestination(for: ProcessedContainerData.self) { container in
+                        ContainerDetailView(container: container)
+                    }
                 }
             } else {
                 ProgressView()
@@ -83,10 +90,12 @@ struct MainView: View {
 }
 
 extension View {
-    func withMainToolbar(instanceManager: InstanceManager, onSettingsTap: @escaping () -> Void) -> some View {
+    func withMainToolbar(instanceManager: InstanceManager, showSystemPicker: Bool = true, onSettingsTap: @escaping () -> Void) -> some View {
         self.toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                SystemSwitcherView(instanceManager: instanceManager)
+            if showSystemPicker {
+                ToolbarItem(placement: .topBarLeading) {
+                    SystemSwitcherView(instanceManager: instanceManager)
+                }
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: onSettingsTap) {

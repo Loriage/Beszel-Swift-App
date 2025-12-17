@@ -201,6 +201,20 @@ actor BeszelAPIService {
         return response.items
     }
     
+    func fetchLatestSystemStats(systemID: String) async throws -> SystemStatsRecord? {
+        guard var components = URLComponents(string: baseURL) else { throw URLError(.badURL) }
+        components.path = "/api/collections/system_stats/records"
+        components.queryItems = [
+            URLQueryItem(name: "perPage", value: "1"),
+            URLQueryItem(name: "sort", value: "-created"),
+            URLQueryItem(name: "filter", value: "system = '\(systemID)'")
+        ]
+        
+        guard let url = components.url else { throw URLError(.badURL) }
+        let response: PocketBaseListResponse<SystemStatsRecord> = try await performRequest(with: url)
+        return response.items.first
+    }
+    
     private func buildURL(for path: String, filter: String?) throws -> URL {
         guard var components = URLComponents(string: baseURL) else {
             throw URLError(.badURL)

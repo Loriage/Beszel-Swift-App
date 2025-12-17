@@ -752,7 +752,20 @@
       }
     },
     "NET" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NET"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NET"
+          }
+        }
+      }
     },
     "NET:" : {
       "localizations" : {
@@ -1397,7 +1410,20 @@
       }
     },
     "SYS" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SYS"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SYS"
+          }
+        }
+      }
     },
     "SYS:" : {
       "localizations" : {
@@ -1416,7 +1442,20 @@
       }
     },
     "System Info" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Info"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Info"
+          }
+        }
+      }
     },
     "system.loading" : {
       "extractionState" : "manual",

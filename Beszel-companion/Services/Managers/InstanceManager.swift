@@ -91,6 +91,13 @@ final class InstanceManager {
         }
     }
     
+    func reloadFromStore() {
+        if let data = userDefaultsStore.data(forKey: "instances"),
+           let decoded = try? JSONDecoder().decode([Instance].self, from: data) {
+            self.instances = decoded
+        }
+    }
+    
     func addInstance(name: String, url: String, email: String, password: String) {
         let newInstance = Instance(id: UUID(), name: name, url: url, email: email)
         saveCredential(credential: password, for: newInstance)

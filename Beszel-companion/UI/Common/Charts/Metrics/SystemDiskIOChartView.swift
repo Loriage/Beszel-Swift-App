@@ -21,15 +21,15 @@ struct SystemDiskIOChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Read", io.read),
-                            series: .value("", "Read")
+                            series: .value("Period", "Read")
                         )
                         .foregroundStyle(.blue)
                         
                         AreaMark(
                             x: .value("Date", point.date),
-                            yStart: .value("", 0),
+                            yStart: .value("Period", 0),
                             yEnd: .value("Read", io.read),
-                            series: .value("", "Read")
+                            series: .value("Period", "Read")
                         )
                         .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
@@ -38,15 +38,15 @@ struct SystemDiskIOChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Write", io.write),
-                            series: .value("", "Write")
+                            series: .value("Period", "Write")
                         )
                         .foregroundStyle(.orange)
                         
                         AreaMark(
                             x: .value("Date", point.date),
-                            yStart: .value("", 0),
+                            yStart: .value("Period", 0),
                             yEnd: .value("Write", io.write),
-                            series: .value("", "Write")
+                            series: .value("Period", "Write")
                         )
                         .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
@@ -70,8 +70,8 @@ struct SystemDiskIOChartView: View {
                 }
             }
             .chartForegroundStyleScale([
-                "Write": .orange,
-                "Read": .blue,
+                String(localized: "Write"): .orange,
+                String(localized: "Read"): .blue,
             ])
             .chartLegend(position: .bottom, alignment: .center)
             .padding(.top, 5)

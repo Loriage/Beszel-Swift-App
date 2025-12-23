@@ -54,9 +54,9 @@ struct SystemLoadChartView: View {
                 }
             }
             .chartForegroundStyleScale([
-                "1 min": .purple,
-                "5 min": .blue,
-                "15 min": .orange
+                String(localized: "1 min"): .purple,
+                String(localized: "5 min"): .blue,
+                String(localized: "15 min"): .orange
             ])
             .chartLegend(position: .bottom, alignment: .center)
             .padding(.top, 5)

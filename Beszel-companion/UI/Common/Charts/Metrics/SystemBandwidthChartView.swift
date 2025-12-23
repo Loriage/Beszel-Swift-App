@@ -21,15 +21,15 @@ struct SystemBandwidthChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Download", bandwidth.download),
-                            series: .value("", "Download")
+                            series: .value("Period", "Download")
                         )
                         .foregroundStyle(.green)
                         
                         AreaMark(
                             x: .value("Date", point.date),
-                            yStart: .value("", 0),
+                            yStart: .value("Period", 0),
                             yEnd: .value("Download", bandwidth.download),
-                            series: .value("", "Download")
+                            series: .value("Period", "Download")
                         )
                         .foregroundStyle(LinearGradient(colors: [.green.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
@@ -38,15 +38,15 @@ struct SystemBandwidthChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Upload", bandwidth.upload),
-                            series: .value("", "Upload")
+                            series: .value("Period", "Upload")
                         )
                         .foregroundStyle(.red)
                         
                         AreaMark(
                             x: .value("Date", point.date),
-                            yStart: .value("", 0),
+                            yStart: .value("Period", 0),
                             yEnd: .value("Upload", bandwidth.upload),
-                            series: .value("", "Upload")
+                            series: .value("Period", "Upload")
                         )
                         .foregroundStyle(LinearGradient(colors: [.red.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
@@ -70,8 +70,8 @@ struct SystemBandwidthChartView: View {
                 }
             }
             .chartForegroundStyleScale([
-                "Received": .green,
-                "Sent": .red,
+                String(localized: "Received"): .green,
+                String(localized: "Sent"): .red,
             ])
             .chartLegend(position: .bottom, alignment: .center)
             .padding(.top, 5)

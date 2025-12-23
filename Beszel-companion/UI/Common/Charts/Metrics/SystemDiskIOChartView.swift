@@ -17,31 +17,39 @@ struct SystemDiskIOChartView: View {
         }) {
             Chart(dataPoints) { point in
                 if let io = point.diskIO {
-                    // Read (Orange)
-                    LineMark(
-                        x: .value("Date", point.date),
-                        y: .value("Read", io.read)
-                    )
-                    .foregroundStyle(.orange)
+                    Plot {
+                        LineMark(
+                            x: .value("Date", point.date),
+                            y: .value("Read", io.read),
+                            series: .value("", "Read")
+                        )
+                        .foregroundStyle(.blue)
+                        
+                        AreaMark(
+                            x: .value("Date", point.date),
+                            yStart: .value("", 0),
+                            yEnd: .value("Read", io.read),
+                            series: .value("", "Read")
+                        )
+                        .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
+                    }
                     
-                    AreaMark(
-                        x: .value("Date", point.date),
-                        y: .value("Read", io.read)
-                    )
-                    .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
-                    
-                    // Write (Violet)
-                    LineMark(
-                        x: .value("Date", point.date),
-                        y: .value("Write", io.write)
-                    )
-                    .foregroundStyle(.purple)
-                    
-                    AreaMark(
-                        x: .value("Date", point.date),
-                        y: .value("Write", io.write)
-                    )
-                    .foregroundStyle(LinearGradient(colors: [.purple.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
+                    Plot {
+                        LineMark(
+                            x: .value("Date", point.date),
+                            y: .value("Write", io.write),
+                            series: .value("", "Write")
+                        )
+                        .foregroundStyle(.orange)
+                        
+                        AreaMark(
+                            x: .value("Date", point.date),
+                            yStart: .value("", 0),
+                            yEnd: .value("Write", io.write),
+                            series: .value("", "Write")
+                        )
+                        .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
+                    }
                 }
             }
             .chartXAxis {
@@ -54,15 +62,13 @@ struct SystemDiskIOChartView: View {
                     AxisGridLine()
                     AxisValueLabel {
                         if let bytes = value.as(Double.self) {
-                            Text(ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .binary) + "/s")
+                            let labelText = String(format: "%.1f", bytes / 1024_000.0)
+                            Text(labelText)
+                                .font(.caption)
                         }
                     }
                 }
             }
-            .chartForegroundStyleScale([
-                "Read": .orange,
-                "Write": .purple
-            ])
             .chartLegend(position: .bottom, alignment: .leading)
             .padding(.top, 5)
             .frame(height: 200)

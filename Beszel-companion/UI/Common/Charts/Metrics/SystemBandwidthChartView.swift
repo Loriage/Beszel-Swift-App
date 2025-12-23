@@ -23,7 +23,7 @@ struct SystemBandwidthChartView: View {
                             y: .value("Download", bandwidth.download),
                             series: .value("", "Download")
                         )
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.green)
                         
                         AreaMark(
                             x: .value("Date", point.date),
@@ -31,7 +31,7 @@ struct SystemBandwidthChartView: View {
                             yEnd: .value("Download", bandwidth.download),
                             series: .value("", "Download")
                         )
-                        .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
+                        .foregroundStyle(LinearGradient(colors: [.green.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
                     
                     Plot {
@@ -40,7 +40,7 @@ struct SystemBandwidthChartView: View {
                             y: .value("Upload", bandwidth.upload),
                             series: .value("", "Upload")
                         )
-                        .foregroundStyle(.green)
+                        .foregroundStyle(.red)
                         
                         AreaMark(
                             x: .value("Date", point.date),
@@ -48,7 +48,7 @@ struct SystemBandwidthChartView: View {
                             yEnd: .value("Upload", bandwidth.upload),
                             series: .value("", "Upload")
                         )
-                        .foregroundStyle(LinearGradient(colors: [.green.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
+                        .foregroundStyle(LinearGradient(colors: [.red.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
                 }
             }

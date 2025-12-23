@@ -69,7 +69,11 @@ struct SystemDiskIOChartView: View {
                     }
                 }
             }
-            .chartLegend(position: .bottom, alignment: .leading)
+            .chartForegroundStyleScale([
+                "Write": .orange,
+                "Read": .blue,
+            ])
+            .chartLegend(position: .bottom, alignment: .center)
             .padding(.top, 5)
             .frame(height: 200)
             .drawingGroup()

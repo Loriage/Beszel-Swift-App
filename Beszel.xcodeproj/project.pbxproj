@@ -97,6 +97,7 @@
 				Services/Store/BeszelStore.swift,
 				UI/Common/Charts/Metrics/SystemBandwidthChartView.swift,
 				UI/Common/Charts/Metrics/SystemDiskIOChartView.swift,
+				UI/Common/Charts/Metrics/SystemLoadChartView.swift,
 				UI/Common/Charts/Metrics/SystemMetricChartView.swift,
 				UI/Common/Charts/Metrics/SystemTemperatureChartView.swift,
 				UI/Common/Charts/Theme/ChartTheme.swift,

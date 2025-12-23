@@ -69,7 +69,11 @@ struct SystemBandwidthChartView: View {
                     }
                 }
             }
-            .chartLegend(position: .bottom, alignment: .leading)
+            .chartForegroundStyleScale([
+                "Received": .green,
+                "Sent": .red,
+            ])
+            .chartLegend(position: .bottom, alignment: .center)
             .padding(.top, 5)
             .frame(height: 200)
             .drawingGroup()

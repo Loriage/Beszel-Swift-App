@@ -77,13 +77,21 @@ extension Array where Element == SystemStatsRecord {
                 diskIOTuple = nil
             }
             
+            let loadTuple: (l1: Double, l5: Double, l15: Double)?
+            if let la = stats.load, la.count >= 3 {
+                loadTuple = (l1: la[0], l5: la[1], l15: la[2])
+            } else {
+                loadTuple = nil
+            }
+            
             return SystemDataPoint(
                 date: record.created,
                 cpu: record.stats.cpu,
                 memoryPercent: record.stats.memoryPercent,
                 temperatures: tempsArray,
                 bandwidth: bandwidthTuple,
-                diskIO: diskIOTuple
+                diskIO: diskIOTuple,
+                loadAverage: loadTuple
             )
         }.sorted(by: { $0.date < $1.date })
     }

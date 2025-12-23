@@ -130,9 +130,9 @@ struct SystemSummaryCard: View {
         
         let limit = Double(cores)
 
-        if val >= limit * 0.9 {
+        if val >= limit * 1.5 {
             return .red
-        } else if val >= limit * 0.65 {
+        } else if val >= limit {
             return .orange
         } else {
             return .green
@@ -153,7 +153,6 @@ struct MetricRow: View {
                 .monospaced()
                 .foregroundColor(.secondary)
                 .frame(width: 35, alignment: .leading)
-            
             
             Text(displayValue)
                 .font(.caption)

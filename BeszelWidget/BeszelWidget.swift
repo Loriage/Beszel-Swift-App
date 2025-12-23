@@ -134,7 +134,8 @@ struct Provider: AppIntentTimelineProvider {
                 memoryPercent: Double.random(in: 30...60),
                 temperatures: [],
                 bandwidth: nil,
-                diskIO: nil
+                diskIO: nil,
+                loadAverage: nil
             )
         }
     }

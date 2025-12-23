@@ -10,4 +10,5 @@ struct SystemDataPoint: Identifiable, Sendable {
     
     let bandwidth: (upload: Double, download: Double)?
     let diskIO: (read: Double, write: Double)?
+    let loadAverage: (l1: Double, l5: Double, l15: Double)?
 }

@@ -53,6 +53,10 @@ struct SystemView: View {
                         dataPoints: store.systemDataPoints,
                         xAxisFormat: store.xAxisFormat,
                     )
+                    SystemLoadChartView(
+                        dataPoints: store.systemDataPoints,
+                        xAxisFormat: store.xAxisFormat,
+                    )
                     if store.hasTemperatureData {
                         SystemTemperatureChartView(
                             xAxisFormat: store.xAxisFormat,

@@ -746,6 +746,12 @@
         }
       }
     },
+    "Load" : {
+
+    },
+    "Load Average" : {
+
+    },
     "Mémoire" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1036,6 +1042,9 @@
           }
         }
       }
+    },
+    "Period" : {
+
     },
     "pinned.item.container.cpu" : {
       "localizations" : {

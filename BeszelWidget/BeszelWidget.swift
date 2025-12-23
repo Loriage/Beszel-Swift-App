@@ -31,7 +31,7 @@ struct Provider: AppIntentTimelineProvider {
     
     func snapshot(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> SimpleEntry {
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
-
+        
         let sampleStats = SystemStatsDetail(
             cpu: 45.0,
             memoryPercent: 60.0,
@@ -41,6 +41,9 @@ struct Provider: AppIntentTimelineProvider {
             networkSent: 1024 * 1024,
             networkReceived: 5 * 1024 * 1024,
             bandwidth: nil,
+            diskRead: nil,
+            diskWrite: nil,
+            diskIO: nil,
             temperatures: [:],
             load: [1.5, 1.2, 1.0]
         )
@@ -63,6 +66,8 @@ struct Provider: AppIntentTimelineProvider {
         let settingsManager = SettingsManager()
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
         
+        await MainActor.run { InstanceManager.shared.reloadFromStore() }
+        
         guard let instanceEntity = configuration.instance,
               let instanceID = UUID(uuidString: instanceEntity.id),
               let instance = await MainActor.run(body: { InstanceManager.shared.instances.first(where: { $0.id == instanceID }) }),
@@ -78,7 +83,12 @@ struct Provider: AppIntentTimelineProvider {
             let timeRange = await MainActor.run { settingsManager.selectedTimeRange }
             let filter = await MainActor.run { "(\(settingsManager.selectedTimeRange.apiFilterString) && system = '\(systemEntity.id)')" }
             
-            let records = try await apiService.fetchSystemStats(filter: filter)
+            async let statsTask = apiService.fetchSystemStats(filter: filter)
+            async let systemsTask: [SystemRecord] = (chartType == .systemInfo) ? apiService.fetchSystems() : []
+            
+            let records = try await statsTask
+            let systems = try await systemsTask
+            
             let dataPoints = records.asDataPoints()
             
             var fetchedInfo: SystemInfo? = nil
@@ -90,7 +100,6 @@ struct Provider: AppIntentTimelineProvider {
                     latestStats = lastRecord.stats
                 }
                 
-                let systems = try await apiService.fetchSystems()
                 if let foundSystem = systems.first(where: { $0.id == systemEntity.id }) {
                     fetchedInfo = foundSystem.info
                     status = foundSystem.status
@@ -123,7 +132,9 @@ struct Provider: AppIntentTimelineProvider {
                 date: Date().addingTimeInterval(TimeInterval(i * 3600)),
                 cpu: Double.random(in: 20...80),
                 memoryPercent: Double.random(in: 30...60),
-                temperatures: []
+                temperatures: [],
+                bandwidth: nil,
+                diskIO: nil
             )
         }
     }

@@ -110,7 +110,6 @@ struct SystemTemperatureChartView: View {
                     y: .value("Temp", temp.value)
                 )
                 .foregroundStyle(by: .value("Source", temp.name))
-                .interpolationMethod(.catmullRom)
             }
         }
         .chartForegroundStyleScale { name in

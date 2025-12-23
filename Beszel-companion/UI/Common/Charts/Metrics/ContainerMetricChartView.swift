@@ -13,6 +13,11 @@ struct ContainerMetricChartView: View {
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
+    private var maxValue: Double {
+        let max = container.statPoints.map { $0[keyPath: valueKeyPath] }.max() ?? 0
+        return max == 0 ? 1.0 : max
+    }
+    
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -42,9 +47,16 @@ struct ContainerMetricChartView: View {
                 )
                 .foregroundStyle(LinearGradient(colors: [color.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
             }
+            .chartYScale(domain: 0...maxValue)
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in
                     AxisValueLabel(format: xAxisFormat, centered: true)
+                }
+            }
+            .chartYAxis {
+                AxisMarks(values: .automatic(desiredCount: 4)) { value in
+                    AxisGridLine()
+                    AxisValueLabel()
                 }
             }
             .frame(height: 200)

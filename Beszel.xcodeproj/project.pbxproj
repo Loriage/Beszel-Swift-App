@@ -95,6 +95,8 @@
 				Services/Managers/LanguageManager.swift,
 				Services/Managers/SettingsManager.swift,
 				Services/Store/BeszelStore.swift,
+				UI/Common/Charts/Metrics/SystemBandwidthChartView.swift,
+				UI/Common/Charts/Metrics/SystemDiskIOChartView.swift,
 				UI/Common/Charts/Metrics/SystemMetricChartView.swift,
 				UI/Common/Charts/Metrics/SystemTemperatureChartView.swift,
 				UI/Common/Charts/Theme/ChartTheme.swift,

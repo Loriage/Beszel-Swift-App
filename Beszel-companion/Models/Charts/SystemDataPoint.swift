@@ -7,4 +7,7 @@ struct SystemDataPoint: Identifiable, Sendable {
     let cpu: Double
     let memoryPercent: Double
     let temperatures: [(name: String, value: Double)]
+    
+    let bandwidth: (upload: Double, download: Double)?
+    let diskIO: (read: Double, write: Double)?
 }

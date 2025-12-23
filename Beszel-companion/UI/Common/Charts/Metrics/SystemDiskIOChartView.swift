@@ -10,7 +10,7 @@ struct SystemDiskIOChartView: View {
     
     var body: some View {
         GroupBox(label: HStack {
-            Text("Disk I/O (MB/s)g")
+            Text("Disk I/O (MB/s)")
                 .font(.headline)
             Spacer()
             PinButtonView(isPinned: isPinned, action: onPinToggle)

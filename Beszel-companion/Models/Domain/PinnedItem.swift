@@ -5,6 +5,9 @@ enum PinnedItem: Codable, Hashable, Identifiable {
     case systemCPU
     case systemMemory
     case systemTemperature
+    case systemDiskIO
+    case systemBandwidth
+    case systemLoadAverage
     case containerCPU(name: String)
     case containerMemory(name: String)
     case stackedContainerCPU
@@ -16,6 +19,9 @@ enum PinnedItem: Codable, Hashable, Identifiable {
         case .systemCPU: return "system_cpu"
         case .systemMemory: return "system_memory"
         case .systemTemperature: return "system_temperature"
+        case .systemDiskIO: return "system_disk_io"
+        case .systemBandwidth: return "system_bandwidth"
+        case .systemLoadAverage: return "system_loadaverage"
         case .containerCPU(let name): return "container_cpu_\(name)"
         case .containerMemory(let name): return "container_memory_\(name)"
         case .stackedContainerCPU: return "stacked_container_cpu"
@@ -33,6 +39,12 @@ enum PinnedItem: Codable, Hashable, Identifiable {
             return NSLocalizedString("pinned.item.system.memory", bundle: bundle, comment: "")
         case .systemTemperature:
             return NSLocalizedString("pinned.item.system.temperature", bundle: bundle, comment: "")
+        case .systemDiskIO:
+            return NSLocalizedString("pinned.item.system.disk", bundle: bundle, comment: "")
+        case .systemBandwidth:
+            return NSLocalizedString("pinned.item.system.bandwidth", bundle: bundle, comment: "")
+        case .systemLoadAverage:
+            return NSLocalizedString("pinned.item.system.loadaverage", bundle: bundle, comment: "")
         case .containerCPU(let name):
             let format = NSLocalizedString("pinned.item.container.cpu", bundle: bundle, comment: "")
             return String(format: format, name)
@@ -52,6 +64,9 @@ enum PinnedItem: Codable, Hashable, Identifiable {
         case .systemCPU, .containerCPU, .stackedContainerCPU: return "CPU"
         case .systemMemory, .containerMemory, .stackedContainerMemory: return "Memory"
         case .systemTemperature: return "Temperature"
+        case .systemDiskIO: return "Disk I/O"
+        case .systemBandwidth: return "Bandwidth"
+        case .systemLoadAverage: return "Load Average"
         }
     }
     

@@ -561,7 +561,7 @@
         }
       }
     },
-    "Disk I/O (MB/s)g" : {
+    "Disk I/O (MB/s)" : {
 
     },
     "DOWN" : {
@@ -1110,6 +1110,9 @@
         }
       }
     },
+    "pinned.item.system.bandwidth" : {
+
+    },
     "pinned.item.system.cpu" : {
       "localizations" : {
         "en" : {
@@ -1126,6 +1129,9 @@
         }
       }
     },
+    "pinned.item.system.disk" : {
+
+    },
     "pinned.item.system.info" : {
       "localizations" : {
         "en" : {
@@ -1141,6 +1147,9 @@
           }
         }
       }
+    },
+    "pinned.item.system.loadaverage" : {
+
     },
     "pinned.item.system.memory" : {
       "localizations" : {

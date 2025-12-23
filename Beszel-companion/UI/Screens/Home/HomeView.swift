@@ -195,6 +195,27 @@ struct HomeView: View {
                 isPinned: store.isPinned(.systemTemperature, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemTemperature, onSystem: resolvedItem.systemID) }
             )
+        case .systemDiskIO:
+            SystemDiskIOChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                isPinned: store.isPinned(.systemDiskIO, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemDiskIO, onSystem: resolvedItem.systemID) }
+            )
+        case .systemBandwidth:
+            SystemBandwidthChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                isPinned: store.isPinned(.systemBandwidth, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemBandwidth, onSystem: resolvedItem.systemID) }
+            )
+        case .systemLoadAverage:
+            SystemLoadChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                isPinned: store.isPinned(.systemLoadAverage, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemLoadAverage, onSystem: resolvedItem.systemID) }
+            )
         case .containerCPU(let name):
             if let container = containerData.first(where: { $0.id == name }) {
                 ContainerMetricChartView(

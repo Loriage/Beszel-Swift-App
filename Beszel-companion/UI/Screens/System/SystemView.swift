@@ -48,14 +48,20 @@ struct SystemView: View {
                     SystemDiskIOChartView(
                         dataPoints: store.systemDataPoints,
                         xAxisFormat: store.xAxisFormat,
+                        isPinned: store.isPinned(.systemDiskIO),
+                        onPinToggle: { store.togglePin(for: .systemDiskIO) }
                     )
                     SystemBandwidthChartView(
                         dataPoints: store.systemDataPoints,
                         xAxisFormat: store.xAxisFormat,
+                        isPinned: store.isPinned(.systemBandwidth),
+                        onPinToggle: { store.togglePin(for: .systemBandwidth) }
                     )
                     SystemLoadChartView(
                         dataPoints: store.systemDataPoints,
                         xAxisFormat: store.xAxisFormat,
+                        isPinned: store.isPinned(.systemLoadAverage),
+                        onPinToggle: { store.togglePin(for: .systemLoadAverage) }
                     )
                     if store.hasTemperatureData {
                         SystemTemperatureChartView(

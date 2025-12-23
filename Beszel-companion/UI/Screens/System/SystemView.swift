@@ -45,11 +45,11 @@ struct SystemView: View {
                         isPinned: store.isPinned(.systemMemory),
                         onPinToggle: { store.togglePin(for: .systemMemory) }
                     )
-                    SystemBandwidthChartView(
+                    SystemDiskIOChartView(
                         dataPoints: store.systemDataPoints,
                         xAxisFormat: store.xAxisFormat,
                     )
-                    SystemDiskIOChartView(
+                    SystemBandwidthChartView(
                         dataPoints: store.systemDataPoints,
                         xAxisFormat: store.xAxisFormat,
                     )

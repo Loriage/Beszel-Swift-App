@@ -130,9 +130,9 @@ struct SystemSummaryCard: View {
         
         let limit = Double(cores)
 
-        if val >= limit * 1.5 {
+        if val >= limit * 0.9 {
             return .red
-        } else if val >= limit {
+        } else if val >= limit * 0.65 {
             return .orange
         } else {
             return .green
@@ -178,8 +178,8 @@ struct MetricRow: View {
     }
     
     private func colorForValue(_ val: Double) -> Color {
-        if val < 0.6 { return .green }
-        if val < 0.8 { return .orange }
+        if val < 0.65 { return .green }
+        if val < 0.90 { return .orange }
         return .red
     }
 }

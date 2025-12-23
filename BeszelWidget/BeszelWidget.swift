@@ -41,6 +41,9 @@ struct Provider: AppIntentTimelineProvider {
             networkSent: 1024 * 1024,
             networkReceived: 5 * 1024 * 1024,
             bandwidth: nil,
+            diskRead: nil,
+            diskWrite: nil,
+            diskIO: nil,
             temperatures: [:],
             load: [1.5, 1.2, 1.0]
         )
@@ -129,7 +132,9 @@ struct Provider: AppIntentTimelineProvider {
                 date: Date().addingTimeInterval(TimeInterval(i * 3600)),
                 cpu: Double.random(in: 20...80),
                 memoryPercent: Double.random(in: 30...60),
-                temperatures: []
+                temperatures: [],
+                bandwidth: nil,
+                diskIO: nil
             )
         }
     }

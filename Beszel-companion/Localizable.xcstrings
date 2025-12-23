@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
     "%@" : {
       "localizations" : {
         "en" : {
@@ -48,6 +51,9 @@
           }
         }
       }
+    },
+    "Bandwidth (MB/s)" : {
+
     },
     "chart.configuration.chartType.title" : {
       "localizations" : {
@@ -555,6 +561,9 @@
         }
       }
     },
+    "Disk I/O" : {
+
+    },
     "DOWN" : {
       "localizations" : {
         "en" : {
@@ -570,6 +579,9 @@
           }
         }
       }
+    },
+    "Download" : {
+
     },
     "End" : {
       "localizations" : {
@@ -1153,6 +1165,9 @@
         }
       }
     },
+    "Read" : {
+
+    },
     "Scheme" : {
       "localizations" : {
         "en" : {
@@ -1683,6 +1698,9 @@
         }
       }
     },
+    "Upload" : {
+
+    },
     "Value" : {
       "localizations" : {
         "en" : {
@@ -1924,6 +1942,9 @@
           }
         }
       }
+    },
+    "Write" : {
+
     }
   },
   "version" : "1.0"

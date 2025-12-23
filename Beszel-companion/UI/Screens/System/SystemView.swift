@@ -45,6 +45,14 @@ struct SystemView: View {
                         isPinned: store.isPinned(.systemMemory),
                         onPinToggle: { store.togglePin(for: .systemMemory) }
                     )
+                    SystemBandwidthChartView(
+                        dataPoints: store.systemDataPoints,
+                        xAxisFormat: store.xAxisFormat,
+                    )
+                    SystemDiskIOChartView(
+                        dataPoints: store.systemDataPoints,
+                        xAxisFormat: store.xAxisFormat,
+                    )
                     if store.hasTemperatureData {
                         SystemTemperatureChartView(
                             xAxisFormat: store.xAxisFormat,

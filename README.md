@@ -53,7 +53,6 @@ This application allows you to view your server and container statistics directl
 -   **SwiftUI**: For the entire declarative and reactive user interface.
 -   **Swift Charts**: For creating all charts within the application.
 -   **Swift Concurrency (`async/await`)**: For modern and performant network calls.
--   **Combine**: For state management of shared objects (`ObservableObject`).
 -   **WidgetKit**: To display information on the Home Screen.
 
 ## Installation

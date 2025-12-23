@@ -1,159 +1,150 @@
 import WidgetKit
 import SwiftUI
-import Charts
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let chartType: WidgetChartType
     let dataPoints: [SystemDataPoint]
+    let systemInfo: SystemInfo?
+    let latestStats: SystemStatsDetail?
+    let systemName: String
+    let status: String?
     let timeRange: TimeRangeOption
     var errorMessage: String? = nil
 }
 
-struct BeszelWidgetEntryView : View {
-    private let languageManager = LanguageManager()
-    var entry: Provider.Entry
-    
-    private var widgetXAxisFormat: Date.FormatStyle {
-        return entry.timeRange.xAxisFormat
-    }
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            if let errorMessage = entry.errorMessage {
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        Text(LocalizedStringKey(errorMessage))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                        Spacer()
-                    }
-                    Spacer()
-                }
-            }
-            else if entry.dataPoints.isEmpty {
-                NoDataPlaceholderView()
-            }
-            else {
-                chartView
-            }
-        }
-        .containerBackground(.fill.tertiary, for: .widget)
-        .environment(\.locale, Locale(identifier: languageManager.currentLanguageCode))
-    }
-
-    @ViewBuilder
-    private var chartView: some View {
-        switch entry.chartType {
-        case .systemCPU:
-            SystemCpuChartView(xAxisFormat: widgetXAxisFormat, dataPoints: entry.dataPoints, isForWidget: true )
-        case .systemMemory:
-            SystemMemoryChartView(xAxisFormat: widgetXAxisFormat, dataPoints: entry.dataPoints, isForWidget: true)
-        case .systemTemperature:
-            if entry.dataPoints.contains(where: { !$0.temperatures.isEmpty }) {
-                SystemTemperatureChartView(xAxisFormat: widgetXAxisFormat, dataPoints: entry.dataPoints, isForWidget: true)
-            } else {
-                NoDataPlaceholderView(metricName: "widget.temperatures")
-            }
-        }
-    }
-    
-    struct NoDataPlaceholderView: View {
-        var metricName: LocalizedStringResource? = nil
-        
-        var body: some View {
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    VStack(spacing: 8) {
-                        Image(systemName: "chart.bar.xaxis")
-                            .font(.largeTitle)
-                            .foregroundColor(.secondary)
-                        
-                        if let metricName = metricName {
-                            Text("chart.noDataForMetric \(Text(metricName))")
-                        } else {
-                            Text("widget.noData")
-                        }
-                    }
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    Spacer()
-                }
-                Spacer()
-            }
-        }
-    }
-}
-
 struct Provider: AppIntentTimelineProvider {
-    private let defaultChartType = WidgetChartType.systemCPU
-
+    private let defaultChartType = WidgetChartType.systemInfo
+    
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours)
+        SimpleEntry(
+            date: Date(),
+            chartType: defaultChartType,
+            dataPoints: [],
+            systemInfo: nil,
+            latestStats: nil,
+            systemName: "System",
+            status: nil,
+            timeRange: .last24Hours
+        )
     }
-
+    
     func snapshot(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> SimpleEntry {
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
-        return SimpleEntry(date: Date(), chartType: chartType, dataPoints: sampleDataPoints(), timeRange: .last24Hours)
-    }
-
-    func timeline(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        let instanceManager = InstanceManager.shared
-        let settingsManager = SettingsManager()
-
-        guard let selectedInstanceEntity = configuration.instance,
-              let instanceID = UUID(uuidString: selectedInstanceEntity.id),
-              let instanceToFetch = instanceManager.instances.first(where: { $0.id == instanceID })
-        else {
-            let entry = SimpleEntry(date: .now, chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.notConnected")
-            return Timeline(entries: [entry], policy: .atEnd)
-        }
-
-        guard let selectedSystemEntity = configuration.system else {
-            let entry = SimpleEntry(date: .now, chartType: defaultChartType, dataPoints: [], timeRange: .last24Hours, errorMessage: "widget.notConnected")
-            return Timeline(entries: [entry], policy: .atEnd)
-        }
         
-        let apiService = BeszelAPIService(instance: instanceToFetch, instanceManager: instanceManager)
+        let sampleStats = SystemStatsDetail(
+            cpu: 45.0,
+            memoryPercent: 60.0,
+            memoryUsed: 4 * 1024 * 1024 * 1024,
+            diskUsed: 50 * 1024 * 1024 * 1024,
+            diskPercent: 75.0,
+            networkSent: 1024 * 1024,
+            networkReceived: 5 * 1024 * 1024,
+            bandwidth: nil,
+            diskRead: nil,
+            diskWrite: nil,
+            diskIO: nil,
+            temperatures: [:],
+            load: [1.5, 1.2, 1.0]
+        )
+        
+        let sampleInfo = SystemInfo(h: "server", k: "Linux", c: 4, t: 8, m: "Intel Core i7", os: 1, b: 0, u: 3600*24*3)
+        
+        return SimpleEntry(
+            date: Date(),
+            chartType: chartType,
+            dataPoints: sampleDataPoints(),
+            systemInfo: sampleInfo,
+            latestStats: sampleStats,
+            systemName: "My Server",
+            status: "up",
+            timeRange: .last24Hours
+        )
+    }
+    
+    func timeline(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> Timeline<SimpleEntry> {
+        let settingsManager = SettingsManager()
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
         
-        do {
-            let timeFilter = settingsManager.apiFilterString ?? "1=1"
-            let systemFilter = "system = '\(selectedSystemEntity.id)'"
-            let finalFilter = "(\(systemFilter) && \(timeFilter))"
-
-            let records = try await apiService.fetchSystemStats(filter: finalFilter)
-            let dataPoints = DataProcessor.transformSystem(records: records)
+        await MainActor.run { InstanceManager.shared.reloadFromStore() }
+        
+        guard let instanceEntity = configuration.instance,
+              let instanceID = UUID(uuidString: instanceEntity.id),
+              let instance = await MainActor.run(body: { InstanceManager.shared.instances.first(where: { $0.id == instanceID }) }),
+              let systemEntity = configuration.system else {
             
-            let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: dataPoints, timeRange: settingsManager.selectedTimeRange)
+            let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: [], systemInfo: nil, latestStats: nil, systemName: "Unknown", status: nil, timeRange: .last24Hours, errorMessage: "widget.notConnected")
+            return Timeline(entries: [entry], policy: .atEnd)
+        }
+        
+        let apiService = await MainActor.run { BeszelAPIService(instance: instance, instanceManager: InstanceManager.shared) }
+        
+        do {
+            let timeRange = await MainActor.run { settingsManager.selectedTimeRange }
+            let filter = await MainActor.run { "(\(settingsManager.selectedTimeRange.apiFilterString) && system = '\(systemEntity.id)')" }
+            
+            async let statsTask = apiService.fetchSystemStats(filter: filter)
+            async let systemsTask: [SystemRecord] = (chartType == .systemInfo) ? apiService.fetchSystems() : []
+            
+            let records = try await statsTask
+            let systems = try await systemsTask
+            
+            let dataPoints = records.asDataPoints()
+            
+            var fetchedInfo: SystemInfo? = nil
+            var latestStats: SystemStatsDetail? = nil
+            var status: String? = nil
+            
+            if chartType == .systemInfo {
+                if let lastRecord = records.max(by: { $0.created < $1.created }) {
+                    latestStats = lastRecord.stats
+                }
+                
+                if let foundSystem = systems.first(where: { $0.id == systemEntity.id }) {
+                    fetchedInfo = foundSystem.info
+                    status = foundSystem.status
+                }
+            }
+            
+            let entry = SimpleEntry(
+                date: .now,
+                chartType: chartType,
+                dataPoints: dataPoints,
+                systemInfo: fetchedInfo,
+                latestStats: latestStats,
+                systemName: systemEntity.name,
+                status: status,
+                timeRange: timeRange
+            )
+            
             let nextUpdate = Date().addingTimeInterval(15 * 60)
             return Timeline(entries: [entry], policy: .after(nextUpdate))
+            
         } catch {
-            let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: [], timeRange: settingsManager.selectedTimeRange, errorMessage: "widget.loadingError")
-            let nextUpdate = Date().addingTimeInterval(15 * 60)
-            return Timeline(entries: [entry], policy: .after(nextUpdate))
+            let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: [], systemInfo: nil, latestStats: nil, systemName: systemEntity.name, status: nil, timeRange: .last24Hours, errorMessage: "widget.loadingError")
+            return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60)))
         }
     }
     
     private func sampleDataPoints() -> [SystemDataPoint] {
-        var points: [SystemDataPoint] = []
-        for i in 0..<10 {
-            let date = Date().addingTimeInterval(TimeInterval(i * 3600))
-            points.append(SystemDataPoint(date: date, cpu: Double.random(in: 20...80), memoryPercent: Double.random(in: 30...60), temperatures: []))
+        (0..<10).map { i in
+            SystemDataPoint(
+                date: Date().addingTimeInterval(TimeInterval(i * 3600)),
+                cpu: Double.random(in: 20...80),
+                memoryPercent: Double.random(in: 30...60),
+                temperatures: [],
+                bandwidth: nil,
+                diskIO: nil,
+                loadAverage: nil
+            )
         }
-        return points
     }
 }
 
+@main
 struct BeszelWidget: Widget {
     let kind: String = "BeszelWidget"
-
+    
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: SelectInstanceAndChartIntent.self, provider: Provider()) { entry in
             BeszelWidgetEntryView(entry: entry)

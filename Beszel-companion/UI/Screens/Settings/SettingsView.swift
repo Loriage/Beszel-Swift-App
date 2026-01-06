@@ -11,7 +11,61 @@ struct SettingsView: View {
     
     @State private var isShowingClearPinsAlert = false
     @State private var isAddingInstance = false
-    
+
+    private var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
+        return "\(version) (\(build))"
+    }
+
+    private var bugReportTemplate: String {
+        """
+        ## Bug Description
+        <!-- Describe the bug clearly and concisely -->
+
+
+        ## Steps to Reproduce
+        1.
+        2.
+        3.
+
+        ## Expected Behavior
+        <!-- What did you expect to happen? -->
+
+
+        ## Actual Behavior
+        <!-- What actually happened? -->
+
+
+        ## Screenshots
+        <!-- If applicable, add screenshots to help explain the issue -->
+
+
+        ## Device Information
+        - App Version: \(appVersion)
+        - iOS Version: \(UIDevice.current.systemVersion)
+        - Device: \(UIDevice.current.model)
+        """
+    }
+
+    private var bugReportGitHubURL: URL {
+        var components = URLComponents(string: "https://github.com/Loriage/Beszel-Swift-App/issues/new")
+        components?.queryItems = [
+            URLQueryItem(name: "title", value: "[Bug] "),
+            URLQueryItem(name: "body", value: bugReportTemplate)
+        ]
+        return components?.url ?? URL(string: "https://github.com/Loriage/Beszel-Swift-App/issues")!
+    }
+
+    private var bugReportEmailURL: URL {
+        var components = URLComponents(string: "mailto:contact@nohit.dev")
+        components?.queryItems = [
+            URLQueryItem(name: "subject", value: "[Bug Report] Beszel Companion"),
+            URLQueryItem(name: "body", value: bugReportTemplate)
+        ]
+        return components?.url ?? URL(string: "mailto:contact@nohit.dev")!
+    }
+
     var body: some View {
         @Bindable var bindableLanguageManager = languageManager
         @Bindable var bindableSettingsManager = settingsManager
@@ -69,6 +123,28 @@ struct SettingsView: View {
                         isShowingClearPinsAlert = true
                     }
                     .disabled(!dashboardManager.hasPinsForActiveInstance())
+                }
+
+                Section(header: Text("settings.support")) {
+                    Link(destination: bugReportGitHubURL) {
+                        HStack {
+                            Image(systemName: "ant")
+                            Text("settings.support.reportBug.github")
+                            Spacer()
+                            Image(systemName: "arrow.up.forward.app")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+                    Link(destination: bugReportEmailURL) {
+                        HStack {
+                            Image(systemName: "envelope")
+                            Text("settings.support.reportBug.email")
+                            Spacer()
+                            Image(systemName: "arrow.up.forward.app")
+                                .foregroundColor(.secondary)
+                        }
+                    }
                 }
             }
             .navigationTitle("settings.title")

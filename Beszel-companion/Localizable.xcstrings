@@ -98,7 +98,20 @@
       }
     },
     "Bandwidth" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bandwidth"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bande passante"
+          }
+        }
+      }
     },
     "Bandwidth (MB/s)" : {
       "localizations" : {
@@ -215,10 +228,36 @@
       }
     },
     "chart.extraFilesystems" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extra Filesystems"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systèmes de fichiers supplémentaires"
+          }
+        }
+      }
     },
     "chart.gpuUsage" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU Usage"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation GPU"
+          }
+        }
+      }
     },
     "chart.memoryUsage" : {
       "localizations" : {
@@ -237,7 +276,20 @@
       }
     },
     "chart.networkInterfaces" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network Interfaces"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interfaces réseau"
+          }
+        }
+      }
     },
     "chart.noDataForMetric %@" : {
       "localizations" : {
@@ -256,13 +308,52 @@
       }
     },
     "chart.swap.total" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total"
+          }
+        }
+      }
     },
     "chart.swap.used" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Used"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisé"
+          }
+        }
+      }
     },
     "chart.swapUsage" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swap Usage"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation Swap"
+          }
+        }
+      }
     },
     "chart.temperatures" : {
       "localizations" : {
@@ -721,7 +812,20 @@
       }
     },
     "Filesystem" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filesystem"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Système de fichiers"
+          }
+        }
+      }
     },
     "filter.byMetric" : {
       "extractionState" : "manual",
@@ -775,7 +879,20 @@
       }
     },
     "GPU" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU"
+          }
+        }
+      }
     },
     "home.empty.message" : {
       "localizations" : {
@@ -858,7 +975,20 @@
       }
     },
     "Interface" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interface"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interface"
+          }
+        }
+      }
     },
     "Load" : {
       "localizations" : {
@@ -1312,10 +1442,36 @@
       }
     },
     "pinned.item.system.extrafilesystems" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extra Filesystems"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systèmes de fichiers supplémentaires"
+          }
+        }
+      }
     },
     "pinned.item.system.gpu" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System GPU"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU Système"
+          }
+        }
+      }
     },
     "pinned.item.system.info" : {
       "localizations" : {
@@ -1366,10 +1522,36 @@
       }
     },
     "pinned.item.system.networkinterfaces" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Network Interfaces"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interfaces réseau Système"
+          }
+        }
+      }
     },
     "pinned.item.system.swap" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Swap"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swap Système"
+          }
+        }
+      }
     },
     "pinned.item.system.temperature" : {
       "localizations" : {
@@ -1591,6 +1773,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hubs"
+          }
+        }
+      }
+    },
+    "settings.support" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assistance"
+          }
+        }
+      }
+    },
+    "settings.support.reportBug.email" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report by Email"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signaler par email"
+          }
+        }
+      }
+    },
+    "settings.support.reportBug.github" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report on GitHub"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signaler sur GitHub"
           }
         }
       }
@@ -1934,10 +2164,36 @@
       }
     },
     "Total" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total"
+          }
+        }
+      }
     },
     "Type" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type"
+          }
+        }
+      }
     },
     "UP" : {
       "localizations" : {
@@ -1988,10 +2244,36 @@
       }
     },
     "Usage" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usage"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation"
+          }
+        }
+      }
     },
     "Used" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Used"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisé"
+          }
+        }
+      }
     },
     "Value" : {
       "localizations" : {

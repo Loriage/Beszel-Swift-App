@@ -231,10 +231,15 @@ class WebAuthSessionContextProvider: NSObject, ASWebAuthenticationPresentationCo
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         let scenes = UIApplication.shared.connectedScenes
         let windowScene = scenes.first as? UIWindowScene
-        guard let window = windowScene?.windows.first(where: { $0.isKeyWindow }) else {
-            fatalError("No key window available")
+        
+        if let keyWindow = windowScene?.windows.first(where: { $0.isKeyWindow }) {
+            return keyWindow
         }
-        return window
+        if let anyWindow = windowScene?.windows.first {
+            return anyWindow
+        }
+        
+        return UIWindow()
     }
 }
 

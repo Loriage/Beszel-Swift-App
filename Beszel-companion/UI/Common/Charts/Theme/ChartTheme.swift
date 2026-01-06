@@ -5,6 +5,9 @@ func generateColors(for domainCount: Int) -> [Color] {
     if domainCount == 0 {
         return []
     }
+    if domainCount == 1 {
+        return [Color(hue: 0.6, saturation: 0.8, brightness: 0.95)]
+    }
     return (0..<domainCount).map { i in
         let progress = Double(i) / Double(domainCount - 1)
         let hue = 0.8 * (1.0 - progress)

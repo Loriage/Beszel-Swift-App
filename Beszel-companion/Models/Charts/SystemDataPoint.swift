@@ -12,7 +12,6 @@ struct SystemDataPoint: Identifiable, Sendable {
     let diskIO: (read: Double, write: Double)?
     let loadAverage: (l1: Double, l5: Double, l15: Double)?
 
-    // New fields for additional charts
     let swap: (used: Double, total: Double)?
     let gpuMetrics: [GPUMetricPoint]
     let networkInterfaces: [NetworkInterfacePoint]

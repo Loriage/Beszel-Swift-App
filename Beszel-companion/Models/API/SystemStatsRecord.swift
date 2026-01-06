@@ -8,34 +8,158 @@ nonisolated struct SystemStatsRecord: Identifiable, Codable, Sendable {
 }
 
 nonisolated struct SystemStatsDetail: Codable, Sendable {
+    // CPU
     let cpu: Double
-    let memoryPercent: Double
-    let memoryUsed: Double
-    let diskUsed: Double
-    let diskPercent: Double
-    let networkSent: Double
-    let networkReceived: Double
-    let bandwidth: [Double]?
-    let diskRead: Double?
-    let diskWrite: Double?
-    let diskIO: [Double]?
+    let cpuPeak: Double?              // peak cpu
+    let cpuBreakdown: [Double]?       // [user, system, iowait, steal, idle]
+    let cpuPerCore: [Double]?         // per-core cpu usage
+
+    // Load average
+    let l1: Double?                   // load average 1 min
+    let l5: Double?                   // load average 5 min
+    let l15: Double?                  // load average 15 min
+    let load: [Double]?               // load average array [1, 5, 15]
+
+    // Memory
+    let memoryTotal: Double?          // total memory (gb)
+    let memoryUsed: Double            // memory used (gb)
+    let memoryPercent: Double         // memory percent
+    let memoryBuffer: Double?         // memory buffer + cache (gb)
+    let memoryMax: Double?            // max used memory (gb)
+    let memoryZfs: Double?            // zfs arc memory (gb)
+
+    // Swap
+    let swapTotal: Double?            // swap space (gb)
+    let swapUsed: Double?             // swap used (gb)
+
+    // Disk
+    let diskTotal: Double?            // disk size (gb)
+    let diskUsed: Double              // disk used (gb)
+    let diskPercent: Double           // disk percent
+    let diskRead: Double?             // disk read (mb)
+    let diskWrite: Double?            // disk write (mb)
+    let diskReadMax: Double?          // max disk read (mb)
+    let diskWriteMax: Double?         // max disk write (mb)
+    let diskIO: [Double]?             // disk I/O bytes [read, write]
+    let diskIOMax: [Double]?          // max disk I/O bytes [read, write]
+
+    // Network
+    let networkSent: Double           // network sent (mb)
+    let networkReceived: Double       // network received (mb)
+    let bandwidth: [Double]?          // bandwidth bytes [sent, recv]
+    let networkSentMax: Double?       // max network sent (mb)
+    let networkReceivedMax: Double?   // max network received (mb)
+    let bandwidthMax: [Double]?       // max bandwidth bytes [sent, recv]
+    let networkInterfaces: [String: [Double]]?  // interface stats [sent, recv, sentMax, recvMax]
+
+    // Temperatures
     let temperatures: [String: Double]?
-    let load: [Double]?
-    
+
+    // Extra filesystems
+    let extraFilesystems: [String: ExtraFsStats]?
+
+    // GPU
+    let gpu: [String: GPUData]?
+
+    // Battery
+    let battery: [Double]?            // [percent, state]
+
     enum CodingKeys: String, CodingKey {
         case cpu
-        case memoryPercent = "mp"
+        case cpuPeak = "cpum"
+        case cpuBreakdown = "cpub"
+        case cpuPerCore = "cpus"
+        case l1, l5, l15
+        case load = "la"
+        case memoryTotal = "m"
         case memoryUsed = "mu"
+        case memoryPercent = "mp"
+        case memoryBuffer = "mb"
+        case memoryMax = "mm"
+        case memoryZfs = "mz"
+        case swapTotal = "s"
+        case swapUsed = "su"
+        case diskTotal = "d"
         case diskUsed = "du"
         case diskPercent = "dp"
+        case diskRead = "dr"
+        case diskWrite = "dw"
+        case diskReadMax = "drm"
+        case diskWriteMax = "dwm"
+        case diskIO = "dio"
+        case diskIOMax = "diom"
         case networkSent = "ns"
         case networkReceived = "nr"
         case bandwidth = "b"
-        case diskRead = "dr"
-        case diskWrite = "dw"
-        case diskIO = "dio"
+        case networkSentMax = "nsm"
+        case networkReceivedMax = "nrm"
+        case bandwidthMax = "bm"
+        case networkInterfaces = "ni"
         case temperatures = "t"
-        case load = "la"
+        case extraFilesystems = "efs"
+        case gpu = "g"
+        case battery = "bat"
+    }
+}
+
+nonisolated struct ExtraFsStats: Codable, Sendable {
+    let d: Double?    // disk size (gb)
+    let du: Double?   // disk used (gb)
+    let dp: Double?   // disk percent
+    let dr: Double?   // disk read (mb)
+    let dw: Double?   // disk write (mb)
+}
+
+nonisolated struct GPUData: Codable, Sendable {
+    let n: String?           // name
+    let mu: Double?          // memory used
+    let m: Double?           // memory total
+    let u: Double?           // usage percent
+    let p: Double?           // power watts
+    let t: Double?           // temperature
+    let e: [String: Double]? // engine utilization
+}
+
+extension SystemStatsDetail {
+    static func sample() -> SystemStatsDetail {
+        SystemStatsDetail(
+            cpu: 45.0,
+            cpuPeak: nil,
+            cpuBreakdown: nil,
+            cpuPerCore: nil,
+            l1: 1.5,
+            l5: 1.2,
+            l15: 1.0,
+            load: [1.5, 1.2, 1.0],
+            memoryTotal: 16.0,
+            memoryUsed: 4.0,
+            memoryPercent: 60.0,
+            memoryBuffer: nil,
+            memoryMax: nil,
+            memoryZfs: nil,
+            swapTotal: nil,
+            swapUsed: nil,
+            diskTotal: 500.0,
+            diskUsed: 50.0,
+            diskPercent: 75.0,
+            diskRead: nil,
+            diskWrite: nil,
+            diskReadMax: nil,
+            diskWriteMax: nil,
+            diskIO: nil,
+            diskIOMax: nil,
+            networkSent: 1024,
+            networkReceived: 5120,
+            bandwidth: nil,
+            networkSentMax: nil,
+            networkReceivedMax: nil,
+            bandwidthMax: nil,
+            networkInterfaces: nil,
+            temperatures: [:],
+            extraFilesystems: nil,
+            gpu: nil,
+            battery: nil
+        )
     }
 }
 

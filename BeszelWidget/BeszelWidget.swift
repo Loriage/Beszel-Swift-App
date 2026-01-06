@@ -31,31 +31,13 @@ struct Provider: AppIntentTimelineProvider {
     
     func snapshot(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> SimpleEntry {
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
-        
-        let sampleStats = SystemStatsDetail(
-            cpu: 45.0,
-            memoryPercent: 60.0,
-            memoryUsed: 4 * 1024 * 1024 * 1024,
-            diskUsed: 50 * 1024 * 1024 * 1024,
-            diskPercent: 75.0,
-            networkSent: 1024 * 1024,
-            networkReceived: 5 * 1024 * 1024,
-            bandwidth: nil,
-            diskRead: nil,
-            diskWrite: nil,
-            diskIO: nil,
-            temperatures: [:],
-            load: [1.5, 1.2, 1.0]
-        )
-        
-        let sampleInfo = SystemInfo(h: "server", k: "Linux", c: 4, t: 8, m: "Intel Core i7", os: 1, b: 0, u: 3600*24*3)
-        
+
         return SimpleEntry(
             date: Date(),
             chartType: chartType,
             dataPoints: sampleDataPoints(),
-            systemInfo: sampleInfo,
-            latestStats: sampleStats,
+            systemInfo: .sample(),
+            latestStats: .sample(),
             systemName: "My Server",
             status: "up",
             timeRange: .last24Hours
@@ -63,25 +45,34 @@ struct Provider: AppIntentTimelineProvider {
     }
     
     func timeline(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        let settingsManager = SettingsManager()
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
-        
-        await MainActor.run { InstanceManager.shared.reloadFromStore() }
-        
-        guard let instanceEntity = configuration.instance,
-              let instanceID = UUID(uuidString: instanceEntity.id),
-              let instance = await MainActor.run(body: { InstanceManager.shared.instances.first(where: { $0.id == instanceID }) }),
-              let systemEntity = configuration.system else {
-            
+
+        let (instance, systemEntity, timeRange, filter, apiService) = await MainActor.run { () -> (Instance?, SystemEntity?, TimeRangeOption, String, BeszelAPIService?) in
+            let settingsManager = SettingsManager()
+            InstanceManager.shared.reloadFromStore()
+
+            guard let instanceEntity = configuration.instance,
+                  let instanceID = UUID(uuidString: instanceEntity.id),
+                  let foundInstance = InstanceManager.shared.instances.first(where: { $0.id == instanceID }),
+                  let sysEntity = configuration.system else {
+                return (nil, nil, .last24Hours, "", nil)
+            }
+
+            let range = settingsManager.selectedTimeRange
+            let filterString = "(\(settingsManager.selectedTimeRange.apiFilterString) && system = '\(sysEntity.id)')"
+            let service = BeszelAPIService(instance: foundInstance, instanceManager: InstanceManager.shared)
+
+            return (foundInstance, sysEntity, range, filterString, service)
+        }
+
+        guard let _ = instance,
+              let systemEntity = systemEntity,
+              let apiService = apiService else {
             let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: [], systemInfo: nil, latestStats: nil, systemName: "Unknown", status: nil, timeRange: .last24Hours, errorMessage: "widget.notConnected")
             return Timeline(entries: [entry], policy: .atEnd)
         }
-        
-        let apiService = await MainActor.run { BeszelAPIService(instance: instance, instanceManager: InstanceManager.shared) }
-        
+
         do {
-            let timeRange = await MainActor.run { settingsManager.selectedTimeRange }
-            let filter = await MainActor.run { "(\(settingsManager.selectedTimeRange.apiFilterString) && system = '\(systemEntity.id)')" }
             
             async let statsTask = apiService.fetchSystemStats(filter: filter)
             async let systemsTask: [SystemRecord] = (chartType == .systemInfo) ? apiService.fetchSystems() : []

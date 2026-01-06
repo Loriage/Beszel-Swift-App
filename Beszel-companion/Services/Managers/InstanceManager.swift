@@ -70,11 +70,11 @@ final class InstanceManager {
     }
     
     func fetchSystemsForInstance(_ instance: Instance) {
-        Task {
+        Task { @MainActor in
             self.isLoadingSystems = true
-            
+
             let apiService = BeszelAPIService(instance: instance, instanceManager: self)
-            
+
             do {
                 let fetchedSystems = try await apiService.fetchSystems()
                 self.systems = fetchedSystems.sorted(by: { $0.name < $1.name })

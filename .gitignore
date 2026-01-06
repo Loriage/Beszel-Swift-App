@@ -93,3 +93,4 @@ iOSInjectionProject/
 IceCubesApp.xcconfig
 *.resolved
 buildServer.json
+*.md

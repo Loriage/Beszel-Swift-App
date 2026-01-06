@@ -31,7 +31,7 @@ actor BeszelAPIService {
         return decoder
     }()
     
-    private lazy var session: URLSession = {
+    private let session: URLSession = {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 15
         config.timeoutIntervalForResource = 30

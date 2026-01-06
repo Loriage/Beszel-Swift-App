@@ -83,24 +83,23 @@ public struct SystemQuery: EntityQuery {
     }
     
     private func allSystemsForSelectedInstance() async -> [SystemEntity] {
-        let (instance, instanceIDString) = await MainActor.run {
+        let apiService = await MainActor.run { () -> BeszelAPIService? in
             let manager = InstanceManager.shared
             let idString = UserDefaults(suiteName: "group.com.nohitdev.Beszel")?.string(forKey: "activeInstanceID")
-            let foundInstance = manager.instances.first(where: { $0.id.uuidString == idString })
-            return (foundInstance, idString)
+
+            guard let activeIDString = idString,
+                  let _ = UUID(uuidString: activeIDString),
+                  let foundInstance = manager.instances.first(where: { $0.id.uuidString == idString }) else {
+                return nil
+            }
+
+            return BeszelAPIService(instance: foundInstance, instanceManager: manager)
         }
-        
-        guard let activeInstanceIDString = instanceIDString,
-              let _ = UUID(uuidString: activeInstanceIDString),
-              let instance = instance
-        else {
+
+        guard let apiService = apiService else {
             return []
         }
-        
-        let apiService = await MainActor.run {
-            return BeszelAPIService(instance: instance, instanceManager: InstanceManager.shared)
-        }
-        
+
         do {
             let systems = try await apiService.fetchSystems()
             return systems.map { SystemEntity(id: $0.id, name: $0.name) }

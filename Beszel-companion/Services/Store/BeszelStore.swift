@@ -15,7 +15,7 @@ final class BeszelStore {
     var containerData: [ProcessedContainerData] = [] {
         didSet {
             self.sortedContainerData = containerData.sorted { $0.name < $1.name }
-            Task { @MainActor in self.calculateStackedData() }
+            self.calculateStackedData()
         }
     }
     var sortedContainerData: [ProcessedContainerData] = []
@@ -91,40 +91,42 @@ final class BeszelStore {
             }
         }
         
+        let apiService = self.apiService
+
         do {
             let (finalSystemData, finalContainerData, finalLatestStats) = try await withThrowingTaskGroup(
                 of: (String, [SystemDataPoint], [ProcessedContainerData], SystemStatsRecord?).self,
                 returning: ([String: [SystemDataPoint]], [String: [ProcessedContainerData]], [String: SystemStatsRecord]).self
             ) { group in
-                
+
                 for system in systemsToFetch {
                     group.addTask {
                         let systemFilter = "system = '\(system.id)'"
                         let filters: [String] = [systemFilter, timeFilter]
                         let finalFilter = "(\(filters.joined(separator: " && ")))"
-                        
-                        async let containerRecords = self.apiService.fetchMonitors(filter: finalFilter)
-                        async let systemRecords = self.apiService.fetchSystemStats(filter: finalFilter)
-                        
+
+                        async let containerRecords = apiService.fetchMonitors(filter: finalFilter)
+                        async let systemRecords = apiService.fetchSystemStats(filter: finalFilter)
+
                         let fetchedContainers = try await containerRecords
                         let fetchedSystem = try await systemRecords
-                        
+
                         let transformedSystem = fetchedSystem.asDataPoints()
                         let rawContainers = fetchedContainers.asProcessedData()
-                        
+
                         let latestRecord = fetchedSystem.max(by: { $0.created < $1.created })
-                        
+
                         var processedContainers: [ProcessedContainerData] = []
                         for container in rawContainers {
                             var c = container
                             c.statPoints = await BeszelStore.downsampleStatPoints(container.statPoints, timeRange: currentTimeRange)
                             processedContainers.append(c)
                         }
-                        
+
                         return (system.id, transformedSystem, processedContainers, latestRecord)
                     }
                 }
-                
+
                 return try await group.reduce(into: ([:], [:], [:])) { (partialResult, taskResult) in
                     let (systemId, sysData, processedContainers, latestRec) = taskResult
                     partialResult.0[systemId] = sysData

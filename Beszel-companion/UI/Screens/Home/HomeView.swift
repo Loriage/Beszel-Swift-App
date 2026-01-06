@@ -216,6 +216,34 @@ struct HomeView: View {
                 isPinned: store.isPinned(.systemLoadAverage, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemLoadAverage, onSystem: resolvedItem.systemID) }
             )
+        case .systemSwap:
+            SystemSwapChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                isPinned: store.isPinned(.systemSwap, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemSwap, onSystem: resolvedItem.systemID) }
+            )
+        case .systemGPU:
+            SystemGPUChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                isPinned: store.isPinned(.systemGPU, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemGPU, onSystem: resolvedItem.systemID) }
+            )
+        case .systemNetworkInterfaces:
+            SystemNetworkInterfacesChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                isPinned: store.isPinned(.systemNetworkInterfaces, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemNetworkInterfaces, onSystem: resolvedItem.systemID) }
+            )
+        case .systemExtraFilesystems:
+            SystemExtraFilesystemsChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                isPinned: store.isPinned(.systemExtraFilesystems, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemExtraFilesystems, onSystem: resolvedItem.systemID) }
+            )
         case .containerCPU(let name):
             if let container = containerData.first(where: { $0.id == name }) {
                 ContainerMetricChartView(

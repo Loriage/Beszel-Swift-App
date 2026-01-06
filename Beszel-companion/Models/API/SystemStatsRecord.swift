@@ -204,10 +204,54 @@ extension Array where Element == SystemStatsRecord {
             let loadTuple: (l1: Double, l5: Double, l15: Double)?
             if let la = stats.load, la.count >= 3 {
                 loadTuple = (l1: la[0], l5: la[1], l15: la[2])
+            } else if let l1 = stats.l1, let l5 = stats.l5, let l15 = stats.l15 {
+                loadTuple = (l1: l1, l5: l5, l15: l15)
             } else {
                 loadTuple = nil
             }
-            
+
+            // Swap usage
+            let swapTuple: (used: Double, total: Double)?
+            if let swapUsed = stats.swapUsed, let swapTotal = stats.swapTotal, swapTotal > 0 {
+                swapTuple = (used: swapUsed, total: swapTotal)
+            } else {
+                swapTuple = nil
+            }
+
+            // GPU metrics
+            let gpuMetrics: [GPUMetricPoint] = (stats.gpu ?? [:]).compactMap { (name, data) in
+                guard let usage = data.u else { return nil }
+                return GPUMetricPoint(
+                    name: data.n ?? name,
+                    usage: usage,
+                    memoryUsed: data.mu,
+                    memoryTotal: data.m,
+                    power: data.p,
+                    temperature: data.t
+                )
+            }
+
+            // Network interfaces
+            let networkInterfaces: [NetworkInterfacePoint] = (stats.networkInterfaces ?? [:]).compactMap { (name, values) in
+                guard values.count >= 2 else { return nil }
+                return NetworkInterfacePoint(
+                    name: name,
+                    sent: values[0],
+                    received: values[1]
+                )
+            }
+
+            // Extra filesystems
+            let extraFilesystems: [ExtraFilesystemPoint] = (stats.extraFilesystems ?? [:]).compactMap { (name, data) in
+                guard let used = data.du, let total = data.d, let percent = data.dp else { return nil }
+                return ExtraFilesystemPoint(
+                    name: name,
+                    used: used,
+                    total: total,
+                    percent: percent
+                )
+            }
+
             return SystemDataPoint(
                 date: record.created,
                 cpu: record.stats.cpu,
@@ -215,7 +259,11 @@ extension Array where Element == SystemStatsRecord {
                 temperatures: tempsArray,
                 bandwidth: bandwidthTuple,
                 diskIO: diskIOTuple,
-                loadAverage: loadTuple
+                loadAverage: loadTuple,
+                swap: swapTuple,
+                gpuMetrics: gpuMetrics,
+                networkInterfaces: networkInterfaces,
+                extraFilesystems: extraFilesystems
             )
         }.sorted(by: { $0.date < $1.date })
     }

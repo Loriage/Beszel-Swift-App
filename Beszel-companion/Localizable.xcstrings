@@ -97,6 +97,9 @@
         }
       }
     },
+    "Bandwidth" : {
+
+    },
     "Bandwidth (MB/s)" : {
       "localizations" : {
         "en" : {
@@ -211,6 +214,12 @@
         }
       }
     },
+    "chart.extraFilesystems" : {
+
+    },
+    "chart.gpuUsage" : {
+
+    },
     "chart.memoryUsage" : {
       "localizations" : {
         "en" : {
@@ -227,6 +236,9 @@
         }
       }
     },
+    "chart.networkInterfaces" : {
+
+    },
     "chart.noDataForMetric %@" : {
       "localizations" : {
         "en" : {
@@ -242,6 +254,15 @@
           }
         }
       }
+    },
+    "chart.swap.total" : {
+
+    },
+    "chart.swap.used" : {
+
+    },
+    "chart.swapUsage" : {
+
     },
     "chart.temperatures" : {
       "localizations" : {
@@ -699,6 +720,9 @@
         }
       }
     },
+    "Filesystem" : {
+
+    },
     "filter.byMetric" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -749,6 +773,9 @@
           }
         }
       }
+    },
+    "GPU" : {
+
     },
     "home.empty.message" : {
       "localizations" : {
@@ -829,6 +856,9 @@
           }
         }
       }
+    },
+    "Interface" : {
+
     },
     "Load" : {
       "localizations" : {
@@ -1281,6 +1311,12 @@
         }
       }
     },
+    "pinned.item.system.extrafilesystems" : {
+
+    },
+    "pinned.item.system.gpu" : {
+
+    },
     "pinned.item.system.info" : {
       "localizations" : {
         "en" : {
@@ -1328,6 +1364,12 @@
           }
         }
       }
+    },
+    "pinned.item.system.networkinterfaces" : {
+
+    },
+    "pinned.item.system.swap" : {
+
     },
     "pinned.item.system.temperature" : {
       "localizations" : {
@@ -1891,6 +1933,12 @@
         }
       }
     },
+    "Total" : {
+
+    },
+    "Type" : {
+
+    },
     "UP" : {
       "localizations" : {
         "en" : {
@@ -1938,6 +1986,12 @@
           }
         }
       }
+    },
+    "Usage" : {
+
+    },
+    "Used" : {
+
     },
     "Value" : {
       "localizations" : {

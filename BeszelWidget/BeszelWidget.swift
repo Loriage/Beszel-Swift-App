@@ -126,7 +126,11 @@ struct Provider: AppIntentTimelineProvider {
                 temperatures: [],
                 bandwidth: nil,
                 diskIO: nil,
-                loadAverage: nil
+                loadAverage: nil,
+                swap: nil,
+                gpuMetrics: [],
+                networkInterfaces: [],
+                extraFilesystems: []
             )
         }
     }

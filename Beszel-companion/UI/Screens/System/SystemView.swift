@@ -71,6 +71,38 @@ struct SystemView: View {
                             onPinToggle: { store.togglePin(for: .systemTemperature) }
                         )
                     }
+                    if store.hasSwapData {
+                        SystemSwapChartView(
+                            dataPoints: store.systemDataPoints,
+                            xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.systemSwap),
+                            onPinToggle: { store.togglePin(for: .systemSwap) }
+                        )
+                    }
+                    if store.hasGPUData {
+                        SystemGPUChartView(
+                            dataPoints: store.systemDataPoints,
+                            xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.systemGPU),
+                            onPinToggle: { store.togglePin(for: .systemGPU) }
+                        )
+                    }
+                    if store.hasNetworkInterfacesData {
+                        SystemNetworkInterfacesChartView(
+                            dataPoints: store.systemDataPoints,
+                            xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.systemNetworkInterfaces),
+                            onPinToggle: { store.togglePin(for: .systemNetworkInterfaces) }
+                        )
+                    }
+                    if store.hasExtraFilesystemsData {
+                        SystemExtraFilesystemsChartView(
+                            dataPoints: store.systemDataPoints,
+                            xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.systemExtraFilesystems),
+                            onPinToggle: { store.togglePin(for: .systemExtraFilesystems) }
+                        )
+                    }
                 }
                 .padding(.horizontal)
                 .opacity(store.systemDataPoints.isEmpty ? 0 : 1)

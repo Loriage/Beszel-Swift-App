@@ -52,7 +52,23 @@ final class BeszelStore {
     var hasTemperatureData: Bool {
         systemDataPoints.contains { !$0.temperatures.isEmpty }
     }
-    
+
+    var hasSwapData: Bool {
+        systemDataPoints.contains { $0.swap != nil }
+    }
+
+    var hasGPUData: Bool {
+        systemDataPoints.contains { !$0.gpuMetrics.isEmpty }
+    }
+
+    var hasNetworkInterfacesData: Bool {
+        systemDataPoints.contains { !$0.networkInterfaces.isEmpty }
+    }
+
+    var hasExtraFilesystemsData: Bool {
+        systemDataPoints.contains { !$0.extraFilesystems.isEmpty }
+    }
+
     func updateDataForActiveSystem() {
         guard let activeSystemID = instanceManager.activeSystem?.id else {
             self.systemDataPoints = []

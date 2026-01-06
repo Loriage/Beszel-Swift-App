@@ -8,11 +8,15 @@ enum PinnedItem: Codable, Hashable, Identifiable {
     case systemDiskIO
     case systemBandwidth
     case systemLoadAverage
+    case systemSwap
+    case systemGPU
+    case systemNetworkInterfaces
+    case systemExtraFilesystems
     case containerCPU(name: String)
     case containerMemory(name: String)
     case stackedContainerCPU
     case stackedContainerMemory
-    
+
     var id: String {
         switch self {
         case .systemInfo: return "system_info"
@@ -22,6 +26,10 @@ enum PinnedItem: Codable, Hashable, Identifiable {
         case .systemDiskIO: return "system_disk_io"
         case .systemBandwidth: return "system_bandwidth"
         case .systemLoadAverage: return "system_loadaverage"
+        case .systemSwap: return "system_swap"
+        case .systemGPU: return "system_gpu"
+        case .systemNetworkInterfaces: return "system_network_interfaces"
+        case .systemExtraFilesystems: return "system_extra_filesystems"
         case .containerCPU(let name): return "container_cpu_\(name)"
         case .containerMemory(let name): return "container_memory_\(name)"
         case .stackedContainerCPU: return "stacked_container_cpu"
@@ -45,6 +53,14 @@ enum PinnedItem: Codable, Hashable, Identifiable {
             return NSLocalizedString("pinned.item.system.bandwidth", bundle: bundle, comment: "")
         case .systemLoadAverage:
             return NSLocalizedString("pinned.item.system.loadaverage", bundle: bundle, comment: "")
+        case .systemSwap:
+            return NSLocalizedString("pinned.item.system.swap", bundle: bundle, comment: "")
+        case .systemGPU:
+            return NSLocalizedString("pinned.item.system.gpu", bundle: bundle, comment: "")
+        case .systemNetworkInterfaces:
+            return NSLocalizedString("pinned.item.system.networkinterfaces", bundle: bundle, comment: "")
+        case .systemExtraFilesystems:
+            return NSLocalizedString("pinned.item.system.extrafilesystems", bundle: bundle, comment: "")
         case .containerCPU(let name):
             let format = NSLocalizedString("pinned.item.container.cpu", bundle: bundle, comment: "")
             return String(format: format, name)
@@ -67,6 +83,10 @@ enum PinnedItem: Codable, Hashable, Identifiable {
         case .systemDiskIO: return "Disk I/O"
         case .systemBandwidth: return "Bandwidth"
         case .systemLoadAverage: return "Load Average"
+        case .systemSwap: return "Swap"
+        case .systemGPU: return "GPU"
+        case .systemNetworkInterfaces: return "Network Interfaces"
+        case .systemExtraFilesystems: return "Extra Filesystems"
         }
     }
     

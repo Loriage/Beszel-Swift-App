@@ -19,12 +19,23 @@ struct HomeView: View {
         let displayName: String
         let metricName: String
         let serviceName: String
+
+        var isSystemInfo: Bool {
+            resolvedItem.item == .systemInfo
+        }
     }
-    
+
+    /// Returns comparison result for systemInfo priority (systemInfo items always come first)
+    private func compareSystemInfoPriority(_ lhs: SortablePin, _ rhs: SortablePin) -> ComparisonResult? {
+        if lhs.isSystemInfo && !rhs.isSystemInfo { return .orderedAscending }
+        if !lhs.isSystemInfo && rhs.isSystemInfo { return .orderedDescending }
+        return nil
+    }
+
     private var filteredAndSortedPins: [ResolvedPinnedItem] {
         let bundle = languageManager.currentBundle
         let pins = dashboardManager.allPinsForActiveInstance
-        
+
         let filteredPins: [ResolvedPinnedItem]
         if searchText.isEmpty {
             filteredPins = pins
@@ -36,11 +47,11 @@ struct HomeView: View {
                 itemName.localizedCaseInsensitiveContains(searchText)
             }
         }
-        
+
         let sortableItems = filteredPins.map { pin -> SortablePin in
             let sysName = store.systemName(forSystemID: pin.systemID) ?? ""
             let dispName = pin.item.localizedDisplayName(for: bundle)
-            
+
             return SortablePin(
                 resolvedItem: pin,
                 systemName: sysName,
@@ -49,14 +60,14 @@ struct HomeView: View {
                 serviceName: pin.item.serviceName
             )
         }
-        
+
         let sortedItems: [SortablePin]
         switch sortOption {
         case .bySystem:
             sortedItems = sortableItems.sorted { (lhs, rhs) in
-                if lhs.resolvedItem.item == .systemInfo && rhs.resolvedItem.item != .systemInfo { return true }
-                if lhs.resolvedItem.item != .systemInfo && rhs.resolvedItem.item == .systemInfo { return false }
-                
+                if let priority = compareSystemInfoPriority(lhs, rhs) {
+                    return priority == .orderedAscending
+                }
                 if lhs.systemName != rhs.systemName {
                     return lhs.systemName < rhs.systemName
                 }
@@ -64,8 +75,9 @@ struct HomeView: View {
             }
         case .byMetric:
             sortedItems = sortableItems.sorted { (lhs, rhs) in
-                if lhs.resolvedItem.item == .systemInfo && rhs.resolvedItem.item != .systemInfo { return true }
-                if lhs.resolvedItem.item != .systemInfo && rhs.resolvedItem.item == .systemInfo { return false }
+                if let priority = compareSystemInfoPriority(lhs, rhs) {
+                    return priority == .orderedAscending
+                }
                 if lhs.metricName != rhs.metricName {
                     return lhs.metricName < rhs.metricName
                 }
@@ -73,15 +85,16 @@ struct HomeView: View {
             }
         case .byService:
             sortedItems = sortableItems.sorted { (lhs, rhs) in
-                if lhs.resolvedItem.item == .systemInfo && rhs.resolvedItem.item != .systemInfo { return true }
-                if lhs.resolvedItem.item != .systemInfo && rhs.resolvedItem.item == .systemInfo { return false }
+                if let priority = compareSystemInfoPriority(lhs, rhs) {
+                    return priority == .orderedAscending
+                }
                 if lhs.serviceName != rhs.serviceName {
                     return lhs.serviceName < rhs.serviceName
                 }
                 return lhs.displayName < rhs.displayName
             }
         }
-        
+
         let result = sortedItems.map { $0.resolvedItem }
         return sortDescending ? result.reversed() : result
     }

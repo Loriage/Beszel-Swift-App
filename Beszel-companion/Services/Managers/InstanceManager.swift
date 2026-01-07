@@ -1,6 +1,9 @@
 import Foundation
 import SwiftUI
 import Observation
+import os
+
+private let logger = Logger(subsystem: "com.nohitdev.Beszel", category: "InstanceManager")
 
 @Observable
 @MainActor
@@ -82,7 +85,7 @@ final class InstanceManager {
                 self.isLoadingSystems = false
                 DashboardManager.shared.refreshPins()
             } catch {
-                print("Error fetching systems: \(error)")
+                logger.error("Error fetching systems: \(error.localizedDescription)")
                 self.systems = []
                 self.activeSystem = nil
                 self.isLoadingSystems = false

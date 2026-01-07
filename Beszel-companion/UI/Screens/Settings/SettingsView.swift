@@ -48,13 +48,16 @@ struct SettingsView: View {
         """
     }
 
+    private static let fallbackGitHubURL = URL(string: "https://github.com/Loriage/Beszel-Swift-App/issues")!
+    private static let fallbackEmailURL = URL(string: "mailto:contact@nohit.dev")!
+
     private var bugReportGitHubURL: URL {
         var components = URLComponents(string: "https://github.com/Loriage/Beszel-Swift-App/issues/new")
         components?.queryItems = [
             URLQueryItem(name: "title", value: "[Bug] "),
             URLQueryItem(name: "body", value: bugReportTemplate)
         ]
-        return components?.url ?? URL(string: "https://github.com/Loriage/Beszel-Swift-App/issues")!
+        return components?.url ?? Self.fallbackGitHubURL
     }
 
     private var bugReportEmailURL: URL {
@@ -63,7 +66,7 @@ struct SettingsView: View {
             URLQueryItem(name: "subject", value: "[Bug Report] Beszel Companion"),
             URLQueryItem(name: "body", value: bugReportTemplate)
         ]
-        return components?.url ?? URL(string: "mailto:contact@nohit.dev")!
+        return components?.url ?? Self.fallbackEmailURL
     }
 
     var body: some View {

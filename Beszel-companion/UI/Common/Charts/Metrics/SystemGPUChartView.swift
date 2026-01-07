@@ -90,5 +90,14 @@ struct SystemGPUChartView: View {
         .chartLegend(.hidden)
         .padding(.top, 5)
         .drawingGroup()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("chart.gpuUsage"))
+        .accessibilityValue(accessibilityDescription)
+    }
+
+    private var accessibilityDescription: String {
+        guard let latest = dataPoints.last, !latest.gpuMetrics.isEmpty else { return "" }
+        let descriptions = latest.gpuMetrics.map { "\($0.name): \(String(format: "%.0f", $0.usage))%" }
+        return descriptions.joined(separator: ", ")
     }
 }

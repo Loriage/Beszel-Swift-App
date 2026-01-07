@@ -42,9 +42,7 @@ struct DetailedCpuChartView: View {
         var dict: [String: Double] = [:]
         for point in pointsForDate {
             let value = (point.yEnd - point.yStart) / scale
-            if dict[point.name] != nil {
-                print("Debug: Duplicate key '\(point.name)' found, keeping first value")
-            } else {
+            if dict[point.name] == nil {
                 dict[point.name] = value
             }
         }

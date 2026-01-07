@@ -62,6 +62,14 @@ struct SystemLoadChartView: View {
             .padding(.top, 5)
             .frame(height: 200)
             .drawingGroup()
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("Load Average"))
+            .accessibilityValue(accessibilityDescription)
         }
+    }
+
+    private var accessibilityDescription: String {
+        guard let latest = dataPoints.last?.loadAverage else { return "" }
+        return String(format: "1 min: %.2f, 5 min: %.2f, 15 min: %.2f", latest.l1, latest.l5, latest.l15)
     }
 }

@@ -62,16 +62,20 @@ struct SystemMetricChartView: View {
         }
     }
 
+    private var latestValue: Double? {
+        dataPoints.last?[keyPath: valueKeyPath]
+    }
+
     private var chartContent: some View {
         Chart(dataPoints) { point in
             let value = point[keyPath: valueKeyPath]
-            
+
             LineMark(
                 x: .value("Date", point.date),
                 y: .value("Value", value)
             )
             .foregroundStyle(color)
-            
+
             AreaMark(
                 x: .value("Date", point.date),
                 y: .value("Value", value)
@@ -85,6 +89,9 @@ struct SystemMetricChartView: View {
         }
         .padding(.top, 5)
         .drawingGroup()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(title))
+        .accessibilityValue(latestValue.map { String(format: "%.1f%%", $0) } ?? "")
     }
     
     struct PlainGroupBoxStyle: GroupBoxStyle {

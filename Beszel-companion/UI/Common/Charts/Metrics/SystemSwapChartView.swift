@@ -73,6 +73,14 @@ struct SystemSwapChartView: View {
             .padding(.top, 5)
             .frame(height: 200)
             .drawingGroup()
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("chart.swapUsage"))
+            .accessibilityValue(accessibilityDescription)
         }
+    }
+
+    private var accessibilityDescription: String {
+        guard let latest = dataPoints.last?.swap else { return "" }
+        return String(format: "Used: %.1f GB of %.1f GB", latest.used, latest.total)
     }
 }

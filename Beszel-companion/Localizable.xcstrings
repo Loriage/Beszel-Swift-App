@@ -97,6 +97,86 @@
         }
       }
     },
+    "accessibility.loadIndicator" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Load average indicator"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indicateur de charge moyenne"
+          }
+        }
+      }
+    },
+    "accessibility.loadStatus.critical" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Critical"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Critique"
+          }
+        }
+      }
+    },
+    "accessibility.loadStatus.high" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "High"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Élevée"
+          }
+        }
+      }
+    },
+    "accessibility.loadStatus.normal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normal"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normal"
+          }
+        }
+      }
+    },
+    "accessibility.loadStatus.unknown" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inconnu"
+          }
+        }
+      }
+    },
     "Bandwidth" : {
       "localizations" : {
         "en" : {
@@ -435,6 +515,54 @@
         }
       }
     },
+    "common.error" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erreur"
+          }
+        }
+      }
+    },
+    "common.error.authRetry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authentication failed. Retrying..."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authentification échouée. Nouvelle tentative..."
+          }
+        }
+      }
+    },
+    "common.error.fetchFailed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to fetch data"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de récupérer les données"
+          }
+        }
+      }
+    },
     "common.error.unknown" : {
       "localizations" : {
         "en" : {
@@ -447,6 +575,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Erreur inconnue"
+          }
+        }
+      }
+    },
+    "common.noData" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Data"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune donnée"
           }
         }
       }
@@ -796,6 +940,7 @@
       }
     },
     "Error" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1072,6 +1217,7 @@
       }
     },
     "No Data" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

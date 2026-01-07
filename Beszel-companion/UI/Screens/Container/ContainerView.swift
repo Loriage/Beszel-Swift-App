@@ -74,13 +74,13 @@ struct ContainerView: View {
                 ProgressView()
             } else if let errorMessage = store.errorMessage, store.containerData.isEmpty {
                 ContentUnavailableView {
-                    Label("Error", systemImage: "exclamationmark.triangle")
+                    Label("common.error", systemImage: "exclamationmark.triangle")
                 } description: {
                     Text(errorMessage)
                 }
             } else if store.containerData.isEmpty {
                 ContentUnavailableView(
-                    "No Data",
+                    "common.noData",
                     systemImage: "chart.bar.xaxis",
                     description: Text("widget.noData")
                 )

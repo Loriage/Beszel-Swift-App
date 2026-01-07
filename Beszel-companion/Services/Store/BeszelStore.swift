@@ -1,6 +1,9 @@
 import Foundation
 import SwiftUI
 import Observation
+import os
+
+private let logger = Logger(subsystem: "com.nohitdev.Beszel", category: "BeszelStore")
 
 @Observable
 @MainActor
@@ -172,23 +175,39 @@ final class BeszelStore {
     
     func refreshLatestStatsOnly() async {
         guard let activeSystemID = instanceManager.activeSystem?.id else { return }
-        
+
         do {
             if let latest = try await apiService.fetchLatestSystemStats(systemID: activeSystemID) {
                 self.latestStatsBySystem[activeSystemID] = latest
                 self.latestSystemStats = latest
             }
         } catch {
-            print("Erreur polling system stats: \(error)")
+            logger.error("Error polling system stats: \(error.localizedDescription)")
         }
     }
-    
+
+    private var authRetryCount = 0
+    private let maxAuthRetries = 2
+
     private func handleError(_ error: Error) {
         if let urlError = error as? URLError, urlError.code == .userAuthenticationRequired {
-            instanceManager.deleteInstance(self.instance)
+            authRetryCount += 1
+            if authRetryCount >= maxAuthRetries {
+                logger.warning("Authentication failed after \(self.maxAuthRetries) retries. Removing instance.")
+                instanceManager.deleteInstance(self.instance)
+                authRetryCount = 0
+            } else {
+                logger.info("Authentication failed, will retry on next fetch (attempt \(self.authRetryCount)/\(self.maxAuthRetries))")
+                self.errorMessage = String(localized: "common.error.authRetry")
+            }
         } else {
-            self.errorMessage = "Impossible de récupérer les données: \(error.localizedDescription)"
+            logger.error("Failed to fetch data: \(error.localizedDescription)")
+            self.errorMessage = String(localized: "common.error.fetchFailed") + ": \(error.localizedDescription)"
         }
+    }
+
+    func resetAuthRetryCount() {
+        authRetryCount = 0
     }
     
     func isPinned(_ item: PinnedItem, onSystem systemID: String) -> Bool {

@@ -1,6 +1,6 @@
 import Foundation
 
-enum DownsampleMethod {
+enum DownsampleMethod: Sendable {
     case average
     case max
     case median

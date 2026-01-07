@@ -1,6 +1,6 @@
 import Foundation
 
-enum PinnedItem: Codable, Hashable, Identifiable {
+enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
     case systemInfo
     case systemCPU
     case systemMemory
@@ -104,7 +104,7 @@ enum PinnedItem: Codable, Hashable, Identifiable {
     }
 }
 
-struct ResolvedPinnedItem: Identifiable, Hashable {
+struct ResolvedPinnedItem: Identifiable, Hashable, Sendable {
     let item: PinnedItem
     let systemID: String
 

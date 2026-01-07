@@ -1,6 +1,9 @@
 import WidgetKit
 import AppIntents
 import SwiftUI
+import os
+
+private let logger = Logger(subsystem: "com.nohitdev.Beszel.widget", category: "AppIntent")
 
 public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
     public static var title: LocalizedStringResource = "widget.configuration.title"
@@ -104,7 +107,7 @@ public struct SystemQuery: EntityQuery {
             let systems = try await apiService.fetchSystems()
             return systems.map { SystemEntity(id: $0.id, name: $0.name) }
         } catch {
-            print("Failed to fetch systems for widget: \(error)")
+            logger.error("Failed to fetch systems for widget: \(error.localizedDescription)")
             return []
         }
     }

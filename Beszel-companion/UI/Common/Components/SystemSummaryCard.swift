@@ -53,6 +53,8 @@ struct SystemSummaryCard: View {
                             Circle()
                                 .fill(colorForLoad(oneMinLoad))
                                 .frame(width: 8, height: 8)
+                                .accessibilityLabel(Text("accessibility.loadIndicator"))
+                                .accessibilityValue(Text(loadStatusDescription(oneMinLoad)))
                             Text(load.map { String(format: "%.2f", $0) }.joined(separator: " "))
                                 .font(.caption)
                                 .monospacedDigit()
@@ -127,7 +129,7 @@ struct SystemSummaryCard: View {
     }
     private func colorForLoad(_ val: Double) -> Color {
         guard let cores = systemInfo?.c, cores > 0 else { return .primary }
-        
+
         let limit = Double(cores)
 
         if val >= limit * 1.5 {
@@ -136,6 +138,20 @@ struct SystemSummaryCard: View {
             return .orange
         } else {
             return .green
+        }
+    }
+
+    private func loadStatusDescription(_ val: Double) -> String {
+        guard let cores = systemInfo?.c, cores > 0 else {
+            return String(localized: "accessibility.loadStatus.unknown")
+        }
+        let limit = Double(cores)
+        if val >= limit * 1.5 {
+            return String(localized: "accessibility.loadStatus.critical")
+        } else if val >= limit {
+            return String(localized: "accessibility.loadStatus.high")
+        } else {
+            return String(localized: "accessibility.loadStatus.normal")
         }
     }
 }

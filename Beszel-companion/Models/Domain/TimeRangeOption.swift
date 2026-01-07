@@ -1,6 +1,6 @@
 import Foundation
 
-enum TimeRangeOption: String, CaseIterable, Identifiable {
+enum TimeRangeOption: String, CaseIterable, Identifiable, Sendable {
     case lastHour = "timeRange.lastHour"
     case last12Hours = "timeRange.last12Hours"
     case last24Hours = "timeRange.last24Hours"

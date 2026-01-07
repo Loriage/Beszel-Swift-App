@@ -60,6 +60,15 @@ struct ContainerMetricChartView: View {
                 }
             }
             .frame(height: 200)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("\(LocalizedStringResource(stringLiteral: titleKey)) \(containerName)"))
+            .accessibilityValue(accessibilityDescription)
         }
+    }
+
+    private var accessibilityDescription: String {
+        guard let latest = container.statPoints.last else { return "" }
+        let value = latest[keyPath: valueKeyPath]
+        return String(format: "%.1f", value)
     }
 }

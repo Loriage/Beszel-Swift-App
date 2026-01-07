@@ -3,8 +3,6 @@ import AppIntents
 import SwiftUI
 import os
 
-private let logger = Logger(subsystem: "com.nohitdev.Beszel.widget", category: "AppIntent")
-
 public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
     public static var title: LocalizedStringResource = "widget.configuration.title"
     public static var description: IntentDescription = "widget.configuration.description"
@@ -74,6 +72,8 @@ public struct SystemEntity: AppEntity {
 }
 
 public struct SystemQuery: EntityQuery {
+    private static let logger = Logger(subsystem: "com.nohitdev.Beszel.widget", category: "SystemQuery")
+
     public init() {}
     
     public func entities(for identifiers: [String]) async throws -> [SystemEntity] {
@@ -107,7 +107,7 @@ public struct SystemQuery: EntityQuery {
             let systems = try await apiService.fetchSystems()
             return systems.map { SystemEntity(id: $0.id, name: $0.name) }
         } catch {
-            logger.error("Failed to fetch systems for widget: \(error.localizedDescription)")
+            Self.logger.error("Failed to fetch systems for widget: \(error.localizedDescription)")
             return []
         }
     }

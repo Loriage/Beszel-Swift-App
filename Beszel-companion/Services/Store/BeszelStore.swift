@@ -130,7 +130,8 @@ final class BeszelStore {
                         let fetchedContainers = try await containerRecords
                         let fetchedSystem = try await systemRecords
 
-                        let transformedSystem = fetchedSystem.asDataPoints()
+                        let rawSystemData = fetchedSystem.asDataPoints()
+                        let transformedSystem = BeszelStore.downsampleSystemDataPoints(rawSystemData, timeRange: currentTimeRange)
                         let rawContainers = fetchedContainers.asProcessedData()
 
                         let latestRecord = fetchedSystem.max(by: { $0.created < $1.created })
@@ -245,17 +246,17 @@ final class BeszelStore {
     nonisolated private static func downsampleStatPoints(_ statPoints: [StatPoint], timeRange: TimeRangeOption) async -> [StatPoint] {
         guard !statPoints.isEmpty else { return [] }
         if statPoints.count < 150 { return statPoints }
-        
+
         let targetCount: Int
         switch timeRange {
         case .lastHour: targetCount = 120
         default: targetCount = 100
         }
-        
+
         let minDate = statPoints.first?.date ?? Date()
         let maxDate = statPoints.last?.date ?? Date()
         let totalDuration = maxDate.timeIntervalSince(minDate)
-        
+
         let minInterval: TimeInterval
         switch timeRange {
         case .lastHour, .last12Hours: minInterval = 30
@@ -263,10 +264,38 @@ final class BeszelStore {
         case .last7Days: minInterval = 300
         case .last30Days: minInterval = 900
         }
-        
+
         let calculatedInterval = max(minInterval, totalDuration / Double(max(1, targetCount)))
-        
+
         return statPoints.downsampled(bucketInterval: calculatedInterval, method: .average)
+    }
+
+    nonisolated private static func downsampleSystemDataPoints(_ dataPoints: [SystemDataPoint], timeRange: TimeRangeOption) -> [SystemDataPoint] {
+        guard !dataPoints.isEmpty else { return [] }
+        if dataPoints.count < 150 { return dataPoints }
+
+        let sortedPoints = dataPoints.sorted { $0.date < $1.date }
+        let minDate = sortedPoints.first?.date ?? Date()
+        let maxDate = sortedPoints.last?.date ?? Date()
+        let totalDuration = maxDate.timeIntervalSince(minDate)
+
+        let targetCount: Int
+        switch timeRange {
+        case .lastHour: targetCount = 120
+        default: targetCount = 100
+        }
+
+        let minInterval: TimeInterval
+        switch timeRange {
+        case .lastHour, .last12Hours: minInterval = 30
+        case .last24Hours: minInterval = 60
+        case .last7Days: minInterval = 300
+        case .last30Days: minInterval = 900
+        }
+
+        let calculatedInterval = max(minInterval, totalDuration / Double(max(1, targetCount)))
+
+        return sortedPoints.downsampled(bucketInterval: calculatedInterval)
     }
     
     private func calculateStackedData() {

@@ -190,15 +190,28 @@ actor BeszelAPIService {
     }
     
     func fetchMonitors(filter: String?) async throws -> [ContainerStatsRecord] {
-        let url = try buildURL(for: "/api/collections/container_stats/records", filter: filter)
-        let response: PocketBaseListResponse<ContainerStatsRecord> = try await performRequest(with: url)
-        return response.items
+        try await fetchAllPages(path: "/api/collections/container_stats/records", filter: filter)
     }
-    
+
     func fetchSystemStats(filter: String?) async throws -> [SystemStatsRecord] {
-        let url = try buildURL(for: "/api/collections/system_stats/records", filter: filter)
-        let response: PocketBaseListResponse<SystemStatsRecord> = try await performRequest(with: url)
-        return response.items
+        try await fetchAllPages(path: "/api/collections/system_stats/records", filter: filter)
+    }
+
+    private func fetchAllPages<T: Codable & Sendable>(path: String, filter: String?) async throws -> [T] {
+        var allItems: [T] = []
+        var currentPage = 1
+        var totalPages = 1
+
+        repeat {
+            let url = try buildURL(for: path, filter: filter, page: currentPage)
+            let response: PocketBaseListResponse<T> = try await performRequest(with: url)
+
+            allItems.append(contentsOf: response.items)
+            totalPages = response.totalPages
+            currentPage += 1
+        } while currentPage <= totalPages
+
+        return allItems
     }
     
     func fetchLatestSystemStats(systemID: String) async throws -> SystemStatsRecord? {
@@ -215,25 +228,26 @@ actor BeszelAPIService {
         return response.items.first
     }
     
-    private func buildURL(for path: String, filter: String?) throws -> URL {
+    private func buildURL(for path: String, filter: String?, page: Int = 1) throws -> URL {
         guard var components = URLComponents(string: baseURL) else {
             throw URLError(.badURL)
         }
-        
+
         components.path = path
-        
+
         components.queryItems = [
-            URLQueryItem(name: "perPage", value: "500")
+            URLQueryItem(name: "perPage", value: "500"),
+            URLQueryItem(name: "page", value: String(page))
         ]
-        
+
         if let filter = filter {
             components.queryItems?.append(URLQueryItem(name: "filter", value: filter))
         }
-        
+
         guard let url = components.url else {
             throw URLError(.badURL)
         }
-        
+
         return url
     }
 }

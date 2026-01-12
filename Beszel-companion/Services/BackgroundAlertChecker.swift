@@ -68,6 +68,9 @@ final class BackgroundAlertChecker {
             AlertManager.shared.sendLocalNotification(for: alert, systemName: systemName)
         }
 
+        // Clear cached API service to free memory after background task
+        AlertManager.shared.clearCachedApiService()
+
         logger.info("Background check completed, found \(newAlerts.count) new alerts")
         task.setTaskCompleted(success: true)
     }

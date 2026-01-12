@@ -65,6 +65,12 @@ final class AlertManager {
         return service
     }
 
+    /// Clears the cached API service to free memory (useful after background tasks)
+    func clearCachedApiService() {
+        cachedApiService = nil
+        cachedInstanceId = nil
+    }
+
     init() {
         let store = UserDefaults(suiteName: Self.appGroupIdentifier) ?? .standard
 
@@ -101,6 +107,14 @@ final class AlertManager {
 
             self.alertHistory = fetchedHistory.sorted { $0.created > $1.created }
 
+            // Keep history at reasonable size
+            if alertHistory.count > 200 {
+                alertHistory = Array(alertHistory.prefix(200))
+            }
+
+            // Prune seen IDs to prevent unbounded growth
+            pruneSeenAlertIDs()
+
             updateUnreadCount()
 
             logger.info("Fetched \(fetchedAlerts.count) alerts and \(fetchedHistory.count) history records")
@@ -136,6 +150,14 @@ final class AlertManager {
                 let newUniqueAlerts = unseenAlerts.filter { !existingIDs.contains($0.id) }
                 alertHistory.insert(contentsOf: newUniqueAlerts, at: 0)
                 alertHistory.sort { $0.created > $1.created }
+
+                // Keep history at reasonable size to prevent memory growth
+                if alertHistory.count > 200 {
+                    alertHistory = Array(alertHistory.prefix(200))
+                }
+
+                // Prune seen IDs to prevent unbounded growth
+                pruneSeenAlertIDs()
 
                 updateUnreadCount()
             }
@@ -213,6 +235,9 @@ final class AlertManager {
                     alertHistory = Array(alertHistory.prefix(200))
                 }
 
+                // Prune seen IDs to prevent unbounded growth
+                pruneSeenAlertIDs()
+
                 updateUnreadCount()
             }
         } catch {
@@ -238,5 +263,19 @@ final class AlertManager {
 
     private func updateUnreadCount() {
         unreadAlertCount = alertHistory.filter { !seenAlertHistoryIDs.contains($0.id) }.count
+    }
+
+    /// Prunes seenAlertHistoryIDs to only keep IDs that are in current alertHistory
+    /// This prevents unbounded memory growth from storing IDs forever
+    private func pruneSeenAlertIDs() {
+        let currentHistoryIDs = Set(alertHistory.map { $0.id })
+        let prunedIDs = seenAlertHistoryIDs.intersection(currentHistoryIDs)
+
+        // Only update if we actually removed something (to avoid unnecessary UserDefaults writes)
+        if prunedIDs.count < seenAlertHistoryIDs.count {
+            let oldCount = seenAlertHistoryIDs.count
+            seenAlertHistoryIDs = prunedIDs
+            logger.debug("Pruned seen alert IDs from \(oldCount) to \(prunedIDs.count)")
+        }
     }
 }

@@ -53,20 +53,12 @@ struct SystemNetworkInterfacesChartView: View {
     private var chartBody: some View {
         Chart(dataPoints) { point in
             ForEach(point.networkInterfaces) { iface in
-                // Show total bandwidth (sent + received) per interface
                 let total = iface.sent + iface.received
                 LineMark(
                     x: .value("Date", point.date),
                     y: .value("Bandwidth", total)
                 )
                 .foregroundStyle(by: .value("Interface", iface.name))
-
-                AreaMark(
-                    x: .value("Date", point.date),
-                    y: .value("Bandwidth", total)
-                )
-                .foregroundStyle(by: .value("Interface", iface.name))
-                .opacity(0.2)
             }
         }
         .chartForegroundStyleScale { name in

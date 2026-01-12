@@ -96,10 +96,19 @@ final class BeszelStore {
         
         if systemsToFetch.isEmpty {
             do {
-                let fetchedSystems = try await apiService.fetchSystems()
+                // Fetch systems and system details in parallel
+                async let systemsTask = apiService.fetchSystems()
+                async let detailsTask = apiService.fetchSystemDetails()
+
+                let fetchedSystems = try await systemsTask
+                let fetchedDetails = try await detailsTask
+
                 instanceManager.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
+                instanceManager.systemDetails = Dictionary(
+                    uniqueKeysWithValues: fetchedDetails.map { ($0.system, $0) }
+                )
                 systemsToFetch = instanceManager.systems
-                
+
                 if systemsToFetch.isEmpty {
                     updateDataForActiveSystem()
                     return
@@ -174,16 +183,45 @@ final class BeszelStore {
         }
     }
     
+    /// Lightweight refresh: updates systems list (for status changes) and latest stats for active system
     func refreshLatestStatsOnly() async {
-        guard let activeSystemID = instanceManager.activeSystem?.id else { return }
+        let apiService = self.apiService
 
         do {
-            if let latest = try await apiService.fetchLatestSystemStats(systemID: activeSystemID) {
-                self.latestStatsBySystem[activeSystemID] = latest
-                self.latestSystemStats = latest
+            // Refresh systems list to catch status changes (up/down/paused)
+            async let systemsTask = apiService.fetchSystems()
+            async let detailsTask = apiService.fetchSystemDetails()
+
+            let fetchedSystems = try await systemsTask
+            let fetchedDetails = try await detailsTask
+
+            instanceManager.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
+            instanceManager.systemDetails = Dictionary(
+                uniqueKeysWithValues: fetchedDetails.map { ($0.system, $0) }
+            )
+
+            // Refresh latest stats for the active system
+            if let activeSystemID = instanceManager.activeSystem?.id {
+                if let latest = try await apiService.fetchLatestSystemStats(systemID: activeSystemID) {
+                    self.latestStatsBySystem[activeSystemID] = latest
+                    self.latestSystemStats = latest
+                }
             }
+
+            // Reset auth retry count on success
+            self.authRetryCount = 0
         } catch {
-            logger.error("Error polling system stats: \(error.localizedDescription)")
+            // Use same error handling as fetchData for consistency
+            if let urlError = error as? URLError, urlError.code == .userAuthenticationRequired {
+                authRetryCount += 1
+                if authRetryCount >= maxAuthRetries {
+                    logger.warning("Authentication failed during refresh. Removing instance.")
+                    instanceManager.deleteInstance(self.instance)
+                    authRetryCount = 0
+                }
+            } else {
+                logger.error("Error during quick refresh: \(error.localizedDescription)")
+            }
         }
     }
 

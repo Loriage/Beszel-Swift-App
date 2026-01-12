@@ -5,6 +5,7 @@ struct RootView: View {
     let settingsManager: SettingsManager
     let dashboardManager: DashboardManager
     let instanceManager: InstanceManager
+    let alertManager: AlertManager
     
     var body: some View {
         Group {
@@ -21,7 +22,8 @@ struct RootView: View {
                         instanceManager: instanceManager,
                         settingsManager: settingsManager,
                         dashboardManager: dashboardManager,
-                        languageManager: languageManager
+                        languageManager: languageManager,
+                        alertManager: alertManager
                     )
                     .id("\(activeInstance.id.uuidString)-\(languageManager.currentLanguageCode)")
                 }

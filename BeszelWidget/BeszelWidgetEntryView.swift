@@ -32,6 +32,7 @@ struct BeszelWidgetEntryView : View {
             if let stats = entry.latestStats {
                 WidgetSystemSummaryView(
                     systemInfo: entry.systemInfo,
+                    systemDetails: entry.systemDetails,
                     stats: stats,
                     systemName: entry.systemName,
                     status: entry.status

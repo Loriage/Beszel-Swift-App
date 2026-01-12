@@ -15,6 +15,7 @@ struct SystemView: View {
                 
                 if let latestStats = store.latestSystemStats, let system = instanceManager.activeSystem {
                     SystemSummaryCard(
+                        system: system,
                         systemInfo: system.info,
                         stats: latestStats.stats,
                         systemName: system.name,

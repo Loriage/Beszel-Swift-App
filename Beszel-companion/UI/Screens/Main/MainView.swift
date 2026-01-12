@@ -2,15 +2,16 @@ import SwiftUI
 
 struct MainView: View {
     @State private var store: BeszelStore?
-    
+
     @State private var isShowingSettings = false
     @State private var selectedTab: AppTab = .home
-    
+
     let instance: Instance
     let instanceManager: InstanceManager
     let settingsManager: SettingsManager
     let dashboardManager: DashboardManager
     let languageManager: LanguageManager
+    let alertManager: AlertManager
     
     var body: some View {
         Group {
@@ -48,14 +49,19 @@ struct MainView: View {
                         }
                     }
                     .task(id: settingsManager.selectedTimeRange) {
+                        // Initial full fetch when view appears or time range changes
                         await store.fetchData()
-                        
+                        await alertManager.fetchAlerts(for: instance, instanceManager: instanceManager)
+
+                        // Fast polling loop for real-time updates
                         while !Task.isCancelled {
-                            let interval = settingsManager.selectedTimeRange.refreshInterval
-                            
-                            try? await Task.sleep(for: .seconds(interval))
+                            let fastInterval = settingsManager.selectedTimeRange.fastRefreshInterval
+
+                            try? await Task.sleep(for: .seconds(fastInterval))
                             if !Task.isCancelled && !isShowingSettings {
-                                await store.fetchData()
+                                // Lightweight refresh: latest stats + alerts only
+                                await store.refreshLatestStatsOnly()
+                                await alertManager.refreshAlertsQuick(for: instance, instanceManager: instanceManager)
                             }
                         }
                     }
@@ -111,7 +117,7 @@ extension MainView {
         case home
         case system
         case container
-        
+
         var id: String { self.rawValue }
     }
 }

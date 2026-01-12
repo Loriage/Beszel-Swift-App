@@ -170,6 +170,7 @@ struct HomeView: View {
             if let system = instanceManager.systems.first(where: { $0.id == resolvedItem.systemID }),
                let stats = store.latestStats(for: resolvedItem.systemID)?.stats {
                 SystemSummaryCard(
+                    system: system,
                     systemInfo: system.info,
                     stats: stats,
                     systemName: system.name,

@@ -6,11 +6,28 @@ struct SimpleEntry: TimelineEntry {
     let chartType: WidgetChartType
     let dataPoints: [SystemDataPoint]
     let systemInfo: SystemInfo?
+    let systemDetails: SystemDetailsRecord?  // For Beszel agent 0.18.0+
     let latestStats: SystemStatsDetail?
     let systemName: String
     let status: String?
     let timeRange: TimeRangeOption
     var errorMessage: String? = nil
+
+    /// CPU model from either system_details endpoint (0.18.0+) or legacy info field
+    var cpuModel: String? {
+        if let cpu = systemDetails?.cpu {
+            return cpu
+        }
+        return systemInfo?.m
+    }
+
+    /// CPU cores from either system_details endpoint (0.18.0+) or legacy info field
+    var cpuCores: Int? {
+        if let cores = systemDetails?.cores {
+            return cores
+        }
+        return systemInfo?.c
+    }
 }
 
 struct Provider: AppIntentTimelineProvider {
@@ -22,13 +39,14 @@ struct Provider: AppIntentTimelineProvider {
             chartType: defaultChartType,
             dataPoints: [],
             systemInfo: nil,
+            systemDetails: nil,
             latestStats: nil,
             systemName: "System",
             status: nil,
             timeRange: .last24Hours
         )
     }
-    
+
     func snapshot(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> SimpleEntry {
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
 
@@ -37,6 +55,7 @@ struct Provider: AppIntentTimelineProvider {
             chartType: chartType,
             dataPoints: sampleDataPoints(),
             systemInfo: .sample(),
+            systemDetails: nil,
             latestStats: .sample(),
             systemName: "My Server",
             status: "up",
@@ -68,40 +87,47 @@ struct Provider: AppIntentTimelineProvider {
         guard let _ = instance,
               let systemEntity = systemEntity,
               let apiService = apiService else {
-            let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: [], systemInfo: nil, latestStats: nil, systemName: "Unknown", status: nil, timeRange: .last24Hours, errorMessage: "widget.notConnected")
+            let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: "Unknown", status: nil, timeRange: .last24Hours, errorMessage: "widget.notConnected")
             return Timeline(entries: [entry], policy: .atEnd)
         }
 
         do {
-            
+
             async let statsTask = apiService.fetchSystemStats(filter: filter)
             async let systemsTask: [SystemRecord] = (chartType == .systemInfo) ? apiService.fetchSystems() : []
-            
+            async let detailsTask: [SystemDetailsRecord] = (chartType == .systemInfo) ? apiService.fetchSystemDetails() : []
+
             let records = try await statsTask
             let systems = try await systemsTask
-            
+            let details = try await detailsTask
+
             let dataPoints = records.asDataPoints()
-            
+
             var fetchedInfo: SystemInfo? = nil
+            var fetchedDetails: SystemDetailsRecord? = nil
             var latestStats: SystemStatsDetail? = nil
             var status: String? = nil
-            
+
             if chartType == .systemInfo {
                 if let lastRecord = records.max(by: { $0.created < $1.created }) {
                     latestStats = lastRecord.stats
                 }
-                
+
                 if let foundSystem = systems.first(where: { $0.id == systemEntity.id }) {
                     fetchedInfo = foundSystem.info
                     status = foundSystem.status
                 }
+
+                // Get system details for 0.18.0+ agents
+                fetchedDetails = details.first(where: { $0.system == systemEntity.id })
             }
-            
+
             let entry = SimpleEntry(
                 date: .now,
                 chartType: chartType,
                 dataPoints: dataPoints,
                 systemInfo: fetchedInfo,
+                systemDetails: fetchedDetails,
                 latestStats: latestStats,
                 systemName: systemEntity.name,
                 status: status,
@@ -112,7 +138,7 @@ struct Provider: AppIntentTimelineProvider {
             return Timeline(entries: [entry], policy: .after(nextUpdate))
             
         } catch {
-            let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: [], systemInfo: nil, latestStats: nil, systemName: systemEntity.name, status: nil, timeRange: .last24Hours, errorMessage: "widget.loadingError")
+            let entry = SimpleEntry(date: .now, chartType: chartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: systemEntity.name, status: nil, timeRange: .last24Hours, errorMessage: "widget.loadingError")
             return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60)))
         }
     }

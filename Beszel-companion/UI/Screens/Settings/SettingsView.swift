@@ -6,6 +6,7 @@ struct SettingsView: View {
     @Environment(SettingsManager.self) var settingsManager
     @Environment(LanguageManager.self) var languageManager
     @Environment(InstanceManager.self) var instanceManager
+    @Environment(AlertManager.self) var alertManager
     
     @Environment(\.dismiss) var dismiss
     
@@ -121,6 +122,38 @@ struct SettingsView: View {
                     }
                 }
                 
+                Section(header: Text("settings.notifications")) {
+                    @Bindable var bindableAlertManager = alertManager
+                    Toggle("settings.notifications.enabled", isOn: $bindableAlertManager.notificationsEnabled)
+                        .onChange(of: alertManager.notificationsEnabled) { _, newValue in
+                            if newValue {
+                                BackgroundAlertChecker.shared.scheduleBackgroundTask()
+                            } else {
+                                BackgroundAlertChecker.shared.cancelScheduledTask()
+                            }
+                        }
+
+                    NavigationLink {
+                        AlertHistoryView()
+                            .environment(instanceManager)
+                            .environment(alertManager)
+                            .navigationTitle("settings.notifications.history")
+                            .navigationBarTitleDisplayMode(.inline)
+                    } label: {
+                        Label("settings.notifications.history", systemImage: "bell")
+                    }
+
+                    NavigationLink {
+                        ConfiguredAlertsView()
+                            .environment(instanceManager)
+                            .environment(alertManager)
+                            .navigationTitle("settings.notifications.configured")
+                            .navigationBarTitleDisplayMode(.inline)
+                    } label: {
+                        Label("settings.notifications.configured", systemImage: "bell.badge")
+                    }
+                }
+
                 Section(header: Text("settings.dashboard")) {
                     Button("settings.dashboard.clearPins", role: .destructive) {
                         isShowingClearPinsAlert = true

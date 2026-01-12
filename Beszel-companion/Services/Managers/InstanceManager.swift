@@ -26,6 +26,9 @@ final class InstanceManager {
     var systems: [SystemRecord] = []
     var activeSystem: SystemRecord?
     var isLoadingSystems = false
+
+    /// System details keyed by system ID (for Beszel agent 0.18.0+)
+    var systemDetails: [String: SystemDetailsRecord] = [:]
     
     var activeInstanceID: String? {
         didSet {
@@ -36,6 +39,7 @@ final class InstanceManager {
                 activeSystemID = nil
                 activeSystem = nil
                 systems = []
+                systemDetails = [:]
             }
             
             updateActiveInstance()
@@ -79,14 +83,27 @@ final class InstanceManager {
             let apiService = BeszelAPIService(instance: instance, instanceManager: self)
 
             do {
-                let fetchedSystems = try await apiService.fetchSystems()
+                // Fetch systems and system details in parallel
+                async let systemsTask = apiService.fetchSystems()
+                async let detailsTask = apiService.fetchSystemDetails()
+
+                let fetchedSystems = try await systemsTask
+                let fetchedDetails = try await detailsTask
+
                 self.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
+
+                // Store details indexed by system ID
+                self.systemDetails = Dictionary(
+                    uniqueKeysWithValues: fetchedDetails.map { ($0.system, $0) }
+                )
+
                 self.updateActiveSystem()
                 self.isLoadingSystems = false
                 DashboardManager.shared.refreshPins()
             } catch {
                 logger.error("Error fetching systems: \(error.localizedDescription)")
                 self.systems = []
+                self.systemDetails = [:]
                 self.activeSystem = nil
                 self.isLoadingSystems = false
                 DashboardManager.shared.refreshPins()
@@ -94,6 +111,68 @@ final class InstanceManager {
         }
     }
     
+    /// Returns system details for a given system ID.
+    /// For agent 0.18.0+, this comes from the system_details endpoint.
+    /// For older agents, returns nil (details are in SystemInfo).
+    func details(for systemID: String) -> SystemDetailsRecord? {
+        systemDetails[systemID]
+    }
+
+    /// Returns the CPU model for a system, checking both new details endpoint and legacy info field.
+    func cpuModel(for system: SystemRecord) -> String? {
+        // First check new details endpoint (0.18.0+)
+        if let details = systemDetails[system.id], let cpu = details.cpu {
+            return cpu
+        }
+        // Fall back to legacy info field (0.17.0 and earlier)
+        return system.info?.m
+    }
+
+    /// Returns the number of CPU cores for a system, checking both sources.
+    func cpuCores(for system: SystemRecord) -> Int? {
+        if let details = systemDetails[system.id], let cores = details.cores {
+            return cores
+        }
+        return system.info?.c
+    }
+
+    /// Returns the number of CPU threads for a system.
+    func cpuThreads(for system: SystemRecord) -> Int? {
+        if let details = systemDetails[system.id], let threads = details.threads {
+            return threads
+        }
+        return system.info?.t
+    }
+
+    /// Returns the hostname for a system.
+    func hostname(for system: SystemRecord) -> String? {
+        if let details = systemDetails[system.id], let hostname = details.hostname {
+            return hostname
+        }
+        return system.info?.h
+    }
+
+    /// Returns the kernel version for a system.
+    func kernel(for system: SystemRecord) -> String? {
+        if let details = systemDetails[system.id], let kernel = details.kernel {
+            return kernel
+        }
+        return system.info?.k
+    }
+
+    /// Returns the OS type for a system.
+    func osType(for system: SystemRecord) -> Int? {
+        if let details = systemDetails[system.id], let os = details.os {
+            return os
+        }
+        return system.info?.os
+    }
+
+    /// Returns the OS name for a system (only available in 0.18.0+).
+    func osName(for system: SystemRecord) -> String? {
+        systemDetails[system.id]?.osName
+    }
+
     func reloadFromStore() {
         if let data = userDefaultsStore.data(forKey: "instances"),
            let decoded = try? JSONDecoder().decode([Instance].self, from: data) {

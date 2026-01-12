@@ -174,10 +174,25 @@ actor BeszelAPIService {
             }
         }
         
-        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-            return try Self.jsonDecoder.decode(T.self, from: data)
+        if let httpResponse = response as? HTTPURLResponse {
+            if httpResponse.statusCode == 200 {
+                return try Self.jsonDecoder.decode(T.self, from: data)
+            } else {
+                throw BeszelAPIError.httpError(statusCode: httpResponse.statusCode, url: url.absoluteString)
+            }
         } else {
             throw URLError(.badServerResponse)
+        }
+    }
+
+    enum BeszelAPIError: LocalizedError {
+        case httpError(statusCode: Int, url: String)
+
+        var errorDescription: String? {
+            switch self {
+            case .httpError(let statusCode, let url):
+                return "HTTP \(statusCode) error for \(url)"
+            }
         }
     }
     
@@ -188,7 +203,25 @@ actor BeszelAPIService {
         let response: PocketBaseListResponse<SystemRecord> = try await performRequest(with: url)
         return response.items
     }
-    
+
+    /// Fetches system details from the new endpoint (Beszel agent 0.18.0+).
+    /// Returns empty array for servers running older agents that don't have this endpoint.
+    func fetchSystemDetails() async throws -> [SystemDetailsRecord] {
+        guard let url = URL(string: "\(baseURL)/api/collections/system_details/records") else {
+            throw URLError(.badURL)
+        }
+        do {
+            let response: PocketBaseListResponse<SystemDetailsRecord> = try await performRequest(with: url)
+            return response.items
+        } catch let error as BeszelAPIError {
+            // If the endpoint doesn't exist (404), return empty array for backward compatibility
+            if case .httpError(let statusCode, _) = error, statusCode == 404 {
+                return []
+            }
+            throw error
+        }
+    }
+
     func fetchMonitors(filter: String?) async throws -> [ContainerStatsRecord] {
         try await fetchAllPages(path: "/api/collections/container_stats/records", filter: filter)
     }
@@ -222,10 +255,41 @@ actor BeszelAPIService {
             URLQueryItem(name: "sort", value: "-created"),
             URLQueryItem(name: "filter", value: "system = '\(systemID)'")
         ]
-        
+
         guard let url = components.url else { throw URLError(.badURL) }
         let response: PocketBaseListResponse<SystemStatsRecord> = try await performRequest(with: url)
         return response.items.first
+    }
+
+    // MARK: - Alerts
+
+    func fetchAlerts(filter: String?) async throws -> [AlertRecord] {
+        try await fetchAllPages(path: "/api/collections/alerts/records", filter: filter)
+    }
+
+    func fetchAlertHistory(filter: String?) async throws -> [AlertHistoryRecord] {
+        try await fetchAllPages(path: "/api/collections/alerts_history/records", filter: filter)
+    }
+
+    func fetchAlertHistorySince(date: Date) async throws -> [AlertHistoryRecord] {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let dateString = formatter.string(from: date)
+        let filter = "created >= '\(dateString)'"
+        return try await fetchAlertHistory(filter: filter)
+    }
+
+    func fetchLatestAlertHistory(limit: Int = 50) async throws -> [AlertHistoryRecord] {
+        guard var components = URLComponents(string: baseURL) else { throw URLError(.badURL) }
+        components.path = "/api/collections/alerts_history/records"
+        components.queryItems = [
+            URLQueryItem(name: "perPage", value: String(limit)),
+            URLQueryItem(name: "sort", value: "-created")
+        ]
+
+        guard let url = components.url else { throw URLError(.badURL) }
+        let response: PocketBaseListResponse<AlertHistoryRecord> = try await performRequest(with: url)
+        return response.items
     }
     
     private func buildURL(for path: String, filter: String?, page: Int = 1) throws -> URL {

@@ -114,6 +114,6 @@ extension AlertDetail {
     }
 
     var isResolved: Bool {
-        resolved != nil && !resolved!.isEmpty
+        !(resolved ?? "").isEmpty
     }
 }

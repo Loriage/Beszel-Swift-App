@@ -26,7 +26,8 @@ final class InstanceManager {
     var systems: [SystemRecord] = []
     var activeSystem: SystemRecord?
     var isLoadingSystems = false
-
+    var loadError: Error?
+    
     /// System details keyed by system ID (for Beszel agent 0.18.0+)
     var systemDetails: [String: SystemDetailsRecord] = [:]
     
@@ -35,12 +36,10 @@ final class InstanceManager {
             guard activeInstanceID != oldValue else { return }
             userDefaultsStore.set(activeInstanceID, forKey: "activeInstanceID")
             
-            if activeInstanceID != oldValue {
-                activeSystemID = nil
-                activeSystem = nil
-                systems = []
-                systemDetails = [:]
-            }
+            activeSystemID = nil
+            activeSystem = nil
+            systems = []
+            systemDetails = [:]
             
             updateActiveInstance()
             
@@ -79,29 +78,29 @@ final class InstanceManager {
     func fetchSystemsForInstance(_ instance: Instance) {
         Task { @MainActor in
             self.isLoadingSystems = true
-
+            self.loadError = nil
+            
             let apiService = BeszelAPIService(instance: instance, instanceManager: self)
-
+            
             do {
-                // Fetch systems and system details in parallel
                 async let systemsTask = apiService.fetchSystems()
                 async let detailsTask = apiService.fetchSystemDetails()
-
+                
                 let fetchedSystems = try await systemsTask
                 let fetchedDetails = try await detailsTask
-
+                
                 self.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
-
-                // Store details indexed by system ID
+                
                 self.systemDetails = Dictionary(
                     uniqueKeysWithValues: fetchedDetails.map { ($0.system, $0) }
                 )
-
+                
                 self.updateActiveSystem()
                 self.isLoadingSystems = false
                 DashboardManager.shared.refreshPins()
             } catch {
                 logger.error("Error fetching systems: \(error.localizedDescription)")
+                self.loadError = error
                 self.systems = []
                 self.systemDetails = [:]
                 self.activeSystem = nil
@@ -117,7 +116,7 @@ final class InstanceManager {
     func details(for systemID: String) -> SystemDetailsRecord? {
         systemDetails[systemID]
     }
-
+    
     /// Returns the CPU model for a system, checking both new details endpoint and legacy info field.
     func cpuModel(for system: SystemRecord) -> String? {
         // First check new details endpoint (0.18.0+)
@@ -127,7 +126,7 @@ final class InstanceManager {
         // Fall back to legacy info field (0.17.0 and earlier)
         return system.info?.m
     }
-
+    
     /// Returns the number of CPU cores for a system, checking both sources.
     func cpuCores(for system: SystemRecord) -> Int? {
         if let details = systemDetails[system.id], let cores = details.cores {
@@ -135,7 +134,7 @@ final class InstanceManager {
         }
         return system.info?.c
     }
-
+    
     /// Returns the number of CPU threads for a system.
     func cpuThreads(for system: SystemRecord) -> Int? {
         if let details = systemDetails[system.id], let threads = details.threads {
@@ -143,7 +142,7 @@ final class InstanceManager {
         }
         return system.info?.t
     }
-
+    
     /// Returns the hostname for a system.
     func hostname(for system: SystemRecord) -> String? {
         if let details = systemDetails[system.id], let hostname = details.hostname {
@@ -151,7 +150,7 @@ final class InstanceManager {
         }
         return system.info?.h
     }
-
+    
     /// Returns the kernel version for a system.
     func kernel(for system: SystemRecord) -> String? {
         if let details = systemDetails[system.id], let kernel = details.kernel {
@@ -159,7 +158,7 @@ final class InstanceManager {
         }
         return system.info?.k
     }
-
+    
     /// Returns the OS type for a system.
     func osType(for system: SystemRecord) -> Int? {
         if let details = systemDetails[system.id], let os = details.os {
@@ -167,23 +166,25 @@ final class InstanceManager {
         }
         return system.info?.os
     }
-
+    
     /// Returns the OS name for a system (only available in 0.18.0+).
     func osName(for system: SystemRecord) -> String? {
         systemDetails[system.id]?.osName
     }
-
+    
     func reloadFromStore() {
         if let data = userDefaultsStore.data(forKey: "instances"),
            let decoded = try? JSONDecoder().decode([Instance].self, from: data) {
             self.instances = decoded
         }
     }
-
-    /// Ensures activeSystem is set based on current systems list.
-    /// Call this after updating systems externally (not through fetchSystemsForInstance).
+    
     func refreshActiveSystem() {
         updateActiveSystem()
+    }
+    
+    func clearError() {
+        loadError = nil
     }
     
     func addInstance(name: String, url: String, email: String, password: String) {
@@ -213,12 +214,13 @@ final class InstanceManager {
     }
     
     nonisolated func loadCredential(for instance: Instance) -> String? {
-        if let data = KeychainHelper.load(service: "com.nohitdev.Beszel.instances", account: instance.id.uuidString, useSharedKeychain: true),
+        let service = Constants.keychainService
+        if let data = KeychainHelper.load(service: service, account: instance.id.uuidString, useSharedKeychain: true),
            let credential = String(data: data, encoding: .utf8), !credential.isEmpty {
             return credential
         }
         
-        if let data = KeychainHelper.load(service: "com.nohitdev.Beszel.instances", account: instance.id.uuidString, useSharedKeychain: false),
+        if let data = KeychainHelper.load(service: service, account: instance.id.uuidString, useSharedKeychain: false),
            let credential = String(data: data, encoding: .utf8), !credential.isEmpty {
             return credential
         }

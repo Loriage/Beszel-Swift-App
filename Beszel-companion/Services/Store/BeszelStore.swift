@@ -55,23 +55,23 @@ final class BeszelStore {
     var hasTemperatureData: Bool {
         systemDataPoints.contains { !$0.temperatures.isEmpty }
     }
-
+    
     var hasSwapData: Bool {
         systemDataPoints.contains { $0.swap != nil }
     }
-
+    
     var hasGPUData: Bool {
         systemDataPoints.contains { !$0.gpuMetrics.isEmpty }
     }
-
+    
     var hasNetworkInterfacesData: Bool {
         systemDataPoints.contains { !$0.networkInterfaces.isEmpty }
     }
-
+    
     var hasExtraFilesystemsData: Bool {
         systemDataPoints.contains { !$0.extraFilesystems.isEmpty }
     }
-
+    
     func updateDataForActiveSystem() {
         guard let activeSystemID = instanceManager.activeSystem?.id else {
             self.systemDataPoints = []
@@ -82,6 +82,38 @@ final class BeszelStore {
         self.systemDataPoints = systemDataPointsBySystem[activeSystemID] ?? []
         self.containerData = containerDataBySystem[activeSystemID] ?? []
         self.latestSystemStats = latestStatsBySystem[activeSystemID]
+    }
+    
+    /// Removes cached data for systems that no longer exist in instanceManager.systems
+    /// Call this after fetching updated systems list to prevent unbounded memory growth
+    private func cleanupStaleSystemData() {
+        let validSystemIDs = Set(instanceManager.systems.map { $0.id })
+        
+        // Remove data for systems that no longer exist
+        for systemID in systemDataPointsBySystem.keys where !validSystemIDs.contains(systemID) {
+            systemDataPointsBySystem.removeValue(forKey: systemID)
+            logger.debug("Cleaned up stale data for system: \(systemID)")
+        }
+        for systemID in containerDataBySystem.keys where !validSystemIDs.contains(systemID) {
+            containerDataBySystem.removeValue(forKey: systemID)
+        }
+        for systemID in latestStatsBySystem.keys where !validSystemIDs.contains(systemID) {
+            latestStatsBySystem.removeValue(forKey: systemID)
+        }
+    }
+    
+    /// Clears all cached system data. Call when logging out or switching instances.
+    func clearAllCachedData() {
+        systemDataPointsBySystem.removeAll()
+        containerDataBySystem.removeAll()
+        latestStatsBySystem.removeAll()
+        systemDataPoints = []
+        containerData = []
+        latestSystemStats = nil
+        stackedCpuData = []
+        stackedMemoryData = []
+        cpuDomain = []
+        memoryDomain = []
     }
     
     func fetchData() async {
@@ -99,17 +131,18 @@ final class BeszelStore {
                 // Fetch systems and system details in parallel
                 async let systemsTask = apiService.fetchSystems()
                 async let detailsTask = apiService.fetchSystemDetails()
-
+                
                 let fetchedSystems = try await systemsTask
                 let fetchedDetails = try await detailsTask
-
+                
                 instanceManager.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
                 instanceManager.systemDetails = Dictionary(
                     uniqueKeysWithValues: fetchedDetails.map { ($0.system, $0) }
                 )
                 instanceManager.refreshActiveSystem()
+                cleanupStaleSystemData()
                 systemsToFetch = instanceManager.systems
-
+                
                 if systemsToFetch.isEmpty {
                     updateDataForActiveSystem()
                     return
@@ -121,42 +154,42 @@ final class BeszelStore {
         }
         
         let apiService = self.apiService
-
+        
         do {
             let (finalSystemData, finalContainerData, finalLatestStats) = try await withThrowingTaskGroup(
                 of: (String, [SystemDataPoint], [ProcessedContainerData], SystemStatsRecord?).self,
                 returning: ([String: [SystemDataPoint]], [String: [ProcessedContainerData]], [String: SystemStatsRecord]).self
             ) { group in
-
+                
                 for system in systemsToFetch {
                     group.addTask {
                         let systemFilter = "system = '\(system.id)'"
                         let filters: [String] = [systemFilter, timeFilter]
                         let finalFilter = "(\(filters.joined(separator: " && ")))"
-
+                        
                         async let containerRecords = apiService.fetchMonitors(filter: finalFilter)
                         async let systemRecords = apiService.fetchSystemStats(filter: finalFilter)
-
+                        
                         let fetchedContainers = try await containerRecords
                         let fetchedSystem = try await systemRecords
-
+                        
                         let rawSystemData = fetchedSystem.asDataPoints()
                         let transformedSystem = BeszelStore.downsampleSystemDataPoints(rawSystemData, timeRange: currentTimeRange)
                         let rawContainers = fetchedContainers.asProcessedData()
-
+                        
                         let latestRecord = fetchedSystem.max(by: { $0.created < $1.created })
-
+                        
                         var processedContainers: [ProcessedContainerData] = []
                         for container in rawContainers {
                             var c = container
                             c.statPoints = await BeszelStore.downsampleStatPoints(container.statPoints, timeRange: currentTimeRange)
                             processedContainers.append(c)
                         }
-
+                        
                         return (system.id, transformedSystem, processedContainers, latestRecord)
                     }
                 }
-
+                
                 return try await group.reduce(into: ([:], [:], [:])) { (partialResult, taskResult) in
                     let (systemId, sysData, processedContainers, latestRec) = taskResult
                     partialResult.0[systemId] = sysData
@@ -184,33 +217,29 @@ final class BeszelStore {
         }
     }
     
-    /// Lightweight refresh: updates systems list (for status changes) and latest stats for active system
     func refreshLatestStatsOnly() async {
         let apiService = self.apiService
-
+        
         do {
-            // Refresh systems list to catch status changes (up/down/paused)
             async let systemsTask = apiService.fetchSystems()
             async let detailsTask = apiService.fetchSystemDetails()
-
+            
             let fetchedSystems = try await systemsTask
             let fetchedDetails = try await detailsTask
-
+            
             instanceManager.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
             instanceManager.systemDetails = Dictionary(
                 uniqueKeysWithValues: fetchedDetails.map { ($0.system, $0) }
             )
             instanceManager.refreshActiveSystem()
-
-            // Refresh latest stats for the active system
+            
             if let activeSystemID = instanceManager.activeSystem?.id {
                 if let latest = try await apiService.fetchLatestSystemStats(systemID: activeSystemID) {
                     self.latestStatsBySystem[activeSystemID] = latest
                     self.latestSystemStats = latest
                 }
             }
-
-            // Reset auth failure state on success
+            
             self.authenticationFailed = false
         } catch {
             if let urlError = error as? URLError, urlError.code == .userAuthenticationRequired {
@@ -221,10 +250,9 @@ final class BeszelStore {
             }
         }
     }
-
-    /// Indicates authentication has failed and user needs to re-authenticate
+    
     var authenticationFailed = false
-
+    
     private func handleError(_ error: Error) {
         if let urlError = error as? URLError, urlError.code == .userAuthenticationRequired {
             logger.warning("Authentication failed")
@@ -235,7 +263,7 @@ final class BeszelStore {
             self.errorMessage = String(localized: "common.error.fetchFailed") + ": \(error.localizedDescription)"
         }
     }
-
+    
     func clearAuthenticationError() {
         authenticationFailed = false
         errorMessage = nil
@@ -276,17 +304,17 @@ final class BeszelStore {
     nonisolated private static func downsampleStatPoints(_ statPoints: [StatPoint], timeRange: TimeRangeOption) async -> [StatPoint] {
         guard !statPoints.isEmpty else { return [] }
         if statPoints.count < 150 { return statPoints }
-
+        
         let targetCount: Int
         switch timeRange {
         case .lastHour: targetCount = 120
         default: targetCount = 100
         }
-
+        
         let minDate = statPoints.first?.date ?? Date()
         let maxDate = statPoints.last?.date ?? Date()
         let totalDuration = maxDate.timeIntervalSince(minDate)
-
+        
         let minInterval: TimeInterval
         switch timeRange {
         case .lastHour, .last12Hours: minInterval = 30
@@ -294,27 +322,27 @@ final class BeszelStore {
         case .last7Days: minInterval = 300
         case .last30Days: minInterval = 900
         }
-
+        
         let calculatedInterval = max(minInterval, totalDuration / Double(max(1, targetCount)))
-
+        
         return statPoints.downsampled(bucketInterval: calculatedInterval, method: .average)
     }
-
+    
     nonisolated private static func downsampleSystemDataPoints(_ dataPoints: [SystemDataPoint], timeRange: TimeRangeOption) -> [SystemDataPoint] {
         guard !dataPoints.isEmpty else { return [] }
         if dataPoints.count < 150 { return dataPoints }
-
+        
         let sortedPoints = dataPoints.sorted { $0.date < $1.date }
         let minDate = sortedPoints.first?.date ?? Date()
         let maxDate = sortedPoints.last?.date ?? Date()
         let totalDuration = maxDate.timeIntervalSince(minDate)
-
+        
         let targetCount: Int
         switch timeRange {
         case .lastHour: targetCount = 120
         default: targetCount = 100
         }
-
+        
         let minInterval: TimeInterval
         switch timeRange {
         case .lastHour, .last12Hours: minInterval = 30
@@ -322,9 +350,9 @@ final class BeszelStore {
         case .last7Days: minInterval = 300
         case .last30Days: minInterval = 900
         }
-
+        
         let calculatedInterval = max(minInterval, totalDuration / Double(max(1, targetCount)))
-
+        
         return sortedPoints.downsampled(bucketInterval: calculatedInterval)
     }
     
@@ -392,6 +420,8 @@ final class BeszelStore {
         let uniqueNames = Set(allPoints.map { $0.name })
         let pointDict = Dictionary(grouping: allPoints, by: { $0.date })
         
+        let domainIndexMap = Dictionary(uniqueKeysWithValues: domain.enumerated().map { ($1, $0) })
+        
         var stacked: [StackedCpuData] = []
         
         for date in uniqueDates {
@@ -404,7 +434,7 @@ final class BeszelStore {
             }
             
             pointsForDate.sort {
-                (domain.firstIndex(of: $0.name) ?? 0) < (domain.firstIndex(of: $1.name) ?? 0)
+                (domainIndexMap[$0.name] ?? 0) < (domainIndexMap[$1.name] ?? 0)
             }
             
             var cumulative = 0.0
@@ -427,6 +457,8 @@ final class BeszelStore {
         let uniqueNames = Set(allPoints.map { $0.name })
         let pointDict = Dictionary(grouping: allPoints, by: { $0.date })
         
+        let domainIndexMap = Dictionary(uniqueKeysWithValues: domain.enumerated().map { ($1, $0) })
+        
         var stacked: [StackedMemoryData] = []
         
         for date in uniqueDates {
@@ -438,7 +470,7 @@ final class BeszelStore {
             }
             
             pointsForDate.sort {
-                (domain.firstIndex(of: $0.name) ?? 0) < (domain.firstIndex(of: $1.name) ?? 0)
+                (domainIndexMap[$0.name] ?? 0) < (domainIndexMap[$1.name] ?? 0)
             }
             
             var cumulative = 0.0

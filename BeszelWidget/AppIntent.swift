@@ -6,24 +6,52 @@ import os
 public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
     public static var title: LocalizedStringResource = "widget.configuration.title"
     public static var description: IntentDescription = "widget.configuration.description"
-    
+
     public static var openAppWhenRun: Bool = true
-    
+
     @Parameter(title: "chart.configuration.instance.title")
     public var instance: InstanceEntity?
-    
+
     @Parameter(title: "chart.configuration.system.title")
     public var system: SystemEntity?
-    
+
     @Parameter(title: "chart.configuration.chartType.title")
     public var chart: ChartTypeEntity?
-    
+
+    @Parameter(title: "widget.configuration.metric.title")
+    public var metric: MetricEntity?
+
     public init() {}
-    
-    public init(instance: InstanceEntity?, system: SystemEntity?, chart: ChartTypeEntity?) {
+
+    public init(instance: InstanceEntity?, system: SystemEntity?, chart: ChartTypeEntity?, metric: MetricEntity?) {
         self.instance = instance
         self.system = system
         self.chart = chart
+        self.metric = metric
+    }
+}
+
+public struct SelectInstanceAndMetricIntent: WidgetConfigurationIntent {
+    public static var title: LocalizedStringResource = "widget.configuration.title"
+    public static var description: IntentDescription = "widget.configuration.description"
+
+    public static var openAppWhenRun: Bool = true
+
+    @Parameter(title: "chart.configuration.instance.title")
+    public var instance: InstanceEntity?
+
+    @Parameter(title: "chart.configuration.system.title")
+    public var system: SystemEntity?
+
+    @Parameter(title: "widget.configuration.metric.title")
+    public var metric: MetricEntity?
+
+    public init() {}
+
+    public init(instance: InstanceEntity?, system: SystemEntity?, metric: MetricEntity?) {
+        self.instance = instance
+        self.system = system
+        self.metric = metric
     }
 }
 
@@ -139,6 +167,37 @@ public struct ChartTypeQuery: EntityQuery {
             ChartTypeEntity(id: "systemCPU", title: "widget.chart.systemCPU.title"),
             ChartTypeEntity(id: "systemMemory", title: "widget.chart.systemMemory.title"),
             ChartTypeEntity(id: "systemTemperature", title: "widget.chart.systemTemperature.title")
+        ]
+    }
+}
+
+public struct MetricEntity: AppEntity {
+    public let id: String
+    public let title: LocalizedStringResource
+
+    public init(id: String, title: LocalizedStringResource) {
+        self.id = id
+        self.title = title
+    }
+
+    public var displayRepresentation: DisplayRepresentation { DisplayRepresentation(title: title) }
+    public static var typeDisplayRepresentation: TypeDisplayRepresentation = "widget.configuration.metric.title"
+    public static var defaultQuery = MetricQuery()
+}
+
+public struct MetricQuery: EntityQuery {
+    public init() {}
+
+    public func entities(for identifiers: [String]) async throws -> [MetricEntity] {
+        let all = try await suggestedEntities()
+        return all.filter { identifiers.contains($0.id) }
+    }
+
+    public func suggestedEntities() async throws -> [MetricEntity] {
+        [
+            MetricEntity(id: "cpu", title: "CPU"),
+            MetricEntity(id: "memory", title: "Memory"),
+            MetricEntity(id: "disk", title: "Disk")
         ]
     }
 }

@@ -140,7 +140,9 @@ struct HomeView: View {
             .padding(.bottom, 24)
         }
         .overlay {
-            if let errorMessage = store.errorMessage {
+            if store.isLoading && dashboardManager.allPinsForActiveInstance.isEmpty {
+                ProgressView()
+            } else if let errorMessage = store.errorMessage, dashboardManager.allPinsForActiveInstance.isEmpty {
                 ContentUnavailableView {
                     Label("common.error", systemImage: "exclamationmark.triangle")
                 } description: {
@@ -154,7 +156,7 @@ struct HomeView: View {
                     }
                     .buttonStyle(.bordered)
                 }
-            } else if dashboardManager.allPinsForActiveInstance.isEmpty && !store.isLoading {
+            } else if dashboardManager.allPinsForActiveInstance.isEmpty {
                 ContentUnavailableView {
                     Label("home.empty.title", systemImage: "pin.slash")
                 } description: {

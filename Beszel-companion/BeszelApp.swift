@@ -24,10 +24,10 @@ struct BeszelApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     @State private var settingsManager = SettingsManager()
-    @State private var dashboardManager = DashboardManager.shared
+    private let dashboardManager = DashboardManager.shared
     @State private var languageManager = LanguageManager()
-    @State private var instanceManager = InstanceManager.shared
-    @State private var alertManager = AlertManager.shared
+    private let instanceManager = InstanceManager.shared
+    private let alertManager = AlertManager.shared
 
     init() {
         BackgroundAlertChecker.shared.registerBackgroundTask()

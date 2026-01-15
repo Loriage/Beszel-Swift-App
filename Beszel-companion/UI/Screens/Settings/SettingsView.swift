@@ -12,46 +12,46 @@ struct SettingsView: View {
     
     @State private var isShowingClearPinsAlert = false
     @State private var isAddingInstance = false
-
+    
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
         return "\(version) (\(build))"
     }
-
+    
     private var bugReportTemplate: String {
         """
         ## Bug Description
         <!-- Describe the bug clearly and concisely -->
-
-
+        
+        
         ## Steps to Reproduce
         1.
         2.
         3.
-
+        
         ## Expected Behavior
         <!-- What did you expect to happen? -->
-
-
+        
+        
         ## Actual Behavior
         <!-- What actually happened? -->
-
-
+        
+        
         ## Screenshots
         <!-- If applicable, add screenshots to help explain the issue -->
-
-
+        
+        
         ## Device Information
         - App Version: \(appVersion)
         - iOS Version: \(UIDevice.current.systemVersion)
         - Device: \(UIDevice.current.model)
         """
     }
-
+    
     private static let fallbackGitHubURL = URL(string: "https://github.com/Loriage/Beszel-Swift-App/issues")!
     private static let fallbackEmailURL = URL(string: "mailto:contact@nohit.dev")!
-
+    
     private var bugReportGitHubURL: URL {
         var components = URLComponents(string: "https://github.com/Loriage/Beszel-Swift-App/issues/new")
         components?.queryItems = [
@@ -60,7 +60,7 @@ struct SettingsView: View {
         ]
         return components?.url ?? Self.fallbackGitHubURL
     }
-
+    
     private var bugReportEmailURL: URL {
         var components = URLComponents(string: "mailto:contact@nohit.dev")
         components?.queryItems = [
@@ -69,7 +69,7 @@ struct SettingsView: View {
         ]
         return components?.url ?? Self.fallbackEmailURL
     }
-
+    
     var body: some View {
         @Bindable var bindableLanguageManager = languageManager
         @Bindable var bindableSettingsManager = settingsManager
@@ -114,7 +114,9 @@ struct SettingsView: View {
                         }
                     }
                     .onDelete { offsets in
-                        offsets.map { instanceManager.instances[$0] }.forEach(instanceManager.deleteInstance)
+                        for index in offsets {
+                            instanceManager.deleteInstance(instanceManager.instances[index])
+                        }
                     }
                     
                     Button("settings.instances.add") {
@@ -132,7 +134,7 @@ struct SettingsView: View {
                                 BackgroundAlertChecker.shared.cancelScheduledTask()
                             }
                         }
-
+                    
                     NavigationLink {
                         AlertHistoryView()
                             .environment(instanceManager)
@@ -142,7 +144,7 @@ struct SettingsView: View {
                     } label: {
                         Label("settings.notifications.history", systemImage: "bell")
                     }
-
+                    
                     NavigationLink {
                         ConfiguredAlertsView()
                             .environment(instanceManager)
@@ -153,14 +155,14 @@ struct SettingsView: View {
                         Label("settings.notifications.configured", systemImage: "bell.badge")
                     }
                 }
-
+                
                 Section(header: Text("settings.dashboard")) {
                     Button("settings.dashboard.clearPins", role: .destructive) {
                         isShowingClearPinsAlert = true
                     }
                     .disabled(!dashboardManager.hasPinsForActiveInstance())
                 }
-
+                
                 Section(header: Text("settings.support")) {
                     Link(destination: bugReportGitHubURL) {
                         HStack {
@@ -171,7 +173,7 @@ struct SettingsView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
-
+                    
                     Link(destination: bugReportEmailURL) {
                         HStack {
                             Image(systemName: "envelope")

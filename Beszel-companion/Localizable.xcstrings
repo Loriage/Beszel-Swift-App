@@ -33,6 +33,16 @@
         }
       }
     },
+    "%@ %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@ %3$@"
+          }
+        }
+      }
+    },
     "%@ MB/s" : {
       "localizations" : {
         "en" : {
@@ -1172,6 +1182,9 @@
         }
       }
     },
+    "Disk" : {
+
+    },
     "Disk I/O (MB/s)" : {
       "localizations" : {
         "en" : {
@@ -1481,6 +1494,9 @@
         }
       }
     },
+    "Memory" : {
+
+    },
     "NET" : {
       "localizations" : {
         "en" : {
@@ -1562,6 +1578,38 @@
         }
       }
     },
+    "onboarding.error.authFailed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authentication failed. Please check your credentials."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec de l'authentification. Veuillez vérifier vos identifiants."
+          }
+        }
+      }
+    },
+    "onboarding.error.hubUnreachable" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to reach the hub. Please check the URL and your connection."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de joindre le hub. Vérifiez l'URL et votre connexion."
+          }
+        }
+      }
+    },
     "onboarding.error.invalid_url" : {
       "localizations" : {
         "en" : {
@@ -1574,6 +1622,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Veuillez entrer une URL valide."
+          }
+        }
+      }
+    },
+    "onboarding.error.invalidResponse" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid response from server."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réponse invalide du serveur."
+          }
+        }
+      }
+    },
+    "onboarding.error.invalidURL" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid URL format."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format d'URL invalide."
+          }
+        }
+      }
+    },
+    "onboarding.error.network" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network error"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erreur réseau"
           }
         }
       }
@@ -2861,6 +2957,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choisir le graphique à afficher sur le widget."
+          }
+        }
+      }
+    },
+    "widget.configuration.metric.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metric"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mesure"
           }
         }
       }

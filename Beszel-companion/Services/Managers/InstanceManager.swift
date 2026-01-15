@@ -179,6 +179,12 @@ final class InstanceManager {
             self.instances = decoded
         }
     }
+
+    /// Ensures activeSystem is set based on current systems list.
+    /// Call this after updating systems externally (not through fetchSystemsForInstance).
+    func refreshActiveSystem() {
+        updateActiveSystem()
+    }
     
     func addInstance(name: String, url: String, email: String, password: String) {
         let newInstance = Instance(id: UUID(), name: name, url: url, email: email)

@@ -140,7 +140,21 @@ struct HomeView: View {
             .padding(.bottom, 24)
         }
         .overlay {
-            if dashboardManager.allPinsForActiveInstance.isEmpty && !store.isLoading {
+            if let errorMessage = store.errorMessage {
+                ContentUnavailableView {
+                    Label("common.error", systemImage: "exclamationmark.triangle")
+                } description: {
+                    Text(errorMessage)
+                } actions: {
+                    Button("common.retry") {
+                        store.clearAuthenticationError()
+                        Task {
+                            await store.fetchData()
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                }
+            } else if dashboardManager.allPinsForActiveInstance.isEmpty && !store.isLoading {
                 ContentUnavailableView {
                     Label("home.empty.title", systemImage: "pin.slash")
                 } description: {

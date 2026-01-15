@@ -107,6 +107,7 @@ final class BeszelStore {
                 instanceManager.systemDetails = Dictionary(
                     uniqueKeysWithValues: fetchedDetails.map { ($0.system, $0) }
                 )
+                instanceManager.refreshActiveSystem()
                 systemsToFetch = instanceManager.systems
 
                 if systemsToFetch.isEmpty {
@@ -199,6 +200,7 @@ final class BeszelStore {
             instanceManager.systemDetails = Dictionary(
                 uniqueKeysWithValues: fetchedDetails.map { ($0.system, $0) }
             )
+            instanceManager.refreshActiveSystem()
 
             // Refresh latest stats for the active system
             if let activeSystemID = instanceManager.activeSystem?.id {
@@ -208,45 +210,35 @@ final class BeszelStore {
                 }
             }
 
-            // Reset auth retry count on success
-            self.authRetryCount = 0
+            // Reset auth failure state on success
+            self.authenticationFailed = false
         } catch {
-            // Use same error handling as fetchData for consistency
             if let urlError = error as? URLError, urlError.code == .userAuthenticationRequired {
-                authRetryCount += 1
-                if authRetryCount >= maxAuthRetries {
-                    logger.warning("Authentication failed during refresh. Removing instance.")
-                    instanceManager.deleteInstance(self.instance)
-                    authRetryCount = 0
-                }
+                logger.warning("Authentication failed during refresh")
+                self.authenticationFailed = true
             } else {
                 logger.error("Error during quick refresh: \(error.localizedDescription)")
             }
         }
     }
 
-    private var authRetryCount = 0
-    private let maxAuthRetries = 2
+    /// Indicates authentication has failed and user needs to re-authenticate
+    var authenticationFailed = false
 
     private func handleError(_ error: Error) {
         if let urlError = error as? URLError, urlError.code == .userAuthenticationRequired {
-            authRetryCount += 1
-            if authRetryCount >= maxAuthRetries {
-                logger.warning("Authentication failed after \(self.maxAuthRetries) retries. Removing instance.")
-                instanceManager.deleteInstance(self.instance)
-                authRetryCount = 0
-            } else {
-                logger.info("Authentication failed, will retry on next fetch (attempt \(self.authRetryCount)/\(self.maxAuthRetries))")
-                self.errorMessage = String(localized: "common.error.authRetry")
-            }
+            logger.warning("Authentication failed")
+            self.authenticationFailed = true
+            self.errorMessage = String(localized: "common.error.authFailed")
         } else {
             logger.error("Failed to fetch data: \(error.localizedDescription)")
             self.errorMessage = String(localized: "common.error.fetchFailed") + ": \(error.localizedDescription)"
         }
     }
 
-    func resetAuthRetryCount() {
-        authRetryCount = 0
+    func clearAuthenticationError() {
+        authenticationFailed = false
+        errorMessage = nil
     }
     
     func isPinned(_ item: PinnedItem, onSystem systemID: String) -> Bool {

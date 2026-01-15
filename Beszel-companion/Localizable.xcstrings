@@ -713,6 +713,22 @@
         }
       }
     },
+    "common.retry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réessayer"
+          }
+        }
+      }
+    },
     "common.delete" : {
       "localizations" : {
         "en" : {
@@ -745,18 +761,18 @@
         }
       }
     },
-    "common.error.authRetry" : {
+    "common.error.authFailed" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Authentication failed. Retrying..."
+            "value" : "Authentication failed. Please reconnect your instance."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Authentification échouée. Nouvelle tentative..."
+            "value" : "Échec de l'authentification. Veuillez reconnecter votre instance."
           }
         }
       }

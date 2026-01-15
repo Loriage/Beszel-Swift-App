@@ -121,6 +121,14 @@ struct SystemView: View {
                     Label("common.error", systemImage: "exclamationmark.triangle")
                 } description: {
                     Text(errorMessage)
+                } actions: {
+                    Button("common.retry") {
+                        store.clearAuthenticationError()
+                        Task {
+                            await store.fetchData()
+                        }
+                    }
+                    .buttonStyle(.bordered)
                 }
             } else if store.systemDataPoints.isEmpty {
                 ContentUnavailableView(

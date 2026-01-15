@@ -58,6 +58,21 @@ final class BackgroundAlertChecker {
             return
         }
 
+        // Fetch systems if not loaded (required for background execution)
+        if instanceManager.systems.isEmpty {
+            logger.info("Systems not loaded, fetching for background task")
+            let apiService = BeszelAPIService(instance: activeInstance, instanceManager: instanceManager)
+            do {
+                let fetchedSystems = try await apiService.fetchSystems()
+                instanceManager.systems = fetchedSystems.sorted { $0.name < $1.name }
+                instanceManager.refreshActiveSystem()
+                logger.info("Loaded \(fetchedSystems.count) systems for background task")
+            } catch {
+                logger.error("Failed to fetch systems in background: \(error.localizedDescription)")
+                // Continue anyway - notifications will show "Unknown" system name
+            }
+        }
+
         let newAlerts = await AlertManager.shared.checkForNewAlerts(
             for: activeInstance,
             instanceManager: instanceManager

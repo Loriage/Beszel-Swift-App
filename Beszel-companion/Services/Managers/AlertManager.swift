@@ -25,6 +25,7 @@ final class AlertManager {
     var unreadAlertCount: Int = 0
     var isLoading = false
     var errorMessage: String?
+    var pendingAlertDetail: AlertDetail?
 
     var notificationsEnabled: Bool {
         didSet {
@@ -189,10 +190,13 @@ final class AlertManager {
     func sendLocalNotification(for alert: AlertHistoryRecord, systemName: String) {
         guard notificationsEnabled else { return }
 
+        let alertDetail = AlertDetail(alert: alert, systemName: systemName)
+
         let content = UNMutableNotificationContent()
         content.title = String(localized: "alerts.notification.title")
         content.body = String(format: String(localized: "alerts.notification.body"), alert.displayName, systemName, alert.triggeredValueDescription)
         content.sound = .default
+        content.userInfo = alertDetail.userInfoPayload()
 
         let request = UNNotificationRequest(
             identifier: "alert-\(alert.id)",
@@ -204,6 +208,13 @@ final class AlertManager {
             if let error = error {
                 logger.error("Failed to send notification: \(error.localizedDescription)")
             }
+        }
+    }
+
+    func handleNotificationResponse(_ response: UNNotificationResponse) {
+        let userInfo = response.notification.request.content.userInfo
+        if let alertDetail = AlertDetail(userInfo: userInfo) {
+            pendingAlertDetail = alertDetail
         }
     }
 

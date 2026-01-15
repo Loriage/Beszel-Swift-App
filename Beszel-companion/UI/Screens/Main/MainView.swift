@@ -5,6 +5,7 @@ struct MainView: View {
 
     @State private var isShowingSettings = false
     @State private var selectedTab: AppTab = .home
+    @State private var navigationPath = NavigationPath()
 
     let instance: Instance
     let instanceManager: InstanceManager
@@ -16,7 +17,7 @@ struct MainView: View {
     var body: some View {
         Group {
             if let store = store {
-                NavigationStack {
+                NavigationStack(path: $navigationPath) {
                     TabView(selection: $selectedTab) {
                         Tab(value: .home) {
                             HomeView()
@@ -49,17 +50,14 @@ struct MainView: View {
                         }
                     }
                     .task(id: settingsManager.selectedTimeRange) {
-                        // Initial full fetch when view appears or time range changes
                         await store.fetchData()
                         await alertManager.fetchAlerts(for: instance, instanceManager: instanceManager)
 
-                        // Fast polling loop for real-time updates
                         while !Task.isCancelled {
                             let fastInterval = settingsManager.selectedTimeRange.fastRefreshInterval
 
                             try? await Task.sleep(for: .seconds(fastInterval))
                             if !Task.isCancelled && !isShowingSettings {
-                                // Lightweight refresh: latest stats + alerts only
                                 await store.refreshLatestStatsOnly()
                                 await alertManager.refreshAlertsQuick(for: instance, instanceManager: instanceManager)
                             }
@@ -71,8 +69,16 @@ struct MainView: View {
                     .sheet(isPresented: $isShowingSettings) {
                         LazyView(SettingsView())
                     }
+                    .navigationDestination(for: AlertDetail.self) { alert in
+                        AlertDetailView(alert: alert)
+                    }
                     .navigationDestination(for: ProcessedContainerData.self) { container in
                         ContainerDetailView(container: container)
+                    }
+                    .task(id: alertManager.pendingAlertDetail?.id) {
+                        if let pendingDetail = alertManager.pendingAlertDetail {
+                            await handleAlertDeepLink(pendingDetail)
+                        }
                     }
                 }
             } else {
@@ -92,6 +98,26 @@ struct MainView: View {
             instanceManager: instanceManager
         )
         self.store = newStore
+    }
+
+    @MainActor
+    private func handleAlertDeepLink(_ pendingDetail: AlertDetail) async {
+        isShowingSettings = false
+        if alertManager.alertHistory.isEmpty {
+            await alertManager.fetchAlerts(for: instance, instanceManager: instanceManager)
+        }
+
+        let systemName = instanceManager.systems.first { $0.id == pendingDetail.systemId }?.name
+
+        let resolvedDetail: AlertDetail
+        if let matchedAlert = alertManager.alertHistory.first(where: { $0.id == pendingDetail.id }) {
+            resolvedDetail = AlertDetail(alert: matchedAlert, systemName: systemName)
+        } else {
+            resolvedDetail = pendingDetail.withSystemName(systemName ?? pendingDetail.systemName)
+        }
+
+        navigationPath.append(resolvedDetail)
+        alertManager.pendingAlertDetail = nil
     }
 }
 

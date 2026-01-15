@@ -62,11 +62,15 @@ struct AlertHistoryView: View {
                 LazyVStack(spacing: 12) {
                     ForEach(filteredHistory) { alert in
                         let systemName = instanceManager.systems.first { $0.id == alert.system }?.name
-                        AlertHistoryRow(
-                            alert: alert,
-                            systemName: systemName,
-                            isUnread: false
-                        )
+                        NavigationLink {
+                            AlertDetailView(alert: AlertDetail(alert: alert, systemName: systemName))
+                        } label: {
+                            AlertHistoryRow(
+                                alert: alert,
+                                systemName: systemName,
+                                isUnread: false
+                            )
+                        }
                     }
                 }
                 .padding()

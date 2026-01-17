@@ -13,7 +13,59 @@ struct SimpleEntry: TimelineEntry {
     let timeRange: TimeRangeOption
     let lockScreenMetric: LockScreenMetric
     var errorMessage: String? = nil
+    var isFromCache: Bool = false
+}
 
+// MARK: - Widget Cache
+
+private struct WidgetCache: Codable {
+    let latestStats: SystemStatsDetail?
+    let systemInfo: SystemInfo?
+    let systemDetails: SystemDetailsRecord?
+    let systemName: String
+    let status: String?
+    let cachedAt: Date
+}
+
+private enum WidgetCacheManager {
+    private static let userDefaults = UserDefaults(suiteName: "group.com.nohitdev.Beszel")
+
+    static func cacheKey(instanceID: String?, systemID: String?) -> String {
+        "widgetCache_\(instanceID ?? "default")_\(systemID ?? "default")"
+    }
+
+    static func save(
+        latestStats: SystemStatsDetail?,
+        systemInfo: SystemInfo?,
+        systemDetails: SystemDetailsRecord?,
+        systemName: String,
+        status: String?,
+        instanceID: String?,
+        systemID: String?
+    ) {
+        let cache = WidgetCache(
+            latestStats: latestStats,
+            systemInfo: systemInfo,
+            systemDetails: systemDetails,
+            systemName: systemName,
+            status: status,
+            cachedAt: Date()
+        )
+        if let data = try? JSONEncoder().encode(cache) {
+            userDefaults?.set(data, forKey: cacheKey(instanceID: instanceID, systemID: systemID))
+        }
+    }
+
+    static func load(instanceID: String?, systemID: String?) -> WidgetCache? {
+        guard let data = userDefaults?.data(forKey: cacheKey(instanceID: instanceID, systemID: systemID)),
+              let cache = try? JSONDecoder().decode(WidgetCache.self, from: data) else {
+            return nil
+        }
+        return cache
+    }
+}
+
+extension SimpleEntry {
     /// CPU model from either system_details endpoint (0.18.0+) or legacy info field
     var cpuModel: String? {
         if let cpu = systemDetails?.cpu {
@@ -216,6 +268,18 @@ private func buildTimeline(
             fetchedDetails = details.first(where: { $0.system == finalSystemID })
         }
 
+        // Cache the successful data for lock screen widgets
+        let resolvedInstanceID = configurationInstanceID ?? activeInstanceID
+        WidgetCacheManager.save(
+            latestStats: latestStats,
+            systemInfo: fetchedInfo,
+            systemDetails: fetchedDetails,
+            systemName: resolvedSystemName ?? "System",
+            status: status,
+            instanceID: resolvedInstanceID,
+            systemID: finalSystemID
+        )
+
         let entry = SimpleEntry(
             date: .now,
             chartType: resolvedChartType,
@@ -233,6 +297,28 @@ private func buildTimeline(
         return Timeline(entries: [entry], policy: .after(nextUpdate))
 
     } catch {
+        // Try to load from cache instead of showing error
+        let resolvedInstanceID = configurationInstanceID ?? activeInstanceID
+        let resolvedSystemID = configurationSystemID ?? activeSystemID
+
+        if let cached = WidgetCacheManager.load(instanceID: resolvedInstanceID, systemID: resolvedSystemID) {
+            let entry = SimpleEntry(
+                date: .now,
+                chartType: resolvedChartType,
+                dataPoints: [],
+                systemInfo: cached.systemInfo,
+                systemDetails: cached.systemDetails,
+                latestStats: cached.latestStats,
+                systemName: cached.systemName,
+                status: cached.status,
+                timeRange: .last24Hours,
+                lockScreenMetric: lockScreenMetric,
+                isFromCache: true
+            )
+            return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60)))
+        }
+
+        // No cache available, show error
         let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: systemName ?? "System", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.loadingError")
         return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60)))
     }

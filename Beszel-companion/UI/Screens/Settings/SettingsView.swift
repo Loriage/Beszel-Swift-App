@@ -163,7 +163,7 @@ struct SettingsView: View {
                     .disabled(!dashboardManager.hasPinsForActiveInstance())
                 }
                 
-                Section(header: Text("settings.support")) {
+                Section {
                     Link(destination: bugReportGitHubURL) {
                         HStack {
                             Image(systemName: "ant")
@@ -173,7 +173,7 @@ struct SettingsView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
-                    
+
                     Link(destination: bugReportEmailURL) {
                         HStack {
                             Image(systemName: "envelope")
@@ -183,6 +183,12 @@ struct SettingsView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
+                } header: {
+                    Text("settings.support")
+                } footer: {
+                    Text("Version \(appVersion)")
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 8)
                 }
             }
             .navigationDestination(for: AlertDetail.self) { alert in

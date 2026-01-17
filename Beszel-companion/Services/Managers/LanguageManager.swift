@@ -3,6 +3,7 @@ import SwiftUI
 import Observation
 
 @Observable
+@MainActor
 final class LanguageManager {
     var currentLanguageCode: String {
         didSet {

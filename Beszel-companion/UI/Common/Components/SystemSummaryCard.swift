@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct SystemSummaryCard: View {
+    @Environment(InstanceManager.self) private var instanceManager
+
+    let system: SystemRecord?
     let systemInfo: SystemInfo?
     let stats: SystemStatsDetail
     let systemName: String
@@ -8,6 +11,22 @@ struct SystemSummaryCard: View {
 
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
+
+    /// CPU model from either system_details endpoint (0.18.0+) or legacy info field
+    private var cpuModel: String? {
+        if let system = system {
+            return instanceManager.cpuModel(for: system)
+        }
+        return systemInfo?.m
+    }
+
+    /// CPU cores from either system_details endpoint (0.18.0+) or legacy info field
+    private var cpuCores: Int? {
+        if let system = system {
+            return instanceManager.cpuCores(for: system)
+        }
+        return systemInfo?.c
+    }
     
     var body: some View {
         GroupBox {
@@ -23,14 +42,14 @@ struct SystemSummaryCard: View {
                     }
 
                     HStack(spacing: 8) {
-                        if let model = systemInfo?.m {
+                        if let model = cpuModel {
                             Text(model)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .lineLimit(1)
                             Spacer()
                         }
-                        
+
                         statusView
                     }
                 }
@@ -53,6 +72,8 @@ struct SystemSummaryCard: View {
                             Circle()
                                 .fill(colorForLoad(oneMinLoad))
                                 .frame(width: 8, height: 8)
+                                .accessibilityLabel(Text("accessibility.loadIndicator"))
+                                .accessibilityValue(Text(loadStatusDescription(oneMinLoad)))
                             Text(load.map { String(format: "%.2f", $0) }.joined(separator: " "))
                                 .font(.caption)
                                 .monospacedDigit()
@@ -126,8 +147,8 @@ struct SystemSummaryCard: View {
         return formatter.string(from: TimeInterval(seconds)) ?? ""
     }
     private func colorForLoad(_ val: Double) -> Color {
-        guard let cores = systemInfo?.c, cores > 0 else { return .primary }
-        
+        guard let cores = cpuCores, cores > 0 else { return .primary }
+
         let limit = Double(cores)
 
         if val >= limit * 1.5 {
@@ -136,6 +157,20 @@ struct SystemSummaryCard: View {
             return .orange
         } else {
             return .green
+        }
+    }
+
+    private func loadStatusDescription(_ val: Double) -> String {
+        guard let cores = cpuCores, cores > 0 else {
+            return String(localized: "accessibility.loadStatus.unknown")
+        }
+        let limit = Double(cores)
+        if val >= limit * 1.5 {
+            return String(localized: "accessibility.loadStatus.critical")
+        } else if val >= limit {
+            return String(localized: "accessibility.loadStatus.high")
+        } else {
+            return String(localized: "accessibility.loadStatus.normal")
         }
     }
 }

@@ -29,6 +29,18 @@ struct OnboardingView: View {
             .replacingOccurrences(of: "http://", with: "")
             .replacingOccurrences(of: "https://", with: "")
     }
+
+    private var isValidURL: Bool {
+        guard !serverAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return false
+        }
+        guard let urlComponents = URLComponents(string: url),
+              let host = urlComponents.host,
+              !host.isEmpty else {
+            return false
+        }
+        return true
+    }
     
     private var isPasswordLoginDisabled: Bool {
         instanceName.isEmpty || url.isEmpty || email.isEmpty || password.isEmpty
@@ -150,7 +162,7 @@ struct OnboardingView: View {
     }
     
     private func fetchAuthMethods() {
-        guard !url.isEmpty else {
+        guard isValidURL else {
             self.errorMessage = String(localized: "onboarding.error.invalid_url")
             return
         }
@@ -231,10 +243,15 @@ class WebAuthSessionContextProvider: NSObject, ASWebAuthenticationPresentationCo
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         let scenes = UIApplication.shared.connectedScenes
         let windowScene = scenes.first as? UIWindowScene
-        guard let window = windowScene?.windows.first(where: { $0.isKeyWindow }) else {
-            fatalError("No key window available")
+        
+        if let keyWindow = windowScene?.windows.first(where: { $0.isKeyWindow }) {
+            return keyWindow
         }
-        return window
+        if let anyWindow = windowScene?.windows.first {
+            return anyWindow
+        }
+        
+        return UIWindow()
     }
 }
 
@@ -252,8 +269,8 @@ extension ASWebAuthenticationSession {
             }
             session.presentationContextProvider = presentationContextProvider
             session.prefersEphemeralWebBrowserSession = true
-            
-            DispatchQueue.main.async {
+
+            Task { @MainActor in
                 session.start()
             }
         }

@@ -6,11 +6,69 @@ struct SettingsView: View {
     @Environment(SettingsManager.self) var settingsManager
     @Environment(LanguageManager.self) var languageManager
     @Environment(InstanceManager.self) var instanceManager
+    @Environment(AlertManager.self) var alertManager
     
     @Environment(\.dismiss) var dismiss
     
     @State private var isShowingClearPinsAlert = false
     @State private var isAddingInstance = false
+    
+    private var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
+        return "\(version) (\(build))"
+    }
+    
+    private var bugReportTemplate: String {
+        """
+        ## Bug Description
+        <!-- Describe the bug clearly and concisely -->
+        
+        
+        ## Steps to Reproduce
+        1.
+        2.
+        3.
+        
+        ## Expected Behavior
+        <!-- What did you expect to happen? -->
+        
+        
+        ## Actual Behavior
+        <!-- What actually happened? -->
+        
+        
+        ## Screenshots
+        <!-- If applicable, add screenshots to help explain the issue -->
+        
+        
+        ## Device Information
+        - App Version: \(appVersion)
+        - iOS Version: \(UIDevice.current.systemVersion)
+        - Device: \(UIDevice.current.model)
+        """
+    }
+    
+    private static let fallbackGitHubURL = URL(string: "https://github.com/Loriage/Beszel-Swift-App/issues")!
+    private static let fallbackEmailURL = URL(string: "mailto:contact@nohit.dev")!
+    
+    private var bugReportGitHubURL: URL {
+        var components = URLComponents(string: "https://github.com/Loriage/Beszel-Swift-App/issues/new")
+        components?.queryItems = [
+            URLQueryItem(name: "title", value: "[Bug] "),
+            URLQueryItem(name: "body", value: bugReportTemplate)
+        ]
+        return components?.url ?? Self.fallbackGitHubURL
+    }
+    
+    private var bugReportEmailURL: URL {
+        var components = URLComponents(string: "mailto:contact@nohit.dev")
+        components?.queryItems = [
+            URLQueryItem(name: "subject", value: "[Bug Report] Beszel Companion"),
+            URLQueryItem(name: "body", value: bugReportTemplate)
+        ]
+        return components?.url ?? Self.fallbackEmailURL
+    }
     
     var body: some View {
         @Bindable var bindableLanguageManager = languageManager
@@ -56,11 +114,45 @@ struct SettingsView: View {
                         }
                     }
                     .onDelete { offsets in
-                        offsets.map { instanceManager.instances[$0] }.forEach(instanceManager.deleteInstance)
+                        for index in offsets {
+                            instanceManager.deleteInstance(instanceManager.instances[index])
+                        }
                     }
                     
                     Button("settings.instances.add") {
                         isAddingInstance = true
+                    }
+                }
+                
+                Section(header: Text("settings.notifications")) {
+                    @Bindable var bindableAlertManager = alertManager
+                    Toggle("settings.notifications.enabled", isOn: $bindableAlertManager.notificationsEnabled)
+                        .onChange(of: alertManager.notificationsEnabled) { _, newValue in
+                            if newValue {
+                                BackgroundAlertChecker.shared.scheduleBackgroundTask()
+                            } else {
+                                BackgroundAlertChecker.shared.cancelScheduledTask()
+                            }
+                        }
+                    
+                    NavigationLink {
+                        AlertHistoryView()
+                            .environment(instanceManager)
+                            .environment(alertManager)
+                            .navigationTitle("settings.notifications.history")
+                            .navigationBarTitleDisplayMode(.inline)
+                    } label: {
+                        Label("settings.notifications.history", systemImage: "bell")
+                    }
+                    
+                    NavigationLink {
+                        ConfiguredAlertsView()
+                            .environment(instanceManager)
+                            .environment(alertManager)
+                            .navigationTitle("settings.notifications.configured")
+                            .navigationBarTitleDisplayMode(.inline)
+                    } label: {
+                        Label("settings.notifications.configured", systemImage: "bell.badge")
                     }
                 }
                 
@@ -70,6 +162,37 @@ struct SettingsView: View {
                     }
                     .disabled(!dashboardManager.hasPinsForActiveInstance())
                 }
+                
+                Section {
+                    Link(destination: bugReportGitHubURL) {
+                        HStack {
+                            Image(systemName: "ant")
+                            Text("settings.support.reportBug.github")
+                            Spacer()
+                            Image(systemName: "arrow.up.forward.app")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+                    Link(destination: bugReportEmailURL) {
+                        HStack {
+                            Image(systemName: "envelope")
+                            Text("settings.support.reportBug.email")
+                            Spacer()
+                            Image(systemName: "arrow.up.forward.app")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                } header: {
+                    Text("settings.support")
+                } footer: {
+                    Text("Version \(appVersion)")
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 8)
+                }
+            }
+            .navigationDestination(for: AlertDetail.self) { alert in
+                AlertDetailView(alert: alert)
             }
             .navigationTitle("settings.title")
             .navigationBarTitleDisplayMode(.inline)

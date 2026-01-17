@@ -19,12 +19,23 @@ struct HomeView: View {
         let displayName: String
         let metricName: String
         let serviceName: String
+
+        var isSystemInfo: Bool {
+            resolvedItem.item == .systemInfo
+        }
     }
-    
+
+    /// Returns comparison result for systemInfo priority (systemInfo items always come first)
+    private func compareSystemInfoPriority(_ lhs: SortablePin, _ rhs: SortablePin) -> ComparisonResult? {
+        if lhs.isSystemInfo && !rhs.isSystemInfo { return .orderedAscending }
+        if !lhs.isSystemInfo && rhs.isSystemInfo { return .orderedDescending }
+        return nil
+    }
+
     private var filteredAndSortedPins: [ResolvedPinnedItem] {
         let bundle = languageManager.currentBundle
         let pins = dashboardManager.allPinsForActiveInstance
-        
+
         let filteredPins: [ResolvedPinnedItem]
         if searchText.isEmpty {
             filteredPins = pins
@@ -36,11 +47,11 @@ struct HomeView: View {
                 itemName.localizedCaseInsensitiveContains(searchText)
             }
         }
-        
+
         let sortableItems = filteredPins.map { pin -> SortablePin in
             let sysName = store.systemName(forSystemID: pin.systemID) ?? ""
             let dispName = pin.item.localizedDisplayName(for: bundle)
-            
+
             return SortablePin(
                 resolvedItem: pin,
                 systemName: sysName,
@@ -49,14 +60,14 @@ struct HomeView: View {
                 serviceName: pin.item.serviceName
             )
         }
-        
+
         let sortedItems: [SortablePin]
         switch sortOption {
         case .bySystem:
             sortedItems = sortableItems.sorted { (lhs, rhs) in
-                if lhs.resolvedItem.item == .systemInfo && rhs.resolvedItem.item != .systemInfo { return true }
-                if lhs.resolvedItem.item != .systemInfo && rhs.resolvedItem.item == .systemInfo { return false }
-                
+                if let priority = compareSystemInfoPriority(lhs, rhs) {
+                    return priority == .orderedAscending
+                }
                 if lhs.systemName != rhs.systemName {
                     return lhs.systemName < rhs.systemName
                 }
@@ -64,8 +75,9 @@ struct HomeView: View {
             }
         case .byMetric:
             sortedItems = sortableItems.sorted { (lhs, rhs) in
-                if lhs.resolvedItem.item == .systemInfo && rhs.resolvedItem.item != .systemInfo { return true }
-                if lhs.resolvedItem.item != .systemInfo && rhs.resolvedItem.item == .systemInfo { return false }
+                if let priority = compareSystemInfoPriority(lhs, rhs) {
+                    return priority == .orderedAscending
+                }
                 if lhs.metricName != rhs.metricName {
                     return lhs.metricName < rhs.metricName
                 }
@@ -73,15 +85,16 @@ struct HomeView: View {
             }
         case .byService:
             sortedItems = sortableItems.sorted { (lhs, rhs) in
-                if lhs.resolvedItem.item == .systemInfo && rhs.resolvedItem.item != .systemInfo { return true }
-                if lhs.resolvedItem.item != .systemInfo && rhs.resolvedItem.item == .systemInfo { return false }
+                if let priority = compareSystemInfoPriority(lhs, rhs) {
+                    return priority == .orderedAscending
+                }
                 if lhs.serviceName != rhs.serviceName {
                     return lhs.serviceName < rhs.serviceName
                 }
                 return lhs.displayName < rhs.displayName
             }
         }
-        
+
         let result = sortedItems.map { $0.resolvedItem }
         return sortDescending ? result.reversed() : result
     }
@@ -127,7 +140,23 @@ struct HomeView: View {
             .padding(.bottom, 24)
         }
         .overlay {
-            if dashboardManager.allPinsForActiveInstance.isEmpty && !store.isLoading {
+            if store.isLoading && dashboardManager.allPinsForActiveInstance.isEmpty {
+                ProgressView()
+            } else if let errorMessage = store.errorMessage, dashboardManager.allPinsForActiveInstance.isEmpty {
+                ContentUnavailableView {
+                    Label("common.error", systemImage: "exclamationmark.triangle")
+                } description: {
+                    Text(errorMessage)
+                } actions: {
+                    Button("common.retry") {
+                        store.clearAuthenticationError()
+                        Task {
+                            await store.fetchData()
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                }
+            } else if dashboardManager.allPinsForActiveInstance.isEmpty {
                 ContentUnavailableView {
                     Label("home.empty.title", systemImage: "pin.slash")
                 } description: {
@@ -157,6 +186,7 @@ struct HomeView: View {
             if let system = instanceManager.systems.first(where: { $0.id == resolvedItem.systemID }),
                let stats = store.latestStats(for: resolvedItem.systemID)?.stats {
                 SystemSummaryCard(
+                    system: system,
                     systemInfo: system.info,
                     stats: stats,
                     systemName: system.name,
@@ -215,6 +245,34 @@ struct HomeView: View {
                 xAxisFormat: store.xAxisFormat,
                 isPinned: store.isPinned(.systemLoadAverage, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemLoadAverage, onSystem: resolvedItem.systemID) }
+            )
+        case .systemSwap:
+            SystemSwapChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                isPinned: store.isPinned(.systemSwap, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemSwap, onSystem: resolvedItem.systemID) }
+            )
+        case .systemGPU:
+            SystemGPUChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                isPinned: store.isPinned(.systemGPU, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemGPU, onSystem: resolvedItem.systemID) }
+            )
+        case .systemNetworkInterfaces:
+            SystemNetworkInterfacesChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                isPinned: store.isPinned(.systemNetworkInterfaces, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemNetworkInterfaces, onSystem: resolvedItem.systemID) }
+            )
+        case .systemExtraFilesystems:
+            SystemExtraFilesystemsChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                isPinned: store.isPinned(.systemExtraFilesystems, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemExtraFilesystems, onSystem: resolvedItem.systemID) }
             )
         case .containerCPU(let name):
             if let container = containerData.first(where: { $0.id == name }) {

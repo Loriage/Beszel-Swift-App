@@ -2,9 +2,26 @@ import SwiftUI
 
 struct WidgetSystemSummaryView: View {
     let systemInfo: SystemInfo?
+    let systemDetails: SystemDetailsRecord?
     let stats: SystemStatsDetail
     let systemName: String
     let status: String?
+
+    /// CPU model from either system_details endpoint (0.18.0+) or legacy info field
+    private var cpuModel: String? {
+        if let cpu = systemDetails?.cpu {
+            return cpu
+        }
+        return systemInfo?.m
+    }
+
+    /// CPU cores from either system_details endpoint (0.18.0+) or legacy info field
+    private var cpuCores: Int? {
+        if let cores = systemDetails?.cores {
+            return cores
+        }
+        return systemInfo?.c
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -17,7 +34,7 @@ struct WidgetSystemSummaryView: View {
                     StatusBadge(status: status, uptime: systemInfo?.u)
                 }
                 
-                if let model = systemInfo?.m {
+                if let model = cpuModel {
                     Text(model)
                         .font(.caption2)
                         .foregroundColor(.secondary)
@@ -66,7 +83,7 @@ struct WidgetSystemSummaryView: View {
     }
     
     private func colorForLoad(_ val: Double) -> Color {
-        guard let cores = systemInfo?.c, cores > 0 else { return .green }
+        guard let cores = cpuCores, cores > 0 else { return .green }
         let limit = Double(cores)
         if val >= limit * 1.5 { return .red }
         else if val >= limit { return .orange }

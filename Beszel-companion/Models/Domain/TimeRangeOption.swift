@@ -1,6 +1,6 @@
 import Foundation
 
-enum TimeRangeOption: String, CaseIterable, Identifiable {
+enum TimeRangeOption: String, CaseIterable, Identifiable, Sendable {
     case lastHour = "timeRange.lastHour"
     case last12Hours = "timeRange.last12Hours"
     case last24Hours = "timeRange.last24Hours"
@@ -45,11 +45,17 @@ extension TimeRangeOption {
         return "created >= '\(dateString)'"
     }
     
+    /// Interval for full data refresh (historical charts)
     var refreshInterval: TimeInterval {
         switch self {
         case .lastHour: return 60
         case .last12Hours: return 30 * 60
         case .last24Hours, .last7Days, .last30Days: return 60 * 60
         }
+    }
+
+    /// Interval for fast polling (latest stats only) - ~12 seconds for real-time feel
+    var fastRefreshInterval: TimeInterval {
+        return 12
     }
 }

@@ -15,6 +15,7 @@ struct SystemView: View {
                 
                 if let latestStats = store.latestSystemStats, let system = instanceManager.activeSystem {
                     SystemSummaryCard(
+                        system: system,
                         systemInfo: system.info,
                         stats: latestStats.stats,
                         systemName: system.name,
@@ -71,6 +72,38 @@ struct SystemView: View {
                             onPinToggle: { store.togglePin(for: .systemTemperature) }
                         )
                     }
+                    if store.hasSwapData {
+                        SystemSwapChartView(
+                            dataPoints: store.systemDataPoints,
+                            xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.systemSwap),
+                            onPinToggle: { store.togglePin(for: .systemSwap) }
+                        )
+                    }
+                    if store.hasGPUData {
+                        SystemGPUChartView(
+                            dataPoints: store.systemDataPoints,
+                            xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.systemGPU),
+                            onPinToggle: { store.togglePin(for: .systemGPU) }
+                        )
+                    }
+                    if store.hasNetworkInterfacesData {
+                        SystemNetworkInterfacesChartView(
+                            dataPoints: store.systemDataPoints,
+                            xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.systemNetworkInterfaces),
+                            onPinToggle: { store.togglePin(for: .systemNetworkInterfaces) }
+                        )
+                    }
+                    if store.hasExtraFilesystemsData {
+                        SystemExtraFilesystemsChartView(
+                            dataPoints: store.systemDataPoints,
+                            xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.systemExtraFilesystems),
+                            onPinToggle: { store.togglePin(for: .systemExtraFilesystems) }
+                        )
+                    }
                 }
                 .padding(.horizontal)
                 .opacity(store.systemDataPoints.isEmpty ? 0 : 1)
@@ -85,13 +118,21 @@ struct SystemView: View {
                 ProgressView()
             } else if let errorMessage = store.errorMessage, store.systemDataPoints.isEmpty {
                 ContentUnavailableView {
-                    Label("Error", systemImage: "exclamationmark.triangle")
+                    Label("common.error", systemImage: "exclamationmark.triangle")
                 } description: {
                     Text(errorMessage)
+                } actions: {
+                    Button("common.retry") {
+                        store.clearAuthenticationError()
+                        Task {
+                            await store.fetchData()
+                        }
+                    }
+                    .buttonStyle(.bordered)
                 }
             } else if store.systemDataPoints.isEmpty {
                 ContentUnavailableView(
-                    "No Data",
+                    "common.noData",
                     systemImage: "chart.bar.xaxis",
                     description: Text("widget.noData")
                 )

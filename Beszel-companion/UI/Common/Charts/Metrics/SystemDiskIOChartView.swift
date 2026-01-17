@@ -77,6 +77,16 @@ struct SystemDiskIOChartView: View {
             .padding(.top, 5)
             .frame(height: 200)
             .drawingGroup()
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("Disk I/O (MB/s)"))
+            .accessibilityValue(accessibilityDescription)
         }
+    }
+
+    private var accessibilityDescription: String {
+        guard let latest = dataPoints.last?.diskIO else { return "" }
+        let read = latest.read / 1024_000.0
+        let write = latest.write / 1024_000.0
+        return String(format: "Read: %.1f MB/s, Write: %.1f MB/s", read, write)
     }
 }

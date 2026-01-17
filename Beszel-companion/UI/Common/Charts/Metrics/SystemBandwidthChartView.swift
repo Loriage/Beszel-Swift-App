@@ -77,6 +77,16 @@ struct SystemBandwidthChartView: View {
             .padding(.top, 5)
             .frame(height: 200)
             .drawingGroup()
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("Bandwidth (MB/s)"))
+            .accessibilityValue(accessibilityDescription)
         }
+    }
+
+    private var accessibilityDescription: String {
+        guard let latest = dataPoints.last?.bandwidth else { return "" }
+        let download = latest.download / 1024_000.0
+        let upload = latest.upload / 1024_000.0
+        return String(format: "Download: %.1f MB/s, Upload: %.1f MB/s", download, upload)
     }
 }

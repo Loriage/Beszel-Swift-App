@@ -3,7 +3,8 @@ import WidgetKit
 
 struct BeszelWidgetEntryView : View {
     private let languageManager = LanguageManager()
-    var entry: Provider.Entry
+    @Environment(\.widgetFamily) private var widgetFamily
+    var entry: SimpleEntry
     
     private var widgetXAxisFormat: Date.FormatStyle {
         return entry.timeRange.xAxisFormat
@@ -13,6 +14,14 @@ struct BeszelWidgetEntryView : View {
         VStack(alignment: .leading) {
             if let errorMessage = entry.errorMessage {
                 ErrorView(message: errorMessage)
+            }
+            else if widgetFamily.isLockScreen {
+                LockScreenSystemInfoView(
+                    systemName: entry.systemName,
+                    status: entry.status,
+                    stats: entry.latestStats,
+                    metric: entry.lockScreenMetric
+                )
             }
             else if entry.chartType != .systemInfo && entry.dataPoints.isEmpty {
                 NoDataPlaceholderView()
@@ -32,6 +41,7 @@ struct BeszelWidgetEntryView : View {
             if let stats = entry.latestStats {
                 WidgetSystemSummaryView(
                     systemInfo: entry.systemInfo,
+                    systemDetails: entry.systemDetails,
                     stats: stats,
                     systemName: entry.systemName,
                     status: entry.status

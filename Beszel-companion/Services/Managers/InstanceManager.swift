@@ -35,24 +35,26 @@ final class InstanceManager {
         didSet {
             guard activeInstanceID != oldValue else { return }
             userDefaultsStore.set(activeInstanceID, forKey: "activeInstanceID")
-            
+            userDefaultsStore.synchronize()
+
             activeSystemID = nil
             activeSystem = nil
             systems = []
             systemDetails = [:]
-            
+
             updateActiveInstance()
-            
+
             if let instance = activeInstance {
                 fetchSystemsForInstance(instance)
             }
         }
     }
-    
+
     var activeSystemID: String? {
         didSet {
             guard activeSystemID != oldValue else { return }
             userDefaultsStore.set(activeSystemID, forKey: "activeSystemID")
+            userDefaultsStore.synchronize()
             updateActiveSystem()
         }
     }
@@ -173,9 +175,17 @@ final class InstanceManager {
     }
     
     func reloadFromStore() {
-        if let data = userDefaultsStore.data(forKey: "instances"),
-           let decoded = try? JSONDecoder().decode([Instance].self, from: data) {
+        guard let data = userDefaultsStore.data(forKey: "instances") else {
+            logger.warning("No instances data found in UserDefaults")
+            return
+        }
+
+        do {
+            let decoded = try JSONDecoder().decode([Instance].self, from: data)
             self.instances = decoded
+            logger.info("Reloaded \(decoded.count) instances from store")
+        } catch {
+            logger.error("Failed to decode instances: \(error.localizedDescription)")
         }
     }
     
@@ -263,6 +273,7 @@ final class InstanceManager {
     private func saveInstances() {
         if let data = try? JSONEncoder().encode(instances) {
             userDefaultsStore.set(data, forKey: "instances")
+            userDefaultsStore.synchronize()
         }
     }
     

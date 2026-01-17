@@ -1,5 +1,8 @@
 import WidgetKit
 import SwiftUI
+import os
+
+private let widgetLogger = Logger(subsystem: "com.nohitdev.Beszel.widget", category: "Timeline")
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
@@ -103,12 +106,10 @@ struct Provider: AppIntentTimelineProvider {
 
     func snapshot(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> SimpleEntry {
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
-        let resolvedChartType: WidgetChartType = context.family.isLockScreen ? .systemInfo : chartType
-        let lockScreenMetric = LockScreenMetric(metric: configuration.metric)
 
         return SimpleEntry(
             date: Date(),
-            chartType: resolvedChartType,
+            chartType: chartType,
             dataPoints: sampleDataPoints(),
             systemInfo: .sample(),
             systemDetails: nil,
@@ -116,26 +117,25 @@ struct Provider: AppIntentTimelineProvider {
             systemName: "My Server",
             status: "up",
             timeRange: .last24Hours,
-            lockScreenMetric: lockScreenMetric
+            lockScreenMetric: .cpu
         )
     }
 
     func timeline(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> Timeline<SimpleEntry> {
         let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
-        let lockScreenMetric = LockScreenMetric(metric: configuration.metric)
 
         return await buildTimeline(
             configurationInstanceID: configuration.instance?.id,
             configurationSystemID: configuration.system?.id,
             configurationSystemName: configuration.system?.name,
             chartType: chartType,
-            lockScreenMetric: lockScreenMetric,
+            lockScreenMetric: .cpu,
             context: context
         )
     }
 }
 
-struct LockScreenProvider: AppIntentTimelineProvider {
+struct CircularLockScreenProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(
             date: Date(),
@@ -182,6 +182,49 @@ struct LockScreenProvider: AppIntentTimelineProvider {
     }
 }
 
+struct RectangularLockScreenProvider: AppIntentTimelineProvider {
+    func placeholder(in context: Context) -> SimpleEntry {
+        SimpleEntry(
+            date: Date(),
+            chartType: WidgetChartType.systemInfo,
+            dataPoints: [],
+            systemInfo: nil,
+            systemDetails: nil,
+            latestStats: nil,
+            systemName: "System",
+            status: nil,
+            timeRange: .last24Hours,
+            lockScreenMetric: .cpu
+        )
+    }
+
+    func snapshot(for configuration: SelectInstanceIntent, in context: Context) async -> SimpleEntry {
+        return SimpleEntry(
+            date: Date(),
+            chartType: WidgetChartType.systemInfo,
+            dataPoints: [],
+            systemInfo: .sample(),
+            systemDetails: nil,
+            latestStats: .sample(),
+            systemName: "My Server",
+            status: "up",
+            timeRange: .last24Hours,
+            lockScreenMetric: .cpu
+        )
+    }
+
+    func timeline(for configuration: SelectInstanceIntent, in context: Context) async -> Timeline<SimpleEntry> {
+        return await buildTimeline(
+            configurationInstanceID: configuration.instance?.id,
+            configurationSystemID: configuration.system?.id,
+            configurationSystemName: configuration.system?.name,
+            chartType: WidgetChartType.systemInfo,
+            lockScreenMetric: .cpu,
+            context: context
+        )
+    }
+}
+
 private func buildTimeline(
     configurationInstanceID: String?,
     configurationSystemID: String?,
@@ -190,31 +233,51 @@ private func buildTimeline(
     lockScreenMetric: LockScreenMetric,
     context: TimelineProviderContext
 ) async -> Timeline<SimpleEntry> {
-    let resolvedChartType: WidgetChartType = context.family.isLockScreen ? .systemInfo : chartType
+    let isLockScreen = context.family.isLockScreen
+    let resolvedChartType: WidgetChartType = isLockScreen ? .systemInfo : chartType
     let userDefaults = UserDefaults(suiteName: "group.com.nohitdev.Beszel")
     let activeInstanceID = userDefaults?.string(forKey: "activeInstanceID")
     let activeSystemID = userDefaults?.string(forKey: "activeSystemID")
 
-    let (instance, systemID, systemName, timeRange, apiService) = await MainActor.run { () -> (Instance?, String?, String?, TimeRangeOption, BeszelAPIService?) in
+    let (instance, systemID, systemName, timeRange, apiService, instanceError) = await MainActor.run { () -> (Instance?, String?, String?, TimeRangeOption, BeszelAPIService?, String?) in
         let settingsManager = SettingsManager()
         InstanceManager.shared.reloadFromStore()
 
+        let instanceCount = InstanceManager.shared.instances.count
+        widgetLogger.info("Widget timeline: instances loaded = \(instanceCount)")
+
         let resolvedInstanceID = configurationInstanceID ?? activeInstanceID
-        guard let instanceIDString = resolvedInstanceID,
-              let instanceID = UUID(uuidString: instanceIDString),
-              let foundInstance = InstanceManager.shared.instances.first(where: { $0.id == instanceID }) else {
-            return (nil, nil, nil, .last24Hours, nil)
+        widgetLogger.info("Widget timeline: configInstanceID=\(configurationInstanceID ?? "nil", privacy: .public), activeInstanceID=\(activeInstanceID ?? "nil", privacy: .public), resolved=\(resolvedInstanceID ?? "nil", privacy: .public)")
+
+        guard let instanceIDString = resolvedInstanceID else {
+            widgetLogger.warning("Widget timeline: No instance ID available")
+            return (nil, nil, nil, .last24Hours, nil, "widget.error.noInstance")
         }
 
-        let range = settingsManager.selectedTimeRange
+        guard let instanceID = UUID(uuidString: instanceIDString) else {
+            widgetLogger.error("Widget timeline: Invalid UUID format: \(instanceIDString, privacy: .public)")
+            return (nil, nil, nil, .last24Hours, nil, "widget.error.noInstance")
+        }
+
+        guard let foundInstance = InstanceManager.shared.instances.first(where: { $0.id == instanceID }) else {
+            let availableIDs = InstanceManager.shared.instances.map { $0.id.uuidString }.joined(separator: ", ")
+            widgetLogger.error("Widget timeline: Instance not found. Looking for: \(instanceIDString, privacy: .public), available: \(availableIDs, privacy: .public)")
+            return (nil, nil, nil, .last24Hours, nil, "widget.error.noInstance")
+        }
+
+        widgetLogger.info("Widget timeline: Found instance '\(foundInstance.name, privacy: .public)'")
+
+        // For lock screen widgets, use a shorter time range to reduce data volume
+        let range: TimeRangeOption = isLockScreen ? .lastHour : settingsManager.selectedTimeRange
         let service = BeszelAPIService(instance: foundInstance, instanceManager: InstanceManager.shared)
 
-        return (foundInstance, configurationSystemID ?? activeSystemID, configurationSystemName, range, service)
+        return (foundInstance, configurationSystemID ?? activeSystemID, configurationSystemName, range, service, nil)
     }
 
     guard let _ = instance,
           let apiService = apiService else {
-        let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: "Unknown", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.notConnected")
+        let errorMessage = instanceError ?? "widget.error.noInstance"
+        let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: "Unknown", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: errorMessage)
         return Timeline(entries: [entry], policy: .atEnd)
     }
 
@@ -236,7 +299,8 @@ private func buildTimeline(
         }
 
         guard let finalSystemID = resolvedSystemID else {
-            let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: "Unknown", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.notConnected")
+            widgetLogger.error("Widget timeline: No system found")
+            let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: "Unknown", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.error.noSystem")
             return Timeline(entries: [entry], policy: .atEnd)
         }
 
@@ -297,11 +361,14 @@ private func buildTimeline(
         return Timeline(entries: [entry], policy: .after(nextUpdate))
 
     } catch {
+        widgetLogger.error("Widget timeline: Network error - \(error.localizedDescription, privacy: .public)")
+
         // Try to load from cache instead of showing error
         let resolvedInstanceID = configurationInstanceID ?? activeInstanceID
         let resolvedSystemID = configurationSystemID ?? activeSystemID
 
         if let cached = WidgetCacheManager.load(instanceID: resolvedInstanceID, systemID: resolvedSystemID) {
+            widgetLogger.info("Widget timeline: Using cached data")
             let entry = SimpleEntry(
                 date: .now,
                 chartType: resolvedChartType,
@@ -319,7 +386,7 @@ private func buildTimeline(
         }
 
         // No cache available, show error
-        let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: systemName ?? "System", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.loadingError")
+        let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: systemName ?? "System", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.error.networkError")
         return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60)))
     }
 }
@@ -355,16 +422,29 @@ struct BeszelWidget: Widget {
     }
 }
 
-struct BeszelLockScreenWidget: Widget {
-    let kind: String = "BeszelLockScreenWidget"
+struct BeszelCircularWidget: Widget {
+    let kind: String = "BeszelCircularWidget"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: SelectInstanceAndMetricIntent.self, provider: LockScreenProvider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: SelectInstanceAndMetricIntent.self, provider: CircularLockScreenProvider()) { entry in
             BeszelWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("widget.displayName")
-        .description("widget.description")
-        .supportedFamilies([.accessoryCircular, .accessoryRectangular, .accessoryInline])
+        .configurationDisplayName("widget.circular.displayName")
+        .description("widget.circular.description")
+        .supportedFamilies([.accessoryCircular])
+    }
+}
+
+struct BeszelRectangularWidget: Widget {
+    let kind: String = "BeszelRectangularWidget"
+
+    var body: some WidgetConfiguration {
+        AppIntentConfiguration(kind: kind, intent: SelectInstanceIntent.self, provider: RectangularLockScreenProvider()) { entry in
+            BeszelWidgetEntryView(entry: entry)
+        }
+        .configurationDisplayName("widget.rectangular.displayName")
+        .description("widget.rectangular.description")
+        .supportedFamilies([.accessoryRectangular, .accessoryInline])
     }
 }
 
@@ -372,6 +452,7 @@ struct BeszelLockScreenWidget: Widget {
 struct BeszelWidgetBundle: WidgetBundle {
     var body: some Widget {
         BeszelWidget()
-        BeszelLockScreenWidget()
+        BeszelCircularWidget()
+        BeszelRectangularWidget()
     }
 }

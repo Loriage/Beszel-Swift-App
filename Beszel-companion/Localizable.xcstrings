@@ -3019,6 +3019,38 @@
         }
       }
     },
+    "widget.circular.description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Display a metric gauge on your lock screen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affichez une jauge de métrique sur votre écran de verrouillage."
+          }
+        }
+      }
+    },
+    "widget.circular.displayName" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beszel Gauge"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jauge Beszel"
+          }
+        }
+      }
+    },
     "widget.configuration.description" : {
       "localizations" : {
         "en" : {
@@ -3115,6 +3147,57 @@
         }
       }
     },
+    "widget.error.networkError" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network Error"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erreur réseau"
+          }
+        }
+      }
+    },
+    "widget.error.noInstance" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Instance"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune instance"
+          }
+        }
+      }
+    },
+    "widget.error.noSystem" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No System"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun système"
+          }
+        }
+      }
+    },
     "widget.loadingError" : {
       "localizations" : {
         "en" : {
@@ -3159,6 +3242,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Non connecté"
+          }
+        }
+      }
+    },
+    "widget.rectangular.description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Display system info on your lock screen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affichez les infos système sur votre écran de verrouillage."
+          }
+        }
+      }
+    },
+    "widget.rectangular.displayName" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beszel Info"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Infos Beszel"
           }
         }
       }

@@ -7,8 +7,6 @@ public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
     public static var title: LocalizedStringResource = "widget.configuration.title"
     public static var description: IntentDescription = "widget.configuration.description"
 
-    public static var openAppWhenRun: Bool = true
-
     @Parameter(title: "chart.configuration.instance.title")
     public var instance: InstanceEntity?
 
@@ -18,24 +16,18 @@ public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
     @Parameter(title: "chart.configuration.chartType.title")
     public var chart: ChartTypeEntity?
 
-    @Parameter(title: "widget.configuration.metric.title")
-    public var metric: MetricEntity?
-
     public init() {}
 
-    public init(instance: InstanceEntity?, system: SystemEntity?, chart: ChartTypeEntity?, metric: MetricEntity?) {
+    public init(instance: InstanceEntity?, system: SystemEntity?, chart: ChartTypeEntity?) {
         self.instance = instance
         self.system = system
         self.chart = chart
-        self.metric = metric
     }
 }
 
 public struct SelectInstanceAndMetricIntent: WidgetConfigurationIntent {
     public static var title: LocalizedStringResource = "widget.configuration.title"
     public static var description: IntentDescription = "widget.configuration.description"
-
-    public static var openAppWhenRun: Bool = true
 
     @Parameter(title: "chart.configuration.instance.title")
     public var instance: InstanceEntity?
@@ -52,6 +44,24 @@ public struct SelectInstanceAndMetricIntent: WidgetConfigurationIntent {
         self.instance = instance
         self.system = system
         self.metric = metric
+    }
+}
+
+public struct SelectInstanceIntent: WidgetConfigurationIntent {
+    public static var title: LocalizedStringResource = "widget.configuration.title"
+    public static var description: IntentDescription = "widget.configuration.description"
+
+    @Parameter(title: "chart.configuration.instance.title")
+    public var instance: InstanceEntity?
+
+    @Parameter(title: "chart.configuration.system.title")
+    public var system: SystemEntity?
+
+    public init() {}
+
+    public init(instance: InstanceEntity?, system: SystemEntity?) {
+        self.instance = instance
+        self.system = system
     }
 }
 

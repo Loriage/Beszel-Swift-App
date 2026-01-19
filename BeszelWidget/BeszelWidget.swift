@@ -19,8 +19,6 @@ struct SimpleEntry: TimelineEntry {
     var isFromCache: Bool = false
 }
 
-// MARK: - Widget Cache
-
 private struct WidgetCache: Codable {
     let latestStats: SystemStatsDetail?
     let systemInfo: SystemInfo?
@@ -238,100 +236,99 @@ private func buildTimeline(
     let userDefaults = UserDefaults(suiteName: "group.com.nohitdev.Beszel")
     let activeInstanceID = userDefaults?.string(forKey: "activeInstanceID")
     let activeSystemID = userDefaults?.string(forKey: "activeSystemID")
-
+    
     let (instance, systemID, systemName, timeRange, apiService, instanceError) = await MainActor.run { () -> (Instance?, String?, String?, TimeRangeOption, BeszelAPIService?, String?) in
         let settingsManager = SettingsManager()
         InstanceManager.shared.reloadFromStore()
-
+        
         let instanceCount = InstanceManager.shared.instances.count
         widgetLogger.info("Widget timeline: instances loaded = \(instanceCount)")
-
+        
         let resolvedInstanceID = configurationInstanceID ?? activeInstanceID
         widgetLogger.info("Widget timeline: configInstanceID=\(configurationInstanceID ?? "nil", privacy: .public), activeInstanceID=\(activeInstanceID ?? "nil", privacy: .public), resolved=\(resolvedInstanceID ?? "nil", privacy: .public)")
-
+        
         guard let instanceIDString = resolvedInstanceID else {
             widgetLogger.warning("Widget timeline: No instance ID available")
             return (nil, nil, nil, .last24Hours, nil, "widget.error.noInstance")
         }
-
+        
         guard let instanceID = UUID(uuidString: instanceIDString) else {
             widgetLogger.error("Widget timeline: Invalid UUID format: \(instanceIDString, privacy: .public)")
             return (nil, nil, nil, .last24Hours, nil, "widget.error.noInstance")
         }
-
+        
         guard let foundInstance = InstanceManager.shared.instances.first(where: { $0.id == instanceID }) else {
             let availableIDs = InstanceManager.shared.instances.map { $0.id.uuidString }.joined(separator: ", ")
             widgetLogger.error("Widget timeline: Instance not found. Looking for: \(instanceIDString, privacy: .public), available: \(availableIDs, privacy: .public)")
             return (nil, nil, nil, .last24Hours, nil, "widget.error.noInstance")
         }
-
+        
         widgetLogger.info("Widget timeline: Found instance '\(foundInstance.name, privacy: .public)'")
-
-        // For lock screen widgets, use a shorter time range to reduce data volume
+        
         let range: TimeRangeOption = isLockScreen ? .lastHour : settingsManager.selectedTimeRange
         let service = BeszelAPIService(instance: foundInstance, instanceManager: InstanceManager.shared)
-
+        
         return (foundInstance, configurationSystemID ?? activeSystemID, configurationSystemName, range, service, nil)
     }
-
+    
     guard let _ = instance,
           let apiService = apiService else {
         let errorMessage = instanceError ?? "widget.error.noInstance"
         let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: "Unknown", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: errorMessage)
         return Timeline(entries: [entry], policy: .atEnd)
     }
-
+    
     do {
         var resolvedSystemID = systemID
         var resolvedSystemName = systemName
         var systems: [SystemRecord] = []
-
+        
         if resolvedSystemID == nil || resolvedSystemName == nil || resolvedChartType == .systemInfo {
             systems = try await apiService.fetchSystems()
         }
-
+        
         if resolvedSystemID == nil {
             resolvedSystemID = systems.first?.id
         }
-
+        
         if resolvedSystemName == nil, let resolvedID = resolvedSystemID {
             resolvedSystemName = systems.first(where: { $0.id == resolvedID })?.name ?? "System"
         }
-
+        
         guard let finalSystemID = resolvedSystemID else {
             widgetLogger.error("Widget timeline: No system found")
             let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: "Unknown", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.error.noSystem")
             return Timeline(entries: [entry], policy: .atEnd)
         }
-
+        
         let filter = "(\(timeRange.apiFilterString) && system = '\(finalSystemID)')"
         async let statsTask = apiService.fetchSystemStats(filter: filter)
         async let detailsTask: [SystemDetailsRecord] = (resolvedChartType == .systemInfo) ? apiService.fetchSystemDetails() : []
-
+        
         let records = try await statsTask
         let details = try await detailsTask
-
+        
         let dataPoints = records.asDataPoints()
-
+        
         var fetchedInfo: SystemInfo? = nil
         var fetchedDetails: SystemDetailsRecord? = nil
         var latestStats: SystemStatsDetail? = nil
         var status: String? = nil
-
+        
         if resolvedChartType == .systemInfo {
             if let lastRecord = records.max(by: { $0.created < $1.created }) {
                 latestStats = lastRecord.stats
             }
-
+            
             if let foundSystem = systems.first(where: { $0.id == finalSystemID }) {
                 fetchedInfo = foundSystem.info
                 status = foundSystem.status
             }
-
+            
             // Get system details for 0.18.0+ agents
             fetchedDetails = details.first(where: { $0.system == finalSystemID })
         }
-
+        
         // Cache the successful data for lock screen widgets
         let resolvedInstanceID = configurationInstanceID ?? activeInstanceID
         WidgetCacheManager.save(
@@ -343,7 +340,7 @@ private func buildTimeline(
             instanceID: resolvedInstanceID,
             systemID: finalSystemID
         )
-
+        
         let entry = SimpleEntry(
             date: .now,
             chartType: resolvedChartType,
@@ -356,18 +353,16 @@ private func buildTimeline(
             timeRange: timeRange,
             lockScreenMetric: lockScreenMetric
         )
-
+        
         let nextUpdate = Date().addingTimeInterval(15 * 60)
         return Timeline(entries: [entry], policy: .after(nextUpdate))
-
+        
     } catch {
         widgetLogger.error("Widget timeline: Network error - \(error.localizedDescription, privacy: .public)")
-
-        // Try to load from cache instead of showing error
+        
         let resolvedInstanceID = configurationInstanceID ?? activeInstanceID
-        let resolvedSystemID = configurationSystemID ?? activeSystemID
-
-        if let cached = WidgetCacheManager.load(instanceID: resolvedInstanceID, systemID: resolvedSystemID) {
+        
+        if let cached = WidgetCacheManager.load(instanceID: resolvedInstanceID, systemID: systemID) {
             widgetLogger.info("Widget timeline: Using cached data")
             let entry = SimpleEntry(
                 date: .now,
@@ -384,8 +379,7 @@ private func buildTimeline(
             )
             return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60)))
         }
-
-        // No cache available, show error
+        
         let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: systemName ?? "System", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.error.networkError")
         return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60)))
     }

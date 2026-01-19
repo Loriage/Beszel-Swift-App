@@ -329,7 +329,6 @@ private func buildTimeline(
             fetchedDetails = details.first(where: { $0.system == finalSystemID })
         }
         
-        // Cache the successful data for lock screen widgets
         let resolvedInstanceID = configurationInstanceID ?? activeInstanceID
         WidgetCacheManager.save(
             latestStats: latestStats,

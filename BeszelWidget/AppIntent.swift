@@ -111,22 +111,38 @@ public struct SystemEntity: AppEntity {
 
 public struct SystemQuery: EntityQuery {
     private static let logger = Logger(subsystem: "com.nohitdev.Beszel.widget", category: "SystemQuery")
+    private static let userDefaults = UserDefaults(suiteName: "group.com.nohitdev.Beszel")
+    private static let cacheKey = "cachedSystemEntities"
 
     public init() {}
-    
+
     public func entities(for identifiers: [String]) async throws -> [SystemEntity] {
+        // First try to get from API
         let allSystems = await allSystemsForSelectedInstance()
-        return allSystems.filter { identifiers.contains($0.id) }
+        let found = allSystems.filter { identifiers.contains($0.id) }
+
+        // If we found all requested entities, return them
+        if found.count == identifiers.count {
+            return found
+        }
+
+        // If some entities are missing, try to get them from cache
+        // This prevents iOS from seeing the entity as nil when API fails
+        let cachedSystems = Self.loadCachedSystems()
+        let missingIds = Set(identifiers).subtracting(found.map { $0.id })
+        let fromCache = cachedSystems.filter { missingIds.contains($0.id) }
+
+        return found + fromCache
     }
-    
+
     public func suggestedEntities() async throws -> [SystemEntity] {
         return await allSystemsForSelectedInstance()
     }
-    
+
     private func allSystemsForSelectedInstance() async -> [SystemEntity] {
         let apiService = await MainActor.run { () -> BeszelAPIService? in
             let manager = InstanceManager.shared
-            let idString = UserDefaults(suiteName: "group.com.nohitdev.Beszel")?.string(forKey: "activeInstanceID")
+            let idString = Self.userDefaults?.string(forKey: "activeInstanceID")
 
             guard let activeIDString = idString,
                   let _ = UUID(uuidString: activeIDString),
@@ -138,15 +154,36 @@ public struct SystemQuery: EntityQuery {
         }
 
         guard let apiService = apiService else {
-            return []
+            return Self.loadCachedSystems()
         }
 
         do {
             let systems = try await apiService.fetchSystems()
-            return systems.map { SystemEntity(id: $0.id, name: $0.name) }
+            let entities = systems.map { SystemEntity(id: $0.id, name: $0.name) }
+            // Cache the systems for future use when API fails
+            Self.saveCachedSystems(entities)
+            return entities
         } catch {
             Self.logger.error("Failed to fetch systems for widget: \(error.localizedDescription)")
+            // Return cached systems when API fails
+            return Self.loadCachedSystems()
+        }
+    }
+
+    // MARK: - Cache helpers
+
+    private static func saveCachedSystems(_ systems: [SystemEntity]) {
+        let data = systems.map { ["id": $0.id, "name": $0.name] }
+        userDefaults?.set(data, forKey: cacheKey)
+    }
+
+    private static func loadCachedSystems() -> [SystemEntity] {
+        guard let data = userDefaults?.array(forKey: cacheKey) as? [[String: String]] else {
             return []
+        }
+        return data.compactMap { dict in
+            guard let id = dict["id"], let name = dict["name"] else { return nil }
+            return SystemEntity(id: id, name: name)
         }
     }
 }

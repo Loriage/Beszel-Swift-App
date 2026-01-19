@@ -3,14 +3,17 @@ import Foundation
 actor BeszelAPIService {
     private let instance: Instance
     private let instanceManager: InstanceManager
-    
+
     private let baseURL: String
     private let email: String
-    
+
     private var credential: String?
     private var authToken: String?
-    
+
     private var refreshTask: Task<String, Error>?
+
+    private static let tokenCache = UserDefaults(suiteName: "group.com.nohitdev.Beszel")
+    private static let tokenCacheValiditySeconds: TimeInterval = 600
     
     private nonisolated static let jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -57,34 +60,65 @@ actor BeszelAPIService {
         self.credential = loaded
         return loaded
     }
-    
+
+    private nonisolated func cacheKey() -> String {
+        "cachedToken_\(instance.id.uuidString)"
+    }
+
+    private nonisolated func cacheTimestampKey() -> String {
+        "cachedTokenTime_\(instance.id.uuidString)"
+    }
+
+    private nonisolated func getCachedToken() -> String? {
+        guard let token = Self.tokenCache?.string(forKey: cacheKey()),
+              let timestamp = Self.tokenCache?.object(forKey: cacheTimestampKey()) as? Date else {
+            return nil
+        }
+        
+        if Date().timeIntervalSince(timestamp) < Self.tokenCacheValiditySeconds {
+            return token
+        }
+        return nil
+    }
+
+    private nonisolated func setCachedToken(_ token: String) {
+        Self.tokenCache?.set(token, forKey: cacheKey())
+        Self.tokenCache?.set(Date(), forKey: cacheTimestampKey())
+    }
+
     private func getValidToken() async throws -> String {
         if let currentToken = authToken {
             return currentToken
         }
-        
+
+        if let cachedToken = getCachedToken() {
+            self.authToken = cachedToken
+            return cachedToken
+        }
+
         if let existingTask = refreshTask {
             return try await existingTask.value
         }
-        
+
         let task = Task { () -> String in
             let cred = getStoredCredential()
             guard !cred.isEmpty else {
                 throw URLError(.userAuthenticationRequired)
             }
-            
+
             if isJWT(cred) {
                 return try await refreshToken(currentToken: cred)
             } else {
                 return try await loginWithPassword(password: cred)
             }
         }
-        
+
         self.refreshTask = task
-        
+
         do {
             let newToken = try await task.value
             self.authToken = newToken
+            setCachedToken(newToken)
             self.refreshTask = nil
             return newToken
         } catch {
@@ -214,7 +248,6 @@ actor BeszelAPIService {
             let response: PocketBaseListResponse<SystemDetailsRecord> = try await performRequest(with: url)
             return response.items
         } catch let error as BeszelAPIError {
-            // If the endpoint doesn't exist (404), return empty array for backward compatibility
             if case .httpError(let statusCode, _) = error, statusCode == 404 {
                 return []
             }
@@ -260,9 +293,7 @@ actor BeszelAPIService {
         let response: PocketBaseListResponse<SystemStatsRecord> = try await performRequest(with: url)
         return response.items.first
     }
-
-    // MARK: - Alerts
-
+    
     func fetchAlerts(filter: String?) async throws -> [AlertRecord] {
         try await fetchAllPages(path: "/api/collections/alerts/records", filter: filter)
     }

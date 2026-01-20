@@ -74,6 +74,7 @@ struct MainView: View {
                     }
                     .navigationDestination(for: ProcessedContainerData.self) { container in
                         ContainerDetailView(container: container)
+                            .environment(store)
                     }
                     .task(id: alertManager.pendingAlertDetail?.id) {
                         if let pendingDetail = alertManager.pendingAlertDetail {

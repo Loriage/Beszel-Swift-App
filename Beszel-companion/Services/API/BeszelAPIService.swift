@@ -324,6 +324,74 @@ actor BeszelAPIService {
         let response: PocketBaseListResponse<AlertHistoryRecord> = try await performRequest(with: url)
         return response.items
     }
+
+    func fetchContainers(filter: String?) async throws -> [ContainerRecord] {
+        try await fetchAllPages(path: "/api/collections/containers/records", filter: filter)
+    }
+
+    /// Fetches container logs from the Beszel API
+    /// - Parameters:
+    ///   - systemID: The system ID where the container runs
+    ///   - containerID: The container ID (short form)
+    /// - Returns: Log lines as a string
+    func fetchContainerLogs(systemID: String, containerID: String) async throws -> String {
+        guard var components = URLComponents(string: baseURL) else { throw URLError(.badURL) }
+        components.path = "/api/beszel/containers/logs"
+        components.queryItems = [
+            URLQueryItem(name: "system", value: systemID),
+            URLQueryItem(name: "container", value: containerID)
+        ]
+
+        guard let url = components.url else { throw URLError(.badURL) }
+
+        let token = try await getValidToken()
+        var request = URLRequest(url: url)
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await session.data(for: request)
+
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+            return String(data: data, encoding: .utf8) ?? ""
+        } else if let httpResponse = response as? HTTPURLResponse {
+            throw BeszelAPIError.httpError(statusCode: httpResponse.statusCode, url: url.absoluteString)
+        }
+        throw URLError(.badServerResponse)
+    }
+
+    /// Fetches container details/inspect info from the Beszel API
+    /// - Parameters:
+    ///   - systemID: The system ID where the container runs
+    ///   - containerID: The container ID (short form)
+    /// - Returns: Container info as a JSON string (for display)
+    func fetchContainerInfo(systemID: String, containerID: String) async throws -> String {
+        guard var components = URLComponents(string: baseURL) else { throw URLError(.badURL) }
+        components.path = "/api/beszel/containers/info"
+        components.queryItems = [
+            URLQueryItem(name: "system", value: systemID),
+            URLQueryItem(name: "container", value: containerID)
+        ]
+
+        guard let url = components.url else { throw URLError(.badURL) }
+
+        let token = try await getValidToken()
+        var request = URLRequest(url: url)
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await session.data(for: request)
+
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+            // Pretty print the JSON for display
+            if let json = try? JSONSerialization.jsonObject(with: data),
+               let prettyData = try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted, .sortedKeys]),
+               let prettyString = String(data: prettyData, encoding: .utf8) {
+                return prettyString
+            }
+            return String(data: data, encoding: .utf8) ?? ""
+        } else if let httpResponse = response as? HTTPURLResponse {
+            throw BeszelAPIError.httpError(statusCode: httpResponse.statusCode, url: url.absoluteString)
+        }
+        throw URLError(.badServerResponse)
+    }
     
     private func buildURL(for path: String, filter: String?, page: Int = 1) throws -> URL {
         guard var components = URLComponents(string: baseURL) else {

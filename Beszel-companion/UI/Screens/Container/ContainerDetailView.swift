@@ -327,32 +327,26 @@ struct ContainerInfoHeader: View {
 
     var body: some View {
         GroupBox {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(alignment: .center, spacing: 12) {
                     if let systemName = systemName {
                         Text(systemName)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                        Text("•")
                     }
 
-                    Text("•")
-                        .foregroundColor(.secondary)
-
                     Text(container.status)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
 
                     Text("•")
-                        .foregroundColor(.secondary)
 
                     Text(container.id.prefix(12))
                         .font(.system(.subheadline, design: .monospaced))
-                        .foregroundColor(.secondary)
 
                     if container.health != .none {
                         HealthBadge(health: container.health)
                     }
                 }
+                .font(.subheadline)
+                .foregroundColor(.secondary)
 
                 Label(container.image, systemImage: "shippingbox")
                     .font(.subheadline)
@@ -550,10 +544,11 @@ struct LogHighlightView: UIViewRepresentable {
         if showFull {
             displayText = text
         } else if text.count > Self.maxDisplayLength {
-            // Truncate middle, keep start and end (most recent logs)
-            let keepPerSide = Self.maxDisplayLength / 2
-            let start = String(text.prefix(keepPerSide))
-            let end = String(text.suffix(keepPerSide))
+            // Truncate middle: keep 20% at start, 80% at end (recent logs more important)
+            let keepAtStart = Self.maxDisplayLength / 5
+            let keepAtEnd = Self.maxDisplayLength - keepAtStart
+            let start = String(text.prefix(keepAtStart))
+            let end = String(text.suffix(keepAtEnd))
             displayText = start + "\n\n... [\(text.count - Self.maxDisplayLength) characters hidden] ...\n\n" + end
         } else {
             displayText = text

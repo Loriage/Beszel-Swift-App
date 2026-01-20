@@ -1082,6 +1082,23 @@
         }
       }
     },
+    "container.logs.showAll" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show all logs"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher tous les journaux"
+          }
+        }
+      }
+    },
     "container.logs.title" : {
       "extractionState" : "stale",
       "localizations" : {

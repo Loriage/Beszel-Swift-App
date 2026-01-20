@@ -9,13 +9,22 @@ struct ContainerDetailView: View {
     @Environment(BeszelStore.self) var store
     @Environment(InstanceManager.self) var instanceManager
 
-    @State private var logs: String = ""
-    @State private var info: String = ""
-    @State private var isLoadingLogs = false
-    @State private var isLoadingInfo = false
-    @State private var logsError: String?
-    @State private var infoError: String?
+    @State private var logsState: ViewState<String> = .empty
+    @State private var detailsState: ViewState<String> = .empty
     @State private var selectedTab: DetailTab = .info
+    @State private var showFullLogs = false
+
+    enum ViewState<T: Equatable>: Equatable {
+        case loading
+        case error(String)
+        case empty
+        case loaded(T)
+
+        var isLoading: Bool {
+            if case .loading = self { return true }
+            return false
+        }
+    }
 
     enum DetailTab: String, CaseIterable {
         case info
@@ -67,17 +76,29 @@ struct ContainerDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if selectedTab == .logs || selectedTab == .details {
+                if selectedTab == .logs, case .loaded(let logs) = logsState, formatLogs(logs).count > LogHighlightView.maxDisplayLength {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showFullLogs.toggle()
+                        } label: {
+                            Image(systemName: showFullLogs ? "arrow.up.arrow.down.circle.fill" : "arrow.up.arrow.down.circle")
+                        }
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     refreshButton
                 }
             }
         }
         .onChange(of: selectedTab) { _, newTab in
-            if newTab == .logs && logs.isEmpty && !isLoadingLogs {
+            if newTab == .logs, case .empty = logsState {
                 Task { await fetchLogs() }
-            } else if newTab == .details && info.isEmpty && !isLoadingInfo {
+            } else if newTab == .details, case .empty = detailsState {
                 Task { await fetchInfo() }
             }
+        }
+        .onChange(of: logsState) { _, _ in
+            showFullLogs = false
         }
     }
 
@@ -121,74 +142,82 @@ struct ContainerDetailView: View {
 
     @ViewBuilder
     private var logsTabContent: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            if isLoadingLogs {
-                Spacer()
-                ProgressView()
-                Spacer()
-            } else if let error = logsError {
-                Spacer()
+        switch logsState {
+        case .loading:
+            centeredView { ProgressView() }
+        case .error(let message):
+            centeredView {
                 ContentUnavailableView {
                     Label("common.error", systemImage: "exclamationmark.triangle")
                 } description: {
-                    Text(error)
+                    Text(message)
                 }
-                Spacer()
-            } else if logs.isEmpty {
-                Spacer()
+            }
+        case .empty:
+            centeredView {
                 ContentUnavailableView {
                     Label("container.logs.empty", systemImage: "doc.text")
                 } description: {
                     Text("container.logs.empty.description")
                 }
-                Spacer()
-            } else {
-                ScrollView([.horizontal, .vertical], showsIndicators: true) {
-                    LogHighlightView(text: formatLogs(logs))
-                        .padding()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .background(Color(.systemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .padding()
             }
+        case .loaded(let logs):
+            GeometryReader { geometry in
+                ScrollView([.horizontal, .vertical], showsIndicators: true) {
+                    LogHighlightView(text: formatLogs(logs), showFull: showFullLogs)
+                        .padding()
+                        .frame(minHeight: geometry.size.height, alignment: .top)
+                }
+            }
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .padding()
         }
     }
 
     @ViewBuilder
     private var detailsTabContent: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            if isLoadingInfo {
-                Spacer()
-                ProgressView()
-                Spacer()
-            } else if let error = infoError {
-                Spacer()
+        switch detailsState {
+        case .loading:
+            centeredView { ProgressView() }
+        case .error(let message):
+            centeredView {
                 ContentUnavailableView {
                     Label("common.error", systemImage: "exclamationmark.triangle")
                 } description: {
-                    Text(error)
+                    Text(message)
                 }
-                Spacer()
-            } else if info.isEmpty {
-                Spacer()
+            }
+        case .empty:
+            centeredView {
                 ContentUnavailableView {
                     Label("container.details.empty", systemImage: "info.circle")
                 } description: {
                     Text("container.details.empty.description")
                 }
-                Spacer()
-            } else {
+            }
+        case .loaded(let info):
+            GeometryReader { geometry in
                 ScrollView([.horizontal, .vertical], showsIndicators: true) {
                     JSONHighlightView(text: prettyPrintJSON(info))
                         .padding()
+                        .frame(minHeight: geometry.size.height, alignment: .top)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .padding()
             }
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .padding()
         }
+    }
+
+    @ViewBuilder
+    private func centeredView<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        VStack {
+            Spacer()
+            content()
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var refreshButton: some View {
@@ -203,7 +232,7 @@ struct ContainerDetailView: View {
         } label: {
             Image(systemName: "arrow.clockwise")
         }
-        .disabled(selectedTab == .logs ? isLoadingLogs : isLoadingInfo)
+        .disabled(selectedTab == .logs ? logsState.isLoading : detailsState.isLoading)
     }
 
     private func prettyPrintJSON(_ raw: String) -> String {
@@ -263,36 +292,32 @@ struct ContainerDetailView: View {
         guard let record = containerRecord,
               let instance = instanceManager.activeInstance else { return }
 
-        isLoadingLogs = true
-        logsError = nil
+        logsState = .loading
 
         let apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
 
         do {
-            logs = try await apiService.fetchContainerLogs(systemID: record.system, containerID: record.id)
+            let logs = try await apiService.fetchContainerLogs(systemID: record.system, containerID: record.id)
+            logsState = logs.isEmpty ? .empty : .loaded(logs)
         } catch {
-            logsError = error.localizedDescription
+            logsState = .error(error.localizedDescription)
         }
-
-        isLoadingLogs = false
     }
 
     private func fetchInfo() async {
         guard let record = containerRecord,
               let instance = instanceManager.activeInstance else { return }
 
-        isLoadingInfo = true
-        infoError = nil
+        detailsState = .loading
 
         let apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
 
         do {
-            info = try await apiService.fetchContainerInfo(systemID: record.system, containerID: record.id)
+            let info = try await apiService.fetchContainerInfo(systemID: record.system, containerID: record.id)
+            detailsState = info.isEmpty ? .empty : .loaded(info)
         } catch {
-            infoError = error.localizedDescription
+            detailsState = .error(error.localizedDescription)
         }
-
-        isLoadingInfo = false
     }
 }
 
@@ -367,28 +392,31 @@ struct ContainerInfoHeader: View {
 struct JSONHighlightView: UIViewRepresentable {
     let text: String
 
+    private static let maxHighlightLength = 30_000
+    private static let maxDisplayLength = 100_000
+
     private static let keyColor = UIColor { trait in
         trait.userInterfaceStyle == .dark
-            ? UIColor(red: 0.5, green: 0.9, blue: 0.5, alpha: 1.0)   // bright green
-            : UIColor(red: 0.1, green: 0.5, blue: 0.1, alpha: 1.0)   // dark green
+            ? UIColor(red: 0.5, green: 0.9, blue: 0.5, alpha: 1.0)
+            : UIColor(red: 0.1, green: 0.5, blue: 0.1, alpha: 1.0)
     }
     private static let stringColor = UIColor { trait in
         trait.userInterfaceStyle == .dark
-            ? UIColor(red: 0.5, green: 0.7, blue: 1.0, alpha: 1.0)   // bright blue
-            : UIColor(red: 0.1, green: 0.4, blue: 0.7, alpha: 1.0)   // dark blue
+            ? UIColor(red: 0.5, green: 0.7, blue: 1.0, alpha: 1.0)
+            : UIColor(red: 0.1, green: 0.4, blue: 0.7, alpha: 1.0)
     }
     private static let numberColor = UIColor { trait in
         trait.userInterfaceStyle == .dark
-            ? UIColor(red: 0.4, green: 0.6, blue: 0.9, alpha: 1.0)   // darker blue
-            : UIColor(red: 0.05, green: 0.3, blue: 0.6, alpha: 1.0)  // darker blue
+            ? UIColor(red: 0.4, green: 0.6, blue: 0.9, alpha: 1.0)
+            : UIColor(red: 0.05, green: 0.3, blue: 0.6, alpha: 1.0)
     }
 
     private static let patterns: [(regex: NSRegularExpression, color: UIColor)] = {
         let defs: [(String, UIColor)] = [
-            (#":\s*-?\d+\.?\d*"#, numberColor),  // Numbers
-            (#"\b(true|false|null)\b"#, numberColor), // Booleans and null
-            (#""[^"]*""#, stringColor),          // ALL strings (includes array items)
-            (#""[^"]+"\s*:"#, keyColor),         // Keys (highest priority, overwrites string color)
+            (#":\s*-?\d+\.?\d*"#, numberColor),
+            (#"\b(true|false|null)\b"#, numberColor),
+            (#""[^"]*""#, stringColor),
+            (#""[^"]+"\s*:"#, keyColor),
         ]
         return defs.compactMap { pattern, color in
             guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
@@ -412,14 +440,31 @@ struct JSONHighlightView: UIViewRepresentable {
 
     private func highlight(_ text: String) -> NSAttributedString {
         let font = UIFont.monospacedSystemFont(ofSize: 11, weight: .regular)
-        let result = NSMutableAttributedString(string: text, attributes: [
+
+        // Truncate very large content
+        let displayText: String
+        if text.count > Self.maxDisplayLength {
+            displayText = String(text.prefix(Self.maxDisplayLength)) + "\n\n... [content truncated]"
+        } else {
+            displayText = text
+        }
+
+        // Skip highlighting for large content
+        guard displayText.count <= Self.maxHighlightLength else {
+            return NSAttributedString(string: displayText, attributes: [
+                .font: font,
+                .foregroundColor: UIColor.label
+            ])
+        }
+
+        let result = NSMutableAttributedString(string: displayText, attributes: [
             .font: font,
             .foregroundColor: UIColor.label
         ])
 
-        let range = NSRange(text.startIndex..., in: text)
+        let range = NSRange(displayText.startIndex..., in: displayText)
         for (regex, color) in Self.patterns {
-            for match in regex.matches(in: text, options: [], range: range) {
+            for match in regex.matches(in: displayText, options: [], range: range) {
                 result.addAttribute(.foregroundColor, value: color, range: match.range)
             }
         }
@@ -430,6 +475,10 @@ struct JSONHighlightView: UIViewRepresentable {
 
 struct LogHighlightView: UIViewRepresentable {
     let text: String
+    var showFull: Bool = false
+
+    private static let maxHighlightLength = 30_000
+    static let maxDisplayLength = 50_000
 
     private static let timestampColor = UIColor { trait in
         trait.userInterfaceStyle == .dark
@@ -496,14 +545,36 @@ struct LogHighlightView: UIViewRepresentable {
 
     private func highlight(_ text: String) -> NSAttributedString {
         let font = UIFont.monospacedSystemFont(ofSize: 11, weight: .regular)
-        let result = NSMutableAttributedString(string: text, attributes: [
+
+        let displayText: String
+        if showFull {
+            displayText = text
+        } else if text.count > Self.maxDisplayLength {
+            // Truncate middle, keep start and end (most recent logs)
+            let keepPerSide = Self.maxDisplayLength / 2
+            let start = String(text.prefix(keepPerSide))
+            let end = String(text.suffix(keepPerSide))
+            displayText = start + "\n\n... [\(text.count - Self.maxDisplayLength) characters hidden] ...\n\n" + end
+        } else {
+            displayText = text
+        }
+
+        // Skip highlighting for large content
+        guard displayText.count <= Self.maxHighlightLength else {
+            return NSAttributedString(string: displayText, attributes: [
+                .font: font,
+                .foregroundColor: UIColor.label
+            ])
+        }
+
+        let result = NSMutableAttributedString(string: displayText, attributes: [
             .font: font,
             .foregroundColor: UIColor.label
         ])
 
-        let range = NSRange(text.startIndex..., in: text)
+        let range = NSRange(displayText.startIndex..., in: displayText)
         for (regex, color) in Self.patterns {
-            for match in regex.matches(in: text, options: [], range: range) {
+            for match in regex.matches(in: displayText, options: [], range: range) {
                 result.addAttribute(.foregroundColor, value: color, range: match.range)
             }
         }

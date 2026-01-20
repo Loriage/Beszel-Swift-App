@@ -39,14 +39,12 @@ struct ContainerDetailView: View {
         }
     }
 
-    /// Find the matching ContainerRecord from the store
     private var containerRecord: ContainerRecord? {
         store.containerRecords.first { $0.name == container.name }
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            // Tab picker
             Picker("Tab", selection: $selectedTab) {
                 ForEach(DetailTab.allCases, id: \.self) { tab in
                     Label(tab.title, systemImage: tab.icon)
@@ -56,7 +54,6 @@ struct ContainerDetailView: View {
             .pickerStyle(.segmented)
             .padding()
 
-            // Content based on selected tab
             switch selectedTab {
             case .info:
                 infoTabContent
@@ -84,19 +81,15 @@ struct ContainerDetailView: View {
         }
     }
 
-    // MARK: - Info Tab (Header + Charts)
-
     @ViewBuilder
     private var infoTabContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Container info header
                 if let record = containerRecord {
                     ContainerInfoHeader(container: record, systemName: instanceManager.activeSystem?.name)
                         .padding(.horizontal)
                 }
 
-                // Charts
                 VStack(spacing: 20) {
                     ContainerMetricChartView(
                         titleKey: "chart.container.cpuUsage.percent",
@@ -126,8 +119,6 @@ struct ContainerDetailView: View {
         }
     }
 
-    // MARK: - Logs Tab
-
     @ViewBuilder
     private var logsTabContent: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -153,11 +144,7 @@ struct ContainerDetailView: View {
                 Spacer()
             } else {
                 ScrollView([.horizontal, .vertical], showsIndicators: true) {
-                    Text(formatLogs(logs))
-                        .font(.system(size: 11, design: .monospaced))
-                        .foregroundColor(.primary)
-                        .textSelection(.enabled)
-                        .fixedSize(horizontal: true, vertical: false)
+                    LogHighlightView(text: formatLogs(logs))
                         .padding()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -167,8 +154,6 @@ struct ContainerDetailView: View {
             }
         }
     }
-
-    // MARK: - Details Tab
 
     @ViewBuilder
     private var detailsTabContent: some View {
@@ -195,7 +180,7 @@ struct ContainerDetailView: View {
                 Spacer()
             } else {
                 ScrollView([.horizontal, .vertical], showsIndicators: true) {
-                    JSONSyntaxView(jsonString: info)
+                    JSONHighlightView(text: prettyPrintJSON(info))
                         .padding()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -205,8 +190,6 @@ struct ContainerDetailView: View {
             }
         }
     }
-
-    // MARK: - Toolbar Refresh Button
 
     private var refreshButton: some View {
         Button {
@@ -223,7 +206,37 @@ struct ContainerDetailView: View {
         .disabled(selectedTab == .logs ? isLoadingLogs : isLoadingInfo)
     }
 
-    // MARK: - Helpers
+    private func prettyPrintJSON(_ raw: String) -> String {
+        guard let data = raw.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data) else {
+            return raw
+        }
+
+        if let dict = json as? [String: Any], let infoString = dict["info"] as? String {
+            if let innerData = infoString.data(using: .utf8),
+               let innerJson = try? JSONSerialization.jsonObject(with: innerData),
+               let prettyData = try? JSONSerialization.data(withJSONObject: innerJson, options: [.prettyPrinted, .sortedKeys]),
+               let prettyString = String(data: prettyData, encoding: .utf8) {
+                return prettyString
+            }
+            return infoString
+        }
+
+        if let dict = json as? [String: Any], let infoContent = dict["info"], infoContent is [Any] || infoContent is [String: Any] {
+            if let prettyData = try? JSONSerialization.data(withJSONObject: infoContent, options: [.prettyPrinted, .sortedKeys]),
+               let prettyString = String(data: prettyData, encoding: .utf8) {
+                return prettyString
+            }
+        }
+
+        guard json is [Any] || json is [String: Any],
+              let prettyData = try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted, .sortedKeys]),
+              let prettyString = String(data: prettyData, encoding: .utf8) else {
+            return raw
+        }
+
+        return prettyString
+    }
 
     private func formatLogs(_ rawLogs: String) -> String {
         if let data = rawLogs.data(using: .utf8),
@@ -245,8 +258,6 @@ struct ContainerDetailView: View {
 
         return rawLogs
     }
-
-    // MARK: - Data Fetching
 
     private func fetchLogs() async {
         guard let record = containerRecord,
@@ -285,8 +296,6 @@ struct ContainerDetailView: View {
     }
 }
 
-// MARK: - Container Info Header
-
 struct ContainerInfoHeader: View {
     let container: ContainerRecord
     let systemName: String?
@@ -294,7 +303,6 @@ struct ContainerInfoHeader: View {
     var body: some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 12) {
-                // Row 1: System, Status, ID, Health
                 HStack(spacing: 8) {
                     if let systemName = systemName {
                         Text(systemName)
@@ -321,13 +329,11 @@ struct ContainerInfoHeader: View {
                     }
                 }
 
-                // Row 2: Image
                 Label(container.image, systemImage: "shippingbox")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .lineLimit(2)
 
-                // Row 3: Stats
                 HStack(spacing: 16) {
                     Label(String(format: "%.2f%%", container.cpu), systemImage: "cpu")
                     Label(formatMemory(container.memory), systemImage: "memorychip")
@@ -358,11 +364,37 @@ struct ContainerInfoHeader: View {
     }
 }
 
-// MARK: - JSON Syntax Highlighting View
+struct JSONHighlightView: UIViewRepresentable {
+    let text: String
 
-struct JSONSyntaxView: UIViewRepresentable {
-    let jsonString: String
-    private let maxHighlightSize = 50_000
+    private static let keyColor = UIColor { trait in
+        trait.userInterfaceStyle == .dark
+            ? UIColor(red: 0.5, green: 0.9, blue: 0.5, alpha: 1.0)   // bright green
+            : UIColor(red: 0.1, green: 0.5, blue: 0.1, alpha: 1.0)   // dark green
+    }
+    private static let stringColor = UIColor { trait in
+        trait.userInterfaceStyle == .dark
+            ? UIColor(red: 0.5, green: 0.7, blue: 1.0, alpha: 1.0)   // bright blue
+            : UIColor(red: 0.1, green: 0.4, blue: 0.7, alpha: 1.0)   // dark blue
+    }
+    private static let numberColor = UIColor { trait in
+        trait.userInterfaceStyle == .dark
+            ? UIColor(red: 0.4, green: 0.6, blue: 0.9, alpha: 1.0)   // darker blue
+            : UIColor(red: 0.05, green: 0.3, blue: 0.6, alpha: 1.0)  // darker blue
+    }
+
+    private static let patterns: [(regex: NSRegularExpression, color: UIColor)] = {
+        let defs: [(String, UIColor)] = [
+            (#":\s*-?\d+\.?\d*"#, numberColor),  // Numbers
+            (#"\b(true|false|null)\b"#, numberColor), // Booleans and null
+            (#""[^"]*""#, stringColor),          // ALL strings (includes array items)
+            (#""[^"]+"\s*:"#, keyColor),         // Keys (highest priority, overwrites string color)
+        ]
+        return defs.compactMap { pattern, color in
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
+            return (regex, color)
+        }
+    }()
 
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
@@ -375,143 +407,107 @@ struct JSONSyntaxView: UIViewRepresentable {
     }
 
     func updateUIView(_ textView: UITextView, context: Context) {
-        let prettyJSON = prettyPrintJSON(jsonString)
-
-        if prettyJSON.count > maxHighlightSize {
-            let font = UIFont.monospacedSystemFont(ofSize: 11, weight: .regular)
-            textView.attributedText = NSAttributedString(string: prettyJSON, attributes: [.font: font, .foregroundColor: UIColor.label])
-        } else {
-            textView.attributedText = syntaxHighlight(prettyJSON)
-        }
+        textView.attributedText = highlight(text)
     }
 
-    private func prettyPrintJSON(_ raw: String) -> String {
-        guard let data = raw.data(using: .utf8),
-              let json = try? JSONSerialization.jsonObject(with: data) else {
-            return raw
-        }
-
-        if let dict = json as? [String: Any], let infoString = dict["info"] as? String {
-            if let innerData = infoString.data(using: .utf8),
-               let innerJson = try? JSONSerialization.jsonObject(with: innerData),
-               let prettyData = try? JSONSerialization.data(withJSONObject: innerJson, options: [.prettyPrinted, .sortedKeys]),
-               let prettyString = String(data: prettyData, encoding: .utf8) {
-                return prettyString
-            }
-            return infoString
-        }
-
-        if let dict = json as? [String: Any], let infoContent = dict["info"], infoContent is [Any] || infoContent is [String: Any] {
-            if let prettyData = try? JSONSerialization.data(withJSONObject: infoContent, options: [.prettyPrinted, .sortedKeys]),
-               let prettyString = String(data: prettyData, encoding: .utf8) {
-                return prettyString
-            }
-        }
-
-        guard json is [Any] || json is [String: Any],
-              let prettyData = try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted, .sortedKeys]),
-              let prettyString = String(data: prettyData, encoding: .utf8) else {
-            return raw
-        }
-
-        return prettyString
-    }
-
-    private func syntaxHighlight(_ json: String) -> NSAttributedString {
-        let result = NSMutableAttributedString()
+    private func highlight(_ text: String) -> NSAttributedString {
         let font = UIFont.monospacedSystemFont(ofSize: 11, weight: .regular)
-        let defaultAttrs: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: UIColor.label]
+        let result = NSMutableAttributedString(string: text, attributes: [
+            .font: font,
+            .foregroundColor: UIColor.label
+        ])
 
-        for line in json.components(separatedBy: "\n") {
-            if result.length > 0 {
-                result.append(NSAttributedString(string: "\n", attributes: defaultAttrs))
-            }
-            result.append(highlightLine(line, font: font))
-        }
-
-        return result
-    }
-
-    private func highlightLine(_ line: String, font: UIFont) -> NSAttributedString {
-        let result = NSMutableAttributedString()
-        var remaining = line[...]
-        let defaultAttrs: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: UIColor.label]
-
-        while !remaining.isEmpty {
-            let whitespaceMatch = remaining.prefix(while: { $0.isWhitespace && $0 != "\n" })
-            if !whitespaceMatch.isEmpty {
-                result.append(NSAttributedString(string: String(whitespaceMatch), attributes: defaultAttrs))
-                remaining = remaining.dropFirst(whitespaceMatch.count)
-                continue
-            }
-
-            if remaining.first == "\"" {
-                if let stringEnd = findStringEnd(in: remaining) {
-                    let stringContent = String(remaining[...stringEnd])
-                    let afterString = remaining[remaining.index(after: stringEnd)...]
-                    let trimmed = afterString.drop(while: { $0.isWhitespace })
-                    let color: UIColor = trimmed.first == ":" ? .systemBlue : UIColor(red: 0.2, green: 0.6, blue: 0.2, alpha: 1)
-                    result.append(NSAttributedString(string: stringContent, attributes: [.font: font, .foregroundColor: color]))
-                    remaining = remaining[remaining.index(after: stringEnd)...]
-                    continue
-                }
-            }
-
-            let numberMatch = remaining.prefix(while: { $0.isNumber || $0 == "." || $0 == "-" || $0 == "e" || $0 == "E" || $0 == "+" })
-            if !numberMatch.isEmpty && (numberMatch.first?.isNumber == true || (numberMatch.first == "-" && numberMatch.count > 1)) {
-                result.append(NSAttributedString(string: String(numberMatch), attributes: [.font: font, .foregroundColor: UIColor.systemOrange]))
-                remaining = remaining.dropFirst(numberMatch.count)
-                continue
-            }
-
-            if remaining.hasPrefix("true") {
-                result.append(NSAttributedString(string: "true", attributes: [.font: font, .foregroundColor: UIColor.systemPurple]))
-                remaining = remaining.dropFirst(4)
-                continue
-            }
-            if remaining.hasPrefix("false") {
-                result.append(NSAttributedString(string: "false", attributes: [.font: font, .foregroundColor: UIColor.systemPurple]))
-                remaining = remaining.dropFirst(5)
-                continue
-            }
-            if remaining.hasPrefix("null") {
-                result.append(NSAttributedString(string: "null", attributes: [.font: font, .foregroundColor: UIColor.systemRed]))
-                remaining = remaining.dropFirst(4)
-                continue
-            }
-
-            if let first = remaining.first, "{}[],:".contains(first) {
-                result.append(NSAttributedString(string: String(first), attributes: [.font: font, .foregroundColor: UIColor.secondaryLabel]))
-                remaining = remaining.dropFirst()
-                continue
-            }
-
-            if let first = remaining.first {
-                result.append(NSAttributedString(string: String(first), attributes: defaultAttrs))
-                remaining = remaining.dropFirst()
+        let range = NSRange(text.startIndex..., in: text)
+        for (regex, color) in Self.patterns {
+            for match in regex.matches(in: text, options: [], range: range) {
+                result.addAttribute(.foregroundColor, value: color, range: match.range)
             }
         }
 
         return result
     }
+}
 
-    private func findStringEnd(in str: Substring) -> String.Index? {
-        guard str.first == "\"" else { return nil }
-        var index = str.index(after: str.startIndex)
-        while index < str.endIndex {
-            let char = str[index]
-            if char == "\\" {
-                index = str.index(after: index)
-                if index < str.endIndex {
-                    index = str.index(after: index)
-                }
-                continue
-            }
-            if char == "\"" {
-                return index
-            }
-            index = str.index(after: index)
+struct LogHighlightView: UIViewRepresentable {
+    let text: String
+
+    private static let timestampColor = UIColor { trait in
+        trait.userInterfaceStyle == .dark
+            ? UIColor(red: 0.5, green: 0.8, blue: 1.0, alpha: 1.0)
+            : UIColor(red: 0.1, green: 0.4, blue: 0.7, alpha: 1.0)
+    }
+    private static let errorColor = UIColor { trait in
+        trait.userInterfaceStyle == .dark
+            ? UIColor(red: 1.0, green: 0.4, blue: 0.4, alpha: 1.0)
+            : UIColor(red: 0.8, green: 0.1, blue: 0.1, alpha: 1.0)
+    }
+    private static let warnColor = UIColor { trait in
+        trait.userInterfaceStyle == .dark
+            ? UIColor(red: 1.0, green: 0.75, blue: 0.3, alpha: 1.0)
+            : UIColor(red: 0.8, green: 0.5, blue: 0.0, alpha: 1.0)
+    }
+    private static let infoColor = UIColor { trait in
+        trait.userInterfaceStyle == .dark
+            ? UIColor(red: 0.5, green: 1.0, blue: 0.5, alpha: 1.0)
+            : UIColor(red: 0.15, green: 0.55, blue: 0.15, alpha: 1.0)
+    }
+    private static let debugColor = UIColor { trait in
+        trait.userInterfaceStyle == .dark
+            ? UIColor(red: 0.8, green: 0.6, blue: 1.0, alpha: 1.0)
+            : UIColor(red: 0.5, green: 0.3, blue: 0.7, alpha: 1.0)
+    }
+    private static let stringColor = UIColor { trait in
+        trait.userInterfaceStyle == .dark
+            ? UIColor(red: 0.5, green: 0.7, blue: 1.0, alpha: 1.0)
+            : UIColor(red: 0.1, green: 0.4, blue: 0.7, alpha: 1.0)
+    }
+
+    private static let patterns: [(regex: NSRegularExpression, color: UIColor)] = {
+        let defs: [(String, UIColor)] = [
+            (#"\d{4}[-/]\d{2}[-/]\d{2}[T ]\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?"#, timestampColor),
+            (#"\b(ERROR|FATAL|CRITICAL|ERR)\b"#, errorColor),
+            (#"\b(WARN|WARNING|WRN)\b"#, warnColor),
+            (#"\b(INFO|INF)\b"#, infoColor),
+            (#"\b(DEBUG|DBG|TRACE|TRC)\b"#, debugColor),
+            (#"\b[45]\d{2}\b"#, errorColor),
+            (#"\b[23]\d{2}\b"#, infoColor),
+            (#"https?://[^\s\]\)]+"#, .link),
+            (#""[^"]*""#, stringColor),
+        ]
+        return defs.compactMap { pattern, color in
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
+            return (regex, color)
         }
-        return nil
+    }()
+
+    func makeUIView(context: Context) -> UITextView {
+        let textView = UITextView()
+        textView.isEditable = false
+        textView.isScrollEnabled = false
+        textView.backgroundColor = .clear
+        textView.textContainerInset = .zero
+        textView.textContainer.lineFragmentPadding = 0
+        return textView
+    }
+
+    func updateUIView(_ textView: UITextView, context: Context) {
+        textView.attributedText = highlight(text)
+    }
+
+    private func highlight(_ text: String) -> NSAttributedString {
+        let font = UIFont.monospacedSystemFont(ofSize: 11, weight: .regular)
+        let result = NSMutableAttributedString(string: text, attributes: [
+            .font: font,
+            .foregroundColor: UIColor.label
+        ])
+
+        let range = NSRange(text.startIndex..., in: text)
+        for (regex, color) in Self.patterns {
+            for match in regex.matches(in: text, options: [], range: range) {
+                result.addAttribute(.foregroundColor, value: color, range: match.range)
+            }
+        }
+
+        return result
     }
 }

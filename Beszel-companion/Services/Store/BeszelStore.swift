@@ -23,6 +23,11 @@ final class BeszelStore {
     }
     var sortedContainerData: [ProcessedContainerData] = []
     
+    var containerRecords: [ContainerRecord] = []
+    var sortedContainerRecords: [ContainerRecord] {
+        containerRecords.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+    
     var latestSystemStats: SystemStatsRecord?
     
     var isLoading = true
@@ -30,6 +35,7 @@ final class BeszelStore {
     
     private var systemDataPointsBySystem: [String: [SystemDataPoint]] = [:]
     private var containerDataBySystem: [String: [ProcessedContainerData]] = [:]
+    private var containerRecordsBySystem: [String: [ContainerRecord]] = [:]
     private var latestStatsBySystem: [String: SystemStatsRecord] = [:]
     
     private let instance: Instance
@@ -76,20 +82,19 @@ final class BeszelStore {
         guard let activeSystemID = instanceManager.activeSystem?.id else {
             self.systemDataPoints = []
             self.containerData = []
+            self.containerRecords = []
             self.latestSystemStats = nil
             return
         }
         self.systemDataPoints = systemDataPointsBySystem[activeSystemID] ?? []
         self.containerData = containerDataBySystem[activeSystemID] ?? []
+        self.containerRecords = containerRecordsBySystem[activeSystemID] ?? []
         self.latestSystemStats = latestStatsBySystem[activeSystemID]
     }
     
-    /// Removes cached data for systems that no longer exist in instanceManager.systems
-    /// Call this after fetching updated systems list to prevent unbounded memory growth
     private func cleanupStaleSystemData() {
         let validSystemIDs = Set(instanceManager.systems.map { $0.id })
         
-        // Remove data for systems that no longer exist
         for systemID in systemDataPointsBySystem.keys where !validSystemIDs.contains(systemID) {
             systemDataPointsBySystem.removeValue(forKey: systemID)
             logger.debug("Cleaned up stale data for system: \(systemID)")
@@ -97,18 +102,22 @@ final class BeszelStore {
         for systemID in containerDataBySystem.keys where !validSystemIDs.contains(systemID) {
             containerDataBySystem.removeValue(forKey: systemID)
         }
+        for systemID in containerRecordsBySystem.keys where !validSystemIDs.contains(systemID) {
+            containerRecordsBySystem.removeValue(forKey: systemID)
+        }
         for systemID in latestStatsBySystem.keys where !validSystemIDs.contains(systemID) {
             latestStatsBySystem.removeValue(forKey: systemID)
         }
     }
     
-    /// Clears all cached system data. Call when logging out or switching instances.
     func clearAllCachedData() {
         systemDataPointsBySystem.removeAll()
         containerDataBySystem.removeAll()
+        containerRecordsBySystem.removeAll()
         latestStatsBySystem.removeAll()
         systemDataPoints = []
         containerData = []
+        containerRecords = []
         latestSystemStats = nil
         stackedCpuData = []
         stackedMemoryData = []
@@ -128,7 +137,6 @@ final class BeszelStore {
         
         if systemsToFetch.isEmpty {
             do {
-                // Fetch systems and system details in parallel
                 async let systemsTask = apiService.fetchSystems()
                 async let detailsTask = apiService.fetchSystemDetails()
                 
@@ -210,10 +218,38 @@ final class BeszelStore {
                 self.latestStatsBySystem[id] = stat
             }
             
+            await fetchContainerRecords(for: systemsToFetch)
+            
             self.updateDataForActiveSystem()
             
         } catch {
             handleError(error)
+        }
+    }
+    
+    private func fetchContainerRecords(for systems: [SystemRecord]) async {
+        let apiService = self.apiService
+        
+        do {
+            let allContainers = try await apiService.fetchContainers(filter: nil)
+            
+            var containersBySystem: [String: [ContainerRecord]] = [:]
+            for container in allContainers {
+                var systemContainers = containersBySystem[container.system, default: []]
+                
+                if let existingIndex = systemContainers.firstIndex(where: { $0.name == container.name }) {
+                    if container.updated > systemContainers[existingIndex].updated {
+                        systemContainers[existingIndex] = container
+                    }
+                } else {
+                    systemContainers.append(container)
+                }
+                containersBySystem[container.system] = systemContainers
+            }
+            
+            self.containerRecordsBySystem = containersBySystem
+        } catch {
+            logger.warning("Failed to fetch container records: \(error.localizedDescription)")
         }
     }
     

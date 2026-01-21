@@ -1,6 +1,9 @@
 import Foundation
 import SwiftUI
 import Observation
+import os
+
+private let logger = Logger(subsystem: "com.nohitdev.Beszel", category: "DashboardManager")
 
 @Observable
 @MainActor
@@ -111,16 +114,23 @@ final class DashboardManager {
     }
     
     private func saveAllPins() {
-        if let data = try? JSONEncoder().encode(allPins) {
+        do {
+            let data = try JSONEncoder().encode(allPins)
             UserDefaults.sharedSuite.set(data, forKey: "pinnedItemsByInstance")
+        } catch {
+            logger.error("Failed to encode pinned items: \(error.localizedDescription)")
         }
     }
-    
+
     private func decodeAllPins() -> [String: [PinnedItem]] {
-        if let data = UserDefaults.sharedSuite.data(forKey: "pinnedItemsByInstance"),
-           let items = try? JSONDecoder().decode([String: [PinnedItem]].self, from: data) {
-            return items
+        guard let data = UserDefaults.sharedSuite.data(forKey: "pinnedItemsByInstance") else {
+            return [:]
         }
-        return [:]
+        do {
+            return try JSONDecoder().decode([String: [PinnedItem]].self, from: data)
+        } catch {
+            logger.error("Failed to decode pinned items: \(error.localizedDescription)")
+            return [:]
+        }
     }
 }

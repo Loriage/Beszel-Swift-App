@@ -82,7 +82,6 @@ struct AlertHistoryRow: View {
                             .font(.caption2)
                             .foregroundColor(.secondary)
 
-                        // Status badge
                         Text(alert.isResolved ? String(localized: "alerts.status.resolved") : String(localized: "alerts.status.active"))
                             .font(.caption2)
                             .fontWeight(.medium)
@@ -98,7 +97,6 @@ struct AlertHistoryRow: View {
                         .fontWeight(.semibold)
                         .foregroundColor(statusColor)
 
-                    // Status icon
                     Image(systemName: alert.isResolved ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
                         .font(.caption)
                         .foregroundColor(statusColor)

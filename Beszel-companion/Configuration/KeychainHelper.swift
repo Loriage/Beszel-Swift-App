@@ -4,36 +4,30 @@ import OSLog
 
 struct KeychainHelper {
     nonisolated private static let logger = Logger(subsystem: "com.nohitdev.Beszel", category: "KeychainHelper")
-
-    /// Returns the shared keychain access group by querying an existing item or using the app's default.
-    /// The entitlements define `$(AppIdentifierPrefix)group.com.nohitdev.Beszel` which expands to
-    /// `TEAMID.group.com.nohitdev.Beszel` at runtime. We discover this dynamically.
+    
     nonisolated private static func getSharedAccessGroup() -> String? {
-        // Try to find the actual access group by querying an existing item
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: Constants.keychainService,
             kSecReturnAttributes as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne
         ]
-
+        
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
-
+        
         if status == errSecSuccess,
            let attributes = result as? [String: Any],
            let accessGroup = attributes[kSecAttrAccessGroup as String] as? String {
             return accessGroup
         }
-
-        // If no existing item, return nil to use default access group
+        
         return nil
     }
-
+    
     nonisolated static func save(data: Data, service: String, account: String, useSharedKeychain: Bool) -> Bool {
-        // First delete any existing item (from either shared or non-shared keychain)
         delete(service: service, account: account, useSharedKeychain: useSharedKeychain)
-
+        
         var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -41,23 +35,22 @@ struct KeychainHelper {
             kSecValueData as String: data,
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
         ]
-
-        // For shared keychain, use discovered access group or let system use default
+        
         if useSharedKeychain, let accessGroup = getSharedAccessGroup() {
             query[kSecAttrAccessGroup as String] = accessGroup
         }
-
+        
         let status = SecItemAdd(query as CFDictionary, nil)
-
+        
         if status != errSecSuccess {
             logger.error("Keychain save failed: \(status) for service: \(service, privacy: .public)")
         } else {
             logger.info("Keychain save succeeded for account: \(account, privacy: .public)")
         }
-
+        
         return status == errSecSuccess
     }
-
+    
     nonisolated static func load(service: String, account: String, useSharedKeychain: Bool) -> Data? {
         var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -66,14 +59,14 @@ struct KeychainHelper {
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne
         ]
-
+        
         if useSharedKeychain, let accessGroup = getSharedAccessGroup() {
             query[kSecAttrAccessGroup as String] = accessGroup
         }
-
+        
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
-
+        
         switch status {
         case errSecSuccess:
             return result as? Data
@@ -90,18 +83,18 @@ struct KeychainHelper {
             return nil
         }
     }
-
+    
     nonisolated static func delete(service: String, account: String, useSharedKeychain: Bool) {
         var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account
         ]
-
+        
         if useSharedKeychain, let accessGroup = getSharedAccessGroup() {
             query[kSecAttrAccessGroup as String] = accessGroup
         }
-
+        
         let status = SecItemDelete(query as CFDictionary)
         if status != errSecSuccess && status != errSecItemNotFound {
             logger.warning("Keychain delete failed: \(status) for service: \(service, privacy: .public)")

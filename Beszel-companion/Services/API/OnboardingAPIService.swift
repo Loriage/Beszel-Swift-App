@@ -84,7 +84,6 @@ struct OnboardingAPIService {
                 return (responseBody.token, responseBody.record.email)
             }
             if httpResponse.statusCode == 401 {
-                // MFA required - extract mfaId
                 if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                    let mfaId = json["mfaId"] as? String {
                     throw OnboardingError.oauthMfaRequired(mfaId: mfaId)
@@ -116,10 +115,8 @@ struct OnboardingAPIService {
                 return
             }
             if httpResponse.statusCode == 401 {
-                // Try to extract mfaId from response - PocketBase returns {"mfaId": "..."} when MFA is required
                 if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                    let mfaId = json["mfaId"] as? String {
-                    // Request OTP to trigger the email
                     let otpId = try await requestOTP(url: url, email: email)
                     throw OnboardingError.mfaRequired(mfaId: mfaId, otpId: otpId)
                 }
@@ -132,7 +129,6 @@ struct OnboardingAPIService {
         let otpId: String
     }
 
-    /// Requests an OTP code to be sent to the user's email
     func requestOTP(url: String, email: String) async throws -> String {
         guard let otpURL = URL(string: "\(url)/api/collections/users/request-otp") else {
             throw OnboardingError.invalidURL
@@ -154,7 +150,6 @@ struct OnboardingAPIService {
         return otpResponse.otpId
     }
 
-    /// Completes MFA authentication with email OTP code and returns the auth token
     func verifyCredentialsWithMFA(url: String, mfaId: String, otpId: String, otpCode: String) async throws -> String {
         guard let authURL = URL(string: "\(url)/api/collections/users/auth-with-otp") else {
             throw OnboardingError.invalidURL

@@ -164,8 +164,6 @@ struct ConfiguredAlertsView: View {
     }
 }
 
-// MARK: - Filter Chip
-
 struct FilterChip: View {
     let title: String
     let isSelected: Bool

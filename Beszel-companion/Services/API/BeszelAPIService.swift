@@ -3,15 +3,15 @@ import Foundation
 actor BeszelAPIService {
     private let instance: Instance
     private let instanceManager: InstanceManager
-
+    
     private let baseURL: String
     private let email: String
-
+    
     private var credential: String?
     private var authToken: String?
-
+    
     private var refreshTask: Task<String, Error>?
-
+    
     private static let tokenCache = UserDefaults(suiteName: "group.com.nohitdev.Beszel")
     private static let tokenCacheValiditySeconds: TimeInterval = 600
     
@@ -60,15 +60,15 @@ actor BeszelAPIService {
         self.credential = loaded
         return loaded
     }
-
+    
     private nonisolated func cacheKey() -> String {
         "cachedToken_\(instance.id.uuidString)"
     }
-
+    
     private nonisolated func cacheTimestampKey() -> String {
         "cachedTokenTime_\(instance.id.uuidString)"
     }
-
+    
     private nonisolated func getCachedToken() -> String? {
         guard let token = Self.tokenCache?.string(forKey: cacheKey()),
               let timestamp = Self.tokenCache?.object(forKey: cacheTimestampKey()) as? Date else {
@@ -80,41 +80,41 @@ actor BeszelAPIService {
         }
         return nil
     }
-
+    
     private nonisolated func setCachedToken(_ token: String) {
         Self.tokenCache?.set(token, forKey: cacheKey())
         Self.tokenCache?.set(Date(), forKey: cacheTimestampKey())
     }
-
+    
     private func getValidToken() async throws -> String {
         if let currentToken = authToken {
             return currentToken
         }
-
+        
         if let cachedToken = getCachedToken() {
             self.authToken = cachedToken
             return cachedToken
         }
-
+        
         if let existingTask = refreshTask {
             return try await existingTask.value
         }
-
+        
         let task = Task { () -> String in
             let cred = getStoredCredential()
             guard !cred.isEmpty else {
                 throw URLError(.userAuthenticationRequired)
             }
-
+            
             if isJWT(cred) {
                 return try await refreshToken(currentToken: cred)
             } else {
                 return try await loginWithPassword(password: cred)
             }
         }
-
+        
         self.refreshTask = task
-
+        
         do {
             let newToken = try await task.value
             self.authToken = newToken
@@ -218,10 +218,10 @@ actor BeszelAPIService {
             throw URLError(.badServerResponse)
         }
     }
-
+    
     enum BeszelAPIError: LocalizedError {
         case httpError(statusCode: Int, url: String)
-
+        
         var errorDescription: String? {
             switch self {
             case .httpError(let statusCode, let url):
@@ -237,7 +237,7 @@ actor BeszelAPIService {
         let response: PocketBaseListResponse<SystemRecord> = try await performRequest(with: url)
         return response.items
     }
-
+    
     /// Fetches system details from the new endpoint (Beszel agent 0.18.0+).
     /// Returns empty array for servers running older agents that don't have this endpoint.
     func fetchSystemDetails() async throws -> [SystemDetailsRecord] {
@@ -254,29 +254,29 @@ actor BeszelAPIService {
             throw error
         }
     }
-
+    
     func fetchMonitors(filter: String?) async throws -> [ContainerStatsRecord] {
         try await fetchAllPages(path: "/api/collections/container_stats/records", filter: filter)
     }
-
+    
     func fetchSystemStats(filter: String?) async throws -> [SystemStatsRecord] {
         try await fetchAllPages(path: "/api/collections/system_stats/records", filter: filter)
     }
-
+    
     private func fetchAllPages<T: Codable & Sendable>(path: String, filter: String?) async throws -> [T] {
         var allItems: [T] = []
         var currentPage = 1
         var totalPages = 1
-
+        
         repeat {
             let url = try buildURL(for: path, filter: filter, page: currentPage)
             let response: PocketBaseListResponse<T> = try await performRequest(with: url)
-
+            
             allItems.append(contentsOf: response.items)
             totalPages = response.totalPages
             currentPage += 1
         } while currentPage <= totalPages
-
+        
         return allItems
     }
     
@@ -288,7 +288,7 @@ actor BeszelAPIService {
             URLQueryItem(name: "sort", value: "-created"),
             URLQueryItem(name: "filter", value: "system = '\(systemID)'")
         ]
-
+        
         guard let url = components.url else { throw URLError(.badURL) }
         let response: PocketBaseListResponse<SystemStatsRecord> = try await performRequest(with: url)
         return response.items.first
@@ -297,11 +297,11 @@ actor BeszelAPIService {
     func fetchAlerts(filter: String?) async throws -> [AlertRecord] {
         try await fetchAllPages(path: "/api/collections/alerts/records", filter: filter)
     }
-
+    
     func fetchAlertHistory(filter: String?) async throws -> [AlertHistoryRecord] {
         try await fetchAllPages(path: "/api/collections/alerts_history/records", filter: filter)
     }
-
+    
     func fetchAlertHistorySince(date: Date) async throws -> [AlertHistoryRecord] {
         // PocketBase expects dates in format: "2022-01-01 10:00:00.000Z"
         let formatter = DateFormatter()
@@ -311,7 +311,7 @@ actor BeszelAPIService {
         let filter = "created >= '\(dateString)'"
         return try await fetchAlertHistory(filter: filter)
     }
-
+    
     func fetchLatestAlertHistory(limit: Int = 50) async throws -> [AlertHistoryRecord] {
         guard var components = URLComponents(string: baseURL) else { throw URLError(.badURL) }
         components.path = "/api/collections/alerts_history/records"
@@ -319,21 +319,16 @@ actor BeszelAPIService {
             URLQueryItem(name: "perPage", value: String(limit)),
             URLQueryItem(name: "sort", value: "-created")
         ]
-
+        
         guard let url = components.url else { throw URLError(.badURL) }
         let response: PocketBaseListResponse<AlertHistoryRecord> = try await performRequest(with: url)
         return response.items
     }
-
+    
     func fetchContainers(filter: String?) async throws -> [ContainerRecord] {
         try await fetchAllPages(path: "/api/collections/containers/records", filter: filter)
     }
-
-    /// Fetches container logs from the Beszel API
-    /// - Parameters:
-    ///   - systemID: The system ID where the container runs
-    ///   - containerID: The container ID (short form)
-    /// - Returns: Log lines as a string
+    
     func fetchContainerLogs(systemID: String, containerID: String) async throws -> String {
         guard var components = URLComponents(string: baseURL) else { throw URLError(.badURL) }
         components.path = "/api/beszel/containers/logs"
@@ -341,15 +336,15 @@ actor BeszelAPIService {
             URLQueryItem(name: "system", value: systemID),
             URLQueryItem(name: "container", value: containerID)
         ]
-
+        
         guard let url = components.url else { throw URLError(.badURL) }
-
+        
         let token = try await getValidToken()
         var request = URLRequest(url: url)
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-
+        
         let (data, response) = try await session.data(for: request)
-
+        
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
             return String(data: data, encoding: .utf8) ?? ""
         } else if let httpResponse = response as? HTTPURLResponse {
@@ -357,12 +352,7 @@ actor BeszelAPIService {
         }
         throw URLError(.badServerResponse)
     }
-
-    /// Fetches container details/inspect info from the Beszel API
-    /// - Parameters:
-    ///   - systemID: The system ID where the container runs
-    ///   - containerID: The container ID (short form)
-    /// - Returns: Container info as a JSON string (for display)
+    
     func fetchContainerInfo(systemID: String, containerID: String) async throws -> String {
         guard var components = URLComponents(string: baseURL) else { throw URLError(.badURL) }
         components.path = "/api/beszel/containers/info"
@@ -370,17 +360,16 @@ actor BeszelAPIService {
             URLQueryItem(name: "system", value: systemID),
             URLQueryItem(name: "container", value: containerID)
         ]
-
+        
         guard let url = components.url else { throw URLError(.badURL) }
-
+        
         let token = try await getValidToken()
         var request = URLRequest(url: url)
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-
+        
         let (data, response) = try await session.data(for: request)
-
+        
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-            // Pretty print the JSON for display
             if let json = try? JSONSerialization.jsonObject(with: data),
                let prettyData = try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted, .sortedKeys]),
                let prettyString = String(data: prettyData, encoding: .utf8) {
@@ -397,22 +386,22 @@ actor BeszelAPIService {
         guard var components = URLComponents(string: baseURL) else {
             throw URLError(.badURL)
         }
-
+        
         components.path = path
-
+        
         components.queryItems = [
             URLQueryItem(name: "perPage", value: "500"),
             URLQueryItem(name: "page", value: String(page))
         ]
-
+        
         if let filter = filter {
             components.queryItems?.append(URLQueryItem(name: "filter", value: filter))
         }
-
+        
         guard let url = components.url else {
             throw URLError(.badURL)
         }
-
+        
         return url
     }
 }

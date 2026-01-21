@@ -99,7 +99,7 @@ struct ContainerView: View {
 
 struct ContainerRowView: View {
     let container: ContainerRecord
-
+    
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
@@ -108,7 +108,7 @@ struct ContainerRowView: View {
                     .fontWeight(.medium)
                     .foregroundColor(.primary)
                     .lineLimit(1)
-
+                
                 HStack(spacing: 8) {
                     Label(formatCPU(container.cpu), systemImage: "cpu")
                     Label(formatMemory(container.memory), systemImage: "memorychip")
@@ -118,24 +118,24 @@ struct ContainerRowView: View {
                 }
                 .font(.caption)
                 .foregroundColor(.secondary)
-
+                
                 Label(container.image, systemImage: "shippingbox")
                     .font(.caption2)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
                     .truncationMode(.middle)
             }
-
+            
             Spacer()
-
+            
             VStack(alignment: .trailing, spacing: 4) {
                 HealthBadge(health: container.health)
-
+                
                 Text(container.status)
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
-
+            
             Image(systemName: "chevron.right")
                 .font(.footnote.weight(.semibold))
                 .foregroundColor(.secondary)
@@ -143,24 +143,24 @@ struct ContainerRowView: View {
         .padding(.vertical, 10)
         .padding(.horizontal)
     }
-
+    
     private func formatCPU(_ value: Double) -> String {
         String(format: "%.1f%%", value)
     }
-
+    
     private func formatMemory(_ mb: Double) -> String {
         if mb >= 1024 {
             return String(format: "%.1f GB", mb / 1024)
         }
         return String(format: "%.0f MB", mb)
     }
-
+    
     /// Network value from API is in MB/s
     private func formatNetwork(_ mbs: Double) -> String {
         if mbs >= 1 {
             return String(format: "%.1f MB/s", mbs)
         }
-        // Convert to KB/s for smaller values
+        
         let kbs = mbs * 1024
         return String(format: "%.1f KB/s", kbs)
     }

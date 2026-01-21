@@ -342,7 +342,7 @@ struct ContainerInfoHeader: View {
     var body: some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 6) {
-                HStack(alignment: .center, spacing: 12) {
+                HStack(alignment: .center, spacing: 6) {
                     if let systemName = systemName {
                         Text(systemName)
                         Text("•")

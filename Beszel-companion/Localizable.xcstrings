@@ -986,6 +986,38 @@
         }
       }
     },
+    "container.error.noInstance" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No active instance"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune instance active"
+          }
+        }
+      }
+    },
+    "container.error.notFound" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Container not found"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conteneur introuvable"
+          }
+        }
+      }
+    },
     "container.health.healthy" : {
       "localizations" : {
         "en" : {
@@ -1192,38 +1224,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Conteneurs"
-          }
-        }
-      }
-    },
-    "container.error.notFound" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Container not found"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Conteneur introuvable"
-          }
-        }
-      }
-    },
-    "container.error.noInstance" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No active instance"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucune instance active"
           }
         }
       }
@@ -1962,6 +1962,22 @@
         }
       }
     },
+    "onboarding.error.mfaRequired" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MFA required"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MFA requis"
+          }
+        }
+      }
+    },
     "onboarding.error.network" : {
       "localizations" : {
         "en" : {
@@ -2007,6 +2023,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Email"
+          }
+        }
+      }
+    },
+    "onboarding.input.mfaCode" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MFA Code"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Code MFA"
           }
         }
       }
@@ -2076,6 +2108,119 @@
         }
       }
     },
+    "onboarding.mfa.codeSentTo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Code sent to %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Code envoyé à %@"
+          }
+        }
+      }
+    },
+    "onboarding.mfa.invalidCode" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid code. Please try again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Code invalide. Veuillez réessayer."
+          }
+        }
+      }
+    },
+    "onboarding.mfa.resendCode" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resend code"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renvoyer le code"
+          }
+        }
+      }
+    },
+    "onboarding.mfa.sendCode" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send verification code"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoyer le code de vérification"
+          }
+        }
+      }
+    },
+    "onboarding.mfa.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A verification code will be sent to your email"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un code de vérification sera envoyé à votre email"
+          }
+        }
+      }
+    },
+    "onboarding.mfa.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verification"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérification"
+          }
+        }
+      }
+    },
+    "onboarding.mfaRequired" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your MFA code"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veuillez entrer votre code MFA"
+          }
+        }
+      }
+    },
     "onboarding.subtitle" : {
       "localizations" : {
         "en" : {
@@ -2120,6 +2265,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "beszel.domaine.fr"
+          }
+        }
+      }
+    },
+    "onboarding.verifyMFA" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verify"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifier"
           }
         }
       }
@@ -2975,7 +3136,20 @@
       }
     },
     "Tab" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab"
+          }
+        }
+      }
     },
     "Temp" : {
       "localizations" : {

@@ -9,10 +9,19 @@ struct OnboardingView: View {
     @State private var serverAddress = ""
     @State private var email = ""
     @State private var password = ""
-    
+
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var authMethods: AuthMethodsResponse?
+
+    @State private var mfaState: MFAState?
+
+    struct MFAState: Identifiable {
+        let id = UUID()
+        let mfaId: String
+        let otpId: String?
+        let email: String?
+    }
     
     private let apiService = OnboardingAPIService()
     private let contextProvider = WebAuthSessionContextProvider()
@@ -124,8 +133,23 @@ struct OnboardingView: View {
                     .font(.caption)
                     .padding(.horizontal)
             }
-            
+
             Spacer()
+        }
+        .sheet(item: $mfaState) { state in
+            MFAView(
+                url: url,
+                mfaId: state.mfaId,
+                otpId: state.otpId,
+                email: state.email,
+                onComplete: { token in
+                    mfaState = nil
+                    onComplete(instanceName, url, state.email ?? email, token)
+                },
+                onCancel: {
+                    mfaState = nil
+                }
+            )
         }
     }
     
@@ -138,7 +162,7 @@ struct OnboardingView: View {
                     .padding()
                     .background(.thinMaterial)
                     .cornerRadius(10)
-                
+
                 SecureField("onboarding.input.password", text: $password)
                     .textContentType(.password)
                     .padding()
@@ -146,7 +170,7 @@ struct OnboardingView: View {
                     .cornerRadius(10)
             }
             .padding(.horizontal)
-            
+
             Button(action: connectWithPassword) {
                 Text("onboarding.loginButton")
                     .fontWeight(.semibold)
@@ -185,14 +209,18 @@ struct OnboardingView: View {
     private func connectWithPassword() {
         isLoading = true
         errorMessage = nil
-        
+
         Task {
             do {
                 try await apiService.verifyCredentials(url: self.url, email: email, password: password)
-
                 await MainActor.run {
                     isLoading = false
                     onComplete(instanceName, url, email, password)
+                }
+            } catch OnboardingAPIService.OnboardingError.mfaRequired(let mfaId, let otpId) {
+                await MainActor.run {
+                    isLoading = false
+                    self.mfaState = MFAState(mfaId: mfaId, otpId: otpId, email: email)
                 }
             } catch {
                 await MainActor.run {
@@ -207,30 +235,33 @@ struct OnboardingView: View {
         Task {
             isLoading = true
             errorMessage = nil
-            
+
             do {
                 let appRedirectURL = "beszel-companion://redirect"
                 guard let encodedRedirectURL = appRedirectURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
                       let authURL = URL(string: "\(provider.authUrl)\(encodedRedirectURL)") else {
                     throw OnboardingAPIService.OnboardingError.invalidURL
                 }
-                
+
                 let callbackURL = try await ASWebAuthenticationSession.async(
                     url: authURL,
                     callbackURLScheme: "beszel-companion",
                     presentationContextProvider: self.contextProvider
                 )
-                
+
                 guard let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
                       let code = components.queryItems?.first(where: { $0.name == "code" })?.value else {
                     throw URLError(.badServerResponse)
                 }
-                
+
                 let (accessToken, userEmail) = try await apiService.exchangeCodeForToken(code: code, provider: provider, hubURL: self.url)
-                
+
                 self.isLoading = false
                 onComplete(self.instanceName, self.url, userEmail, accessToken)
-                
+
+            } catch OnboardingAPIService.OnboardingError.oauthMfaRequired(let mfaId) {
+                self.isLoading = false
+                self.mfaState = MFAState(mfaId: mfaId, otpId: nil, email: nil)
             } catch {
                 self.isLoading = false
                 self.errorMessage = error.localizedDescription

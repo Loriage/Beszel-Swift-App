@@ -22,13 +22,12 @@ final class BeszelStore {
         }
     }
     var sortedContainerData: [ProcessedContainerData] = []
-
-    /// Real-time container records with health, image, status info
+    
     var containerRecords: [ContainerRecord] = []
     var sortedContainerRecords: [ContainerRecord] {
         containerRecords.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
-
+    
     var latestSystemStats: SystemStatsRecord?
     
     var isLoading = true
@@ -93,12 +92,9 @@ final class BeszelStore {
         self.latestSystemStats = latestStatsBySystem[activeSystemID]
     }
     
-    /// Removes cached data for systems that no longer exist in instanceManager.systems
-    /// Call this after fetching updated systems list to prevent unbounded memory growth
     private func cleanupStaleSystemData() {
         let validSystemIDs = Set(instanceManager.systems.map { $0.id })
-
-        // Remove data for systems that no longer exist
+        
         for systemID in systemDataPointsBySystem.keys where !validSystemIDs.contains(systemID) {
             systemDataPointsBySystem.removeValue(forKey: systemID)
             logger.debug("Cleaned up stale data for system: \(systemID)")
@@ -114,7 +110,6 @@ final class BeszelStore {
         }
     }
     
-    /// Clears all cached system data. Call when logging out or switching instances.
     func clearAllCachedData() {
         systemDataPointsBySystem.removeAll()
         containerDataBySystem.removeAll()
@@ -142,7 +137,6 @@ final class BeszelStore {
         
         if systemsToFetch.isEmpty {
             do {
-                // Fetch systems and system details in parallel
                 async let systemsTask = apiService.fetchSystems()
                 async let detailsTask = apiService.fetchSystemDetails()
                 
@@ -216,41 +210,46 @@ final class BeszelStore {
             
             self.systemDataPointsBySystem = finalSystemData
             self.containerDataBySystem = finalContainerData
-
+            
             for (id, stat) in finalLatestStats {
                 if let existing = self.latestStatsBySystem[id], existing.created > stat.created {
                     continue
                 }
                 self.latestStatsBySystem[id] = stat
             }
-
-            // Fetch real-time container records (with health, image, status)
+            
             await fetchContainerRecords(for: systemsToFetch)
-
+            
             self.updateDataForActiveSystem()
-
+            
         } catch {
             handleError(error)
         }
     }
-
-    /// Fetches real-time container records for all systems
+    
     private func fetchContainerRecords(for systems: [SystemRecord]) async {
         let apiService = self.apiService
-
+        
         do {
             let allContainers = try await apiService.fetchContainers(filter: nil)
-
-            // Group containers by system
+            
             var containersBySystem: [String: [ContainerRecord]] = [:]
             for container in allContainers {
-                containersBySystem[container.system, default: []].append(container)
+                var systemContainers = containersBySystem[container.system, default: []]
+                
+                if let existingIndex = systemContainers.firstIndex(where: { $0.name == container.name }) {
+                    if container.updated > systemContainers[existingIndex].updated {
+                        systemContainers[existingIndex] = container
+                    }
+                } else {
+                    systemContainers.append(container)
+                }
+                containersBySystem[container.system] = systemContainers
             }
-
+            
             self.containerRecordsBySystem = containersBySystem
         } catch {
             logger.warning("Failed to fetch container records: \(error.localizedDescription)")
-            // Don't fail the whole fetch if container records fail
         }
     }
     

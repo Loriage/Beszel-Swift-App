@@ -49,8 +49,11 @@ final class AlertManager {
 
     private var seenAlertHistoryIDs: Set<String> {
         didSet {
-            if let data = try? JSONEncoder().encode(Array(seenAlertHistoryIDs)) {
+            do {
+                let data = try JSONEncoder().encode(Array(seenAlertHistoryIDs))
                 userDefaultsStore.set(data, forKey: Self.seenAlertIDsKey)
+            } catch {
+                logger.error("Failed to encode seenAlertHistoryIDs: \(error.localizedDescription)")
             }
         }
     }
@@ -81,9 +84,14 @@ final class AlertManager {
         let timestamp = store.double(forKey: Self.lastCheckedKey)
         self.lastCheckedTimestamp = timestamp > 0 ? Date(timeIntervalSince1970: timestamp) : Date()
 
-        if let data = store.data(forKey: Self.seenAlertIDsKey),
-           let ids = try? JSONDecoder().decode([String].self, from: data) {
-            self.seenAlertHistoryIDs = Set(ids)
+        if let data = store.data(forKey: Self.seenAlertIDsKey) {
+            do {
+                let ids = try JSONDecoder().decode([String].self, from: data)
+                self.seenAlertHistoryIDs = Set(ids)
+            } catch {
+                logger.error("Failed to decode seenAlertHistoryIDs on init: \(error.localizedDescription)")
+                self.seenAlertHistoryIDs = []
+            }
         } else {
             self.seenAlertHistoryIDs = []
         }

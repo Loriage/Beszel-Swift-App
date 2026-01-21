@@ -60,9 +60,12 @@ final class InstanceManager {
     }
     
     init() {
-        if let data = userDefaultsStore.data(forKey: "instances"),
-           let decoded = try? JSONDecoder().decode([Instance].self, from: data) {
-            self.instances = decoded
+        if let data = userDefaultsStore.data(forKey: "instances") {
+            do {
+                self.instances = try JSONDecoder().decode([Instance].self, from: data)
+            } catch {
+                logger.error("Failed to decode instances on init: \(error.localizedDescription)")
+            }
         }
         
         self.activeInstanceID = userDefaultsStore.string(forKey: "activeInstanceID")
@@ -271,9 +274,12 @@ final class InstanceManager {
     }
     
     private func saveInstances() {
-        if let data = try? JSONEncoder().encode(instances) {
+        do {
+            let data = try JSONEncoder().encode(instances)
             userDefaultsStore.set(data, forKey: "instances")
             userDefaultsStore.synchronize()
+        } catch {
+            logger.error("Failed to encode instances: \(error.localizedDescription)")
         }
     }
     

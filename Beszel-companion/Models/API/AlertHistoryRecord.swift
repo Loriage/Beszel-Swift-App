@@ -41,6 +41,6 @@ extension AlertHistoryRecord {
     }
 
     var isResolved: Bool {
-        resolved != nil && !resolved!.isEmpty
+        resolved?.isEmpty == false
     }
 }

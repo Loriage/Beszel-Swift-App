@@ -594,34 +594,49 @@ struct LogHighlightView: UIViewRepresentable {
         let font = UIFont.monospacedSystemFont(ofSize: 11, weight: .regular)
 
         let displayText: String
-        if showFull {
+        if showFull || text.count <= maxDisplayLength {
             displayText = text
-        } else if text.count > maxDisplayLength {
+        } else {
             // Truncate middle at line boundaries (20% start, 80% end for recent logs)
-            let targetStartLength = maxDisplayLength / 5
-            let targetEndLength = maxDisplayLength - targetStartLength
+            let targetStartLength = min(maxDisplayLength / 5, text.count)
+            let targetEndLength = min(maxDisplayLength - targetStartLength, text.count)
 
-            let startCutIndex: String.Index
-            if let newlineIndex = text[text.index(text.startIndex, offsetBy: min(targetStartLength, text.count))...].firstIndex(of: "\n") {
-                startCutIndex = newlineIndex
-            } else {
-                startCutIndex = text.index(text.startIndex, offsetBy: min(targetStartLength, text.count))
+            guard targetStartLength > 0, targetEndLength > 0 else {
+                displayText = text
+                return NSAttributedString(string: displayText, attributes: [
+                    .font: UIFont.monospacedSystemFont(ofSize: 11, weight: .regular),
+                    .foregroundColor: UIColor.label
+                ])
             }
 
-            let endSearchStart = text.index(text.endIndex, offsetBy: -min(targetEndLength, text.count))
+            let startSearchIndex = text.index(text.startIndex, offsetBy: targetStartLength, limitedBy: text.endIndex) ?? text.endIndex
+            let startCutIndex: String.Index
+            if startSearchIndex < text.endIndex, let newlineIndex = text[startSearchIndex...].firstIndex(of: "\n") {
+                startCutIndex = newlineIndex
+            } else {
+                startCutIndex = startSearchIndex
+            }
+
+            let endSearchStart = text.index(text.endIndex, offsetBy: -targetEndLength, limitedBy: text.startIndex) ?? text.startIndex
             let endCutIndex: String.Index
-            if let newlineIndex = text[..<endSearchStart].lastIndex(of: "\n") {
+            if endSearchStart > text.startIndex, let newlineIndex = text[..<endSearchStart].lastIndex(of: "\n") {
                 endCutIndex = text.index(after: newlineIndex)
             } else {
                 endCutIndex = endSearchStart
+            }
+
+            guard startCutIndex < endCutIndex else {
+                displayText = text
+                return NSAttributedString(string: displayText, attributes: [
+                    .font: UIFont.monospacedSystemFont(ofSize: 11, weight: .regular),
+                    .foregroundColor: UIColor.label
+                ])
             }
 
             let start = String(text[..<startCutIndex])
             let end = String(text[endCutIndex...])
             let hiddenCount = text.count - start.count - end.count
             displayText = start + "\n\n... [\(hiddenCount) characters hidden] ...\n\n" + end
-        } else {
-            displayText = text
         }
 
         let result = NSMutableAttributedString(string: displayText, attributes: [

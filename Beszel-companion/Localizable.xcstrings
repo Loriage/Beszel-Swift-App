@@ -1196,6 +1196,38 @@
         }
       }
     },
+    "container.error.notFound" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Container not found"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conteneur introuvable"
+          }
+        }
+      }
+    },
+    "container.error.noInstance" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No active instance"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune instance active"
+          }
+        }
+      }
+    },
     "Conteneur" : {
       "localizations" : {
         "en" : {

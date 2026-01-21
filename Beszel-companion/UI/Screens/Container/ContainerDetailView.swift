@@ -76,12 +76,12 @@ struct ContainerDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if selectedTab == .logs || selectedTab == .details {
-                if selectedTab == .logs, case .loaded(let logs) = logsState, formatLogs(logs).count > LogHighlightView.maxDisplayLength {
+                if selectedTab == .logs, case .loaded(let logs) = logsState, logs.count > LogHighlightView.maxDisplayLength {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             showFullLogs.toggle()
                         } label: {
-                            Image(systemName: showFullLogs ? "arrow.up.arrow.down.circle.fill" : "arrow.up.arrow.down.circle")
+                            Image(systemName: showFullLogs ? "arrow.up.right.and.arrow.down.left" : "arrow.down.left.and.arrow.up.right")
                         }
                     }
                 }
@@ -164,7 +164,7 @@ struct ContainerDetailView: View {
         case .loaded(let logs):
             GeometryReader { geometry in
                 ScrollView([.horizontal, .vertical], showsIndicators: true) {
-                    LogHighlightView(text: formatLogs(logs), showFull: showFullLogs)
+                    LogHighlightView(text: logs, showFull: showFullLogs)
                         .padding()
                         .frame(minHeight: geometry.size.height, alignment: .top)
                 }
@@ -199,7 +199,7 @@ struct ContainerDetailView: View {
         case .loaded(let info):
             GeometryReader { geometry in
                 ScrollView([.horizontal, .vertical], showsIndicators: true) {
-                    JSONHighlightView(text: prettyPrintJSON(info))
+                    JSONHighlightView(text: info)
                         .padding()
                         .frame(minHeight: geometry.size.height, alignment: .top)
                 }
@@ -289,32 +289,46 @@ struct ContainerDetailView: View {
     }
 
     private func fetchLogs() async {
-        guard let record = containerRecord,
-              let instance = instanceManager.activeInstance else { return }
+        guard let record = containerRecord else {
+            logsState = .error(String(localized: "container.error.notFound"))
+            return
+        }
+        guard let instance = instanceManager.activeInstance else {
+            logsState = .error(String(localized: "container.error.noInstance"))
+            return
+        }
 
         logsState = .loading
 
         let apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
 
         do {
-            let logs = try await apiService.fetchContainerLogs(systemID: record.system, containerID: record.id)
-            logsState = logs.isEmpty ? .empty : .loaded(logs)
+            let rawLogs = try await apiService.fetchContainerLogs(systemID: record.system, containerID: record.id)
+            let formattedLogs = formatLogs(rawLogs)
+            logsState = formattedLogs.isEmpty ? .empty : .loaded(formattedLogs)
         } catch {
             logsState = .error(error.localizedDescription)
         }
     }
 
     private func fetchInfo() async {
-        guard let record = containerRecord,
-              let instance = instanceManager.activeInstance else { return }
+        guard let record = containerRecord else {
+            detailsState = .error(String(localized: "container.error.notFound"))
+            return
+        }
+        guard let instance = instanceManager.activeInstance else {
+            detailsState = .error(String(localized: "container.error.noInstance"))
+            return
+        }
 
         detailsState = .loading
 
         let apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
 
         do {
-            let info = try await apiService.fetchContainerInfo(systemID: record.system, containerID: record.id)
-            detailsState = info.isEmpty ? .empty : .loaded(info)
+            let rawInfo = try await apiService.fetchContainerInfo(systemID: record.system, containerID: record.id)
+            let formattedInfo = prettyPrintJSON(rawInfo)
+            detailsState = formattedInfo.isEmpty ? .empty : .loaded(formattedInfo)
         } catch {
             detailsState = .error(error.localizedDescription)
         }
@@ -386,7 +400,6 @@ struct ContainerInfoHeader: View {
 struct JSONHighlightView: UIViewRepresentable {
     let text: String
 
-    private static let maxHighlightLength = 30_000
     private static let maxDisplayLength = 100_000
 
     private static let keyColor = UIColor { trait in
@@ -418,6 +431,10 @@ struct JSONHighlightView: UIViewRepresentable {
         }
     }()
 
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
         textView.isEditable = false
@@ -429,26 +446,33 @@ struct JSONHighlightView: UIViewRepresentable {
     }
 
     func updateUIView(_ textView: UITextView, context: Context) {
-        textView.attributedText = highlight(text)
+        let attributed = context.coordinator.attributedString(for: text, highlight: Self.highlight)
+        textView.attributedText = attributed
     }
 
-    private func highlight(_ text: String) -> NSAttributedString {
+    class Coordinator {
+        private var cachedText: String?
+        private var cachedAttributedString: NSAttributedString?
+
+        func attributedString(for text: String, highlight: (String) -> NSAttributedString) -> NSAttributedString {
+            if let cached = cachedAttributedString, cachedText == text {
+                return cached
+            }
+            let result = highlight(text)
+            cachedText = text
+            cachedAttributedString = result
+            return result
+        }
+    }
+
+    private static func highlight(_ text: String) -> NSAttributedString {
         let font = UIFont.monospacedSystemFont(ofSize: 11, weight: .regular)
 
-        // Truncate very large content
         let displayText: String
-        if text.count > Self.maxDisplayLength {
-            displayText = String(text.prefix(Self.maxDisplayLength)) + "\n\n... [content truncated]"
+        if text.count > maxDisplayLength {
+            displayText = String(text.prefix(maxDisplayLength)) + "\n\n... [content truncated]"
         } else {
             displayText = text
-        }
-
-        // Skip highlighting for large content
-        guard displayText.count <= Self.maxHighlightLength else {
-            return NSAttributedString(string: displayText, attributes: [
-                .font: font,
-                .foregroundColor: UIColor.label
-            ])
         }
 
         let result = NSMutableAttributedString(string: displayText, attributes: [
@@ -457,7 +481,7 @@ struct JSONHighlightView: UIViewRepresentable {
         ])
 
         let range = NSRange(displayText.startIndex..., in: displayText)
-        for (regex, color) in Self.patterns {
+        for (regex, color) in patterns {
             for match in regex.matches(in: displayText, options: [], range: range) {
                 result.addAttribute(.foregroundColor, value: color, range: match.range)
             }
@@ -471,8 +495,7 @@ struct LogHighlightView: UIViewRepresentable {
     let text: String
     var showFull: Bool = false
 
-    private static let maxHighlightLength = 30_000
-    static let maxDisplayLength = 50_000
+    static let maxDisplayLength = 20_000
 
     private static let timestampColor = UIColor { trait in
         trait.userInterfaceStyle == .dark
@@ -507,13 +530,13 @@ struct LogHighlightView: UIViewRepresentable {
 
     private static let patterns: [(regex: NSRegularExpression, color: UIColor)] = {
         let defs: [(String, UIColor)] = [
-            (#"\d{4}[-/]\d{2}[-/]\d{2}[T ]\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?"#, timestampColor),
+            (#"\d{4}[-/]\d{2}[-/]\d{2}[T ]\d{2}:\d{2}:\d{2}([.,]\d+)?(Z|[+-]\d{2}:?\d{2})?"#, timestampColor),
             (#"\b(ERROR|FATAL|CRITICAL|ERR)\b"#, errorColor),
             (#"\b(WARN|WARNING|WRN)\b"#, warnColor),
             (#"\b(INFO|INF)\b"#, infoColor),
             (#"\b(DEBUG|DBG|TRACE|TRC)\b"#, debugColor),
-            (#"\b[45]\d{2}\b"#, errorColor),
-            (#"\b[23]\d{2}\b"#, infoColor),
+            (#"(?i)(?:HTTP[/ ]|status[: ]+)[45]\d{2}\b"#, errorColor),
+            (#"(?i)(?:HTTP[/ ]|status[: ]+)[23]\d{2}\b"#, infoColor),
             (#"https?://[^\s\]\)]+"#, .link),
             (#""[^"]*""#, stringColor),
         ]
@@ -522,6 +545,10 @@ struct LogHighlightView: UIViewRepresentable {
             return (regex, color)
         }
     }()
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
 
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
@@ -534,32 +561,67 @@ struct LogHighlightView: UIViewRepresentable {
     }
 
     func updateUIView(_ textView: UITextView, context: Context) {
-        textView.attributedText = highlight(text)
+        let attributed = context.coordinator.attributedString(
+            for: text,
+            showFull: showFull,
+            highlight: { Self.highlight($0, showFull: $1) }
+        )
+        textView.attributedText = attributed
     }
 
-    private func highlight(_ text: String) -> NSAttributedString {
+    class Coordinator {
+        private var cachedText: String?
+        private var cachedShowFull: Bool?
+        private var cachedAttributedString: NSAttributedString?
+
+        func attributedString(
+            for text: String,
+            showFull: Bool,
+            highlight: (String, Bool) -> NSAttributedString
+        ) -> NSAttributedString {
+            if let cached = cachedAttributedString, cachedText == text, cachedShowFull == showFull {
+                return cached
+            }
+            let result = highlight(text, showFull)
+            cachedText = text
+            cachedShowFull = showFull
+            cachedAttributedString = result
+            return result
+        }
+    }
+
+    private static func highlight(_ text: String, showFull: Bool) -> NSAttributedString {
         let font = UIFont.monospacedSystemFont(ofSize: 11, weight: .regular)
 
         let displayText: String
         if showFull {
             displayText = text
-        } else if text.count > Self.maxDisplayLength {
-            // Truncate middle: keep 20% at start, 80% at end (recent logs more important)
-            let keepAtStart = Self.maxDisplayLength / 5
-            let keepAtEnd = Self.maxDisplayLength - keepAtStart
-            let start = String(text.prefix(keepAtStart))
-            let end = String(text.suffix(keepAtEnd))
-            displayText = start + "\n\n... [\(text.count - Self.maxDisplayLength) characters hidden] ...\n\n" + end
+        } else if text.count > maxDisplayLength {
+            // Truncate middle at line boundaries (20% start, 80% end for recent logs)
+            let targetStartLength = maxDisplayLength / 5
+            let targetEndLength = maxDisplayLength - targetStartLength
+
+            let startCutIndex: String.Index
+            if let newlineIndex = text[text.index(text.startIndex, offsetBy: min(targetStartLength, text.count))...].firstIndex(of: "\n") {
+                startCutIndex = newlineIndex
+            } else {
+                startCutIndex = text.index(text.startIndex, offsetBy: min(targetStartLength, text.count))
+            }
+
+            let endSearchStart = text.index(text.endIndex, offsetBy: -min(targetEndLength, text.count))
+            let endCutIndex: String.Index
+            if let newlineIndex = text[..<endSearchStart].lastIndex(of: "\n") {
+                endCutIndex = text.index(after: newlineIndex)
+            } else {
+                endCutIndex = endSearchStart
+            }
+
+            let start = String(text[..<startCutIndex])
+            let end = String(text[endCutIndex...])
+            let hiddenCount = text.count - start.count - end.count
+            displayText = start + "\n\n... [\(hiddenCount) characters hidden] ...\n\n" + end
         } else {
             displayText = text
-        }
-
-        // Skip highlighting for large content
-        guard displayText.count <= Self.maxHighlightLength else {
-            return NSAttributedString(string: displayText, attributes: [
-                .font: font,
-                .foregroundColor: UIColor.label
-            ])
         }
 
         let result = NSMutableAttributedString(string: displayText, attributes: [
@@ -568,7 +630,7 @@ struct LogHighlightView: UIViewRepresentable {
         ])
 
         let range = NSRange(displayText.startIndex..., in: displayText)
-        for (regex, color) in Self.patterns {
+        for (regex, color) in patterns {
             for match in regex.matches(in: displayText, options: [], range: range) {
                 result.addAttribute(.foregroundColor, value: color, range: match.range)
             }

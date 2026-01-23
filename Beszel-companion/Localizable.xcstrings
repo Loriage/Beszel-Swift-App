@@ -14,6 +14,12 @@
             "state" : "translated",
             "value" : "%@"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
         }
       }
     },
@@ -26,6 +32,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@"
+          }
+        },
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ %2$@"
@@ -46,6 +58,12 @@
             "state" : "translated",
             "value" : "%1$@ %2$@ %3$@"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@ %3$@"
+          }
         }
       }
     },
@@ -58,6 +76,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ MB/s"
+          }
+        },
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ MB/s"
@@ -78,6 +102,12 @@
             "state" : "translated",
             "value" : "•"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "•"
+          }
         }
       }
     },
@@ -90,6 +120,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 min"
+          }
+        },
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "1 min"
@@ -110,6 +146,12 @@
             "state" : "translated",
             "value" : "5 min"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5 min"
+          }
         }
       }
     },
@@ -122,6 +164,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "15 min"
+          }
+        },
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "15 min"
@@ -142,6 +190,12 @@
             "state" : "translated",
             "value" : "Indicateur de charge moyenne"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wskaźnik średniego obciążenia"
+          }
         }
       }
     },
@@ -157,6 +211,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Critique"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Krytyczny"
           }
         }
       }
@@ -174,6 +234,12 @@
             "state" : "translated",
             "value" : "Élevée"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysoki"
+          }
         }
       }
     },
@@ -189,6 +255,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Normal"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normalny"
           }
         }
       }
@@ -206,6 +278,12 @@
             "state" : "translated",
             "value" : "Inconnu"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieznany"
+          }
         }
       }
     },
@@ -222,6 +300,12 @@
             "state" : "translated",
             "value" : "Configurez les alertes depuis votre interface web Beszel."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skonfiguruj alerty z interfejsu webowego Beszel."
+          }
         }
       }
     },
@@ -237,6 +321,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune alerte configurée"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak skonfigurowanych alertów"
           }
         }
       }
@@ -255,6 +345,12 @@
             "state" : "translated",
             "value" : "Résolue le"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozwiązany o"
+          }
         }
       }
     },
@@ -272,6 +368,12 @@
             "state" : "translated",
             "value" : "Statut"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status"
+          }
         }
       }
     },
@@ -287,6 +389,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Détails de l'alerte"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szczegóły alertu"
           }
         }
       }
@@ -305,6 +413,12 @@
             "state" : "translated",
             "value" : "Déclenchée le"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyzwolony o"
+          }
         }
       }
     },
@@ -320,6 +434,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Les alertes ne sont pas disponibles sur cette instance Beszel. Veuillez mettre à jour vers la dernière version."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerty nie są dostępne w tej instancji Beszel. Zaktualizuj do najnowszej wersji."
           }
         }
       }
@@ -337,6 +457,12 @@
             "state" : "translated",
             "value" : "Tous"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wszystkie"
+          }
         }
       }
     },
@@ -352,6 +478,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune alerte n'a été déclenchée récemment."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Żadne alerty nie zostały ostatnio wyzwolone."
           }
         }
       }
@@ -369,6 +501,12 @@
             "state" : "translated",
             "value" : "Aucun historique d'alertes"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak historii alertów"
+          }
         }
       }
     },
@@ -385,6 +523,12 @@
             "state" : "translated",
             "value" : "%@ sur %@ a atteint %@"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ na %@ osiągnął %@"
+          }
         }
       }
     },
@@ -400,6 +544,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Alerte Beszel"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert Beszel"
           }
         }
       }
@@ -418,6 +568,12 @@
             "state" : "translated",
             "value" : "Configurées"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skonfigurowane"
+          }
         }
       }
     },
@@ -435,6 +591,12 @@
             "state" : "translated",
             "value" : "Historique"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historia"
+          }
         }
       }
     },
@@ -451,6 +613,12 @@
             "state" : "translated",
             "value" : "Active"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktywny"
+          }
         }
       }
     },
@@ -466,6 +634,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Résolue"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozwiązany"
           }
         }
       }
@@ -484,6 +658,12 @@
             "state" : "translated",
             "value" : "Alertes"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerty"
+          }
         }
       }
     },
@@ -499,6 +679,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bande passante"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przepustowość"
           }
         }
       }
@@ -516,6 +702,12 @@
             "state" : "translated",
             "value" : "Bande passante (MB/s)"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przepustowość (MB/s)"
+          }
         }
       }
     },
@@ -531,6 +723,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Graphique"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wykres"
           }
         }
       }
@@ -548,6 +746,12 @@
             "state" : "translated",
             "value" : "Hub"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Centrum"
+          }
         }
       }
     },
@@ -563,6 +767,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Système"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
           }
         }
       }
@@ -581,6 +791,12 @@
             "state" : "translated",
             "value" : "Utilisation du CPU Docker (%)"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użycie CPU Dockera (%)"
+          }
         }
       }
     },
@@ -598,6 +814,12 @@
             "state" : "translated",
             "value" : "Utilisation de la mémoire Docker (Mo)"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użycie pamięci Dockera (MB)"
+          }
         }
       }
     },
@@ -613,6 +835,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utilisation CPU (%)"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użycie CPU (%)"
           }
         }
       }
@@ -630,6 +858,12 @@
             "state" : "translated",
             "value" : "Systèmes de fichiers supplémentaires"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodatkowe systemy plików"
+          }
         }
       }
     },
@@ -645,6 +879,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utilisation GPU"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użycie GPU"
           }
         }
       }
@@ -662,6 +902,12 @@
             "state" : "translated",
             "value" : "Utilisation Mémoire (%)"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użycie pamięci (%)"
+          }
         }
       }
     },
@@ -677,6 +923,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Interfaces réseau"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interfejsy sieciowe"
           }
         }
       }
@@ -694,6 +946,12 @@
             "state" : "translated",
             "value" : "Pas de données pour %@"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych dla %@"
+          }
         }
       }
     },
@@ -709,6 +967,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Total"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Łącznie"
           }
         }
       }
@@ -726,6 +990,12 @@
             "state" : "translated",
             "value" : "Utilisé"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użyte"
+          }
         }
       }
     },
@@ -741,6 +1011,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utilisation Swap"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użycie swap"
           }
         }
       }
@@ -758,6 +1034,12 @@
             "state" : "translated",
             "value" : "Température (°C)"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temperatura (°C)"
+          }
         }
       }
     },
@@ -773,6 +1055,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utilisation du CPU Docker (%)"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użycie CPU Dockera (%)"
           }
         }
       }
@@ -790,6 +1078,12 @@
             "state" : "translated",
             "value" : "Utilisation de la mémoire Docker (%@)"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użycie pamięci Dockera (%@)"
+          }
         }
       }
     },
@@ -805,6 +1099,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Annuler"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anuluj"
           }
         }
       }
@@ -822,6 +1122,12 @@
             "state" : "translated",
             "value" : "Supprimer"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń"
+          }
         }
       }
     },
@@ -837,6 +1143,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Erreur"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Błąd"
           }
         }
       }
@@ -854,6 +1166,12 @@
             "state" : "translated",
             "value" : "Échec de l'authentification. Veuillez reconnecter votre instance."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uwierzytelnianie nie powiodło się. Podłącz ponownie swoją instancję."
+          }
         }
       }
     },
@@ -869,6 +1187,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de récupérer les données"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można pobrać danych"
           }
         }
       }
@@ -886,6 +1210,12 @@
             "state" : "translated",
             "value" : "Erreur inconnue"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieznany błąd"
+          }
         }
       }
     },
@@ -901,6 +1231,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune donnée"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych"
           }
         }
       }
@@ -918,6 +1254,12 @@
             "state" : "translated",
             "value" : "ou"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "lub"
+          }
         }
       }
     },
@@ -933,6 +1275,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Réessayer"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponów"
           }
         }
       }
@@ -950,6 +1298,12 @@
             "state" : "translated",
             "value" : "Aucun détail"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak szczegółów"
+          }
         }
       }
     },
@@ -965,6 +1319,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucun détail disponible pour ce conteneur"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak dostępnych szczegółów dla tego kontenera"
           }
         }
       }
@@ -983,6 +1343,12 @@
             "state" : "translated",
             "value" : "Détails"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szczegóły"
+          }
         }
       }
     },
@@ -998,6 +1364,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune instance active"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak aktywnej instancji"
           }
         }
       }
@@ -1015,6 +1387,12 @@
             "state" : "translated",
             "value" : "Conteneur introuvable"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontener nie znaleziony"
+          }
         }
       }
     },
@@ -1030,6 +1408,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sain"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zdrowy"
           }
         }
       }
@@ -1047,6 +1431,12 @@
             "state" : "translated",
             "value" : "Aucun"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak"
+          }
         }
       }
     },
@@ -1062,6 +1452,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Démarrage"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uruchamianie"
           }
         }
       }
@@ -1079,6 +1475,12 @@
             "state" : "translated",
             "value" : "Défaillant"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niezdrowy"
+          }
         }
       }
     },
@@ -1095,6 +1497,12 @@
             "state" : "translated",
             "value" : "Aucun journal"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak logów"
+          }
         }
       }
     },
@@ -1110,6 +1518,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucun journal disponible pour ce conteneur"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak dostępnych logów dla tego kontenera"
           }
         }
       }
@@ -1128,6 +1542,12 @@
             "state" : "translated",
             "value" : "Afficher tous les journaux"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokaż wszystkie logi"
+          }
         }
       }
     },
@@ -1144,6 +1564,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Journaux"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logi"
           }
         }
       }
@@ -1162,6 +1588,12 @@
             "state" : "translated",
             "value" : "Créé"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utworzono"
+          }
         }
       }
     },
@@ -1178,6 +1610,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mort"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Martwy"
           }
         }
       }
@@ -1196,6 +1634,12 @@
             "state" : "translated",
             "value" : "Arrêté (%1$@) il y a %2$@"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończony (%1$@) %2$@ temu"
+          }
         }
       }
     },
@@ -1212,6 +1656,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "En pause"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wstrzymany"
           }
         }
       }
@@ -1230,6 +1680,12 @@
             "state" : "translated",
             "value" : "Suppression"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuwanie"
+          }
         }
       }
     },
@@ -1246,6 +1702,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Redémarrage"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restartowanie"
           }
         }
       }
@@ -1264,6 +1726,12 @@
             "state" : "translated",
             "value" : "Démarré %@"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Działa %@"
+          }
         }
       }
     },
@@ -1279,6 +1747,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Liste des conteneurs Docker"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lista kontenerów Dockera"
           }
         }
       }
@@ -1296,6 +1770,12 @@
             "state" : "translated",
             "value" : "Détails"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szczegóły"
+          }
         }
       }
     },
@@ -1312,6 +1792,12 @@
             "state" : "translated",
             "value" : "Infos"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informacje"
+          }
         }
       }
     },
@@ -1327,6 +1813,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Journaux"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logi"
           }
         }
       }
@@ -1345,6 +1837,12 @@
             "state" : "translated",
             "value" : "%lld jours"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld dni"
+          }
         }
       }
     },
@@ -1361,6 +1859,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld heures"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld godzin"
           }
         }
       }
@@ -1379,6 +1883,12 @@
             "state" : "translated",
             "value" : "%lld minutes"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld minut"
+          }
         }
       }
     },
@@ -1395,6 +1905,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld mois"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld miesięcy"
           }
         }
       }
@@ -1413,6 +1929,12 @@
             "state" : "translated",
             "value" : "%lld secondes"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld sekund"
+          }
         }
       }
     },
@@ -1429,6 +1951,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld semaines"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld tygodni"
           }
         }
       }
@@ -1447,6 +1975,12 @@
             "state" : "translated",
             "value" : "%lld ans"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld lat"
+          }
         }
       }
     },
@@ -1462,6 +1996,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Conteneurs"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontenery"
           }
         }
       }
@@ -1479,6 +2019,12 @@
             "state" : "translated",
             "value" : "Conteneur"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontener"
+          }
         }
       }
     },
@@ -1492,6 +2038,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU"
+          }
+        },
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "CPU"
@@ -1513,6 +2065,12 @@
             "state" : "translated",
             "value" : "Ordre"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Malejąco"
+          }
         }
       }
     },
@@ -1530,6 +2088,12 @@
             "state" : "translated",
             "value" : "Filtrer par"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filtruj według"
+          }
         }
       }
     },
@@ -1546,6 +2110,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Filtres"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filtry"
           }
         }
       }
@@ -1565,6 +2135,12 @@
             "state" : "translated",
             "value" : "Recherche…"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szukaj…"
+          }
         }
       }
     },
@@ -1581,6 +2157,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trier par"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sortuj według"
           }
         }
       }
@@ -1599,6 +2181,12 @@
             "state" : "translated",
             "value" : "Descendant"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Malejąco"
+          }
         }
       }
     },
@@ -1614,6 +2202,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Date"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data"
           }
         }
       }
@@ -1631,6 +2225,12 @@
             "state" : "translated",
             "value" : "Faites glisser sur l'axe X pour sélectionner une date."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przeciągnij na osi X, aby wybrać datę."
+          }
         }
       }
     },
@@ -1646,6 +2246,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Total :"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Łącznie:"
           }
         }
       }
@@ -1663,6 +2269,12 @@
             "state" : "translated",
             "value" : "Valeurs le %@"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wartości w %@"
+          }
         }
       }
     },
@@ -1678,6 +2290,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utilisation du CPU Docker (%)"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użycie CPU Dockera (%)"
           }
         }
       }
@@ -1695,6 +2313,12 @@
             "state" : "translated",
             "value" : "Détails Utilisation Mémoire (%@)"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szczegóły użycia pamięci (%@)"
+          }
         }
       }
     },
@@ -1710,6 +2334,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Disque"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dysk"
           }
         }
       }
@@ -1727,6 +2357,12 @@
             "state" : "translated",
             "value" : "Entrée/Sortie disque (MB/s)"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I/O dysku (MB/s)"
+          }
         }
       }
     },
@@ -1742,6 +2378,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "INJOIGNABLE"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W DÓŁ"
           }
         }
       }
@@ -1759,6 +2401,12 @@
             "state" : "translated",
             "value" : "Reçu"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pobieranie"
+          }
         }
       }
     },
@@ -1774,6 +2422,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fin"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koniec"
           }
         }
       }
@@ -1792,6 +2446,12 @@
             "state" : "translated",
             "value" : "Erreur"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Błąd"
+          }
         }
       }
     },
@@ -1807,6 +2467,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Système de fichiers"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System plików"
           }
         }
       }
@@ -1825,6 +2491,12 @@
             "state" : "translated",
             "value" : "Métrique"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metryka"
+          }
         }
       }
     },
@@ -1841,6 +2513,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Service"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usługa"
           }
         }
       }
@@ -1859,6 +2537,12 @@
             "state" : "translated",
             "value" : "Système"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
         }
       }
     },
@@ -1871,6 +2555,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU"
+          }
+        },
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "GPU"
@@ -1891,6 +2581,12 @@
             "state" : "translated",
             "value" : "Épinglez vos graphiques préférés depuis les pages Système et Conteneurs pour les voir ici."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przypnij swoje ulubione wykresy ze stron System i Kontenery, aby zobaczyć je tutaj."
+          }
         }
       }
     },
@@ -1906,6 +2602,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Votre accueil est vide"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twój dom jest pusty"
           }
         }
       }
@@ -1923,6 +2625,12 @@
             "state" : "translated",
             "value" : "Vos graphiques épinglés"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje przypięte wykresy"
+          }
         }
       }
     },
@@ -1939,6 +2647,12 @@
             "state" : "translated",
             "value" : "Accueil"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dom"
+          }
         }
       }
     },
@@ -1951,6 +2665,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hub"
+          }
+        },
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hub"
@@ -1971,6 +2691,12 @@
             "state" : "translated",
             "value" : "Interface"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interfejs"
+          }
         }
       }
     },
@@ -1987,6 +2713,12 @@
             "state" : "translated",
             "value" : "Charge"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obciążenie"
+          }
         }
       }
     },
@@ -2002,6 +2734,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Charge moyenne"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnie obciążenie"
           }
         }
       }
@@ -2020,6 +2758,12 @@
             "state" : "translated",
             "value" : "Memory"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pamięć"
+          }
         }
       }
     },
@@ -2035,6 +2779,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mémoire"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pamięć"
           }
         }
       }
@@ -2052,6 +2802,12 @@
             "state" : "translated",
             "value" : "NET"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NET"
+          }
         }
       }
     },
@@ -2064,6 +2820,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NET:"
+          }
+        },
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "NET:"
@@ -2085,6 +2847,12 @@
             "state" : "translated",
             "value" : "Aucune données"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych"
+          }
         }
       }
     },
@@ -2100,6 +2868,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucun système trouvé"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie znaleziono systemu"
           }
         }
       }
@@ -2117,6 +2891,12 @@
             "state" : "translated",
             "value" : "Se connecter avec %@"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Połącz z %@"
+          }
         }
       }
     },
@@ -2132,6 +2912,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Échec de l'authentification. Veuillez vérifier vos identifiants."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uwierzytelnianie nie powiodło się. Sprawdź swoje dane logowania."
           }
         }
       }
@@ -2149,6 +2935,12 @@
             "state" : "translated",
             "value" : "Impossible de joindre le hub. Vérifiez l'URL et votre connexion."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można połączyć się z hubem. Sprawdź adres URL i połączenie."
+          }
         }
       }
     },
@@ -2164,6 +2956,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Veuillez entrer une URL valide."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wprowadź prawidłowy adres URL."
           }
         }
       }
@@ -2181,6 +2979,12 @@
             "state" : "translated",
             "value" : "Réponse invalide du serveur."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieprawidłowa odpowiedź serwera."
+          }
         }
       }
     },
@@ -2196,6 +3000,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Format d'URL invalide."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieprawidłowy format adresu URL."
           }
         }
       }
@@ -2213,6 +3023,12 @@
             "state" : "translated",
             "value" : "MFA requis"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wymagane MFA"
+          }
         }
       }
     },
@@ -2228,6 +3044,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Erreur réseau"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Błąd sieci"
           }
         }
       }
@@ -2246,6 +3068,12 @@
             "state" : "translated",
             "value" : "Champs requis"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wymagane pola"
+          }
         }
       }
     },
@@ -2261,6 +3089,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Email"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-mail"
           }
         }
       }
@@ -2278,6 +3112,12 @@
             "state" : "translated",
             "value" : "Code MFA"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kod MFA"
+          }
         }
       }
     },
@@ -2293,6 +3133,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mot de passe"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hasło"
           }
         }
       }
@@ -2310,6 +3156,12 @@
             "state" : "translated",
             "value" : "Nom du hub (ex: Local ou Serveur)"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwa huba (np. Lokalne lub Serwer)"
+          }
         }
       }
     },
@@ -2325,6 +3177,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Se Connecter"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Połącz"
           }
         }
       }
@@ -2343,6 +3201,12 @@
             "state" : "translated",
             "value" : "Connexion échouée"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logowanie nie powiodło się"
+          }
         }
       }
     },
@@ -2358,6 +3222,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Code envoyé à %@"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kod wysłany na %@"
           }
         }
       }
@@ -2375,6 +3245,12 @@
             "state" : "translated",
             "value" : "Code invalide. Veuillez réessayer."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieprawidłowy kod. Spróbuj ponownie."
+          }
         }
       }
     },
@@ -2390,6 +3266,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Renvoyer le code"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyślij ponownie kod"
           }
         }
       }
@@ -2407,6 +3289,12 @@
             "state" : "translated",
             "value" : "Envoyer le code de vérification"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyślij kod weryfikacyjny"
+          }
         }
       }
     },
@@ -2423,6 +3311,12 @@
             "state" : "translated",
             "value" : "Un code de vérification sera envoyé à votre email"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kod weryfikacyjny zostanie wysłany na Twój email"
+          }
         }
       }
     },
@@ -2438,6 +3332,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vérification"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weryfikacja"
           }
         }
       }
@@ -2456,6 +3356,12 @@
             "state" : "translated",
             "value" : "Veuillez entrer votre code MFA"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wprowadź kod MFA"
+          }
         }
       }
     },
@@ -2471,6 +3377,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Veuillez entrer les informations de votre hub."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wprowadź szczegóły swojego huba."
           }
         }
       }
@@ -2488,6 +3400,12 @@
             "state" : "translated",
             "value" : "Connexion à Beszel"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Połącz z Beszel"
+          }
         }
       }
     },
@@ -2503,6 +3421,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "beszel.domaine.fr"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "beszel.domena.tld"
           }
         }
       }
@@ -2520,6 +3444,12 @@
             "state" : "translated",
             "value" : "Vérifier"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zweryfikuj"
+          }
         }
       }
     },
@@ -2535,6 +3465,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "EN PAUSE"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WSTRZYMANY"
           }
         }
       }
@@ -2552,6 +3488,12 @@
             "state" : "translated",
             "value" : "EN ATTENTE"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OCZEKUJĄCY"
+          }
         }
       }
     },
@@ -2567,6 +3509,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Période"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Okres"
           }
         }
       }
@@ -2584,6 +3532,12 @@
             "state" : "translated",
             "value" : "CPU Conteneurs Docker"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU kontenera Dockera"
+          }
         }
       }
     },
@@ -2599,6 +3553,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mémoire Conteneurs Docker"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pamięć kontenera Dockera"
           }
         }
       }
@@ -2616,6 +3576,12 @@
             "state" : "translated",
             "value" : "CPU Docker"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU Dockera"
+          }
         }
       }
     },
@@ -2631,6 +3597,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mémoire Docker"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pamięć Dockera"
           }
         }
       }
@@ -2648,6 +3620,12 @@
             "state" : "translated",
             "value" : "Bande passante Système"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przepustowość systemu"
+          }
         }
       }
     },
@@ -2663,6 +3641,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "CPU Système"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU systemu"
           }
         }
       }
@@ -2680,6 +3664,12 @@
             "state" : "translated",
             "value" : "Entrée/Sortie Système"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I/O dysku systemu"
+          }
         }
       }
     },
@@ -2695,6 +3685,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Systèmes de fichiers supplémentaires"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodatkowe systemy plików"
           }
         }
       }
@@ -2712,6 +3708,12 @@
             "state" : "translated",
             "value" : "GPU Système"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU systemu"
+          }
         }
       }
     },
@@ -2727,6 +3729,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Infos Système"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O systemie"
           }
         }
       }
@@ -2744,6 +3752,12 @@
             "state" : "translated",
             "value" : "Charge moyenne Système"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnie obciążenie systemu"
+          }
         }
       }
     },
@@ -2759,6 +3773,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mémoire Système"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pamięć systemu"
           }
         }
       }
@@ -2776,6 +3796,12 @@
             "state" : "translated",
             "value" : "Interfaces réseau Système"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interfejsy sieciowe systemu"
+          }
         }
       }
     },
@@ -2791,6 +3817,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Swap Système"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swap systemu"
           }
         }
       }
@@ -2808,6 +3840,12 @@
             "state" : "translated",
             "value" : "Température Système"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temperatura systemu"
+          }
         }
       }
     },
@@ -2823,6 +3861,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lecture"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odczyt"
           }
         }
       }
@@ -2840,6 +3884,12 @@
             "state" : "translated",
             "value" : "Reçu"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otrzymane"
+          }
         }
       }
     },
@@ -2855,6 +3905,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Schéma"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schemat"
           }
         }
       }
@@ -2872,6 +3928,12 @@
             "state" : "translated",
             "value" : "Envoyé"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysłane"
+          }
         }
       }
     },
@@ -2887,6 +3949,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tableau de bord"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panel"
           }
         }
       }
@@ -2904,6 +3972,12 @@
             "state" : "translated",
             "value" : "Effacer toutes les épingles"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyczyść wszystkie przypięcia"
+          }
         }
       }
     },
@@ -2919,6 +3993,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Êtes-vous sûr de vouloir supprimer toutes vos épingles ? Cette action est irréversible."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czy na pewno chcesz usunąć wszystkie przypięcia? Ta akcja jest nieodwracalna."
           }
         }
       }
@@ -2936,6 +4016,12 @@
             "state" : "translated",
             "value" : "Effacer toutes les épingles"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyczyść wszystkie przypięcia"
+          }
         }
       }
     },
@@ -2951,6 +4037,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Affichage"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyświetlanie"
           }
         }
       }
@@ -2968,6 +4060,12 @@
             "state" : "translated",
             "value" : "Période du graphique"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Okres wykresu"
+          }
         }
       }
     },
@@ -2983,6 +4081,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Langue"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Język"
           }
         }
       }
@@ -3000,6 +4104,12 @@
             "state" : "translated",
             "value" : "Ajouter un hub"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj hub"
+          }
         }
       }
     },
@@ -3015,6 +4125,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hubs"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huby"
           }
         }
       }
@@ -3032,6 +4148,12 @@
             "state" : "translated",
             "value" : "Notifications"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Powiadomienia"
+          }
         }
       }
     },
@@ -3047,6 +4169,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Alertes configurées"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skonfigurowane alerty"
           }
         }
       }
@@ -3064,6 +4192,12 @@
             "state" : "translated",
             "value" : "Activer les notifications d'alertes"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Włącz powiadomienia alertów"
+          }
         }
       }
     },
@@ -3079,6 +4213,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Historique des alertes"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historia alertów"
           }
         }
       }
@@ -3096,6 +4236,12 @@
             "state" : "translated",
             "value" : "Assistance"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wsparcie"
+          }
         }
       }
     },
@@ -3111,6 +4257,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Signaler par email"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zgłoś przez email"
           }
         }
       }
@@ -3128,6 +4280,12 @@
             "state" : "translated",
             "value" : "Signaler sur GitHub"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zgłoś na GitHub"
+          }
         }
       }
     },
@@ -3143,6 +4301,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Paramètres"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawienia"
           }
         }
       }
@@ -3160,6 +4324,12 @@
             "state" : "translated",
             "value" : "Source"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Źródło"
+          }
         }
       }
     },
@@ -3176,6 +4346,12 @@
             "state" : "translated",
             "value" : "Début"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
         }
       }
     },
@@ -3188,6 +4364,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hub"
+          }
+        },
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hub"
@@ -3208,6 +4390,12 @@
             "state" : "translated",
             "value" : "Hubs"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huby"
+          }
         }
       }
     },
@@ -3224,6 +4412,12 @@
             "state" : "translated",
             "value" : "Chargement…"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ładowanie…"
+          }
         }
       }
     },
@@ -3236,6 +4430,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SYS"
+          }
+        },
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "SYS"
@@ -3256,6 +4456,12 @@
             "state" : "translated",
             "value" : "SYS:"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SYS:"
+          }
         }
       }
     },
@@ -3271,6 +4477,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "System Info"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O systemie"
           }
         }
       }
@@ -3289,6 +4501,12 @@
             "state" : "translated",
             "value" : "Chargement des données système..."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ładowanie danych systemu..."
+          }
         }
       }
     },
@@ -3304,6 +4522,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utilisation moyenne à l'échelle du système"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnie użycie w całym systemie"
           }
         }
       }
@@ -3321,6 +4545,12 @@
             "state" : "translated",
             "value" : "Système"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
         }
       }
     },
@@ -3337,6 +4567,12 @@
             "state" : "translated",
             "value" : "Système"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
         }
       }
     },
@@ -3352,6 +4588,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Systèmes"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systemy"
           }
         }
       }
@@ -3370,6 +4612,12 @@
             "state" : "translated",
             "value" : "Chargement des systèmes…"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ładowanie systemów…"
+          }
         }
       }
     },
@@ -3386,6 +4634,12 @@
             "state" : "translated",
             "value" : "Tab"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karta"
+          }
         }
       }
     },
@@ -3398,6 +4652,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temp"
+          }
+        },
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Temp"
@@ -3418,6 +4678,12 @@
             "state" : "translated",
             "value" : "7 jours"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 dni"
+          }
         }
       }
     },
@@ -3433,6 +4699,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "12 heures"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "12 godzin"
           }
         }
       }
@@ -3450,6 +4722,12 @@
             "state" : "translated",
             "value" : "24 heures"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "24 godziny"
+          }
         }
       }
     },
@@ -3465,6 +4743,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "30 jours"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 dni"
           }
         }
       }
@@ -3482,6 +4766,12 @@
             "state" : "translated",
             "value" : "Dernière heure"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostatnia godzina"
+          }
         }
       }
     },
@@ -3497,6 +4787,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Total"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Łącznie"
           }
         }
       }
@@ -3514,6 +4810,12 @@
             "state" : "translated",
             "value" : "Type"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typ"
+          }
         }
       }
     },
@@ -3529,6 +4831,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Inconnu"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieznany"
           }
         }
       }
@@ -3546,6 +4854,12 @@
             "state" : "translated",
             "value" : "JOIGNABLE"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W GÓRĘ"
+          }
         }
       }
     },
@@ -3561,6 +4875,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "UP : %@"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W GÓRĘ: %@"
           }
         }
       }
@@ -3578,6 +4898,12 @@
             "state" : "translated",
             "value" : "Envoyé"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysyłanie"
+          }
         }
       }
     },
@@ -3593,6 +4919,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utilisation"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użycie"
           }
         }
       }
@@ -3610,6 +4942,12 @@
             "state" : "translated",
             "value" : "Utilisé"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użyte"
+          }
         }
       }
     },
@@ -3625,6 +4963,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Valeur"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wartość"
           }
         }
       }
@@ -3642,6 +4986,12 @@
             "state" : "translated",
             "value" : "Version %@"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wersja %@"
+          }
         }
       }
     },
@@ -3657,6 +5007,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "CPU Système"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU systemu"
           }
         }
       }
@@ -3674,6 +5030,12 @@
             "state" : "translated",
             "value" : "Mémoire Système"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pamięć systemu"
+          }
         }
       }
     },
@@ -3689,6 +5051,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Température Système"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temperatura systemu"
           }
         }
       }
@@ -3706,6 +5074,12 @@
             "state" : "translated",
             "value" : "Affichez une jauge de métrique sur votre écran de verrouillage."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyświetl wskaźnik metryki na ekranie blokady."
+          }
         }
       }
     },
@@ -3721,6 +5095,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jauge Beszel"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wskaźnik Beszel"
           }
         }
       }
@@ -3738,6 +5118,12 @@
             "state" : "translated",
             "value" : "Choisir le graphique à afficher sur le widget."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz wykres do wyświetlenia w widżecie."
+          }
         }
       }
     },
@@ -3753,6 +5139,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mesure"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metryka"
           }
         }
       }
@@ -3770,6 +5162,12 @@
             "state" : "translated",
             "value" : "Type de Graphique"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typ wykresu"
+          }
         }
       }
     },
@@ -3782,6 +5180,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beszel"
+          }
+        },
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Beszel"
@@ -3802,6 +5206,12 @@
             "state" : "translated",
             "value" : "Affichez un graphique de monitoring de votre serveur."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyświetl wykres monitorowania z Twojego serwera."
+          }
         }
       }
     },
@@ -3814,6 +5224,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beszel"
+          }
+        },
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Beszel"
@@ -3835,6 +5251,12 @@
             "state" : "translated",
             "value" : "Erreur réseau"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Błąd sieci"
+          }
         }
       }
     },
@@ -3851,6 +5273,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune instance"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak instancji"
           }
         }
       }
@@ -3869,6 +5297,12 @@
             "state" : "translated",
             "value" : "Aucun système"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak systemu"
+          }
         }
       }
     },
@@ -3884,6 +5318,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Erreur de chargement"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Błąd ładowania"
           }
         }
       }
@@ -3901,6 +5341,12 @@
             "state" : "translated",
             "value" : "Aucune donnée disponible pour la période sélectionnée. Une reconnexion peut être nécessaire."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych dla wybranego okresu. Możesz potrzebować ponownego połączenia."
+          }
         }
       }
     },
@@ -3916,6 +5362,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Non connecté"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie połączono"
           }
         }
       }
@@ -3933,6 +5385,12 @@
             "state" : "translated",
             "value" : "Affichez les infos système sur votre écran de verrouillage."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyświetl informacje systemu na ekranie blokady."
+          }
         }
       }
     },
@@ -3948,6 +5406,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Infos Beszel"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Beszel"
           }
         }
       }
@@ -3966,6 +5430,12 @@
             "state" : "translated",
             "value" : "Sélectionnez un hub dans les paramètres du widget"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz hub w ustawieniach widżetu"
+          }
         }
       }
     },
@@ -3983,6 +5453,12 @@
             "state" : "translated",
             "value" : "Sélectionnez un système dans les paramètres du widget"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz system w ustawieniach widżetu"
+          }
         }
       }
     },
@@ -3999,6 +5475,12 @@
             "state" : "translated",
             "value" : "température"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "temperatura"
+          }
         }
       }
     },
@@ -4014,6 +5496,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Écriture"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisz"
           }
         }
       }

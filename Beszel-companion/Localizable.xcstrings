@@ -2383,7 +2383,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "W DÓŁ"
+            "value" : "OFFLINE"
           }
         }
       }
@@ -4858,7 +4858,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "W GÓRĘ"
+            "value" : "ONLINE"
           }
         }
       }
@@ -4880,7 +4880,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "W GÓRĘ: %@"
+            "value" : "ONLINE: %@"
           }
         }
       }

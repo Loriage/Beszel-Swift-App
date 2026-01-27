@@ -5,6 +5,8 @@ struct SystemNetworkInterfacesChartView: View {
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
 
+    var systemName: String? = nil
+
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
@@ -19,8 +21,16 @@ struct SystemNetworkInterfacesChartView: View {
 
     var body: some View {
         GroupBox(label: HStack {
+            VStack(alignment: .leading, spacing: 2) {
             Text("chart.networkInterfaces")
                 .font(.headline)
+                if let systemName = systemName {
+                    Text(systemName)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+            }
             Spacer()
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {

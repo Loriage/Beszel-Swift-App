@@ -229,6 +229,7 @@ struct HomeView: View {
             SystemDiskIOChartView(
                 dataPoints: systemData,
                 xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
                 isPinned: store.isPinned(.systemDiskIO, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemDiskIO, onSystem: resolvedItem.systemID) }
             )
@@ -236,6 +237,7 @@ struct HomeView: View {
             SystemBandwidthChartView(
                 dataPoints: systemData,
                 xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
                 isPinned: store.isPinned(.systemBandwidth, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemBandwidth, onSystem: resolvedItem.systemID) }
             )
@@ -243,6 +245,7 @@ struct HomeView: View {
             SystemLoadChartView(
                 dataPoints: systemData,
                 xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
                 isPinned: store.isPinned(.systemLoadAverage, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemLoadAverage, onSystem: resolvedItem.systemID) }
             )
@@ -250,6 +253,7 @@ struct HomeView: View {
             SystemSwapChartView(
                 dataPoints: systemData,
                 xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
                 isPinned: store.isPinned(.systemSwap, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemSwap, onSystem: resolvedItem.systemID) }
             )
@@ -257,6 +261,7 @@ struct HomeView: View {
             SystemGPUChartView(
                 dataPoints: systemData,
                 xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
                 isPinned: store.isPinned(.systemGPU, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemGPU, onSystem: resolvedItem.systemID) }
             )
@@ -264,6 +269,7 @@ struct HomeView: View {
             SystemNetworkInterfacesChartView(
                 dataPoints: systemData,
                 xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
                 isPinned: store.isPinned(.systemNetworkInterfaces, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemNetworkInterfaces, onSystem: resolvedItem.systemID) }
             )
@@ -271,6 +277,7 @@ struct HomeView: View {
             SystemExtraFilesystemsChartView(
                 dataPoints: systemData,
                 xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
                 isPinned: store.isPinned(.systemExtraFilesystems, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemExtraFilesystems, onSystem: resolvedItem.systemID) }
             )

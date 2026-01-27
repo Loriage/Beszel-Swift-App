@@ -4,14 +4,24 @@ import Charts
 struct SystemLoadChartView: View {
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
+
+    var systemName: String? = nil
     
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
     
     var body: some View {
         GroupBox(label: HStack {
+            VStack(alignment: .leading, spacing: 2) {
             Text("Load Average")
                 .font(.headline)
+                if let systemName = systemName {
+                    Text(systemName)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+            }
             Spacer()
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {

@@ -355,23 +355,25 @@ struct ContainerInfoHeader: View {
                     Text(container.id.prefix(12))
                         .font(.system(.subheadline, design: .monospaced))
 
-                    if container.health != .none {
-                        HealthBadge(health: container.health)
+                    if let health = container.health, health != .none {
+                        HealthBadge(health: health)
                     }
                 }
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
-                Label(container.image, systemImage: "shippingbox")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
+                if let image = container.image {
+                    Label(image, systemImage: "shippingbox")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
 
                 HStack(spacing: 16) {
                     Label(String(format: "%.2f%%", container.cpu), systemImage: "cpu")
                     Label(formatMemory(container.memory), systemImage: "memorychip")
-                    if container.net > 0 {
-                        Label(formatNetwork(container.net), systemImage: "network")
+                    if let net = container.net, net > 0 {
+                        Label(formatNetwork(net), systemImage: "network")
                     }
                 }
                 .font(.subheadline)

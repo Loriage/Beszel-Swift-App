@@ -80,8 +80,7 @@ struct SystemSummaryCard: View {
                                 .foregroundColor(.primary)
                             Spacer()
 
-                            let netUsageBytes = stats.networkReceived + stats.networkSent
-                            let netUsageMB = netUsageBytes
+                            let netUsageMB = (stats.networkReceived ?? 0) + (stats.networkSent ?? 0)
 
                             HStack(spacing: 8) {
                                 Text("NET:")

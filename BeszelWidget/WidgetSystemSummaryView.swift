@@ -67,7 +67,7 @@ struct WidgetSystemSummaryView: View {
                     
                     Spacer()
 
-                    let netUsageMB = (stats.networkReceived + stats.networkSent)
+                    let netUsageMB = (stats.networkReceived ?? 0) + (stats.networkSent ?? 0)
                     HStack(spacing: 6) {
                         Text("NET")
                             .font(.caption2)

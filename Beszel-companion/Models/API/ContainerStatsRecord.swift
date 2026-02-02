@@ -15,8 +15,8 @@ nonisolated struct ContainerStat: Identifiable, Codable, Hashable, Sendable {
     let name: String
     let cpu: Double
     let memory: Double
-    let netSent: Double
-    let netReceived: Double
+    let netSent: Double?
+    let netReceived: Double?
 
     var id: String { name }
 

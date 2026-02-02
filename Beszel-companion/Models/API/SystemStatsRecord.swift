@@ -44,8 +44,8 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
     let diskIOMax: [Double]?          // max disk I/O bytes [read, write]
 
     // Network
-    let networkSent: Double           // network sent (mb)
-    let networkReceived: Double       // network received (mb)
+    let networkSent: Double?          // network sent (mb)
+    let networkReceived: Double?      // network received (mb)
     let bandwidth: [Double]?          // bandwidth bytes [sent, recv]
     let networkSentMax: Double?       // max network sent (mb)
     let networkReceivedMax: Double?   // max network received (mb)
@@ -186,9 +186,11 @@ extension Array where Element == SystemStatsRecord {
             let bandwidthTuple: (upload: Double, download: Double)?
             if let b = stats.bandwidth, b.count >= 2 {
                 bandwidthTuple = (upload: b[0], download: b[1])
-            } else {
+            } else if let ns = stats.networkSent, let nr = stats.networkReceived {
                 let mbToBytes = 1_048_576.0
-                bandwidthTuple = (upload: stats.networkSent * mbToBytes, download: stats.networkReceived * mbToBytes)
+                bandwidthTuple = (upload: ns * mbToBytes, download: nr * mbToBytes)
+            } else {
+                bandwidthTuple = nil
             }
 
             let diskIOTuple: (read: Double, write: Double)?

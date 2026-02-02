@@ -112,24 +112,28 @@ struct ContainerRowView: View {
                 HStack(spacing: 8) {
                     Label(formatCPU(container.cpu), systemImage: "cpu")
                     Label(formatMemory(container.memory), systemImage: "memorychip")
-                    if container.net > 0 {
-                        Label(formatNetwork(container.net), systemImage: "network")
+                    if let net = container.net, net > 0 {
+                        Label(formatNetwork(net), systemImage: "network")
                     }
                 }
                 .font(.caption)
                 .foregroundColor(.secondary)
-                
-                Label(container.image, systemImage: "shippingbox")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
+
+                if let image = container.image {
+                    Label(image, systemImage: "shippingbox")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
             }
-            
+
             Spacer()
-            
+
             VStack(alignment: .trailing, spacing: 4) {
-                HealthBadge(health: container.health)
+                if let health = container.health {
+                    HealthBadge(health: health)
+                }
                 
                 Text(container.status)
                     .font(.caption2)

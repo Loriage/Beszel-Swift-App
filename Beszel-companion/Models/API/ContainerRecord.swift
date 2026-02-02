@@ -7,10 +7,10 @@ nonisolated struct ContainerRecord: Identifiable, Codable, Hashable, Sendable {
     let name: String
     let cpu: Double
     let memory: Double
-    let net: Double
-    let health: ContainerHealth
+    let net: Double?
+    let health: ContainerHealth?
     let status: String
-    let image: String
+    let image: String?
     let system: String
     let updated: Int64
 

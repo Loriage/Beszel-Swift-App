@@ -294,6 +294,22 @@ final class BeszelStore {
             logger.warning("Authentication failed")
             self.authenticationFailed = true
             self.errorMessage = String(localized: "common.error.authFailed")
+        } else if let decodingError = error as? DecodingError {
+            let details: String
+            switch decodingError {
+            case .keyNotFound(let key, let context):
+                details = "Missing key '\(key.stringValue)' at path: \(context.codingPath.map(\.stringValue).joined(separator: "."))"
+            case .typeMismatch(let type, let context):
+                details = "Type mismatch for \(type) at path: \(context.codingPath.map(\.stringValue).joined(separator: "."))"
+            case .valueNotFound(let type, let context):
+                details = "Value not found for \(type) at path: \(context.codingPath.map(\.stringValue).joined(separator: "."))"
+            case .dataCorrupted(let context):
+                details = "Data corrupted at path: \(context.codingPath.map(\.stringValue).joined(separator: "."))"
+            @unknown default:
+                details = "Unknown decoding error"
+            }
+            logger.error("Decoding error: \(details)")
+            self.errorMessage = String(localized: "common.error.fetchFailed") + ": \(details)"
         } else {
             logger.error("Failed to fetch data: \(error.localizedDescription)")
             self.errorMessage = String(localized: "common.error.fetchFailed") + ": \(error.localizedDescription)"

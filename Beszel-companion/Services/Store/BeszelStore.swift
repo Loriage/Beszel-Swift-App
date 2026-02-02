@@ -409,126 +409,193 @@ final class BeszelStore {
     }
     
     private func calculateStackedData() {
+        let timeRange = settingsManager.selectedTimeRange
+
         let avgCpu = containerData.map { container -> (name: String, avg: Double) in
             let total = container.statPoints.reduce(0) { $0 + $1.cpu }
             let average = container.statPoints.isEmpty ? 0 : total / Double(container.statPoints.count)
             return (name: container.name, avg: average)
         }
         self.cpuDomain = avgCpu.sorted { $0.avg < $1.avg }.map { $0.name }
-        
-        self.stackedCpuData = buildStackedCpuData(from: containerData, domain: cpuDomain)
-        
+
+        self.stackedCpuData = buildStackedCpuData(from: containerData, domain: cpuDomain, timeRange: timeRange)
+
         let avgMem = containerData.map { container -> (name: String, avg: Double) in
             let total = container.statPoints.reduce(0) { $0 + $1.memory }
             let average = container.statPoints.isEmpty ? 0 : total / Double(container.statPoints.count)
             return (name: container.name, avg: average)
         }
         self.memoryDomain = avgMem.sorted { $0.avg < $1.avg }.map { $0.name }
-        
-        self.stackedMemoryData = buildStackedMemoryData(from: containerData, domain: memoryDomain)
+
+        self.stackedMemoryData = buildStackedMemoryData(from: containerData, domain: memoryDomain, timeRange: timeRange)
     }
     
     func getStackedCpuData(for systemID: String) -> (data: [StackedCpuData], domain: [String]) {
         if systemID == instanceManager.activeSystem?.id {
             return (stackedCpuData, cpuDomain)
         }
-        
+
         let data = containerDataBySystem[systemID] ?? []
-        
+
         let avg = data.map { c -> (String, Double) in
             let total = c.statPoints.reduce(0) { $0 + $1.cpu }
             let mean = c.statPoints.isEmpty ? 0 : total / Double(c.statPoints.count)
             return (c.name, mean)
         }
         let domain = avg.sorted { $0.1 < $1.1 }.map { $0.0 }
-        
-        return (buildStackedCpuData(from: data, domain: domain), domain)
+
+        return (buildStackedCpuData(from: data, domain: domain, timeRange: settingsManager.selectedTimeRange), domain)
     }
-    
+
     func getStackedMemoryData(for systemID: String) -> (data: [StackedMemoryData], domain: [String]) {
         if systemID == instanceManager.activeSystem?.id {
             return (stackedMemoryData, memoryDomain)
         }
-        
+
         let data = containerDataBySystem[systemID] ?? []
-        
+
         let avg = data.map { c -> (String, Double) in
             let total = c.statPoints.reduce(0) { $0 + $1.memory }
             let mean = c.statPoints.isEmpty ? 0 : total / Double(c.statPoints.count)
             return (c.name, mean)
         }
         let domain = avg.sorted { $0.1 < $1.1 }.map { $0.0 }
-        
-        return (buildStackedMemoryData(from: data, domain: domain), domain)
+
+        return (buildStackedMemoryData(from: data, domain: domain, timeRange: settingsManager.selectedTimeRange), domain)
     }
     
-    func buildStackedCpuData(from data: [ProcessedContainerData], domain: [String]) -> [StackedCpuData] {
+    /// Returns bucket interval in seconds based on time range
+    private func bucketInterval(for timeRange: TimeRangeOption) -> TimeInterval {
+        switch timeRange {
+        case .lastHour: return 60          // 1 minute
+        case .last12Hours: return 300      // 5 minutes
+        case .last24Hours: return 600      // 10 minutes
+        case .last7Days: return 3600       // 1 hour
+        case .last30Days: return 14400     // 4 hours
+        }
+    }
+
+    /// Rounds a date to the nearest bucket based on time range
+    private func bucketDate(_ date: Date, interval: TimeInterval) -> Date {
+        let ts = date.timeIntervalSince1970
+        let bucketedTs = (ts / interval).rounded() * interval
+        return Date(timeIntervalSince1970: bucketedTs)
+    }
+
+    func buildStackedCpuData(from data: [ProcessedContainerData], domain: [String], timeRange: TimeRangeOption? = nil) -> [StackedCpuData] {
+        let interval = bucketInterval(for: timeRange ?? settingsManager.selectedTimeRange)
         let allPoints = data.flatMap { container in
             container.statPoints.map { AggregatedCpuData(date: $0.date, name: container.name, cpu: $0.cpu) }
         }
         guard !allPoints.isEmpty else { return [] }
-        
-        let uniqueDates = Set(allPoints.map { $0.date }).sorted()
+
+        // Bucket dates based on time range to reduce noise
+        let pointDict = Dictionary(grouping: allPoints, by: { bucketDate($0.date, interval: interval) })
+        let uniqueDates = pointDict.keys.sorted()
         let uniqueNames = Set(allPoints.map { $0.name })
-        let pointDict = Dictionary(grouping: allPoints, by: { $0.date })
-        
+
         let domainIndexMap = Dictionary(uniqueKeysWithValues: domain.enumerated().map { ($1, $0) })
-        
+
         var stacked: [StackedCpuData] = []
-        
+
+        // Track last known value for each container to interpolate missing data
+        var lastKnownValue: [String: Double] = [:]
+        for name in uniqueNames {
+            lastKnownValue[name] = 0
+        }
+
         for date in uniqueDates {
-            var pointsForDate = pointDict[date] ?? []
-            
-            let namesWithData = Set(pointsForDate.map { $0.name })
-            let missingNames = uniqueNames.subtracting(namesWithData)
-            for name in missingNames {
-                pointsForDate.append(AggregatedCpuData(date: date, name: name, cpu: 0))
+            let pointsInBucket = pointDict[date] ?? []
+
+            // Average values per container within each bucket
+            var avgByName: [String: Double] = [:]
+            var countByName: [String: Int] = [:]
+            for point in pointsInBucket {
+                avgByName[point.name, default: 0] += point.cpu
+                countByName[point.name, default: 0] += 1
             }
-            
-            pointsForDate.sort {
-                (domainIndexMap[$0.name] ?? 0) < (domainIndexMap[$1.name] ?? 0)
+            for (name, total) in avgByName {
+                avgByName[name] = total / Double(countByName[name] ?? 1)
             }
-            
+
+            // Fill missing containers with last known value (interpolation)
+            for name in uniqueNames {
+                if let value = avgByName[name] {
+                    lastKnownValue[name] = value
+                } else {
+                    avgByName[name] = lastKnownValue[name] ?? 0
+                }
+            }
+
+            // Sort by domain order and build stacked data
+            let sortedNames = avgByName.keys.sorted {
+                (domainIndexMap[$0] ?? 0) < (domainIndexMap[$1] ?? 0)
+            }
+
             var cumulative = 0.0
-            for point in pointsForDate {
-                let val = point.cpu
-                stacked.append(StackedCpuData(date: date, name: point.name, yStart: cumulative, yEnd: cumulative + val))
+            for name in sortedNames {
+                let val = avgByName[name] ?? 0
+                stacked.append(StackedCpuData(date: date, name: name, yStart: cumulative, yEnd: cumulative + val))
                 cumulative += val
             }
         }
         return stacked
     }
     
-    func buildStackedMemoryData(from data: [ProcessedContainerData], domain: [String]) -> [StackedMemoryData] {
+    func buildStackedMemoryData(from data: [ProcessedContainerData], domain: [String], timeRange: TimeRangeOption? = nil) -> [StackedMemoryData] {
+        let interval = bucketInterval(for: timeRange ?? settingsManager.selectedTimeRange)
         let allPoints = data.flatMap { container in
             container.statPoints.map { AggregatedMemoryData(date: $0.date, name: container.name, memory: $0.memory) }
         }
         guard !allPoints.isEmpty else { return [] }
-        
-        let uniqueDates = Set(allPoints.map { $0.date }).sorted()
+
+        // Bucket dates based on time range to reduce noise
+        let pointDict = Dictionary(grouping: allPoints, by: { bucketDate($0.date, interval: interval) })
+        let uniqueDates = pointDict.keys.sorted()
         let uniqueNames = Set(allPoints.map { $0.name })
-        let pointDict = Dictionary(grouping: allPoints, by: { $0.date })
-        
+
         let domainIndexMap = Dictionary(uniqueKeysWithValues: domain.enumerated().map { ($1, $0) })
-        
+
         var stacked: [StackedMemoryData] = []
-        
+
+        // Track last known value for each container to interpolate missing data
+        var lastKnownValue: [String: Double] = [:]
+        for name in uniqueNames {
+            lastKnownValue[name] = 0
+        }
+
         for date in uniqueDates {
-            var pointsForDate = pointDict[date] ?? []
-            let namesWithData = Set(pointsForDate.map { $0.name })
-            let missingNames = uniqueNames.subtracting(namesWithData)
-            for name in missingNames {
-                pointsForDate.append(AggregatedMemoryData(date: date, name: name, memory: 0))
+            let pointsInBucket = pointDict[date] ?? []
+
+            // Average values per container within each bucket
+            var avgByName: [String: Double] = [:]
+            var countByName: [String: Int] = [:]
+            for point in pointsInBucket {
+                avgByName[point.name, default: 0] += point.memory
+                countByName[point.name, default: 0] += 1
             }
-            
-            pointsForDate.sort {
-                (domainIndexMap[$0.name] ?? 0) < (domainIndexMap[$1.name] ?? 0)
+            for (name, total) in avgByName {
+                avgByName[name] = total / Double(countByName[name] ?? 1)
             }
-            
+
+            // Fill missing containers with last known value (interpolation)
+            for name in uniqueNames {
+                if let value = avgByName[name] {
+                    lastKnownValue[name] = value
+                } else {
+                    avgByName[name] = lastKnownValue[name] ?? 0
+                }
+            }
+
+            // Sort by domain order and build stacked data
+            let sortedNames = avgByName.keys.sorted {
+                (domainIndexMap[$0] ?? 0) < (domainIndexMap[$1] ?? 0)
+            }
+
             var cumulative = 0.0
-            for point in pointsForDate {
-                let val = point.memory
-                stacked.append(StackedMemoryData(date: date, name: point.name, yStart: cumulative, yEnd: cumulative + val))
+            for name in sortedNames {
+                let val = avgByName[name] ?? 0
+                stacked.append(StackedMemoryData(date: date, name: name, yStart: cumulative, yEnd: cumulative + val))
                 cumulative += val
             }
         }

@@ -168,10 +168,10 @@ extension Array where Element == SystemStatsRecord {
         let groupedByDate = Dictionary(grouping: self, by: { record in
             return Int(record.created.timeIntervalSince1970 / 60)
         })
-        
+
         let uniqueBestRecords = groupedByDate.compactMap { (_, recordsForMinute) -> SystemStatsRecord? in
             if recordsForMinute.count == 1 { return recordsForMinute.first }
-            
+
             return recordsForMinute.min(by: {
                 let durA = Int($0.type.replacingOccurrences(of: "m", with: "")) ?? Int.max
                 let durB = Int($1.type.replacingOccurrences(of: "m", with: "")) ?? Int.max

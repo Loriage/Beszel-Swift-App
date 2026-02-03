@@ -2,8 +2,11 @@ import SwiftUI
 import AuthenticationServices
 
 struct OnboardingView: View {
+    var editingInstance: Instance?
     var onComplete: (String, String, String, String) -> Void
-    
+
+    @Environment(\.dismiss) private var dismiss
+
     @State private var instanceName = ""
     @State private var selectedScheme: ServerScheme = .https
     @State private var serverAddress = ""
@@ -22,10 +25,12 @@ struct OnboardingView: View {
         let otpId: String?
         let email: String?
     }
-    
+
     private let apiService = OnboardingAPIService()
     private let contextProvider = WebAuthSessionContextProvider()
-    
+
+    private var isEditing: Bool { editingInstance != nil }
+
     enum ServerScheme: String, CaseIterable, Identifiable {
         case http = "http://"
         case https = "https://"
@@ -56,103 +61,132 @@ struct OnboardingView: View {
     }
     
     var body: some View {
-        VStack(spacing: 20) {
-            Spacer()
-            
-            Image(systemName: "server.rack")
-                .font(.system(size: 60))
-                .foregroundColor(.accentColor)
-            
-            Text("onboarding.title")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            
-            VStack {
-                TextField("onboarding.instanceNamePlaceholder", text: $instanceName)
-                    .padding()
-                    .background(.thinMaterial)
-                    .cornerRadius(10)
+        NavigationStack {
+            VStack(spacing: 20) {
+                Spacer()
                 
-                HStack(spacing: 10) {
-                    Picker("Scheme", selection: $selectedScheme) {
-                        ForEach(ServerScheme.allCases) { scheme in
-                            Text(scheme.rawValue).tag(scheme)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .frame(height: 54)
-                    .background(.thinMaterial)
-                    .cornerRadius(10)
-                    .tint(Color.primary)
-                    
-                    TextField("onboarding.urlPlaceholder", text: $serverAddress)
-                        .keyboardType(.URL)
-                        .textContentType(.URL)
-                        .autocapitalization(.none)
+                Image(systemName: "server.rack")
+                    .font(.system(size: 60))
+                    .foregroundColor(.accentColor)
+                
+                Text("onboarding.title")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                
+                VStack {
+                    TextField("onboarding.instanceNamePlaceholder", text: $instanceName)
                         .padding()
                         .background(.thinMaterial)
                         .cornerRadius(10)
-                        .onSubmit {
-                            fetchAuthMethods()
+                    
+                    HStack(spacing: 10) {
+                        Picker("Scheme", selection: $selectedScheme) {
+                            ForEach(ServerScheme.allCases) { scheme in
+                                Text(scheme.rawValue).tag(scheme)
+                            }
                         }
+                        .pickerStyle(.menu)
+                        .frame(height: 54)
+                        .background(.thinMaterial)
+                        .cornerRadius(10)
+                        .tint(Color.primary)
+                        
+                        TextField("onboarding.urlPlaceholder", text: $serverAddress)
+                            .keyboardType(.URL)
+                            .textContentType(.URL)
+                            .autocapitalization(.none)
+                            .padding()
+                            .background(.thinMaterial)
+                            .cornerRadius(10)
+                            .onSubmit {
+                                fetchAuthMethods()
+                            }
+                    }
                 }
-            }
-            .padding(.horizontal)
-            
-            if isLoading {
-                ProgressView()
-            }
-            
-            if let authMethods = authMethods {
-                if authMethods.password.enabled {
-                    passwordLoginView
+                .padding(.horizontal)
+                
+                if isLoading {
+                    ProgressView()
                 }
                 
-                if authMethods.oauth2.enabled && !authMethods.oauth2.providers.isEmpty {
+                if let authMethods = authMethods {
                     if authMethods.password.enabled {
-                        HStack {
-                            VStack { Divider() }
-                            Text("common.or")
-                                .foregroundColor(.secondary)
-                            VStack { Divider() }
-                        }
-                        .padding(.horizontal)
+                        passwordLoginView
                     }
                     
-                    ForEach(authMethods.oauth2.providers) { provider in
-                        Button(.init(String(format: String(localized: "onboarding.connect_with_provider"), provider.displayName))) {
-                            startWebLogin(provider: provider)
+                    if authMethods.oauth2.enabled && !authMethods.oauth2.providers.isEmpty {
+                        if authMethods.password.enabled {
+                            HStack {
+                                VStack { Divider() }
+                                Text("common.or")
+                                    .foregroundColor(.secondary)
+                                VStack { Divider() }
+                            }
+                            .padding(.horizontal)
+                        }
+                        
+                        ForEach(authMethods.oauth2.providers) { provider in
+                            Button(.init(String(format: String(localized: "onboarding.connect_with_provider"), provider.displayName))) {
+                                startWebLogin(provider: provider)
+                            }
+                        }
+                    }
+                }
+                
+                if let errorMessage = errorMessage {
+                    Text(LocalizedStringKey(errorMessage))
+                        .foregroundColor(.red)
+                        .font(.caption)
+                        .padding(.horizontal)
+                }
+                
+                Spacer()
+            }
+            .toolbar {
+                if isEditing {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
                         }
                     }
                 }
             }
-            
-            if let errorMessage = errorMessage {
-                Text(LocalizedStringKey(errorMessage))
-                    .foregroundColor(.red)
-                    .font(.caption)
-                    .padding(.horizontal)
-            }
-
-            Spacer()
-        }
-        .sheet(item: $mfaState) { state in
-            MFAView(
-                url: url,
-                mfaId: state.mfaId,
-                otpId: state.otpId,
-                email: state.email,
-                onComplete: { token in
-                    mfaState = nil
-                    onComplete(instanceName, url, state.email ?? email, token)
-                },
-                onCancel: {
-                    mfaState = nil
+            .onAppear {
+                if let instance = editingInstance {
+                    instanceName = instance.name
+                    email = instance.email
+                    if instance.url.hasPrefix("http://") {
+                        selectedScheme = .http
+                        serverAddress = String(instance.url.dropFirst(7))
+                    } else if instance.url.hasPrefix("https://") {
+                        selectedScheme = .https
+                        serverAddress = String(instance.url.dropFirst(8))
+                    } else {
+                        serverAddress = instance.url
+                    }
+                    fetchAuthMethods()
                 }
-            )
+            }
+            .sheet(item: $mfaState) { state in
+                MFAView(
+                    url: url,
+                    mfaId: state.mfaId,
+                    otpId: state.otpId,
+                    email: state.email,
+                    onComplete: { token in
+                        mfaState = nil
+                        onComplete(instanceName, url, state.email ?? email, token)
+                    },
+                    onCancel: {
+                        mfaState = nil
+                    }
+                )
+            }
         }
     }
-    
+
     private var passwordLoginView: some View {
         Group {
             VStack {

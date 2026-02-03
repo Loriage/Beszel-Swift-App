@@ -12,6 +12,7 @@ struct SettingsView: View {
     
     @State private var isShowingClearPinsAlert = false
     @State private var isAddingInstance = false
+    @State private var editingInstance: Instance?
     
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
@@ -112,13 +113,22 @@ struct SettingsView: View {
                             instanceManager.setActiveInstance(instance)
                             WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                         }
-                    }
-                    .onDelete { offsets in
-                        for index in offsets {
-                            instanceManager.deleteInstance(instanceManager.instances[index])
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                instanceManager.deleteInstance(instance)
+                            } label: {
+                                Label("common.delete", systemImage: "trash")
+                            }
+
+                            Button {
+                                editingInstance = instance
+                            } label: {
+                                Label("common.edit", systemImage: "pencil")
+                            }
+                            .tint(.orange)
                         }
                     }
-                    
+
                     Button("settings.instances.add") {
                         isAddingInstance = true
                     }
@@ -218,6 +228,16 @@ struct SettingsView: View {
                 }
             } message: {
                 Text("settings.dashboard.clearPins.alert.message")
+            }
+            .sheet(item: $editingInstance) { instance in
+                OnboardingView(
+                    editingInstance: instance,
+                    onComplete: { name, url, email, password in
+                        instanceManager.updateInstance(instance, name: name, url: url, email: email, password: password)
+                        WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
+                        editingInstance = nil
+                    }
+                )
             }
         }
     }

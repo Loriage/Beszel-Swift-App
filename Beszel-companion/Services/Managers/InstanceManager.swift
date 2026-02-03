@@ -212,11 +212,24 @@ final class InstanceManager {
         saveCredential(credential: newCredential, for: instance)
     }
     
+    func updateInstance(_ instance: Instance, name: String, url: String, email: String, password: String) {
+        guard let index = instances.firstIndex(where: { $0.id == instance.id }) else { return }
+        let updatedInstance = Instance(id: instance.id, name: name, url: url, email: email)
+        instances[index] = updatedInstance
+        saveCredential(credential: password, for: updatedInstance)
+        saveInstances()
+        updateActiveInstance()
+
+        if activeInstance?.id == instance.id {
+            fetchSystemsForInstance(updatedInstance)
+        }
+    }
+
     func deleteInstance(_ instance: Instance) {
         deleteCredential(for: instance)
         instances.removeAll { $0.id == instance.id }
         saveInstances()
-        
+
         if activeInstance?.id == instance.id {
             setActiveInstance(instances.first)
         }

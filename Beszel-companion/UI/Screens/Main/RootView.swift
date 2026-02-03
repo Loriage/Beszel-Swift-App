@@ -7,6 +7,8 @@ struct RootView: View {
     let instanceManager: InstanceManager
     let alertManager: AlertManager
 
+    @State private var isShowingSettings = false
+
     var body: some View {
         Group {
             if instanceManager.instances.isEmpty {
@@ -41,28 +43,45 @@ struct RootView: View {
 
     @ViewBuilder
     private func errorView(error: Error, instance: Instance) -> some View {
-        VStack(spacing: 16) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 48))
-                .foregroundStyle(.secondary)
+        NavigationStack {
+            VStack(spacing: 16) {
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 48))
+                    .foregroundStyle(.secondary)
 
-            Text("common.error.fetchFailed")
-                .font(.headline)
+                Text("common.error.fetchFailed")
+                    .font(.headline)
 
-            Text(error.localizedDescription)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
+                Text(error.localizedDescription)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
 
-            Button {
-                instanceManager.clearError()
-                instanceManager.fetchSystemsForInstance(instance)
-            } label: {
-                Label("common.retry", systemImage: "arrow.clockwise")
+                Button {
+                    instanceManager.clearError()
+                    instanceManager.fetchSystemsForInstance(instance)
+                } label: {
+                    Label("common.retry", systemImage: "arrow.clockwise")
+                }
+                .buttonStyle(.borderedProminent)
             }
-            .buttonStyle(.borderedProminent)
+            .padding()
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: { isShowingSettings = true }) {
+                        Image(systemName: "gearshape.fill")
+                    }
+                }
+            }
+            .sheet(isPresented: $isShowingSettings) {
+                SettingsView()
+                    .environment(dashboardManager)
+                    .environment(settingsManager)
+                    .environment(languageManager)
+                    .environment(instanceManager)
+                    .environment(alertManager)
+            }
         }
-        .padding()
     }
 }

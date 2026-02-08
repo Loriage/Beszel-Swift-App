@@ -1109,6 +1109,51 @@
         }
       }
     },
+    "common.copied" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copied!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copié !"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skopiowano!"
+          }
+        }
+      }
+    },
+    "common.copy" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copier"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopiuj"
+          }
+        }
+      }
+    },
     "common.delete" : {
       "localizations" : {
         "en" : {
@@ -3983,6 +4028,7 @@
       }
     },
     "settings.dashboard" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4071,6 +4117,7 @@
       }
     },
     "settings.display" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4271,6 +4318,116 @@
         }
       }
     },
+    "settings.notifications.apns.description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Receive real-time push notifications when alerts are triggered in Beszel."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recevez des notifications push en temps réel lorsque des alertes sont déclenchées dans Beszel."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otrzymuj powiadomienia push w czasie rzeczywistym, gdy alerty są wyzwalane w Beszel."
+          }
+        }
+      }
+    },
+    "settings.notifications.beszelWebhook" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beszel Webhook URL"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL du Webhook Beszel"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL Webhooka Beszel"
+          }
+        }
+      }
+    },
+    "settings.notifications.beszelWebhook.description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add this URL as a Generic Webhook in Beszel Settings → Notifications."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajoutez cette URL comme Webhook générique dans Paramètres Beszel → Notifications."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj ten URL jako Generic Webhook w Ustawieniach Beszel → Powiadomienia."
+          }
+        }
+      }
+    },
+    "settings.notifications.beszelWebhook.notConfigured" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save your configuration to generate the webhook URL."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrez votre configuration pour générer l'URL du webhook."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisz konfigurację, aby wygenerować URL webhooka."
+          }
+        }
+      }
+    },
+    "settings.notifications.configuration" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notification Settings"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paramètres de notification"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawienia powiadomień"
+          }
+        }
+      }
+    },
     "settings.notifications.configured" : {
       "localizations" : {
         "en" : {
@@ -4315,6 +4472,28 @@
         }
       }
     },
+    "settings.notifications.generateWebhook" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generate Webhook"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Générer le Webhook"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wygeneruj Webhook"
+          }
+        }
+      }
+    },
     "settings.notifications.history" : {
       "localizations" : {
         "en" : {
@@ -4337,68 +4516,355 @@
         }
       }
     },
-    "settings.support" : {
+    "settings.notifications.worker" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Support"
+            "value" : "Notification Worker"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Assistance"
+            "value" : "Worker de notifications"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wsparcie"
+            "value" : "Worker powiadomień"
           }
         }
       }
     },
-    "settings.support.reportBug.email" : {
+    "settings.notifications.workerType.custom" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Report by Email"
+            "value" : "Use custom worker"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Signaler par email"
+            "value" : "Utiliser un worker personnalisé"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zgłoś przez email"
+            "value" : "Użyj własnego workera"
           }
         }
       }
     },
-    "settings.support.reportBug.github" : {
+    "settings.notifications.workerType.custom.description" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Report on GitHub"
+            "value" : "Use your own self-hosted Cloudflare Worker to relay push notifications."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Signaler sur GitHub"
+            "value" : "Utilisez votre propre Cloudflare Worker auto-hébergé pour relayer les notifications push."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zgłoś na GitHub"
+            "value" : "Użyj własnego Cloudflare Workera do przekazywania powiadomień push."
+          }
+        }
+      }
+    },
+    "settings.notifications.workerType.default" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use default worker"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utiliser le worker par défaut"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użyj domyślnego workera"
+          }
+        }
+      }
+    },
+    "settings.notifications.workerType.default.description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Push notifications are relayed through the notification service provided by the app developer."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les notifications push sont relayées par le service de notifications fourni par le développeur de l'application."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Powiadomienia push są przekazywane przez usługę powiadomień dostarczoną przez twórcę aplikacji."
+          }
+        }
+      }
+    },
+    "settings.notifications.workerURL" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Worker URL"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL du Worker"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL Workera"
+          }
+        }
+      }
+    },
+    "settings.notifications.workerURL.placeholder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "https://notify.domain.tld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "https://notify.domaine.fr"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "https://notify.domena.pl"
+          }
+        }
+      }
+    },
+    "settings.application" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Application"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Application"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplikacja"
+          }
+        }
+      }
+    },
+    "settings.application.resetAll" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset All Settings"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réinitialiser tous les réglages"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zresetuj wszystkie ustawienia"
+          }
+        }
+      }
+    },
+    "settings.application.resetAll.alert.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset All Settings?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réinitialiser tous les réglages ?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zresetować wszystkie ustawienia?"
+          }
+        }
+      }
+    },
+    "settings.application.resetAll.alert.message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will delete all hubs and reset all settings to their defaults."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cela supprimera tous les hubs et réinitialisera tous les réglages par défaut."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spowoduje to usunięcie wszystkich hubów i przywrócenie domyślnych ustawień."
+          }
+        }
+      }
+    },
+    "settings.application.resetAll.alert.confirm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réinitialiser"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zresetuj"
+          }
+        }
+      }
+    },
+    "settings.about" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À propos"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O aplikacji"
+          }
+        }
+      }
+    },
+    "settings.about.share" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share the App"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Partager l'application"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Udostępnij aplikację"
+          }
+        }
+      }
+    },
+    "settings.about.review" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave a Review"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisser un commentaire"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zostaw opinię"
+          }
+        }
+      }
+    },
+    "settings.about.reportIssue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report an Issue"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signaler un problème"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zgłoś problem"
           }
         }
       }
@@ -4414,7 +4880,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paramètres"
+            "value" : "Réglages"
           }
         },
         "pl" : {
@@ -5621,5 +6087,5 @@
       }
     }
   },
-  "version" : "1.0"
+  "version" : "1.1"
 }

@@ -201,7 +201,7 @@ final class InstanceManager {
     }
     
     func addInstance(name: String, url: String, email: String, password: String) {
-        let newInstance = Instance(id: UUID(), name: name, url: url, email: email)
+        let newInstance = Instance(id: UUID(), name: name, url: url, email: email, notifyWorkerURL: nil, notifyWebhookSecret: nil)
         saveCredential(credential: password, for: newInstance)
         instances.append(newInstance)
         saveInstances()
@@ -214,7 +214,14 @@ final class InstanceManager {
     
     func updateInstance(_ instance: Instance, name: String, url: String, email: String, password: String) {
         guard let index = instances.firstIndex(where: { $0.id == instance.id }) else { return }
-        let updatedInstance = Instance(id: instance.id, name: name, url: url, email: email)
+        let updatedInstance = Instance(
+            id: instance.id,
+            name: name,
+            url: url,
+            email: email,
+            notifyWorkerURL: instance.notifyWorkerURL,
+            notifyWebhookSecret: instance.notifyWebhookSecret
+        )
         instances[index] = updatedInstance
         saveCredential(credential: password, for: updatedInstance)
         saveInstances()
@@ -223,6 +230,21 @@ final class InstanceManager {
         if activeInstance?.id == instance.id {
             fetchSystemsForInstance(updatedInstance)
         }
+    }
+
+    func updateInstanceNotificationSettings(_ instance: Instance, workerURL: String, webhookSecret: String) {
+        guard let index = instances.firstIndex(where: { $0.id == instance.id }) else { return }
+        let updatedInstance = Instance(
+            id: instance.id,
+            name: instance.name,
+            url: instance.url,
+            email: instance.email,
+            notifyWorkerURL: workerURL.isEmpty ? nil : workerURL,
+            notifyWebhookSecret: webhookSecret.isEmpty ? nil : webhookSecret
+        )
+        instances[index] = updatedInstance
+        saveInstances()
+        updateActiveInstance()
     }
 
     func deleteInstance(_ instance: Instance) {

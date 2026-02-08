@@ -5,4 +5,6 @@ struct Instance: Codable, Identifiable, Hashable, Sendable {
     var name: String
     let url: String
     let email: String
+    var notifyWorkerURL: String?
+    var notifyWebhookSecret: String?
 }

@@ -33,10 +33,8 @@ final class AlertManager {
             if notificationsEnabled {
                 Task {
                     await requestNotificationPermission()
-                    BackgroundAlertChecker.shared.scheduleBackgroundTask()
+                    await PushNotificationService.shared.requestNotificationPermission()
                 }
-            } else {
-                BackgroundAlertChecker.shared.cancelScheduledTask()
             }
         }
     }

@@ -11,8 +11,10 @@ struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var isShowingClearPinsAlert = false
+    @State private var isShowingResetAlert = false
     @State private var isAddingInstance = false
     @State private var editingInstance: Instance?
+    @State private var isShowingShareSheet = false
     
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
@@ -50,9 +52,10 @@ struct SettingsView: View {
         """
     }
     
+    private static let appStoreURL = URL(string: "https://apps.apple.com/us/app/beszel/id6747600765")!
+    private static let reviewURL = URL(string: "https://apps.apple.com/app/id6747600765?action=write-review")!
     private static let fallbackGitHubURL = URL(string: "https://github.com/Loriage/Beszel-Swift-App/issues")!
-    private static let fallbackEmailURL = URL(string: "mailto:contact@nohit.dev")!
-    
+
     private var bugReportGitHubURL: URL {
         var components = URLComponents(string: "https://github.com/Loriage/Beszel-Swift-App/issues/new")
         components?.queryItems = [
@@ -62,50 +65,20 @@ struct SettingsView: View {
         return components?.url ?? Self.fallbackGitHubURL
     }
     
-    private var bugReportEmailURL: URL {
-        var components = URLComponents(string: "mailto:contact@nohit.dev")
-        components?.queryItems = [
-            URLQueryItem(name: "subject", value: "[Bug Report] Beszel Companion"),
-            URLQueryItem(name: "body", value: bugReportTemplate)
-        ]
-        return components?.url ?? Self.fallbackEmailURL
-    }
-    
     var body: some View {
         @Bindable var bindableLanguageManager = languageManager
         @Bindable var bindableSettingsManager = settingsManager
         
         NavigationStack {
             Form {
-                Section(header: Text("settings.display")) {
-                    Picker("settings.display.language", selection: $bindableLanguageManager.currentLanguageCode) {
-                        ForEach(languageManager.availableLanguages, id: \.code) { lang in
-                            Text(lang.name).tag(lang.code)
-                        }
-                    }
-                    .onChange(of: languageManager.currentLanguageCode) {
-                        WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
-                    }
-                    
-                    Picker("settings.display.chartPeriod", selection: $bindableSettingsManager.selectedTimeRange) {
-                        ForEach(TimeRangeOption.allCases) { option in
-                            Text(LocalizedStringKey(option.rawValue)).tag(option)
-                        }
-                    }
-                    .onChange(of: settingsManager.selectedTimeRange) {
-                        WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
-                    }
-                }
-                
                 Section(header: Text("settings.instances.title")) {
                     ForEach(instanceManager.instances) { instance in
                         HStack {
-                            Image(systemName: "server.rack")
                             Text(instance.name)
                             Spacer()
                             if instance.id == instanceManager.activeInstance?.id {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.accentColor)
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
                             }
                         }
                         .contentShape(Rectangle())
@@ -134,17 +107,50 @@ struct SettingsView: View {
                     }
                 }
                 
+                Section(header: Text("settings.title")) {
+                    Picker(selection: $bindableLanguageManager.currentLanguageCode) {
+                        ForEach(languageManager.availableLanguages, id: \.code) { lang in
+                            Text(lang.name).tag(lang.code)
+                        }
+                    } label: {
+                        Label("settings.display.language", systemImage: "globe")
+                            .foregroundStyle(.primary)
+                    }
+                    .onChange(of: languageManager.currentLanguageCode) {
+                        WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
+                    }
+
+                    Picker(selection: $bindableSettingsManager.selectedTimeRange) {
+                        ForEach(TimeRangeOption.allCases) { option in
+                            Text(LocalizedStringKey(option.rawValue)).tag(option)
+                        }
+                    } label: {
+                        Label("settings.display.chartPeriod", systemImage: "chart.xyaxis.line")
+                            .foregroundStyle(.primary)
+                    }
+                    .onChange(of: settingsManager.selectedTimeRange) {
+                        WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
+                    }
+
+                }
+
                 Section(header: Text("settings.notifications")) {
-                    @Bindable var bindableAlertManager = alertManager
-                    Toggle("settings.notifications.enabled", isOn: $bindableAlertManager.notificationsEnabled)
-                        .onChange(of: alertManager.notificationsEnabled) { _, newValue in
-                            if newValue {
-                                BackgroundAlertChecker.shared.scheduleBackgroundTask()
-                            } else {
-                                BackgroundAlertChecker.shared.cancelScheduledTask()
+                    NavigationLink {
+                        NotificationSettingsView()
+                            .environment(instanceManager)
+                            .environment(alertManager)
+                    } label: {
+                        HStack {
+                            Label("settings.notifications.configuration", systemImage: "bell")
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            if alertManager.notificationsEnabled {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
                             }
                         }
-                    
+                    }
+
                     NavigationLink {
                         AlertHistoryView()
                             .environment(instanceManager)
@@ -152,9 +158,10 @@ struct SettingsView: View {
                             .navigationTitle("settings.notifications.history")
                             .navigationBarTitleDisplayMode(.inline)
                     } label: {
-                        Label("settings.notifications.history", systemImage: "bell")
+                        Label("settings.notifications.history", systemImage: "clock")
+                            .foregroundStyle(.primary)
                     }
-                    
+
                     NavigationLink {
                         ConfiguredAlertsView()
                             .environment(instanceManager)
@@ -163,43 +170,12 @@ struct SettingsView: View {
                             .navigationBarTitleDisplayMode(.inline)
                     } label: {
                         Label("settings.notifications.configured", systemImage: "bell.badge")
+                            .foregroundStyle(.primary)
                     }
                 }
-                
-                Section(header: Text("settings.dashboard")) {
-                    Button("settings.dashboard.clearPins", role: .destructive) {
-                        isShowingClearPinsAlert = true
-                    }
-                    .disabled(!dashboardManager.hasPinsForActiveInstance())
-                }
-                
-                Section {
-                    Link(destination: bugReportGitHubURL) {
-                        HStack {
-                            Image(systemName: "ant")
-                            Text("settings.support.reportBug.github")
-                            Spacer()
-                            Image(systemName: "arrow.up.forward.app")
-                                .foregroundColor(.secondary)
-                        }
-                    }
 
-                    Link(destination: bugReportEmailURL) {
-                        HStack {
-                            Image(systemName: "envelope")
-                            Text("settings.support.reportBug.email")
-                            Spacer()
-                            Image(systemName: "arrow.up.forward.app")
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                } header: {
-                    Text("settings.support")
-                } footer: {
-                    Text("Version \(appVersion)")
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 8)
-                }
+                aboutSection
+                applicationSection
             }
             .navigationDestination(for: AlertDetail.self) { alert in
                 AlertDetailView(alert: alert)
@@ -229,6 +205,17 @@ struct SettingsView: View {
             } message: {
                 Text("settings.dashboard.clearPins.alert.message")
             }
+            .alert("settings.application.resetAll.alert.title", isPresented: $isShowingResetAlert) {
+                Button("common.cancel", role: .cancel) { }
+                Button("settings.application.resetAll.alert.confirm", role: .destructive) {
+                    resetAllSettings()
+                }
+            } message: {
+                Text("settings.application.resetAll.alert.message")
+            }
+            .sheet(isPresented: $isShowingShareSheet) {
+                ShareSheet(items: [Self.appStoreURL])
+            }
             .sheet(item: $editingInstance) { instance in
                 OnboardingView(
                     editingInstance: instance,
@@ -241,4 +228,84 @@ struct SettingsView: View {
             }
         }
     }
+
+    private var aboutSection: some View {
+        Section {
+            Button {
+                isShowingShareSheet = true
+            } label: {
+                Label("settings.about.share", systemImage: "square.and.arrow.up")
+            }
+            .foregroundStyle(.primary)
+
+            Link(destination: Self.reviewURL) {
+                Label("settings.about.review", systemImage: "star.fill")
+            }
+            .foregroundStyle(.primary)
+
+            Link(destination: bugReportGitHubURL) {
+                Label("settings.about.reportIssue", systemImage: "exclamationmark.bubble")
+            }
+            .foregroundStyle(.primary)
+        } header: {
+            Text("settings.about")
+        }
+    }
+
+    private var applicationSection: some View {
+        Section {
+            Button("settings.dashboard.clearPins", role: .destructive) {
+                isShowingClearPinsAlert = true
+            }
+            .disabled(!dashboardManager.hasPinsForActiveInstance())
+
+            Button("settings.application.resetAll", role: .destructive) {
+                isShowingResetAlert = true
+            }
+        } header: {
+            Text("settings.application")
+        } footer: {
+            Text("Version \(appVersion)")
+                .frame(maxWidth: .infinity)
+                .padding(.top, 8)
+        }
+    }
+
+    private func resetAllSettings() {
+        let suite = UserDefaults.sharedSuite
+        let groupSuite = UserDefaults(suiteName: Constants.appGroupId) ?? .standard
+
+        // Delete all instance credentials
+        for instance in instanceManager.instances {
+            instanceManager.deleteInstance(instance)
+        }
+
+        // Settings
+        suite.removeObject(forKey: "selectedTimeRange")
+        suite.removeObject(forKey: "selectedLanguage")
+        suite.removeObject(forKey: "pinnedItemsByInstance")
+
+        // Notifications
+        groupSuite.removeObject(forKey: "alertsLastCheckedTimestamp")
+        groupSuite.removeObject(forKey: "seenAlertHistoryIDs")
+        groupSuite.removeObject(forKey: "alertNotificationsEnabled")
+
+        // Instances
+        groupSuite.removeObject(forKey: "instances")
+        groupSuite.removeObject(forKey: "activeInstanceID")
+        groupSuite.removeObject(forKey: "activeSystemID")
+
+        WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
+        dismiss()
+    }
+}
+
+private struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }

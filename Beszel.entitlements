@@ -10,5 +10,7 @@
 	<array>
 		<string>$(AppIdentifierPrefix)group.com.nohitdev.Beszel</string>
 	</array>
+	<key>aps-environment</key>
+	<string>production</string>
 </dict>
 </plist>

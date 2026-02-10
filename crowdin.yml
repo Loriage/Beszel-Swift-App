@@ -1,4 +1,4 @@
 files:
-  - source: /Beszel-companion/Localizable.xcstrings
-    translation: /Beszel-companion/Localizable.xcstrings
+  - source: Beszel-companion/*.xcstrings
+    translation: Beszel-companion/%original_file_name%
     multilingual: 1

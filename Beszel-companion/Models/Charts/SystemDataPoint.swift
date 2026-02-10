@@ -10,6 +10,7 @@ struct SystemDataPoint: Identifiable, Sendable {
 
     let bandwidth: (upload: Double, download: Double)?
     let diskIO: (read: Double, write: Double)?
+    let diskUsage: (used: Double, total: Double)?
     let loadAverage: (l1: Double, l5: Double, l15: Double)?
 
     let swap: (used: Double, total: Double)?
@@ -123,6 +124,19 @@ extension Array where Element == SystemDataPoint {
             avgDiskIO = nil
         }
 
+        // Average disk usage
+        let diskUsagePoints = points.compactMap { $0.diskUsage }
+        let avgDiskUsage: (used: Double, total: Double)?
+        if !diskUsagePoints.isEmpty {
+            let duCount = Double(diskUsagePoints.count)
+            avgDiskUsage = (
+                used: diskUsagePoints.map { $0.used }.reduce(0, +) / duCount,
+                total: diskUsagePoints.map { $0.total }.reduce(0, +) / duCount
+            )
+        } else {
+            avgDiskUsage = nil
+        }
+
         // Average load average
         let loadPoints = points.compactMap { $0.loadAverage }
         let avgLoad: (l1: Double, l5: Double, l15: Double)?
@@ -219,6 +233,7 @@ extension Array where Element == SystemDataPoint {
             temperatures: avgTemps,
             bandwidth: avgBandwidth,
             diskIO: avgDiskIO,
+            diskUsage: avgDiskUsage,
             loadAverage: avgLoad,
             swap: avgSwap,
             gpuMetrics: avgGpuMetrics,

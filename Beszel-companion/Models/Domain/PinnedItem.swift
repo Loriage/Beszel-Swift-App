@@ -6,6 +6,7 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
     case systemMemory
     case systemTemperature
     case systemDiskIO
+    case systemDiskUsage
     case systemBandwidth
     case systemLoadAverage
     case systemSwap
@@ -24,6 +25,7 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
         case .systemMemory: return "system_memory"
         case .systemTemperature: return "system_temperature"
         case .systemDiskIO: return "system_disk_io"
+        case .systemDiskUsage: return "system_disk_usage"
         case .systemBandwidth: return "system_bandwidth"
         case .systemLoadAverage: return "system_loadaverage"
         case .systemSwap: return "system_swap"
@@ -49,6 +51,8 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
             return NSLocalizedString("pinned.item.system.temperature", bundle: bundle, comment: "")
         case .systemDiskIO:
             return NSLocalizedString("pinned.item.system.disk", bundle: bundle, comment: "")
+        case .systemDiskUsage:
+            return NSLocalizedString("pinned.item.system.diskusage", bundle: bundle, comment: "")
         case .systemBandwidth:
             return NSLocalizedString("pinned.item.system.bandwidth", bundle: bundle, comment: "")
         case .systemLoadAverage:
@@ -81,6 +85,7 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
         case .systemMemory, .containerMemory, .stackedContainerMemory: return "Memory"
         case .systemTemperature: return "Temperature"
         case .systemDiskIO: return "Disk I/O"
+        case .systemDiskUsage: return "Disk Usage"
         case .systemBandwidth: return "Bandwidth"
         case .systemLoadAverage: return "Load Average"
         case .systemSwap: return "Swap"

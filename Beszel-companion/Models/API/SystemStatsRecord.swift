@@ -202,6 +202,13 @@ extension Array where Element == SystemStatsRecord {
             } else {
                 diskIOTuple = nil
             }
+
+            let diskUsageTuple: (used: Double, total: Double)?
+            if let diskTotal = stats.diskTotal, diskTotal > 0 {
+                diskUsageTuple = (used: stats.diskUsed, total: diskTotal)
+            } else {
+                diskUsageTuple = nil
+            }
             
             let loadTuple: (l1: Double, l5: Double, l15: Double)?
             if let la = stats.load, la.count >= 3 {
@@ -261,6 +268,7 @@ extension Array where Element == SystemStatsRecord {
                 temperatures: tempsArray,
                 bandwidth: bandwidthTuple,
                 diskIO: diskIOTuple,
+                diskUsage: diskUsageTuple,
                 loadAverage: loadTuple,
                 swap: swapTuple,
                 gpuMetrics: gpuMetrics,

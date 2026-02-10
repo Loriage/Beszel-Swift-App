@@ -233,6 +233,14 @@ struct HomeView: View {
                 isPinned: store.isPinned(.systemDiskIO, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemDiskIO, onSystem: resolvedItem.systemID) }
             )
+        case .systemDiskUsage:
+            SystemDiskUsageChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.systemDiskUsage, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemDiskUsage, onSystem: resolvedItem.systemID) }
+            )
         case .systemBandwidth:
             SystemBandwidthChartView(
                 dataPoints: systemData,

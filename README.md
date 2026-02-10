@@ -4,6 +4,7 @@
 [![Platform](https://img.shields.io/badge/Platform-iOS%2018%2B-blue.svg)](https://developer.apple.com/ios/)
 [![License](https://img.shields.io/github/license/Loriage/Beszel-Swift-App?color=%239944ee)](./LICENSE)
 [![Made with SwiftUI](https://img.shields.io/badge/Made%20with-SwiftUI-blue.svg?logo=swift)](https://developer.apple.com/xcode/swiftui/)
+[![Crowdin](https://badges.crowdin.net/beszel-swift-app/localized.svg)](https://crowdin.com/project/beszel-swift-app)
 
 **Beszel Companion** is an unofficial, native iOS client for the [Beszel](https://github.com/henrygd/beszel) server monitoring platform.
 

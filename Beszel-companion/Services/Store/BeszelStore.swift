@@ -74,6 +74,10 @@ final class BeszelStore {
         systemDataPoints.contains { !$0.networkInterfaces.isEmpty }
     }
     
+    var hasDiskUsageData: Bool {
+        systemDataPoints.contains { $0.diskUsage != nil }
+    }
+
     var hasExtraFilesystemsData: Bool {
         systemDataPoints.contains { !$0.extraFilesystems.isEmpty }
     }

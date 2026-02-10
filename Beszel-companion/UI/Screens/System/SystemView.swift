@@ -52,6 +52,14 @@ struct SystemView: View {
                         isPinned: store.isPinned(.systemDiskIO),
                         onPinToggle: { store.togglePin(for: .systemDiskIO) }
                     )
+                    if store.hasDiskUsageData {
+                        SystemDiskUsageChartView(
+                            dataPoints: store.systemDataPoints,
+                            xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.systemDiskUsage),
+                            onPinToggle: { store.togglePin(for: .systemDiskUsage) }
+                        )
+                    }
                     SystemBandwidthChartView(
                         dataPoints: store.systemDataPoints,
                         xAxisFormat: store.xAxisFormat,

@@ -55,6 +55,7 @@ struct SettingsView: View {
     private static let appStoreURL = URL(string: "https://apps.apple.com/us/app/beszel/id6747600765")!
     private static let reviewURL = URL(string: "https://apps.apple.com/app/id6747600765?action=write-review")!
     private static let fallbackGitHubURL = URL(string: "https://github.com/Loriage/Beszel-Swift-App/issues")!
+    private static let crowdinURL = URL(string: "https://crowdin.com/project/beszel-swift-app")!
 
     private var bugReportGitHubURL: URL {
         var components = URLComponents(string: "https://github.com/Loriage/Beszel-Swift-App/issues/new")
@@ -245,6 +246,11 @@ struct SettingsView: View {
 
             Link(destination: bugReportGitHubURL) {
                 Label("settings.about.reportIssue", systemImage: "exclamationmark.bubble")
+            }
+            .foregroundStyle(.primary)
+
+            Link(destination: Self.crowdinURL) {
+                Label("settings.about.translate", systemImage: "globe.europe.africa")
             }
             .foregroundStyle(.primary)
         } header: {

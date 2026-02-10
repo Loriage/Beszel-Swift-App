@@ -15,7 +15,7 @@ struct SimpleEntry: TimelineEntry {
     let status: String?
     let timeRange: TimeRangeOption
     let lockScreenMetric: LockScreenMetric
-    var errorMessage: String? = nil
+    var errorMessage: LocalizedStringKey? = nil
     var isFromCache: Bool = false
 }
 
@@ -273,7 +273,11 @@ private func buildTimeline(
     
     guard let _ = instance,
           let apiService = apiService else {
-        let errorMessage = instanceError ?? "widget.error.noInstance"
+        let errorMessage: LocalizedStringKey = if let instanceError {
+            LocalizedStringKey(instanceError)
+        } else {
+            "widget.error.noInstance"
+        }
         let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: "Unknown", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: errorMessage)
         return Timeline(entries: [entry], policy: .atEnd)
     }

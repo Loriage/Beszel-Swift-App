@@ -78,13 +78,13 @@ struct BeszelWidgetEntryView : View {
 }
 
 struct ErrorView: View {
-    let message: String
+    let message: LocalizedStringKey
     var body: some View {
         VStack {
             Spacer()
             HStack {
                 Spacer()
-                Text(LocalizedStringKey(message))
+                Text(message)
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)

@@ -81,9 +81,9 @@ struct AlertDetailView: View {
     }
 
     @ViewBuilder
-    private func detailRow(label: String, value: String, valueColor: Color = .primary) -> some View {
+    private func detailRow(label: LocalizedStringKey, value: String, valueColor: Color = .primary) -> some View {
         HStack {
-            Text(LocalizedStringKey(label))
+            Text(label)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 

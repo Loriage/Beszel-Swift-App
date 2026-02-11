@@ -1,3 +1,5 @@
+preserve_hierarchy: true
+
 files:
   - source: Beszel-companion/*.xcstrings
     translation: Beszel-companion/%original_file_name%

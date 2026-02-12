@@ -10,16 +10,16 @@
 
 This application allows you to view your server and container statistics directly from your iPhone by connecting to your Beszel instance's API.
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > **A working Beszel instance accessible from the internet is required to use Beszel Companion.**
 >
 > By default, only an `admin` user can read all data. For better security, you can create a `readonly` user by modifying API route access in your PocketBase settings.
 
 > [!NOTE]
 > You can log in to your instance via the SSO configured on Beszel.
-> 
+>
 > Please note that you will need to add `beszel-companion://redirect` to the redirect_uris of your SSO providers.
- 
+
 ## Overview
 
 |                                                 Home                                                 |                                                 System                                                 |                                                 Containers                                                 |                                               Detail View                                               |
@@ -28,33 +28,33 @@ This application allows you to view your server and container statistics directl
 
 ## Key Features
 
--   [x] **Secure Connection**: Connects to your Beszel instance via its API. Credentials are securely stored in the iOS Keychain.
--   [x] **Custom Dashboard**: Pin your favorite charts (System CPU, a specific container's memory, etc.) to a home screen for quick access.
--   [x] **Powerful Search & Sorting**: Instantly find any pinned chart on your dashboard with a robust search bar and flexible sorting options.
--   [x] **System Stats**: Visualize historical data for CPU usage, memory usage, and temperatures of your host systems.
--   [x] **Container Stats**: Browse a list of all your Docker containers and analyze their historical CPU and memory consumption.
--   [x] **Interactive Charts**: Clean and responsive charts built with Swift Charts.
--   [x] **Time Range Filtering**: Display data from the last hour, last 24 hours, last 7 days, and more.
--   [x] **Native Experience**: A smooth and integrated user experience, built entirely with SwiftUI.
--   [x] **Dark Mode Support**: The interface automatically adapts to your device's theme.
--   [x] **Widgets**: Display key information directly on your Home Screen.
--   [x] **Multiple hub management**: Easily manage and monitor multiple Beszel hubs and their associated systems
--   [x] **SSO support**
--   [x] **Enhanced chart interactivity**
+- [x] **Secure Connection**: Connects to your Beszel instance via its API. Credentials are securely stored in the iOS Keychain.
+- [x] **Custom Dashboard**: Pin your favorite charts (System CPU, a specific container's memory, etc.) to a home screen for quick access.
+- [x] **Powerful Search & Sorting**: Instantly find any pinned chart on your dashboard with a robust search bar and flexible sorting options.
+- [x] **System Stats**: Visualize historical data for CPU usage, memory usage, and temperatures of your host systems.
+- [x] **Container Stats**: Browse a list of all your Docker containers and analyze their historical CPU and memory consumption.
+- [x] **Interactive Charts**: Clean and responsive charts built with Swift Charts.
+- [x] **Time Range Filtering**: Display data from the last hour, last 24 hours, last 7 days, and more.
+- [x] **Native Experience**: A smooth and integrated user experience, built entirely with SwiftUI.
+- [x] **Dark Mode Support**: The interface automatically adapts to your device's theme.
+- [x] **Widgets**: Display key information directly on your Home Screen.
+- [x] **Multiple hub management**: Easily manage and monitor multiple Beszel hubs and their associated systems
+- [x] **SSO support**
+- [x] **Enhanced chart interactivity**
+- [x] **Lock Screen Widgets**
+- [x] **Push notifications**
 
 ## Roadmap
 
--   [ ] Lock Screen Widgets.
--   [ ] MacOS support
--   [ ] Push notifications.
--   [ ] Localization into other languages (Open to contributions)
+- [ ] MacOS support
+- [ ] Localization into other languages (Open to contributions)
 
 ## Technologies Used
 
--   **SwiftUI**: For the entire declarative and reactive user interface.
--   **Swift Charts**: For creating all charts within the application.
--   **Swift Concurrency (`async/await`)**: For modern and performant network calls.
--   **WidgetKit**: To display information on the Home Screen.
+- **SwiftUI**: For the entire declarative and reactive user interface.
+- **Swift Charts**: For creating all charts within the application.
+- **Swift Concurrency (`async/await`)**: For modern and performant network calls.
+- **WidgetKit**: To display information on the Home Screen.
 
 ## Installation
 
@@ -62,7 +62,7 @@ This application allows you to view your server and container statistics directl
 
 ### Alternative Methods
 
--   Sideload the `.ipa` from [releases](https://github.com/Loriage/Beszel-Swift-App/releases/latest)
+- Sideload the `.ipa` from [releases](https://github.com/Loriage/Beszel-Swift-App/releases/latest)
 
 ## Known Issues
 

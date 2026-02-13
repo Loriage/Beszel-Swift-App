@@ -42,7 +42,7 @@ extension Array where Element == ContainerStatsRecord {
         for record in self {
             let date = record.created
             for stat in record.stats {
-                let point = StatPoint(date: date, cpu: stat.cpu, memory: stat.memory)
+                let point = StatPoint(date: date, cpu: stat.cpu, memory: stat.memory, netSent: stat.netSent ?? 0, netReceived: stat.netReceived ?? 0)
                 containerDict[stat.name, default: []].append(point)
             }
         }

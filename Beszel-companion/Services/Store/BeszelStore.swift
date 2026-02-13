@@ -13,6 +13,9 @@ final class BeszelStore {
     
     var stackedMemoryData: [StackedMemoryData] = []
     var memoryDomain: [String] = []
+
+    var stackedNetworkData: [StackedNetworkData] = []
+    var networkDomain: [String] = []
     
     var systemDataPoints: [SystemDataPoint] = []
     var containerData: [ProcessedContainerData] = [] {
@@ -78,6 +81,12 @@ final class BeszelStore {
         systemDataPoints.contains { $0.diskUsage != nil }
     }
 
+    var hasContainerNetworkData: Bool {
+        containerData.contains { container in
+            container.statPoints.contains { $0.netSent > 0 || $0.netReceived > 0 }
+        }
+    }
+
     var hasExtraFilesystemsData: Bool {
         systemDataPoints.contains { !$0.extraFilesystems.isEmpty }
     }
@@ -125,8 +134,10 @@ final class BeszelStore {
         latestSystemStats = nil
         stackedCpuData = []
         stackedMemoryData = []
+        stackedNetworkData = []
         cpuDomain = []
         memoryDomain = []
+        networkDomain = []
     }
     
     func fetchData() async {
@@ -432,6 +443,15 @@ final class BeszelStore {
         self.memoryDomain = avgMem.sorted { $0.avg < $1.avg }.map { $0.name }
 
         self.stackedMemoryData = buildStackedMemoryData(from: containerData, domain: memoryDomain, timeRange: timeRange)
+
+        let avgNet = containerData.map { container -> (name: String, avg: Double) in
+            let total = container.statPoints.reduce(0) { $0 + $1.netSent + $1.netReceived }
+            let average = container.statPoints.isEmpty ? 0 : total / Double(container.statPoints.count)
+            return (name: container.name, avg: average)
+        }
+        self.networkDomain = avgNet.sorted { $0.avg < $1.avg }.map { $0.name }
+
+        self.stackedNetworkData = buildStackedNetworkData(from: containerData, domain: networkDomain, timeRange: timeRange)
     }
     
     func getStackedCpuData(for systemID: String) -> (data: [StackedCpuData], domain: [String]) {
@@ -467,7 +487,24 @@ final class BeszelStore {
 
         return (buildStackedMemoryData(from: data, domain: domain, timeRange: settingsManager.selectedTimeRange), domain)
     }
-    
+
+    func getStackedNetworkData(for systemID: String) -> (data: [StackedNetworkData], domain: [String]) {
+        if systemID == instanceManager.activeSystem?.id {
+            return (stackedNetworkData, networkDomain)
+        }
+
+        let data = containerDataBySystem[systemID] ?? []
+
+        let avg = data.map { c -> (String, Double) in
+            let total = c.statPoints.reduce(0) { $0 + $1.netSent + $1.netReceived }
+            let mean = c.statPoints.isEmpty ? 0 : total / Double(c.statPoints.count)
+            return (c.name, mean)
+        }
+        let domain = avg.sorted { $0.1 < $1.1 }.map { $0.0 }
+
+        return (buildStackedNetworkData(from: data, domain: domain, timeRange: settingsManager.selectedTimeRange), domain)
+    }
+
     /// Returns bucket interval in seconds based on time range
     private func bucketInterval(for timeRange: TimeRangeOption) -> TimeInterval {
         switch timeRange {
@@ -601,6 +638,71 @@ final class BeszelStore {
                 let val = avgByName[name] ?? 0
                 stacked.append(StackedMemoryData(date: date, name: name, yStart: cumulative, yEnd: cumulative + val))
                 cumulative += val
+            }
+        }
+        return stacked
+    }
+
+    func buildStackedNetworkData(from data: [ProcessedContainerData], domain: [String], timeRange: TimeRangeOption? = nil) -> [StackedNetworkData] {
+        let interval = bucketInterval(for: timeRange ?? settingsManager.selectedTimeRange)
+        let allPoints = data.flatMap { container in
+            container.statPoints.map { AggregatedNetworkData(date: $0.date, name: container.name, netSent: $0.netSent, netReceived: $0.netReceived) }
+        }
+        guard !allPoints.isEmpty else { return [] }
+
+        let pointDict = Dictionary(grouping: allPoints, by: { bucketDate($0.date, interval: interval) })
+        let uniqueDates = pointDict.keys.sorted()
+        let uniqueNames = Set(allPoints.map { $0.name })
+
+        let domainIndexMap = Dictionary(uniqueKeysWithValues: domain.enumerated().map { ($1, $0) })
+
+        var stacked: [StackedNetworkData] = []
+
+        var lastKnownSent: [String: Double] = [:]
+        var lastKnownReceived: [String: Double] = [:]
+        for name in uniqueNames {
+            lastKnownSent[name] = 0
+            lastKnownReceived[name] = 0
+        }
+
+        for date in uniqueDates {
+            let pointsInBucket = pointDict[date] ?? []
+
+            var avgSentByName: [String: Double] = [:]
+            var avgReceivedByName: [String: Double] = [:]
+            var countByName: [String: Int] = [:]
+            for point in pointsInBucket {
+                avgSentByName[point.name, default: 0] += point.netSent
+                avgReceivedByName[point.name, default: 0] += point.netReceived
+                countByName[point.name, default: 0] += 1
+            }
+            for (name, total) in avgSentByName {
+                let count = Double(countByName[name] ?? 1)
+                avgSentByName[name] = total / count
+                avgReceivedByName[name] = (avgReceivedByName[name] ?? 0) / count
+            }
+
+            for name in uniqueNames {
+                if let sent = avgSentByName[name] {
+                    lastKnownSent[name] = sent
+                    lastKnownReceived[name] = avgReceivedByName[name] ?? 0
+                } else {
+                    avgSentByName[name] = lastKnownSent[name] ?? 0
+                    avgReceivedByName[name] = lastKnownReceived[name] ?? 0
+                }
+            }
+
+            let sortedNames = avgSentByName.keys.sorted {
+                (domainIndexMap[$0] ?? 0) < (domainIndexMap[$1] ?? 0)
+            }
+
+            var cumulative = 0.0
+            for name in sortedNames {
+                let sent = avgSentByName[name] ?? 0
+                let received = avgReceivedByName[name] ?? 0
+                let total = sent + received
+                stacked.append(StackedNetworkData(date: date, name: name, yStart: cumulative, yEnd: cumulative + total, netSent: sent, netReceived: received))
+                cumulative += total
             }
         }
         return stacked

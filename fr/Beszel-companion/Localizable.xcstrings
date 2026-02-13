@@ -113,6 +113,34 @@
         }
       }
     },
+    "%@ rx | %@ tx" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ rx | %2$@ tx"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ rx | %2$@ tx"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ rx | %2$@ tx"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ rx | %2$@ tx"
+          }
+        }
+      }
+    },
     "•" : {
       "localizations" : {
         "en" : {
@@ -1375,6 +1403,34 @@
         }
       }
     },
+    "charts.stacked_network.title %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Docker Network I/O (%@)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Docker Network I/O (%@)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Docker Network I/O (%@)"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Docker Network I/O (%@)"
+          }
+        }
+      }
+    },
     "common.cancel" : {
       "localizations" : {
         "en" : {
@@ -2499,6 +2555,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Szczegóły użycia pamięci (%@)"
+          }
+        }
+      }
+    },
+    "details.network.title %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network I/O Details (%@)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Network I/O Details (%@)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Network I/O Details (%@)"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Network I/O Details (%@)"
           }
         }
       }
@@ -4049,6 +4133,34 @@
         }
       }
     },
+    "pinned.item.stacked.network" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Docker Network I/O"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Docker Network I/O"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Docker Network I/O"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Docker Network I/O"
+          }
+        }
+      }
+    },
     "pinned.item.system.bandwidth" : {
       "localizations" : {
         "en" : {
@@ -4605,6 +4717,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Udostępnij aplikację"
+          }
+        }
+      }
+    },
+    "settings.about.translate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Translate the app"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Translate the app"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Traduire l'application"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przetłumacz aplikację"
           }
         }
       }
@@ -5393,34 +5533,6 @@
         }
       }
     },
-    "settings.title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Settings"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Settings"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Réglages"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ustawienia"
-          }
-        }
-      }
-    },
     "settings.security.appLock" : {
       "localizations" : {
         "en" : {
@@ -5529,6 +5641,34 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Retry Face ID"
+          }
+        }
+      }
+    },
+    "settings.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Settings"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réglages"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawienia"
           }
         }
       }
@@ -7045,34 +7185,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zapisz"
-          }
-        }
-      }
-    },
-    "settings.about.translate" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Translate the app"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Translate the app"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Traduire l'application"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przetłumacz aplikację"
           }
         }
       }

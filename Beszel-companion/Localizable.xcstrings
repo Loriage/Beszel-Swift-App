@@ -4263,6 +4263,94 @@
         }
       }
     },
+    "settings.security.appLock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App Lock"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verrouillage de l'app"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blokada aplikacji"
+          }
+        }
+      }
+    },
+    "settings.security.appLock.reason": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authenticate to access Beszel Companion"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authentifiez-vous pour accéder à Beszel Companion"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uwierzytelnij się, aby uzyskać dostęp do Beszel Companion"
+          }
+        }
+      }
+    },
+    "settings.security.appLock.required": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face ID required\nto open Beszel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face ID requis\npour ouvrir Beszel"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face ID wymagane\naby otworzyć Beszel"
+          }
+        }
+      }
+    },
+    "settings.security.appLock.retry": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry Face ID"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouvelle tentative Face ID"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponów Face ID"
+          }
+        }
+      }
+    },
     "Source": {
       "localizations": {
         "en": {

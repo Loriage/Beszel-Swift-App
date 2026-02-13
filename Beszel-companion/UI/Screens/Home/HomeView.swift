@@ -333,6 +333,14 @@ struct HomeView: View {
                 systemID: resolvedItem.systemID,
                 systemName: systemName
             )
+        case .stackedContainerNetwork:
+            let (stacked, domain) = store.getStackedNetworkData(for: resolvedItem.systemID)
+            StackedNetworkChartView(
+                stackedData: stacked,
+                domain: domain,
+                systemID: resolvedItem.systemID,
+                systemName: systemName
+            )
         }
     }
 }

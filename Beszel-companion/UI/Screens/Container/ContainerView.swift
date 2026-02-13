@@ -27,6 +27,12 @@ struct ContainerView: View {
                         domain: store.memoryDomain,
                         systemID: instanceManager.activeSystem?.id
                     )
+
+                    StackedNetworkChartView(
+                        stackedData: store.stackedNetworkData,
+                        domain: store.networkDomain,
+                        systemID: instanceManager.activeSystem?.id
+                    )
                 }
                 .padding(.horizontal)
                 .opacity(store.containerData.isEmpty ? 0 : 1)

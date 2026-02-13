@@ -17,6 +17,7 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
     case containerMemory(name: String)
     case stackedContainerCPU
     case stackedContainerMemory
+    case stackedContainerNetwork
 
     var id: String {
         switch self {
@@ -36,6 +37,7 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
         case .containerMemory(let name): return "container_memory_\(name)"
         case .stackedContainerCPU: return "stacked_container_cpu"
         case .stackedContainerMemory: return "stacked_container_memory"
+        case .stackedContainerNetwork: return "stacked_container_network"
         }
     }
     
@@ -75,6 +77,8 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
             return NSLocalizedString("pinned.item.stacked.cpu", bundle: bundle, comment: "")
         case .stackedContainerMemory:
             return NSLocalizedString("pinned.item.stacked.memory", bundle: bundle, comment: "")
+        case .stackedContainerNetwork:
+            return NSLocalizedString("pinned.item.stacked.network", bundle: bundle, comment: "")
         }
     }
     
@@ -83,6 +87,7 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
         case .systemInfo: return "Info"
         case .systemCPU, .containerCPU, .stackedContainerCPU: return "CPU"
         case .systemMemory, .containerMemory, .stackedContainerMemory: return "Memory"
+        case .stackedContainerNetwork: return "Network I/O"
         case .systemTemperature: return "Temperature"
         case .systemDiskIO: return "Disk I/O"
         case .systemDiskUsage: return "Disk Usage"
@@ -101,7 +106,7 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
             return "System_Info"
         case .containerCPU(let name), .containerMemory(let name):
             return name
-        case .stackedContainerCPU, .stackedContainerMemory:
+        case .stackedContainerCPU, .stackedContainerMemory, .stackedContainerNetwork:
             return "Containers"
         default:
             return "System"

@@ -18,6 +18,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Unlock Beszel Companion to access your server data</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

@@ -60,26 +60,92 @@ struct BeszelApp: App {
     private let instanceManager = InstanceManager.shared
     private let alertManager = AlertManager.shared
 
+    @State private var isUnlocked = true
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some Scene {
         WindowGroup {
-            RootView(
-                languageManager: languageManager,
-                settingsManager: settingsManager,
-                dashboardManager: dashboardManager,
-                instanceManager: instanceManager,
-                alertManager: alertManager
-            )
-            .environment(settingsManager)
-            .environment(dashboardManager)
-            .environment(languageManager)
-            .environment(instanceManager)
-            .environment(alertManager)
-            .onAppear {
-                if alertManager.notificationsEnabled {
-                    Task {
-                        await PushNotificationService.shared.requestNotificationPermission()
+            ZStack {
+                RootView(
+                    languageManager: languageManager,
+                    settingsManager: settingsManager,
+                    dashboardManager: dashboardManager,
+                    instanceManager: instanceManager,
+                    alertManager: alertManager
+                )
+                .environment(settingsManager)
+                .environment(dashboardManager)
+                .environment(languageManager)
+                .environment(instanceManager)
+                .environment(alertManager)
+                .onAppear {
+                    if settingsManager.appLockEnabled {
+                        isUnlocked = false
+                    }
+                    if alertManager.notificationsEnabled {
+                        Task {
+                            await PushNotificationService.shared.requestNotificationPermission()
+                        }
                     }
                 }
+
+                if settingsManager.appLockEnabled && !isUnlocked {
+                    AppLockView(settingsManager: settingsManager) {
+                        isUnlocked = true
+                    }
+                }
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .background {
+                    isUnlocked = false
+                }
+            }
+        }
+    }
+}
+
+private struct AppLockView: View {
+    let settingsManager: SettingsManager
+    let onUnlocked: () -> Void
+    @State private var authFailed = false
+
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .ignoresSafeArea()
+
+            if authFailed {
+                Button {
+                    authenticate()
+                } label: {
+                    Text("settings.security.appLock.retry")
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(.ultraThinMaterial, in: Capsule())
+                }
+            } else {
+                Text("settings.security.appLock.required")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .onAppear {
+            authenticate()
+        }
+    }
+
+    private func authenticate() {
+        authFailed = false
+        Task {
+            let success = await settingsManager.authenticateWithBiometrics()
+            if success {
+                onUnlocked()
+            } else {
+                authFailed = true
             }
         }
     }

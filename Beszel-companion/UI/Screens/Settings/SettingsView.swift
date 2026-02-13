@@ -15,6 +15,7 @@ struct SettingsView: View {
     @State private var isAddingInstance = false
     @State private var editingInstance: Instance?
     @State private var isShowingShareSheet = false
+    @State private var isAuthenticating = false
     
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
@@ -132,6 +133,28 @@ struct SettingsView: View {
                     .onChange(of: settingsManager.selectedTimeRange) {
                         WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                     }
+
+                    Toggle(isOn: Binding(
+                        get: { settingsManager.appLockEnabled },
+                        set: { newValue in
+                            if newValue {
+                                isAuthenticating = true
+                                Task {
+                                    let success = await settingsManager.authenticateWithBiometrics()
+                                    if success {
+                                        settingsManager.appLockEnabled = true
+                                    }
+                                    isAuthenticating = false
+                                }
+                            } else {
+                                settingsManager.appLockEnabled = false
+                            }
+                        }
+                    )) {
+                        Label("settings.security.appLock", systemImage: "faceid")
+                            .foregroundStyle(.primary)
+                    }
+                    .disabled(isAuthenticating)
 
                 }
 
@@ -290,6 +313,7 @@ struct SettingsView: View {
         suite.removeObject(forKey: "selectedTimeRange")
         suite.removeObject(forKey: "selectedLanguage")
         suite.removeObject(forKey: "pinnedItemsByInstance")
+        suite.removeObject(forKey: "appLockEnabled")
 
         // Notifications
         groupSuite.removeObject(forKey: "alertsLastCheckedTimestamp")

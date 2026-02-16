@@ -122,6 +122,15 @@ struct SettingsView: View {
                         WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                     }
 
+                    Picker(selection: $bindableSettingsManager.selectedTheme) {
+                        ForEach(AppTheme.allCases) { theme in
+                            Text(LocalizedStringKey(theme.rawValue)).tag(theme)
+                        }
+                    } label: {
+                        Label("settings.display.theme", systemImage: "circle.lefthalf.filled")
+                            .foregroundStyle(.primary)
+                    }
+
                     Picker(selection: $bindableSettingsManager.selectedTimeRange) {
                         ForEach(TimeRangeOption.allCases) { option in
                             Text(LocalizedStringKey(option.rawValue)).tag(option)
@@ -309,6 +318,7 @@ struct SettingsView: View {
         }
 
         // Settings
+        suite.removeObject(forKey: "selectedTheme")
         suite.removeObject(forKey: "selectedTimeRange")
         suite.removeObject(forKey: "selectedLanguage")
         suite.removeObject(forKey: "pinnedItemsByInstance")

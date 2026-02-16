@@ -95,6 +95,7 @@ struct BeszelApp: App {
                     }
                 }
             }
+            .preferredColorScheme(settingsManager.selectedTheme.colorScheme)
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .background {
                     isUnlocked = false

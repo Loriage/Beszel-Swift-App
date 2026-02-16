@@ -12,7 +12,7 @@ actor BeszelAPIService {
     
     private var refreshTask: Task<String, Error>?
     
-    private static let tokenCache = UserDefaults(suiteName: "group.com.nohitdev.Beszel")
+    private static let tokenCache = UserDefaults.sharedSuite
     private static let tokenCacheValiditySeconds: TimeInterval = 600
     
     private nonisolated static let jsonDecoder: JSONDecoder = {
@@ -70,8 +70,8 @@ actor BeszelAPIService {
     }
     
     private nonisolated func getCachedToken() -> String? {
-        guard let token = Self.tokenCache?.string(forKey: cacheKey()),
-              let timestamp = Self.tokenCache?.object(forKey: cacheTimestampKey()) as? Date else {
+        guard let token = Self.tokenCache.string(forKey: cacheKey()),
+              let timestamp = Self.tokenCache.object(forKey: cacheTimestampKey()) as? Date else {
             return nil
         }
         
@@ -82,8 +82,8 @@ actor BeszelAPIService {
     }
     
     private nonisolated func setCachedToken(_ token: String) {
-        Self.tokenCache?.set(token, forKey: cacheKey())
-        Self.tokenCache?.set(Date(), forKey: cacheTimestampKey())
+        Self.tokenCache.set(token, forKey: cacheKey())
+        Self.tokenCache.set(Date(), forKey: cacheTimestampKey())
     }
     
     private func getValidToken() async throws -> String {

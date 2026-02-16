@@ -4,7 +4,7 @@ import Observation
 import UserNotifications
 import os
 
-private let logger = Logger(subsystem: "com.nohitdev.Beszel", category: "AlertManager")
+nonisolated private let logger = Logger(subsystem: "com.nohitdev.Beszel", category: "AlertManager")
 
 @Observable
 @MainActor

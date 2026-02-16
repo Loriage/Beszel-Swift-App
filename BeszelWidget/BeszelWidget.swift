@@ -29,7 +29,7 @@ private struct WidgetCache: Codable {
 }
 
 private enum WidgetCacheManager {
-    private static let userDefaults = UserDefaults(suiteName: "group.com.nohitdev.Beszel")
+    private static let userDefaults = UserDefaults.sharedSuite
 
     static func cacheKey(instanceID: String?, systemID: String?) -> String {
         "widgetCache_\(instanceID ?? "default")_\(systemID ?? "default")"
@@ -53,12 +53,12 @@ private enum WidgetCacheManager {
             cachedAt: Date()
         )
         if let data = try? JSONEncoder().encode(cache) {
-            userDefaults?.set(data, forKey: cacheKey(instanceID: instanceID, systemID: systemID))
+            userDefaults.set(data, forKey: cacheKey(instanceID: instanceID, systemID: systemID))
         }
     }
 
     static func load(instanceID: String?, systemID: String?) -> WidgetCache? {
-        guard let data = userDefaults?.data(forKey: cacheKey(instanceID: instanceID, systemID: systemID)),
+        guard let data = userDefaults.data(forKey: cacheKey(instanceID: instanceID, systemID: systemID)),
               let cache = try? JSONDecoder().decode(WidgetCache.self, from: data) else {
             return nil
         }
@@ -233,9 +233,9 @@ private func buildTimeline(
 ) async -> Timeline<SimpleEntry> {
     let isLockScreen = context.family.isLockScreen
     let resolvedChartType: WidgetChartType = isLockScreen ? .systemInfo : chartType
-    let userDefaults = UserDefaults(suiteName: "group.com.nohitdev.Beszel")
-    let activeInstanceID = userDefaults?.string(forKey: "activeInstanceID")
-    let activeSystemID = userDefaults?.string(forKey: "activeSystemID")
+    let userDefaults = UserDefaults.sharedSuite
+    let activeInstanceID = userDefaults.string(forKey: "activeInstanceID")
+    let activeSystemID = userDefaults.string(forKey: "activeSystemID")
     
     let (instance, systemID, systemName, timeRange, apiService, instanceError) = await MainActor.run { () -> (Instance?, String?, String?, TimeRangeOption, BeszelAPIService?, String?) in
         let settingsManager = SettingsManager()

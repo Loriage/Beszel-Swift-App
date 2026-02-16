@@ -4,8 +4,8 @@ import SwiftUI
 import os
 
 public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
-    public static var title: LocalizedStringResource = "widget.configuration.title"
-    public static var description: IntentDescription = "widget.configuration.description"
+    public static let title: LocalizedStringResource = "widget.configuration.title"
+    public static let description: IntentDescription = "widget.configuration.description"
 
     @Parameter(title: "chart.configuration.instance.title")
     public var instance: InstanceEntity?
@@ -26,8 +26,8 @@ public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
 }
 
 public struct SelectInstanceAndMetricIntent: WidgetConfigurationIntent {
-    public static var title: LocalizedStringResource = "widget.configuration.title"
-    public static var description: IntentDescription = "widget.configuration.description"
+    public static let title: LocalizedStringResource = "widget.configuration.title"
+    public static let description: IntentDescription = "widget.configuration.description"
 
     @Parameter(title: "chart.configuration.instance.title")
     public var instance: InstanceEntity?
@@ -48,8 +48,8 @@ public struct SelectInstanceAndMetricIntent: WidgetConfigurationIntent {
 }
 
 public struct SelectInstanceIntent: WidgetConfigurationIntent {
-    public static var title: LocalizedStringResource = "widget.configuration.title"
-    public static var description: IntentDescription = "widget.configuration.description"
+    public static let title: LocalizedStringResource = "widget.configuration.title"
+    public static let description: IntentDescription = "widget.configuration.description"
 
     @Parameter(title: "chart.configuration.instance.title")
     public var instance: InstanceEntity?
@@ -75,8 +75,8 @@ public struct InstanceEntity: AppEntity {
     }
     
     public var displayRepresentation: DisplayRepresentation { DisplayRepresentation(title: "\(name)") }
-    public static var typeDisplayRepresentation: TypeDisplayRepresentation = "Instance"
-    public static var defaultQuery = InstanceQuery()
+    public static let typeDisplayRepresentation: TypeDisplayRepresentation = "Instance"
+    public static let defaultQuery = InstanceQuery()
 }
 
 public struct InstanceQuery: EntityQuery {
@@ -105,13 +105,13 @@ public struct SystemEntity: AppEntity {
     }
     
     public var displayRepresentation: DisplayRepresentation { DisplayRepresentation(title: "\(name)") }
-    public static var typeDisplayRepresentation: TypeDisplayRepresentation = "Système"
-    public static var defaultQuery = SystemQuery()
+    public static let typeDisplayRepresentation: TypeDisplayRepresentation = "Système"
+    public static let defaultQuery = SystemQuery()
 }
 
 public struct SystemQuery: EntityQuery {
     private static let logger = Logger(subsystem: "com.nohitdev.Beszel.widget", category: "SystemQuery")
-    private static let userDefaults = UserDefaults(suiteName: "group.com.nohitdev.Beszel")
+    private static let userDefaults = UserDefaults.sharedSuite
     private static let cacheKey = "cachedSystemEntities"
 
     public init() {}
@@ -142,7 +142,7 @@ public struct SystemQuery: EntityQuery {
     private func allSystemsForSelectedInstance() async -> [SystemEntity] {
         let apiService = await MainActor.run { () -> BeszelAPIService? in
             let manager = InstanceManager.shared
-            let idString = Self.userDefaults?.string(forKey: "activeInstanceID")
+            let idString = Self.userDefaults.string(forKey: "activeInstanceID")
 
             guard let activeIDString = idString,
                   let _ = UUID(uuidString: activeIDString),
@@ -174,11 +174,11 @@ public struct SystemQuery: EntityQuery {
 
     private static func saveCachedSystems(_ systems: [SystemEntity]) {
         let data = systems.map { ["id": $0.id, "name": $0.name] }
-        userDefaults?.set(data, forKey: cacheKey)
+        userDefaults.set(data, forKey: cacheKey)
     }
 
     private static func loadCachedSystems() -> [SystemEntity] {
-        guard let data = userDefaults?.array(forKey: cacheKey) as? [[String: String]] else {
+        guard let data = userDefaults.array(forKey: cacheKey) as? [[String: String]] else {
             return []
         }
         return data.compactMap { dict in
@@ -198,8 +198,8 @@ public struct ChartTypeEntity: AppEntity {
     }
     
     public var displayRepresentation: DisplayRepresentation { DisplayRepresentation(title: title) }
-    public static var typeDisplayRepresentation: TypeDisplayRepresentation = "widget.configuration.title"
-    public static var defaultQuery = ChartTypeQuery()
+    public static let typeDisplayRepresentation: TypeDisplayRepresentation = "widget.configuration.title"
+    public static let defaultQuery = ChartTypeQuery()
 }
 
 public struct ChartTypeQuery: EntityQuery {
@@ -228,8 +228,8 @@ public struct MetricEntity: AppEntity {
     }
 
     public var displayRepresentation: DisplayRepresentation { DisplayRepresentation(title: title) }
-    public static var typeDisplayRepresentation: TypeDisplayRepresentation = "widget.configuration.metric.title"
-    public static var defaultQuery = MetricQuery()
+    public static let typeDisplayRepresentation: TypeDisplayRepresentation = "widget.configuration.metric.title"
+    public static let defaultQuery = MetricQuery()
 }
 
 public struct MetricQuery: EntityQuery {

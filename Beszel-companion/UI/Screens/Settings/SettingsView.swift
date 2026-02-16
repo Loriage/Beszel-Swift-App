@@ -302,7 +302,6 @@ struct SettingsView: View {
 
     private func resetAllSettings() {
         let suite = UserDefaults.sharedSuite
-        let groupSuite = UserDefaults(suiteName: Constants.appGroupId) ?? .standard
 
         // Delete all instance credentials
         for instance in instanceManager.instances {
@@ -316,14 +315,14 @@ struct SettingsView: View {
         suite.removeObject(forKey: "appLockEnabled")
 
         // Notifications
-        groupSuite.removeObject(forKey: "alertsLastCheckedTimestamp")
-        groupSuite.removeObject(forKey: "seenAlertHistoryIDs")
-        groupSuite.removeObject(forKey: "alertNotificationsEnabled")
+        suite.removeObject(forKey: "alertsLastCheckedTimestamp")
+        suite.removeObject(forKey: "seenAlertHistoryIDs")
+        suite.removeObject(forKey: "alertNotificationsEnabled")
 
         // Instances
-        groupSuite.removeObject(forKey: "instances")
-        groupSuite.removeObject(forKey: "activeInstanceID")
-        groupSuite.removeObject(forKey: "activeSystemID")
+        suite.removeObject(forKey: "instances")
+        suite.removeObject(forKey: "activeInstanceID")
+        suite.removeObject(forKey: "activeSystemID")
 
         WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
         dismiss()

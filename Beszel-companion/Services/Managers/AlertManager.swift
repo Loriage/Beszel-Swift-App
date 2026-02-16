@@ -11,13 +11,12 @@ nonisolated private let logger = Logger(subsystem: "com.nohitdev.Beszel", catego
 final class AlertManager {
     static let shared = AlertManager()
     
-    private static let appGroupIdentifier = Constants.appGroupId
     private static let lastCheckedKey = "alertsLastCheckedTimestamp"
     private static let seenAlertIDsKey = "seenAlertHistoryIDs"
     private static let notificationsEnabledKey = "alertNotificationsEnabled"
     
     private var userDefaultsStore: UserDefaults {
-        UserDefaults(suiteName: Self.appGroupIdentifier) ?? .standard
+        .sharedSuite
     }
     
     var alerts: [String: [AlertRecord]] = [:]
@@ -77,8 +76,8 @@ final class AlertManager {
     }
     
     init() {
-        let store = UserDefaults(suiteName: Self.appGroupIdentifier) ?? .standard
-        
+        let store = UserDefaults.sharedSuite
+
         let timestamp = store.double(forKey: Self.lastCheckedKey)
         self.lastCheckedTimestamp = timestamp > 0 ? Date(timeIntervalSince1970: timestamp) : Date()
         

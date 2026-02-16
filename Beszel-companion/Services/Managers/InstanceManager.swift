@@ -9,16 +9,10 @@ private let logger = Logger(subsystem: "com.nohitdev.Beszel", category: "Instanc
 @MainActor
 final class InstanceManager {
     static let shared = InstanceManager()
-    static let appGroupIdentifier = Constants.appGroupId
-    
     private let keychainService = Constants.keychainService
     
-    private static func getStore() -> UserDefaults {
-        return UserDefaults(suiteName: appGroupIdentifier) ?? .standard
-    }
-    
     private var userDefaultsStore: UserDefaults {
-        return InstanceManager.getStore()
+        return .sharedSuite
     }
     
     var instances: [Instance] = []

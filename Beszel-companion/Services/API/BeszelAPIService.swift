@@ -12,21 +12,24 @@ actor BeszelAPIService {
     
     private var refreshTask: Task<String, Error>?
     
-    private static let tokenCache = UserDefaults(suiteName: "group.com.nohitdev.Beszel")
+    private static let tokenCache = UserDefaults.sharedSuite
     private static let tokenCacheValiditySeconds: TimeInterval = 600
     
+    private nonisolated static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS'Z'"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }()
+
     private nonisolated static let jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .custom { decoder in
             let container = try decoder.singleValueContainer()
             let dateStr = try container.decode(String.self)
-            
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS'Z'"
-            formatter.timeZone = TimeZone(secondsFromGMT: 0)
-            formatter.locale = Locale(identifier: "en_US_POSIX")
-            
-            if let date = formatter.date(from: dateStr) {
+
+            if let date = dateFormatter.date(from: dateStr) {
                 return date
             }
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date format")
@@ -70,8 +73,8 @@ actor BeszelAPIService {
     }
     
     private nonisolated func getCachedToken() -> String? {
-        guard let token = Self.tokenCache?.string(forKey: cacheKey()),
-              let timestamp = Self.tokenCache?.object(forKey: cacheTimestampKey()) as? Date else {
+        guard let token = Self.tokenCache.string(forKey: cacheKey()),
+              let timestamp = Self.tokenCache.object(forKey: cacheTimestampKey()) as? Date else {
             return nil
         }
         
@@ -82,8 +85,8 @@ actor BeszelAPIService {
     }
     
     private nonisolated func setCachedToken(_ token: String) {
-        Self.tokenCache?.set(token, forKey: cacheKey())
-        Self.tokenCache?.set(Date(), forKey: cacheTimestampKey())
+        Self.tokenCache.set(token, forKey: cacheKey())
+        Self.tokenCache.set(Date(), forKey: cacheTimestampKey())
     }
     
     private func getValidToken() async throws -> String {

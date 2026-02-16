@@ -213,14 +213,19 @@ final class BeszelStore {
                     }
                 }
                 
-                return try await group.reduce(into: ([:], [:], [:])) { (partialResult, taskResult) in
-                    let (systemId, sysData, processedContainers, latestRec) = taskResult
-                    partialResult.0[systemId] = sysData
-                    partialResult.1[systemId] = processedContainers
+                var systemDataResult: [String: [SystemDataPoint]] = [:]
+                var containerDataResult: [String: [ProcessedContainerData]] = [:]
+                var latestStatsResult: [String: SystemStatsRecord] = [:]
+
+                for try await (systemId, sysData, processedContainers, latestRec) in group {
+                    systemDataResult[systemId] = sysData
+                    containerDataResult[systemId] = processedContainers
                     if let latestRec = latestRec {
-                        partialResult.2[systemId] = latestRec
+                        latestStatsResult[systemId] = latestRec
                     }
                 }
+
+                return (systemDataResult, containerDataResult, latestStatsResult)
             }
             
             self.systemDataPointsBySystem = finalSystemData

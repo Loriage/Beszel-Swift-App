@@ -292,7 +292,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Critical"
+            "value" : "Crítico"
           }
         },
         "fr" : {
@@ -2217,7 +2217,7 @@
       }
     },
     "dark" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2234,13 +2234,13 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dark"
+            "value" : "Sombre"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dark"
+            "value" : "Ciemny"
           }
         }
       }
@@ -3068,7 +3068,7 @@
       }
     },
     "light" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3085,13 +3085,13 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Light"
+            "value" : "Clair"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Light"
+            "value" : "Jasny"
           }
         }
       }
@@ -5104,13 +5104,13 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Theme"
+            "value" : "Thème"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Theme"
+            "value" : "Motyw"
           }
         }
       }
@@ -5956,7 +5956,7 @@
       }
     },
     "system" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {

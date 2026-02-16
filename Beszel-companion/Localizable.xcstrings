@@ -9,21 +9,15 @@
             "value" : "%@"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%@"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%@"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%@"
           }
         }
@@ -37,21 +31,15 @@
             "value" : "%1$@ %2$@"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ %2$@"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%1$@ %2$@"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%1$@ %2$@"
           }
         }
@@ -65,21 +53,15 @@
             "value" : "%1$@ %2$@ %3$@"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ %2$@ %3$@"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%1$@ %2$@ %3$@"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%1$@ %2$@ %3$@"
           }
         }
@@ -93,21 +75,15 @@
             "value" : "%@ MB/s"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%@ MB/s"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%@ MB/s"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%@ MB/s"
           }
         }
@@ -116,24 +92,6 @@
     "%@ rx | %@ tx" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ rx | %2$@ tx"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ rx | %2$@ tx"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ rx | %2$@ tx"
-          }
-        },
-        "pl" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@ rx | %2$@ tx"
@@ -149,12 +107,6 @@
             "value" : "•"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "•"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -163,7 +115,7 @@
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "•"
           }
         }
@@ -177,12 +129,6 @@
             "value" : "1 min"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "1 min"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -191,7 +137,7 @@
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "1 min"
           }
         }
@@ -205,12 +151,6 @@
             "value" : "5 min"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "5 min"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -219,7 +159,7 @@
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "5 min"
           }
         }
@@ -233,12 +173,6 @@
             "value" : "15 min"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "15 min"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -247,7 +181,7 @@
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "15 min"
           }
         }
@@ -258,12 +192,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Load average indicator"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Load average indicator"
           }
         },
@@ -289,12 +217,6 @@
             "value" : "Critical"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Critical"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -314,12 +236,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "High"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "High"
           }
         },
@@ -345,15 +261,9 @@
             "value" : "Normal"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Normal"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Normal"
           }
         },
@@ -370,12 +280,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unknown"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Unknown"
           }
         },
@@ -401,12 +305,6 @@
             "value" : "Configure alerts from your Beszel web interface."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Configure alerts from your Beszel web interface."
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -426,12 +324,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No Alerts Configured"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "No Alerts Configured"
           }
         },
@@ -457,12 +349,6 @@
             "value" : "Resolved at"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Resolved at"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -485,12 +371,6 @@
             "value" : "Status"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Status"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -499,7 +379,7 @@
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Status"
           }
         }
@@ -510,12 +390,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alert Details"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Alert Details"
           }
         },
@@ -541,12 +415,6 @@
             "value" : "Triggered at"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Triggered at"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -566,12 +434,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alerts are not available on this Beszel instance. Please update to the latest version."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Alerts are not available on this Beszel instance. Please update to the latest version."
           }
         },
@@ -597,12 +459,6 @@
             "value" : "All"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "All"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -622,12 +478,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No alerts have been triggered recently."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "No alerts have been triggered recently."
           }
         },
@@ -653,12 +503,6 @@
             "value" : "No Alert History"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "No Alert History"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -678,12 +522,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ on %@ reached %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "%@ on %@ reached %@"
           }
         },
@@ -709,12 +547,6 @@
             "value" : "Beszel Alert"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Beszel Alert"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -737,15 +569,9 @@
             "value" : "Active"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Active"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Active"
           }
         },
@@ -762,12 +588,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Resolved"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Resolved"
           }
         },
@@ -793,12 +613,6 @@
             "value" : "Bandwidth"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Bandwidth"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -818,12 +632,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bandwidth (MB/s)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Bandwidth (MB/s)"
           }
         },
@@ -849,12 +657,6 @@
             "value" : "Chart"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Chart"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -877,15 +679,9 @@
             "value" : "Hub"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Hub"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hub"
           }
         },
@@ -905,12 +701,6 @@
             "value" : "System"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "System"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -919,7 +709,7 @@
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "System"
           }
         }
@@ -931,12 +721,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Docker CPU Usage (%)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Docker CPU Usage (%)"
           }
         },
@@ -963,12 +747,6 @@
             "value" : "Docker Memory Usage (MB)"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Docker Memory Usage (MB)"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -988,12 +766,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "CPU Usage (%)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "CPU Usage (%)"
           }
         },
@@ -1019,15 +791,9 @@
             "value" : "Total"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Total"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Total"
           }
         },
@@ -1044,12 +810,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Used"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Used"
           }
         },
@@ -1075,12 +835,6 @@
             "value" : "Disk Usage"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Disk Usage"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1100,12 +854,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Extra Filesystems"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Extra Filesystems"
           }
         },
@@ -1131,12 +879,6 @@
             "value" : "GPU Usage"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "GPU Usage"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1156,12 +898,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory Usage (%)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Memory Usage (%)"
           }
         },
@@ -1187,12 +923,6 @@
             "value" : "Network Interfaces"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Network Interfaces"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1212,12 +942,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No data for %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "No data for %@"
           }
         },
@@ -1243,15 +967,9 @@
             "value" : "Total"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Total"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Total"
           }
         },
@@ -1268,12 +986,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Used"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Used"
           }
         },
@@ -1299,12 +1011,6 @@
             "value" : "Swap Usage"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Swap Usage"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1324,12 +1030,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Temperature (°C)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Temperature (°C)"
           }
         },
@@ -1355,12 +1055,6 @@
             "value" : "Docker CPU Usage (%)"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Docker CPU Usage (%)"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1380,12 +1074,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Docker Memory Usage (%@)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Docker Memory Usage (%@)"
           }
         },
@@ -1411,12 +1099,6 @@
             "value" : "Docker Network I/O (%@)"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Docker Network I/O (%@)"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1436,12 +1118,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cancel"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Cancel"
           }
         },
@@ -1467,12 +1143,6 @@
             "value" : "Copied!"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Copied!"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1492,12 +1162,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Delete"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Delete"
           }
         },
@@ -1523,12 +1187,6 @@
             "value" : "Edit"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Edit"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1548,12 +1206,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Error"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Error"
           }
         },
@@ -1579,12 +1231,6 @@
             "value" : "Authentication failed. Please reconnect your instance."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Authentication failed. Please reconnect your instance."
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1604,12 +1250,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unable to fetch data"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Unable to fetch data"
           }
         },
@@ -1635,12 +1275,6 @@
             "value" : "Unknown error"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Unknown error"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1660,12 +1294,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No Data"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "No Data"
           }
         },
@@ -1691,12 +1319,6 @@
             "value" : "or"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "or"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1716,12 +1338,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Retry"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Retry"
           }
         },
@@ -1747,12 +1363,6 @@
             "value" : "No details"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "No details"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1772,12 +1382,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No details available for this container"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "No details available for this container"
           }
         },
@@ -1803,12 +1407,6 @@
             "value" : "No active instance"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "No active instance"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1828,12 +1426,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Container not found"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Container not found"
           }
         },
@@ -1859,12 +1451,6 @@
             "value" : "Healthy"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Healthy"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1884,12 +1470,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "None"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "None"
           }
         },
@@ -1915,12 +1495,6 @@
             "value" : "Starting"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Starting"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1940,12 +1514,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unhealthy"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Unhealthy"
           }
         },
@@ -1971,12 +1539,6 @@
             "value" : "No logs"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "No logs"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1996,12 +1558,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No logs available for this container"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "No logs available for this container"
           }
         },
@@ -2027,12 +1583,6 @@
             "value" : "Docker container list"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Docker container list"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2052,12 +1602,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Details"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Details"
           }
         },
@@ -2083,12 +1627,6 @@
             "value" : "Info"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Info"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2108,12 +1646,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Logs"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Logs"
           }
         },
@@ -2139,12 +1671,6 @@
             "value" : "Containers"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Containers"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2164,12 +1690,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Container"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Container"
           }
         },
@@ -2196,21 +1716,15 @@
             "value" : "CPU"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "CPU"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "CPU"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "CPU"
           }
         }
@@ -2225,22 +1739,16 @@
             "value" : "Dark"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Dark"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dark"
+            "state" : "translated",
+            "value" : "Sombre"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dark"
+            "state" : "translated",
+            "value" : "Ciemny"
           }
         }
       }
@@ -2251,12 +1759,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Descending"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Descending"
           }
         },
@@ -2283,12 +1785,6 @@
             "value" : "Filter by"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Filter by"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2309,12 +1805,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Filters"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Filters"
           }
         },
@@ -2342,12 +1832,6 @@
             "value" : "Search…"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Search…"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2368,12 +1852,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sort by"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Sort by"
           }
         },
@@ -2400,16 +1878,10 @@
             "value" : "Descending"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Descending"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ordre"
+            "value" : "Descendant"
           }
         },
         "pl" : {
@@ -2428,15 +1900,9 @@
             "value" : "Date"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Date"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Date"
           }
         },
@@ -2453,12 +1919,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Drag on the X axis to select a date."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Drag on the X axis to select a date."
           }
         },
@@ -2484,12 +1944,6 @@
             "value" : "Total:"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Total:"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2509,12 +1963,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Values at %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Values at %@"
           }
         },
@@ -2540,12 +1988,6 @@
             "value" : "Docker CPU Usage (%)"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Docker CPU Usage (%)"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2565,12 +2007,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory Usage Details (%@)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Memory Usage Details (%@)"
           }
         },
@@ -2596,12 +2032,6 @@
             "value" : "Network I/O Details (%@)"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Network I/O Details (%@)"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2621,12 +2051,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Disk"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Disk"
           }
         },
@@ -2652,12 +2076,6 @@
             "value" : "Disk I/O (MB/s)"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Disk I/O (MB/s)"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2677,12 +2095,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "DOWN"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "DOWN"
           }
         },
@@ -2708,12 +2120,6 @@
             "value" : "Download"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Download"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2736,12 +2142,6 @@
             "value" : "End"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "End"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2761,12 +2161,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Filesystem"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Filesystem"
           }
         },
@@ -2793,12 +2187,6 @@
             "value" : "Metric"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Metric"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2822,15 +2210,9 @@
             "value" : "Service"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Service"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Service"
           }
         },
@@ -2851,12 +2233,6 @@
             "value" : "System"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "System"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2865,7 +2241,7 @@
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "System"
           }
         }
@@ -2879,21 +2255,15 @@
             "value" : "GPU"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "GPU"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "GPU"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "GPU"
           }
         }
@@ -2904,12 +2274,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pin your favorite charts from the System and Containers pages to see them here."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Pin your favorite charts from the System and Containers pages to see them here."
           }
         },
@@ -2935,12 +2299,6 @@
             "value" : "Your home is empty"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Your home is empty"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2960,12 +2318,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your pinned charts"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Your pinned charts"
           }
         },
@@ -2991,12 +2343,6 @@
             "value" : "Home"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Home"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3019,22 +2365,16 @@
             "value" : "Hub"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Hub"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hub"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Centrum"
+            "value" : "Hub"
           }
         }
       }
@@ -3047,15 +2387,9 @@
             "value" : "Interface"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Interface"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Interface"
           }
         },
@@ -3076,22 +2410,16 @@
             "value" : "Light"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Light"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Light"
+            "state" : "translated",
+            "value" : "Clair"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Light"
+            "state" : "translated",
+            "value" : "Jasny"
           }
         }
       }
@@ -3101,12 +2429,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Load"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Load"
           }
         },
@@ -3129,12 +2451,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Load Average"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Load Average"
           }
         },
@@ -3161,15 +2477,9 @@
             "value" : "Memory"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Memory"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Memory"
           }
         },
@@ -3189,16 +2499,10 @@
             "value" : "Memory"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Memory"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Memory"
+            "state" : "translated",
+            "value" : "Mémoire"
           }
         },
         "pl" : {
@@ -3217,21 +2521,15 @@
             "value" : "NET"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "NET"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "NET"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "NET"
           }
         }
@@ -3245,21 +2543,15 @@
             "value" : "NET:"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "NET:"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "NET:"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "NET:"
           }
         }
@@ -3270,12 +2562,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No system found"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "No system found"
           }
         },
@@ -3301,12 +2587,6 @@
             "value" : "Connect with %@"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Connect with %@"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3326,12 +2606,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Authentication failed. Please check your credentials."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Authentication failed. Please check your credentials."
           }
         },
@@ -3357,12 +2631,6 @@
             "value" : "Unable to reach the hub. Please check the URL and your connection."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Unable to reach the hub. Please check the URL and your connection."
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3382,12 +2650,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Please enter a valid URL."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Please enter a valid URL."
           }
         },
@@ -3413,12 +2675,6 @@
             "value" : "Invalid response from server."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Invalid response from server."
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3438,12 +2694,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invalid URL format."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Invalid URL format."
           }
         },
@@ -3469,12 +2719,6 @@
             "value" : "MFA required"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "MFA required"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3494,12 +2738,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Network error"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Network error"
           }
         },
@@ -3526,12 +2764,6 @@
             "value" : "Fields required"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Fields required"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3554,15 +2786,9 @@
             "value" : "Email"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Email"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Email"
           }
         },
@@ -3579,12 +2805,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MFA Code"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "MFA Code"
           }
         },
@@ -3610,12 +2830,6 @@
             "value" : "Password"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Password"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3638,12 +2852,6 @@
             "value" : "Hub name (e.g: Local or Server)"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Hub name (e.g: Local or Server)"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3663,12 +2871,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Connect"
           }
         },
@@ -3695,12 +2897,6 @@
             "value" : "Login failed"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Login failed"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3720,12 +2916,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Code sent to %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Code sent to %@"
           }
         },
@@ -3751,12 +2941,6 @@
             "value" : "Invalid code. Please try again."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Invalid code. Please try again."
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3776,12 +2960,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Resend code"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Resend code"
           }
         },
@@ -3807,12 +2985,6 @@
             "value" : "Send verification code"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Send verification code"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3832,12 +3004,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A verification code will be sent to your email"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "A verification code will be sent to your email"
           }
         },
@@ -3863,12 +3029,6 @@
             "value" : "Verification"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Verification"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3888,12 +3048,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Please enter your hub details."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Please enter your hub details."
           }
         },
@@ -3919,12 +3073,6 @@
             "value" : "Connect to Beszel"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Connect to Beszel"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3944,12 +3092,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "beszel.domain.tld"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "beszel.domain.tld"
           }
         },
@@ -3975,12 +3117,6 @@
             "value" : "Verify"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Verify"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4000,12 +3136,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "PAUSED"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "PAUSED"
           }
         },
@@ -4031,12 +3161,6 @@
             "value" : "PENDING"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "PENDING"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4056,12 +3180,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Period"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Period"
           }
         },
@@ -4087,12 +3205,6 @@
             "value" : "Docker Container CPU"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Docker Container CPU"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4112,12 +3224,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Docker Container Memory"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Docker Container Memory"
           }
         },
@@ -4143,12 +3249,6 @@
             "value" : "Docker CPU"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Docker CPU"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4168,12 +3268,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Docker Memory"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Docker Memory"
           }
         },
@@ -4199,12 +3293,6 @@
             "value" : "Docker Network I/O"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Docker Network I/O"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4224,12 +3312,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "System Bandwidth"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "System Bandwidth"
           }
         },
@@ -4255,12 +3337,6 @@
             "value" : "System CPU"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "System CPU"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4280,12 +3356,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "System Disk I/O"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "System Disk I/O"
           }
         },
@@ -4311,12 +3381,6 @@
             "value" : "System Disk Usage"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "System Disk Usage"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4336,12 +3400,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Extra Filesystems"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Extra Filesystems"
           }
         },
@@ -4367,12 +3425,6 @@
             "value" : "System GPU"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "System GPU"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4392,12 +3444,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "System Info"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "System Info"
           }
         },
@@ -4423,12 +3469,6 @@
             "value" : "System Load Average"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "System Load Average"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4448,12 +3488,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "System Memory"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "System Memory"
           }
         },
@@ -4479,12 +3513,6 @@
             "value" : "System Network Interfaces"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "System Network Interfaces"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4504,12 +3532,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "System Swap"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "System Swap"
           }
         },
@@ -4535,12 +3557,6 @@
             "value" : "System Temperature"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "System Temperature"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4560,12 +3576,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Read"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Read"
           }
         },
@@ -4591,12 +3601,6 @@
             "value" : "Received"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Received"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4616,12 +3620,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scheme"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Scheme"
           }
         },
@@ -4647,12 +3645,6 @@
             "value" : "Sent"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Sent"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4672,12 +3664,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "About"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "About"
           }
         },
@@ -4703,12 +3689,6 @@
             "value" : "Report an Issue"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Report an Issue"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4728,12 +3708,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Leave a Review"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Leave a Review"
           }
         },
@@ -4759,12 +3733,6 @@
             "value" : "Share the App"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Share the App"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4784,12 +3752,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Translate the app"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Translate the app"
           }
         },
@@ -4815,15 +3777,9 @@
             "value" : "Application"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Application"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Application"
           }
         },
@@ -4840,12 +3796,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reset All Settings"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Reset All Settings"
           }
         },
@@ -4871,12 +3821,6 @@
             "value" : "Reset"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Reset"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4896,12 +3840,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This will delete all hubs and reset all settings to their defaults."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "This will delete all hubs and reset all settings to their defaults."
           }
         },
@@ -4927,12 +3865,6 @@
             "value" : "Reset All Settings?"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Reset All Settings?"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4952,12 +3884,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clear all pins"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Clear all pins"
           }
         },
@@ -4983,12 +3909,6 @@
             "value" : "Are you sure you want to delete all your pins? This action is irreversible."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Are you sure you want to delete all your pins? This action is irreversible."
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5008,12 +3928,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clear all pins"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Clear all pins"
           }
         },
@@ -5039,12 +3953,6 @@
             "value" : "Chart period"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Chart period"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5064,12 +3972,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Language"
           }
         },
@@ -5095,22 +3997,16 @@
             "value" : "Theme"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Theme"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Theme"
+            "state" : "translated",
+            "value" : "Thème"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Theme"
+            "state" : "translated",
+            "value" : "Motyw"
           }
         }
       }
@@ -5120,12 +4016,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add a hub"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Add a hub"
           }
         },
@@ -5151,15 +4041,9 @@
             "value" : "Hubs"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Hubs"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hubs"
           }
         },
@@ -5179,15 +4063,9 @@
             "value" : "Notifications"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Notifications"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Notifications"
           }
         },
@@ -5204,12 +4082,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Receive real-time push notifications when alerts are triggered in Beszel."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Receive real-time push notifications when alerts are triggered in Beszel."
           }
         },
@@ -5235,12 +4107,6 @@
             "value" : "Beszel Webhook URL"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Beszel Webhook URL"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5260,12 +4126,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add this URL as a Generic Webhook in Beszel Settings → Notifications."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Add this URL as a Generic Webhook in Beszel Settings → Notifications."
           }
         },
@@ -5291,12 +4151,6 @@
             "value" : "Save your configuration to generate the webhook URL."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Save your configuration to generate the webhook URL."
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5316,12 +4170,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notification Settings"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Notification Settings"
           }
         },
@@ -5347,12 +4195,6 @@
             "value" : "Configured Alerts"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Configured Alerts"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5372,12 +4214,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enable alert notifications"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Enable alert notifications"
           }
         },
@@ -5403,12 +4239,6 @@
             "value" : "Generate Webhook"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Generate Webhook"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5428,12 +4258,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alert History"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Alert History"
           }
         },
@@ -5459,12 +4283,6 @@
             "value" : "Notification Worker"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Notification Worker"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5484,12 +4302,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Use custom worker"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Use custom worker"
           }
         },
@@ -5515,12 +4327,6 @@
             "value" : "Use your own self-hosted Cloudflare Worker to relay push notifications."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Use your own self-hosted Cloudflare Worker to relay push notifications."
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5540,12 +4346,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Use default worker"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Use default worker"
           }
         },
@@ -5571,12 +4371,6 @@
             "value" : "Push notifications are relayed through the notification service provided by the app developer."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Push notifications are relayed through the notification service provided by the app developer."
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5596,12 +4390,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "https://notify.domain.tld"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "https://notify.domain.tld"
           }
         },
@@ -5627,12 +4415,6 @@
             "value" : "App Lock"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "App Lock"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5652,12 +4434,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Authenticate to access Beszel Companion"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Authenticate to access Beszel Companion"
           }
         },
@@ -5683,12 +4459,6 @@
             "value" : "Face ID required\nto open Beszel"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Face ID required\nto open Beszel"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5708,12 +4478,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Retry Face ID"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Retry Face ID"
           }
         },
@@ -5739,12 +4503,6 @@
             "value" : "Settings"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Settings"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5767,15 +4525,9 @@
             "value" : "Source"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Source"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Source"
           }
         },
@@ -5795,12 +4547,6 @@
             "value" : "Start"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Start"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5809,7 +4555,7 @@
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Start"
           }
         }
@@ -5823,22 +4569,16 @@
             "value" : "Hub"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Hub"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hub"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Centrum"
+            "value" : "Hub"
           }
         }
       }
@@ -5851,15 +4591,9 @@
             "value" : "Hubs"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Hubs"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hubs"
           }
         },
@@ -5876,12 +4610,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Loading…"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Loading…"
           }
         },
@@ -5907,21 +4635,15 @@
             "value" : "SYS"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "SYS"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "SYS"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "SYS"
           }
         }
@@ -5935,21 +4657,15 @@
             "value" : "SYS:"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "SYS:"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "SYS:"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "SYS:"
           }
         }
@@ -5964,12 +4680,6 @@
             "value" : "System"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "System"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5978,8 +4688,8 @@
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System"
+            "state" : "translated",
+            "value" : "Systemowy"
           }
         }
       }
@@ -5992,16 +4702,10 @@
             "value" : "System Info"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "System Info"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Infos Système"
+            "value" : "System Info"
           }
         },
         "pl" : {
@@ -6018,12 +4722,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Loading system data..."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Loading system data..."
           }
         },
@@ -6049,12 +4747,6 @@
             "value" : "Average system-wide use"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Average system-wide use"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6077,12 +4769,6 @@
             "value" : "System"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "System"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6091,7 +4777,7 @@
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "System"
           }
         }
@@ -6105,12 +4791,6 @@
             "value" : "System"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "System"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6119,7 +4799,7 @@
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "System"
           }
         }
@@ -6130,12 +4810,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Systems"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Systems"
           }
         },
@@ -6162,12 +4836,6 @@
             "value" : "Loading systems…"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading systems…"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6190,15 +4858,9 @@
             "value" : "Tab"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Tab"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Tab"
           }
         },
@@ -6218,21 +4880,15 @@
             "value" : "Temp"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Temp"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Temp"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Temp"
           }
         }
@@ -6243,12 +4899,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "7 days"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "7 days"
           }
         },
@@ -6274,12 +4924,6 @@
             "value" : "12 hours"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "12 hours"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6299,12 +4943,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "24 hours"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "24 hours"
           }
         },
@@ -6330,12 +4968,6 @@
             "value" : "30 days"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "30 days"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6355,12 +4987,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Last hour"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Last hour"
           }
         },
@@ -6386,15 +5012,9 @@
             "value" : "Total"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Total"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Total"
           }
         },
@@ -6414,15 +5034,9 @@
             "value" : "Type"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Type"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Type"
           }
         },
@@ -6439,12 +5053,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unknown"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Unknown"
           }
         },
@@ -6470,12 +5078,6 @@
             "value" : "UP"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "UP"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6495,12 +5097,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UP: %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "UP: %@"
           }
         },
@@ -6526,12 +5122,6 @@
             "value" : "Upload"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Upload"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6551,12 +5141,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Usage"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Usage"
           }
         },
@@ -6582,12 +5166,6 @@
             "value" : "Used"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Used"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6607,12 +5185,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Value"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Value"
           }
         },
@@ -6638,15 +5210,9 @@
             "value" : "Version %@"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Version %@"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Version %@"
           }
         },
@@ -6663,12 +5229,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "System CPU"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "System CPU"
           }
         },
@@ -6694,12 +5254,6 @@
             "value" : "System Memory"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "System Memory"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6719,12 +5273,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "System Temperature"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "System Temperature"
           }
         },
@@ -6750,12 +5298,6 @@
             "value" : "Display a metric gauge on your lock screen."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Display a metric gauge on your lock screen."
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6775,12 +5317,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Beszel Gauge"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Beszel Gauge"
           }
         },
@@ -6806,12 +5342,6 @@
             "value" : "Choose the chart to display in the widget."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Choose the chart to display in the widget."
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6834,16 +5364,10 @@
             "value" : "Metric"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Metric"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Métrique"
+            "value" : "Mesure"
           }
         },
         "pl" : {
@@ -6859,12 +5383,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chart Type"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Chart Type"
           }
         },
@@ -6890,21 +5408,15 @@
             "value" : "Beszel"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Beszel"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Beszel"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Beszel"
           }
         }
@@ -6915,12 +5427,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Display a monitoring chart from your server."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Display a monitoring chart from your server."
           }
         },
@@ -6946,21 +5452,15 @@
             "value" : "Beszel"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Beszel"
-          }
-        },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Beszel"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Beszel"
           }
         }
@@ -6971,12 +5471,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Network Error"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Network Error"
           }
         },
@@ -7002,12 +5496,6 @@
             "value" : "No Instance"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "No Instance"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7027,12 +5515,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No System"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "No System"
           }
         },
@@ -7058,12 +5540,6 @@
             "value" : "Loading Error"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading Error"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7083,12 +5559,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No data available for the selected period. You may need to reconnect."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "No data available for the selected period. You may need to reconnect."
           }
         },
@@ -7114,12 +5584,6 @@
             "value" : "Not Connected"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Not Connected"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7142,12 +5606,6 @@
             "value" : "Display system info on your lock screen."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Display system info on your lock screen."
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7167,12 +5625,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Beszel Info"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Beszel Info"
           }
         },
@@ -7199,12 +5651,6 @@
             "value" : "Select a hub in the widget settings"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Select a hub in the widget settings"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7225,12 +5671,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select a system in the widget settings"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Select a system in the widget settings"
           }
         },
@@ -7256,12 +5696,6 @@
             "value" : "temperature"
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "temperature"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7281,12 +5715,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Write"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
             "value" : "Write"
           }
         },

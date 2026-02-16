@@ -63,6 +63,13 @@ struct BeszelApp: App {
     @State private var isUnlocked = true
     @Environment(\.scenePhase) private var scenePhase
 
+    private func applyTheme(_ theme: AppTheme) {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
+        for window in windowScene.windows {
+            window.overrideUserInterfaceStyle = theme.userInterfaceStyle
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             ZStack {
@@ -79,6 +86,7 @@ struct BeszelApp: App {
                 .environment(instanceManager)
                 .environment(alertManager)
                 .onAppear {
+                    applyTheme(settingsManager.selectedTheme)
                     if settingsManager.appLockEnabled {
                         isUnlocked = false
                     }
@@ -88,6 +96,9 @@ struct BeszelApp: App {
                         }
                     }
                 }
+                .onChange(of: settingsManager.selectedTheme) { _, newTheme in
+                    applyTheme(newTheme)
+                }
 
                 if settingsManager.appLockEnabled && !isUnlocked {
                     AppLockView(settingsManager: settingsManager) {
@@ -95,7 +106,6 @@ struct BeszelApp: App {
                     }
                 }
             }
-            .preferredColorScheme(settingsManager.selectedTheme.colorScheme)
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .background {
                     isUnlocked = false

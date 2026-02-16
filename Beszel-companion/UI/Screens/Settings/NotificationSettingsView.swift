@@ -185,7 +185,8 @@ struct WebhookURLView: View {
                 Button {
                     UIPasteboard.general.string = url
                     showCopiedToast = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    Task {
+                        try? await Task.sleep(for: .seconds(2))
                         showCopiedToast = false
                     }
                 } label: {

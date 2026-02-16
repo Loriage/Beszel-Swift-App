@@ -282,9 +282,10 @@ private func buildTimeline(
         return Timeline(entries: [entry], policy: .atEnd)
     }
     
+    var resolvedSystemID = systemID
+    var resolvedSystemName = systemName
+
     do {
-        var resolvedSystemID = systemID
-        var resolvedSystemName = systemName
         var systems: [SystemRecord] = []
         
         if resolvedSystemID == nil || resolvedSystemName == nil || resolvedChartType == .systemInfo {
@@ -365,7 +366,7 @@ private func buildTimeline(
         
         let resolvedInstanceID = configurationInstanceID ?? activeInstanceID
         
-        if let cached = WidgetCacheManager.load(instanceID: resolvedInstanceID, systemID: systemID) {
+        if let cached = WidgetCacheManager.load(instanceID: resolvedInstanceID, systemID: resolvedSystemID) {
             widgetLogger.info("Widget timeline: Using cached data")
             let entry = SimpleEntry(
                 date: .now,

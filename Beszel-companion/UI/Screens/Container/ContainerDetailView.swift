@@ -105,13 +105,13 @@ struct ContainerDetailView: View {
     @ViewBuilder
     private var infoTabContent: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 16) {
                 if let record = containerRecord {
                     ContainerInfoHeader(container: record, systemName: instanceManager.activeSystem?.name)
                         .padding(.horizontal)
                 }
 
-                VStack(spacing: 20) {
+                VStack(spacing: 16) {
                     ContainerMetricChartView(
                         titleKey: "chart.container.cpuUsage.percent",
                         containerName: container.name,

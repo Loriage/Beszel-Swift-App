@@ -7,7 +7,7 @@ struct SystemView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 16) {
                 ScreenHeaderView(
                     title: "system.title",
                     subtitle: store.isLoading ? "switcher.loading" : "system.subtitle"

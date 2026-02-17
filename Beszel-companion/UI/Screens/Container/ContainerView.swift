@@ -9,13 +9,13 @@ struct ContainerView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 16) {
                 ScreenHeaderView(
                     title: "container.title",
                     subtitle: store.isLoading ? "switcher.loading" : "container.subtitle"
                 )
 
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 16) {
                     StackedCpuChartView(
                         stackedData: store.stackedCpuData,
                         domain: store.cpuDomain,
@@ -100,7 +100,7 @@ struct ContainerView: View {
                 }
             }
             .padding(.vertical, 8)
-            .background(Color(.systemGroupedBackground))
+            .background(Color(.systemGray6))
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }

@@ -101,36 +101,41 @@ struct HomeView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 16) {
                 ScreenHeaderView(
                     title: "home.title",
                     subtitle: store.isLoading ? "switcher.loading" : "home.subtitle"
                 )
                 
-                HStack {
-                    TextField("dashboard.searchPlaceholder", text: $searchText)
-                        .padding(8)
-                        .padding(.leading, 24)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-                        .overlay(
-                            HStack {
-                                Image(systemName: "magnifyingglass")
-                                    .foregroundColor(.gray)
-                                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                                    .padding(.leading, 8)
+                HStack(spacing: 10) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
+                        TextField("dashboard.searchPlaceholder", text: $searchText)
+                        if !searchText.isEmpty {
+                            Button {
+                                searchText = ""
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.tertiary)
                             }
-                        )
-                    Button(action: {
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color(.systemGray6), in: Capsule())
+
+                    Button {
                         isShowingFilterSheet = true
-                    }) {
+                    } label: {
                         Image(systemName: "line.3.horizontal.decrease.circle")
-                            .font(.title)
+                            .font(.title2)
                     }
                 }
                 .padding(.horizontal)
                 
-                LazyVGrid(columns: [GridItem(.flexible())], spacing: 24) {
+                LazyVGrid(columns: [GridItem(.flexible())], spacing: 16) {
                     ForEach(filteredAndSortedPins) { resolvedItem in
                         pinnedItemView(for: resolvedItem)
                     }

@@ -169,13 +169,23 @@ struct ContainerRowView: View {
     }
     
     /// Network value from API is in MB/s
-    private func formatNetwork(_ mbs: Double) -> String {
-        if mbs >= 1 {
+    private func formatNetwork(_ bytesPerSecond: Double) -> String {
+        if bytesPerSecond < 1024 {
+            return String(format: "%.1f B/s", bytesPerSecond)
+        }
+        
+        let kbs = bytesPerSecond / 1024
+        if kbs < 1024 {
+            return String(format: "%.1f KB/s", kbs)
+        }
+        
+        let mbs = kbs / 1024
+        if mbs < 1024 {
             return String(format: "%.1f MB/s", mbs)
         }
         
-        let kbs = mbs * 1024
-        return String(format: "%.1f KB/s", kbs)
+        let gbs = mbs / 1024
+        return String(format: "%.1f GB/s", gbs)
     }
 }
 

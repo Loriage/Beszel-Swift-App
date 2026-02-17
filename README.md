@@ -2,8 +2,8 @@
 
 [![Swift](https://img.shields.io/badge/Swift-6.2-orange.svg?logo=swift)](https://swift.org)
 [![Platform](https://img.shields.io/badge/Platform-iOS%2018%2B-blue.svg)](https://developer.apple.com/ios/)
-[![License](https://img.shields.io/github/license/Loriage/Beszel-Swift-App?color=%239944ee)](./LICENSE)
 [![Made with SwiftUI](https://img.shields.io/badge/Made%20with-SwiftUI-blue.svg?logo=swift)](https://developer.apple.com/xcode/swiftui/)
+[![License](https://img.shields.io/github/license/Loriage/Beszel-Swift-App?color=%239944ee)](./LICENSE)
 [![Crowdin](https://badges.crowdin.net/beszel-swift-app/localized.svg)](https://crowdin.com/project/beszel-swift-app)
 
 **Beszel Companion** is an unofficial, native iOS client for the [Beszel](https://github.com/henrygd/beszel) server monitoring platform.
@@ -33,21 +33,20 @@ This application allows you to view your server and container statistics directl
 - [x] **Powerful Search & Sorting**: Instantly find any pinned chart on your dashboard with a robust search bar and flexible sorting options.
 - [x] **System Stats**: Visualize historical data for CPU usage, memory usage, and temperatures of your host systems.
 - [x] **Container Stats**: Browse a list of all your Docker containers and analyze their historical CPU and memory consumption.
-- [x] **Interactive Charts**: Clean and responsive charts built with Swift Charts.
-- [x] **Time Range Filtering**: Display data from the last hour, last 24 hours, last 7 days, and more.
-- [x] **Native Experience**: A smooth and integrated user experience, built entirely with SwiftUI.
-- [x] **Dark Mode Support**: The interface automatically adapts to your device's theme.
+- [x] **Interactive charts**: Clean, responsive, and interactive charts built with Swift Charts.
+- [x] **Time range filtering**: Display data from the last hour, last 24 hours, last 7 days, and more.
+- [x] **Native experience**: A smooth and integrated user experience, built entirely with SwiftUI.
+- [x] **Theme support**: Choose between system, light, and dark appearance.
 - [x] **Widgets**: Display key information directly on your Home Screen.
-- [x] **Multiple hub management**: Easily manage and monitor multiple Beszel hubs and their associated systems
-- [x] **SSO support**
-- [x] **Enhanced chart interactivity**
-- [x] **Lock Screen Widgets**
-- [x] **Push notifications**
+- [x] **Lock screen widgets**: Glanceable stats right on your Lock Screen.
+- [x] **Multiple hub management**: Easily manage and monitor multiple Beszel hubs and their associated systems.
+- [x] **SSO support**: Log in via your configured SSO/OAuth provider.
+- [x] **Push notifications**: Get alerted when a system goes down or triggers a threshold.
+- [x] **App lock**: Protect the app with Face ID or passcode.
+- [x] **Localization**: Available in English, French, and Polish. [Contribute on Crowdin](https://crowdin.com/project/beszel-swift-app).
 
-## Roadmap
-
-- [ ] MacOS support
-- [ ] Localization into other languages (Open to contributions)
+> [!TIP]
+> Looking for macOS? Check out [BeszelBar](https://github.com/Loriage/BeszelBar), a native macOS menu bar client for Beszel.
 
 ## Technologies Used
 

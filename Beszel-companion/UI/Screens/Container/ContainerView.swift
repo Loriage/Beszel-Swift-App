@@ -168,7 +168,6 @@ struct ContainerRowView: View {
         return String(format: "%.0f MB", mb)
     }
     
-    /// Network value from API is in MB/s
     private func formatNetwork(_ bytesPerSecond: Double) -> String {
         if bytesPerSecond < 1024 {
             return String(format: "%.1f B/s", bytesPerSecond)

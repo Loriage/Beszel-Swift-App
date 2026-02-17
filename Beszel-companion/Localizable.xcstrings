@@ -96,6 +96,18 @@
             "state" : "new",
             "value" : "%1$@ rx | %2$@ tx"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ rx | %2$@ tx"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ rx | %2$@ tx"
+          }
         }
       }
     },

@@ -338,61 +338,41 @@ struct ContainerInfoHeader: View {
 
     var body: some View {
         GroupBox {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(alignment: .center, spacing: 6) {
-                    if let systemName = systemName {
-                        Text(systemName)
-                        Text("•")
-                    }
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
+                    Text(container.name)
+                        .font(.headline)
+                        .foregroundColor(.primary)
 
-                    Text(container.status)
-
-                    Text("•")
-
-                    Text(container.id.prefix(12))
-                        .font(.system(.subheadline, design: .monospaced))
+                    Spacer()
 
                     if let health = container.health, health != .none {
                         HealthBadge(health: health)
                     }
                 }
-                .font(.subheadline)
+
+                HStack(spacing: 4) {
+                    if let systemName = systemName {
+                        Text(systemName)
+                        Text("•")
+                    }
+                    Text(container.status)
+                    Text("•")
+                    Text(container.id.prefix(12))
+                        .monospaced()
+                }
+                .font(.caption)
                 .foregroundColor(.secondary)
 
                 if let image = container.image {
-                    Label(image, systemImage: "shippingbox")
-                        .font(.subheadline)
+                    Text(image)
+                        .font(.caption)
                         .foregroundColor(.secondary)
                         .lineLimit(2)
                 }
-
-                HStack(spacing: 16) {
-                    Label(String(format: "%.2f%%", container.cpu), systemImage: "cpu")
-                    Label(formatMemory(container.memory), systemImage: "memorychip")
-                    if let net = container.net, net > 0 {
-                        Label(formatNetwork(net), systemImage: "network")
-                    }
-                }
-                .font(.subheadline)
-                .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-    }
-
-    private func formatMemory(_ mb: Double) -> String {
-        if mb >= 1024 {
-            return String(format: "%.1f GB", mb / 1024)
-        }
-        return String(format: "%.0f MB", mb)
-    }
-
-    private func formatNetwork(_ mbs: Double) -> String {
-        if mbs >= 1 {
-            return String(format: "%.1f MB/s", mbs)
-        }
-        let kbs = mbs * 1024
-        return String(format: "%.1f KB/s", kbs)
     }
 }
 

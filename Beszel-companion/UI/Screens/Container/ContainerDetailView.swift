@@ -108,35 +108,31 @@ struct ContainerDetailView: View {
             VStack(alignment: .leading, spacing: 16) {
                 if let record = containerRecord {
                     ContainerInfoHeader(container: record, systemName: instanceManager.activeSystem?.name)
-                        .padding(.horizontal)
                 }
-
-                VStack(spacing: 16) {
-                    ContainerMetricChartView(
-                        titleKey: "chart.container.cpuUsage.percent",
-                        containerName: container.name,
-                        xAxisFormat: settingsManager.selectedTimeRange.xAxisFormat,
-                        container: container,
-                        valueKeyPath: \.cpu,
-                        color: .blue,
-                        isPinned: dashboardManager.isPinned(.containerCPU(name: container.name)),
-                        onPinToggle: { dashboardManager.togglePin(for: .containerCPU(name: container.name)) }
-                    )
-
-                    ContainerMetricChartView(
-                        titleKey: "chart.container.memoryUsage.bytes",
-                        containerName: container.name,
-                        xAxisFormat: settingsManager.selectedTimeRange.xAxisFormat,
-                        container: container,
-                        valueKeyPath: \.memory,
-                        color: .green,
-                        isPinned: dashboardManager.isPinned(.containerMemory(name: container.name)),
-                        onPinToggle: { dashboardManager.togglePin(for: .containerMemory(name: container.name)) }
-                    )
-                }
-                .padding(.horizontal)
+                
+                ContainerMetricChartView(
+                    titleKey: "chart.container.cpuUsage.percent",
+                    containerName: container.name,
+                    xAxisFormat: settingsManager.selectedTimeRange.xAxisFormat,
+                    container: container,
+                    valueKeyPath: \.cpu,
+                    color: .blue,
+                    isPinned: dashboardManager.isPinned(.containerCPU(name: container.name)),
+                    onPinToggle: { dashboardManager.togglePin(for: .containerCPU(name: container.name)) }
+                )
+                
+                ContainerMetricChartView(
+                    titleKey: "chart.container.memoryUsage.bytes",
+                    containerName: container.name,
+                    xAxisFormat: settingsManager.selectedTimeRange.xAxisFormat,
+                    container: container,
+                    valueKeyPath: \.memory,
+                    color: .green,
+                    isPinned: dashboardManager.isPinned(.containerMemory(name: container.name)),
+                    onPinToggle: { dashboardManager.togglePin(for: .containerMemory(name: container.name)) }
+                )
             }
-            .padding(.vertical)
+            .padding()
         }
         .groupBoxStyle(CardGroupBoxStyle())
     }
@@ -170,8 +166,8 @@ struct ContainerDetailView: View {
                         .frame(minHeight: geometry.size.height, alignment: .top)
                 }
             }
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .background(Color(.systemGray6))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .padding()
         }
     }
@@ -205,8 +201,8 @@ struct ContainerDetailView: View {
                         .frame(minHeight: geometry.size.height, alignment: .top)
                 }
             }
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .background(Color(.systemGray6))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .padding()
         }
     }

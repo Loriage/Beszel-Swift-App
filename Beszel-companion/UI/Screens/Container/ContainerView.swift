@@ -9,13 +9,13 @@ struct ContainerView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 16) {
                 ScreenHeaderView(
                     title: "container.title",
                     subtitle: store.isLoading ? "switcher.loading" : "container.subtitle"
                 )
 
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 16) {
                     StackedCpuChartView(
                         stackedData: store.stackedCpuData,
                         domain: store.cpuDomain,
@@ -45,6 +45,7 @@ struct ContainerView: View {
             }
             .padding(.bottom, 24)
         }
+        .groupBoxStyle(CardGroupBoxStyle())
         .refreshable {
             await store.fetchData()
         }
@@ -99,8 +100,8 @@ struct ContainerView: View {
                 }
             }
             .padding(.vertical, 8)
-            .background(Color(.systemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .background(Color(.systemGray6))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }
 }
@@ -167,14 +168,23 @@ struct ContainerRowView: View {
         return String(format: "%.0f MB", mb)
     }
     
-    /// Network value from API is in MB/s
-    private func formatNetwork(_ mbs: Double) -> String {
-        if mbs >= 1 {
+    private func formatNetwork(_ bytesPerSecond: Double) -> String {
+        if bytesPerSecond < 1024 {
+            return String(format: "%.1f B/s", bytesPerSecond)
+        }
+        
+        let kbs = bytesPerSecond / 1024
+        if kbs < 1024 {
+            return String(format: "%.1f KB/s", kbs)
+        }
+        
+        let mbs = kbs / 1024
+        if mbs < 1024 {
             return String(format: "%.1f MB/s", mbs)
         }
         
-        let kbs = mbs * 1024
-        return String(format: "%.1f KB/s", kbs)
+        let gbs = mbs / 1024
+        return String(format: "%.1f GB/s", gbs)
     }
 }
 

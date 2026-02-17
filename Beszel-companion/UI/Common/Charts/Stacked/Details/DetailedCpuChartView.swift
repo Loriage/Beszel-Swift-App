@@ -90,6 +90,7 @@ struct DetailedCpuChartView: View {
                     settingsManager: settingsManager
                 )
             }
+            .groupBoxStyle(CardGroupBoxStyle())
             .padding()
         }
         .navigationTitle(Text("details.cpu.title"))
@@ -137,8 +138,8 @@ struct CpuDetailedValuesSectionView: View {
             }
         }
         .padding(.vertical, 8)
-        .background(Color(.systemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .background(Color(.systemGray6))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 

@@ -7,7 +7,7 @@ struct SystemView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 16) {
                 ScreenHeaderView(
                     title: "system.title",
                     subtitle: store.isLoading ? "switcher.loading" : "system.subtitle"
@@ -27,7 +27,7 @@ struct SystemView: View {
                     .transition(.scale.combined(with: .opacity))
                 }
                 
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 16) {
                     SystemMetricChartView(
                         title: "chart.cpuUsage",
                         xAxisFormat: store.xAxisFormat,
@@ -118,6 +118,7 @@ struct SystemView: View {
             }
             .padding(.bottom, 24)
         }
+        .groupBoxStyle(CardGroupBoxStyle())
         .refreshable {
             await store.fetchData()
         }

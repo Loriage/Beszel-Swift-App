@@ -118,6 +118,7 @@ struct SystemView: View {
             }
             .padding(.bottom, 24)
         }
+        .groupBoxStyle(CardGroupBoxStyle())
         .refreshable {
             await store.fetchData()
         }

@@ -138,6 +138,7 @@ struct ContainerDetailView: View {
             }
             .padding(.vertical)
         }
+        .groupBoxStyle(CardGroupBoxStyle())
     }
 
     @ViewBuilder

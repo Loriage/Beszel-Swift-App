@@ -139,6 +139,7 @@ struct HomeView: View {
             }
             .padding(.bottom, 24)
         }
+        .groupBoxStyle(CardGroupBoxStyle())
         .overlay {
             if store.isLoading && dashboardManager.allPinsForActiveInstance.isEmpty {
                 ProgressView()

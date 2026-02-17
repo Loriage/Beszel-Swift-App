@@ -45,6 +45,7 @@ struct ContainerView: View {
             }
             .padding(.bottom, 24)
         }
+        .groupBoxStyle(CardGroupBoxStyle())
         .refreshable {
             await store.fetchData()
         }
@@ -100,7 +101,7 @@ struct ContainerView: View {
             }
             .padding(.vertical, 8)
             .background(Color(.systemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }
 }

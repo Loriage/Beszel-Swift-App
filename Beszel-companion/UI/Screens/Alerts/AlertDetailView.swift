@@ -76,6 +76,7 @@ struct AlertDetailView: View {
             }
             .padding()
         }
+        .groupBoxStyle(CardGroupBoxStyle())
         .navigationTitle("alerts.detail.title")
         .navigationBarTitleDisplayMode(.inline)
     }

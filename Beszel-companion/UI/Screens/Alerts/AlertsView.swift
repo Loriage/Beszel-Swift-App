@@ -75,6 +75,7 @@ struct AlertHistoryView: View {
                 }
                 .padding()
             }
+            .groupBoxStyle(CardGroupBoxStyle())
             .refreshable {
                 await refreshAlerts()
             }
@@ -153,6 +154,7 @@ struct ConfiguredAlertsView: View {
                 }
                 .padding()
             }
+            .groupBoxStyle(CardGroupBoxStyle())
         }
     }
 

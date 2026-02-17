@@ -27,7 +27,7 @@ struct SystemView: View {
                     .transition(.scale.combined(with: .opacity))
                 }
                 
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 16) {
                     SystemMetricChartView(
                         title: "chart.cpuUsage",
                         xAxisFormat: store.xAxisFormat,

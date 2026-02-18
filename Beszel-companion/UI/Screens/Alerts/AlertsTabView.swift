@@ -74,13 +74,39 @@ struct AlertsTabView: View {
     private var activeAlertsSection: some View {
         let activeAlerts = alertManager.alertHistory.filter { !$0.isResolved }
 
-        if !activeAlerts.isEmpty {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("alerts.active.title")
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .padding(.horizontal)
+        VStack(alignment: .leading, spacing: 12) {
+            Text("alerts.active.title")
+                .font(.title3)
+                .fontWeight(.semibold)
+                .padding(.horizontal)
 
+            if activeAlerts.isEmpty {
+                GroupBox {
+                    HStack(spacing: 12) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.green.opacity(0.15))
+                                .frame(width: 40, height: 40)
+
+                            Image(systemName: "checkmark")
+                                .font(.body.weight(.semibold))
+                                .foregroundColor(.green)
+                        }
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("alerts.active.empty")
+                                .font(.headline)
+
+                            Text("alerts.active.empty.description")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Spacer()
+                    }
+                }
+                .padding(.horizontal)
+            } else {
                 LazyVStack(spacing: 12) {
                     ForEach(activeAlerts) { alert in
                         let systemName = instanceManager.systems.first { $0.id == alert.system }?.name

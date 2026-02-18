@@ -42,13 +42,13 @@ extension AlertRecord {
 enum AlertType: String, CaseIterable, Identifiable, Sendable {
     var id: String { rawValue }
 
+    case status = "Status"
     case cpu = "CPU"
     case memory = "Memory"
     case disk = "Disk"
     case bandwidth = "Bandwidth"
     case temperature = "Temperature"
     case loadAverage = "Load Average"
-    case status = "Status"
 
     var displayName: String {
         switch self {
@@ -57,6 +57,22 @@ enum AlertType: String, CaseIterable, Identifiable, Sendable {
         case .disk: return "Disk Usage"
         default: return rawValue
         }
+    }
+
+    var alertDescriptionKey: String {
+        switch self {
+        case .status: return "alerts.type.description.status"
+        case .cpu: return "alerts.type.description.cpu"
+        case .memory: return "alerts.type.description.memory"
+        case .disk: return "alerts.type.description.disk"
+        case .bandwidth: return "alerts.type.description.bandwidth"
+        case .temperature: return "alerts.type.description.temperature"
+        case .loadAverage: return "alerts.type.description.loadAverage"
+        }
+    }
+
+    var needsThreshold: Bool {
+        self != .status
     }
 
     var iconName: String {

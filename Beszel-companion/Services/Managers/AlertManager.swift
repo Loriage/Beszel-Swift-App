@@ -315,6 +315,28 @@ final class AlertManager {
         }
     }
     
+    func createAlert(system: String, name: String, value: Double, min: Double, instance: Instance, instanceManager: InstanceManager) async throws {
+        let apiService = getApiService(for: instance, instanceManager: instanceManager)
+        _ = try await apiService.createAlert(system: system, name: name, value: value, min: min)
+        await fetchAlerts(for: instance, instanceManager: instanceManager)
+    }
+
+    func updateAlert(id: String, system: String, name: String, value: Double, min: Double, instance: Instance, instanceManager: InstanceManager) async throws {
+        let apiService = getApiService(for: instance, instanceManager: instanceManager)
+        _ = try await apiService.updateAlert(id: id, system: system, name: name, value: value, min: min)
+        await fetchAlerts(for: instance, instanceManager: instanceManager)
+    }
+
+    func deleteAlert(id: String, instance: Instance, instanceManager: InstanceManager) async throws {
+        let apiService = getApiService(for: instance, instanceManager: instanceManager)
+        try await apiService.deleteAlert(id: id)
+        // Remove locally first for immediate UI feedback
+        for key in alerts.keys {
+            alerts[key]?.removeAll { $0.id == id }
+        }
+        await fetchAlerts(for: instance, instanceManager: instanceManager)
+    }
+
     func markAllAsRead() {
         for alert in alertHistory {
             seenAlertHistoryIDs.insert(alert.id)

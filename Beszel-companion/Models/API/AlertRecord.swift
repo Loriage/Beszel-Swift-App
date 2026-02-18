@@ -47,15 +47,26 @@ enum AlertType: String, CaseIterable, Identifiable, Sendable {
     case memory = "Memory"
     case disk = "Disk"
     case bandwidth = "Bandwidth"
+    case gpu = "GPU"
     case temperature = "Temperature"
-    case loadAverage = "Load Average"
+    case loadAverage1m = "LoadAvg1"
+    case loadAverage5m = "LoadAvg5"
+    case loadAverage15m = "LoadAvg15"
+    case battery = "Battery"
 
     var displayName: String {
         switch self {
+        case .status: return "Status"
         case .cpu: return "CPU Usage"
         case .memory: return "Memory Usage"
         case .disk: return "Disk Usage"
-        default: return rawValue
+        case .bandwidth: return "Bandwidth"
+        case .temperature: return "Temperature"
+        case .loadAverage1m: return "Load Average 1m"
+        case .loadAverage5m: return "Load Average 5m"
+        case .loadAverage15m: return "Load Average 15m"
+        case .battery: return "Battery"
+        case .gpu: return "GPU Usage"
         }
     }
 
@@ -67,7 +78,11 @@ enum AlertType: String, CaseIterable, Identifiable, Sendable {
         case .disk: return "alerts.type.description.disk"
         case .bandwidth: return "alerts.type.description.bandwidth"
         case .temperature: return "alerts.type.description.temperature"
-        case .loadAverage: return "alerts.type.description.loadAverage"
+        case .loadAverage1m: return "alerts.type.description.loadAverage1m"
+        case .loadAverage5m: return "alerts.type.description.loadAverage5m"
+        case .loadAverage15m: return "alerts.type.description.loadAverage15m"
+        case .battery: return "alerts.type.description.battery"
+        case .gpu: return "alerts.type.description.gpu"
         }
     }
 
@@ -82,21 +97,23 @@ enum AlertType: String, CaseIterable, Identifiable, Sendable {
         case .disk: return "externaldrive"
         case .bandwidth: return "network"
         case .temperature: return "thermometer.medium"
-        case .loadAverage: return "chart.bar"
+        case .loadAverage1m, .loadAverage5m, .loadAverage15m: return "hourglass"
         case .status: return "power"
+        case .battery: return "battery.75percent"
+        case .gpu: return "square.stack.3d.up"
         }
     }
 
     func formatValue(_ value: Double) -> String {
         switch self {
-        case .cpu, .memory, .disk:
+        case .cpu, .memory, .disk, .gpu, .battery:
             return String(format: "%.0f%%", value)
         case .bandwidth:
-            return String(format: "%.1f MB/s", value)
+            return String(format: "%.0f MB/s", value)
         case .temperature:
             return String(format: "%.0f°C", value)
-        case .loadAverage:
-            return String(format: "%.2f", value)
+        case .loadAverage1m, .loadAverage5m, .loadAverage15m:
+            return String(format: "%.0f", value)
         case .status:
             return value > 0 ? "Online" : "Offline"
         }

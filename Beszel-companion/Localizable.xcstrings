@@ -1237,6 +1237,29 @@
         }
       }
     },
+    "alerts.type.description.battery" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Triggers when battery level drops below a threshold"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se déclenche lorsque le niveau de batterie descend sous un seuil"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyzwala się, gdy poziom baterii spadnie poniżej progu"
+          }
+        }
+      }
+    },
     "alerts.type.description.cpu" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1283,25 +1306,94 @@
         }
       }
     },
-    "alerts.type.description.loadAverage" : {
+    "alerts.type.description.gpu" : {
       "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Triggers when load average exceeds a threshold"
+            "value" : "Triggers when GPU usage exceeds a threshold"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se déclenche lorsque la charge moyenne dépasse un seuil"
+            "value" : "Se déclenche lorsque l'utilisation du GPU dépasse un seuil"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wyzwala się, gdy średnie obciążenie przekroczy próg"
+            "value" : "Wyzwala się, gdy użycie GPU przekroczy próg"
+          }
+        }
+      }
+    },
+    "alerts.type.description.loadAverage1m" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Triggers when 1 minute load average exceeds a threshold"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se déclenche lorsque la charge moyenne sur 1 minute dépasse un seuil"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyzwala się, gdy średnie obciążenie z 1 minuty przekroczy próg"
+          }
+        }
+      }
+    },
+    "alerts.type.description.loadAverage5m" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Triggers when 5 minute load average exceeds a threshold"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se déclenche lorsque la charge moyenne sur 5 minutes dépasse un seuil"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyzwala się, gdy średnie obciążenie z 5 minut przekroczy próg"
+          }
+        }
+      }
+    },
+    "alerts.type.description.loadAverage15m" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Triggers when 15 minute load average exceeds a threshold"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se déclenche lorsque la charge moyenne sur 15 minutes dépasse un seuil"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyzwala się, gdy średnie obciążenie z 15 minut przekroczy próg"
           }
         }
       }

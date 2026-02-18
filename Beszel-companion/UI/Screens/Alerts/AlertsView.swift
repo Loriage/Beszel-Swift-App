@@ -261,7 +261,7 @@ struct ConfiguredAlertsView: View {
                 Slider(
                     value: thresholdBinding(for: type),
                     in: thresholdRange(for: type),
-                    step: thresholdStep(for: type)
+                    step: 1
                 )
                 .tint(.accentColor)
             }
@@ -321,19 +321,19 @@ struct ConfiguredAlertsView: View {
 
     private func thresholdRange(for type: AlertType) -> ClosedRange<Double> {
         switch type {
-        case .cpu, .memory, .disk: return 1...99
-        case .bandwidth: return 0.1...100
+        case .cpu, .memory, .disk, .gpu, .battery: return 1...99
+        case .bandwidth: return 1...125
         case .temperature: return 1...100
-        case .loadAverage: return 0.1...50
+        case .loadAverage1m, .loadAverage5m, .loadAverage15m: return 1...100
         case .status: return 0...1
         }
     }
 
-    private func thresholdStep(for type: AlertType) -> Double {
+    private func defaultThreshold(for type: AlertType) -> Double {
         switch type {
-        case .cpu, .memory, .disk, .temperature: return 1
-        case .bandwidth, .loadAverage: return 0.1
-        case .status: return 1
+        case .loadAverage1m, .loadAverage5m, .loadAverage15m: return 10
+        case .battery: return 20
+        default: return 50
         }
     }
 
@@ -354,7 +354,7 @@ struct ConfiguredAlertsView: View {
                     alertRecordId: alert.id
                 )
             } else {
-                newStates[type] = AlertTypeState()
+                newStates[type] = AlertTypeState(threshold: defaultThreshold(for: type))
             }
         }
         alertStates = newStates

@@ -6,7 +6,7 @@ struct AlertsTabView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 16) {
                 ScreenHeaderView(title: "alerts.title", subtitle: "alerts.subtitle")
 
                 // Navigation rows
@@ -60,7 +60,7 @@ struct AlertsTabView: View {
                 // Active Alerts
                 activeAlertsSection
             }
-            .padding(.vertical)
+            .padding(.bottom, 24)
         }
         .groupBoxStyle(CardGroupBoxStyle())
         .refreshable {

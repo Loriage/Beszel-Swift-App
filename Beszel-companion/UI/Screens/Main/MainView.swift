@@ -43,7 +43,7 @@ struct MainView: View {
                     }
                     .environment(store)
                     .toolbar {
-                        if selectedTab != .home {
+                        if selectedTab != .home && selectedTab != .alerts {
                             ToolbarItem(placement: .topBarLeading) {
                                 SystemSwitcherView(instanceManager: instanceManager)
                             }

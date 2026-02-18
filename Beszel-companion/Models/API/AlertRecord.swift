@@ -39,7 +39,9 @@ extension AlertRecord {
     }
 }
 
-enum AlertType: String, Sendable {
+enum AlertType: String, CaseIterable, Identifiable, Sendable {
+    var id: String { rawValue }
+
     case cpu = "CPU"
     case memory = "Memory"
     case disk = "Disk"
@@ -49,7 +51,12 @@ enum AlertType: String, Sendable {
     case status = "Status"
 
     var displayName: String {
-        rawValue
+        switch self {
+        case .cpu: return "CPU Usage"
+        case .memory: return "Memory Usage"
+        case .disk: return "Disk Usage"
+        default: return rawValue
+        }
     }
 
     var iconName: String {

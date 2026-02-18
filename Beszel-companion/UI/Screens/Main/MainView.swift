@@ -75,9 +75,6 @@ struct MainView: View {
                     .sheet(isPresented: $isShowingSettings) {
                         LazyView(SettingsView())
                     }
-                    .navigationDestination(for: AlertDetail.self) { alert in
-                        AlertDetailView(alert: alert)
-                    }
                     .navigationDestination(for: ProcessedContainerData.self) { container in
                         ContainerDetailView(container: container)
                             .environment(store)
@@ -114,17 +111,6 @@ struct MainView: View {
         if alertManager.alertHistory.isEmpty {
             await alertManager.fetchAlerts(for: instance, instanceManager: instanceManager)
         }
-
-        let systemName = instanceManager.systems.first { $0.id == pendingDetail.systemId }?.name
-
-        let resolvedDetail: AlertDetail
-        if let matchedAlert = alertManager.alertHistory.first(where: { $0.id == pendingDetail.id }) {
-            resolvedDetail = AlertDetail(alert: matchedAlert, systemName: systemName)
-        } else {
-            resolvedDetail = pendingDetail.withSystemName(systemName ?? pendingDetail.systemName)
-        }
-
-        navigationPath.append(resolvedDetail)
         alertManager.pendingAlertDetail = nil
     }
 }

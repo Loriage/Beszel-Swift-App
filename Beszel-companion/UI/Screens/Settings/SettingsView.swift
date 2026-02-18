@@ -185,9 +185,6 @@ struct SettingsView: View {
                 aboutSection
                 applicationSection
             }
-            .navigationDestination(for: AlertDetail.self) { alert in
-                AlertDetailView(alert: alert)
-            }
             .navigationTitle("settings.title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

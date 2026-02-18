@@ -6,29 +6,33 @@ struct AlertCard: View {
 
     var body: some View {
         GroupBox {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Color.accentColor.opacity(0.15))
+                        .frame(width: 40, height: 40)
+
                     Image(systemName: alert.alertType.iconName)
                         .foregroundColor(.accentColor)
-                        .frame(width: 24, height: 24)
+                }
 
-                    VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 2) {
+                    if let name = systemName {
+                        Text("\(name) \(alert.displayName)")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                    } else {
                         Text(alert.displayName)
                             .font(.headline)
-                        if let name = systemName {
-                            Text(name)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
+                            .foregroundColor(.primary)
                     }
 
-                    Spacer()
-
-                    Text(alert.thresholdDescription)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(.orange)
+                    Text(alert.activeDescription)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
+
+                Spacer()
             }
         }
     }
@@ -91,7 +95,6 @@ struct ActiveAlertCard: View {
 struct AlertHistoryRow: View {
     let alert: AlertHistoryRecord
     let systemName: String?
-    let isUnread: Bool
 
     private var statusColor: Color {
         alert.isResolved ? .green : .red
@@ -109,52 +112,39 @@ struct AlertHistoryRow: View {
                         .foregroundColor(statusColor)
                 }
 
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    if let name = systemName {
+                        Text("\(name) \(alert.displayName)")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                    } else {
                         Text(alert.displayName)
                             .font(.headline)
+                            .foregroundColor(.primary)
+                    }
 
-                        if isUnread {
-                            Circle()
-                                .fill(Color.blue)
-                                .frame(width: 8, height: 8)
+                    HStack(spacing: 4) {
+                        Text(alert.createdDateDescription)
+                        if let resolvedDate = alert.resolvedDateDescription {
+                            Text("→")
+                            Text(resolvedDate)
                         }
                     }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
 
-                    if let name = systemName {
-                        Text(name)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    HStack(spacing: 8) {
+                        Text("alerts.history.value \(alert.triggeredValueDescription)")
+
+                        if let duration = alert.durationDescription {
+                            Text("alerts.history.duration \(duration)")
+                        }
                     }
-
-                    HStack(spacing: 6) {
-                        Text(alert.timeAgoDescription)
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-
-                        Text("•")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-
-                        Text(alert.isResolved ? String(localized: "alerts.status.resolved") : String(localized: "alerts.status.active"))
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundColor(statusColor)
-                    }
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
                 }
 
                 Spacer()
-
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text(alert.triggeredValueDescription)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(statusColor)
-
-                    Image(systemName: alert.isResolved ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
-                        .font(.caption)
-                        .foregroundColor(statusColor)
-                }
             }
         }
     }

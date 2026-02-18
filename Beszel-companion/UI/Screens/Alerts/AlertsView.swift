@@ -4,11 +4,46 @@ struct AlertHistoryView: View {
     @Environment(AlertManager.self) var alertManager
     @Environment(InstanceManager.self) var instanceManager
 
+    @State private var searchText = ""
+    @State private var isShowingFilterSheet = false
     @State private var selectedSystemID: String?
+    @State private var selectedAlertType: AlertType?
+    @State private var selectedState: AlertStateFilter = .all
+
+    private var hasActiveFilters: Bool {
+        selectedSystemID != nil || selectedAlertType != nil || selectedState != .all
+    }
+
+    private var filteredHistory: [AlertHistoryRecord] {
+        var result: [AlertHistoryRecord]
+        if let systemID = selectedSystemID {
+            result = alertManager.historyForSystem(systemID)
+        } else {
+            result = alertManager.alertHistory
+        }
+
+        if let alertType = selectedAlertType {
+            result = result.filter { $0.alertType == alertType }
+        }
+
+        switch selectedState {
+        case .all: break
+        case .active: result = result.filter { !$0.isResolved }
+        case .resolved: result = result.filter { $0.isResolved }
+        }
+
+        guard !searchText.isEmpty else { return result }
+
+        return result.filter { alert in
+            let systemName = instanceManager.systems.first { $0.id == alert.system }?.name ?? ""
+            return systemName.localizedCaseInsensitiveContains(searchText) ||
+                alert.displayName.localizedCaseInsensitiveContains(searchText)
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
-            systemFilterView
+            searchBarView
 
             contentView
         }
@@ -20,37 +55,49 @@ struct AlertHistoryView: View {
                 }
             }
         }
-    }
-
-    @ViewBuilder
-    private var systemFilterView: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                FilterChip(
-                    title: String(localized: "alerts.filter.all"),
-                    isSelected: selectedSystemID == nil
-                ) {
-                    selectedSystemID = nil
-                }
-
-                ForEach(instanceManager.systems, id: \.id) { system in
-                    FilterChip(
-                        title: system.name,
-                        isSelected: selectedSystemID == system.id
-                    ) {
-                        selectedSystemID = system.id
-                    }
-                }
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+        .sheet(isPresented: $isShowingFilterSheet) {
+            AlertHistoryFilterView(
+                selectedSystemID: $selectedSystemID,
+                selectedAlertType: $selectedAlertType,
+                selectedState: $selectedState
+            )
         }
     }
 
     @ViewBuilder
-    private var contentView: some View {
-        let filteredHistory = filterHistory()
+    private var searchBarView: some View {
+        HStack(spacing: 10) {
+            HStack(spacing: 6) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+                TextField("Search alerts", text: $searchText)
+                if !searchText.isEmpty {
+                    Button {
+                        searchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.tertiary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color(.systemGray6), in: Capsule())
 
+            Button {
+                isShowingFilterSheet = true
+            } label: {
+                Image(systemName: hasActiveFilters ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                    .font(.title)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+    }
+
+    @ViewBuilder
+    private var contentView: some View {
         if filteredHistory.isEmpty {
             ContentUnavailableView {
                 Label("alerts.history.empty.title", systemImage: "bell.slash")
@@ -62,15 +109,10 @@ struct AlertHistoryView: View {
                 LazyVStack(spacing: 12) {
                     ForEach(filteredHistory) { alert in
                         let systemName = instanceManager.systems.first { $0.id == alert.system }?.name
-                        NavigationLink {
-                            AlertDetailView(alert: AlertDetail(alert: alert, systemName: systemName))
-                        } label: {
-                            AlertHistoryRow(
-                                alert: alert,
-                                systemName: systemName,
-                                isUnread: false
-                            )
-                        }
+                        AlertHistoryRow(
+                            alert: alert,
+                            systemName: systemName
+                        )
                     }
                 }
                 .padding()
@@ -80,13 +122,6 @@ struct AlertHistoryView: View {
                 await refreshAlerts()
             }
         }
-    }
-
-    private func filterHistory() -> [AlertHistoryRecord] {
-        guard let systemID = selectedSystemID else {
-            return alertManager.alertHistory
-        }
-        return alertManager.historyForSystem(systemID)
     }
 
     private func refreshAlerts() async {

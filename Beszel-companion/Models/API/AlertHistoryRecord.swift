@@ -43,4 +43,43 @@ extension AlertHistoryRecord {
     var isResolved: Bool {
         resolved?.isEmpty == false
     }
+
+    var resolvedDate: Date? {
+        guard let resolved, !resolved.isEmpty else { return nil }
+        return DateFormatter.pocketBase.date(from: resolved)
+    }
+
+    var createdDateDescription: String {
+        Self.compactDateFormatter.string(from: created)
+    }
+
+    var resolvedDateDescription: String? {
+        guard let date = resolvedDate else { return nil }
+        return Self.compactDateFormatter.string(from: date)
+    }
+
+    private static let compactDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = DateFormatter.dateFormat(fromTemplate: "MMMd jj:mm", options: 0, locale: .current)
+        return formatter
+    }()
+
+    var durationDescription: String? {
+        let end = resolvedDate ?? Date()
+        let interval = end.timeIntervalSince(created)
+        guard interval >= 0 else { return nil }
+
+        let totalSeconds = Int(interval)
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
+
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else if minutes > 0 {
+            return "\(minutes)m \(seconds)s"
+        } else {
+            return "\(seconds)s"
+        }
+    }
 }

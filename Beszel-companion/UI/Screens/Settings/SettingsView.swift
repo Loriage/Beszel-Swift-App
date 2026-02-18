@@ -165,9 +165,6 @@ struct SettingsView: View {
                     }
                     .disabled(isAuthenticating)
 
-                }
-
-                Section(header: Text("settings.notifications")) {
                     NavigationLink {
                         NotificationSettingsView()
                             .environment(instanceManager)
@@ -182,28 +179,6 @@ struct SettingsView: View {
                                     .foregroundColor(.green)
                             }
                         }
-                    }
-
-                    NavigationLink {
-                        AlertHistoryView()
-                            .environment(instanceManager)
-                            .environment(alertManager)
-                            .navigationTitle("settings.notifications.history")
-                            .navigationBarTitleDisplayMode(.inline)
-                    } label: {
-                        Label("settings.notifications.history", systemImage: "clock")
-                            .foregroundStyle(.primary)
-                    }
-
-                    NavigationLink {
-                        ConfiguredAlertsView()
-                            .environment(instanceManager)
-                            .environment(alertManager)
-                            .navigationTitle("settings.notifications.configured")
-                            .navigationBarTitleDisplayMode(.inline)
-                    } label: {
-                        Label("settings.notifications.configured", systemImage: "bell.badge")
-                            .foregroundStyle(.primary)
                     }
                 }
 
@@ -327,6 +302,7 @@ struct SettingsView: View {
         // Notifications
         suite.removeObject(forKey: "alertsLastCheckedTimestamp")
         suite.removeObject(forKey: "seenAlertHistoryIDs")
+        suite.removeObject(forKey: "mutedAlertIDs")
         suite.removeObject(forKey: "alertNotificationsEnabled")
 
         // Instances

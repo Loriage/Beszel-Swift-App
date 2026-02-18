@@ -309,6 +309,58 @@
         }
       }
     },
+    "alerts.active.empty" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No active alerts — all clear."
+          }
+        }
+      }
+    },
+    "alerts.active.mute" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mute"
+          }
+        }
+      }
+    },
+    "alerts.active.muteAll" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mute All"
+          }
+        }
+      }
+    },
+    "alerts.active.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active Alerts"
+          }
+        }
+      }
+    },
+    "alerts.active.unmute" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unmute"
+          }
+        }
+      }
+    },
     "alerts.configured.empty.message" : {
       "localizations" : {
         "en" : {
@@ -349,6 +401,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak skonfigurowanych alertów"
+          }
+        }
+      }
+    },
+    "alerts.configured.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configured Alerts"
           }
         }
       }
@@ -529,6 +591,16 @@
         }
       }
     },
+    "alerts.history.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert History"
+          }
+        }
+      }
+    },
     "alerts.notification.body" : {
       "localizations" : {
         "en" : {
@@ -613,6 +685,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rozwiązany"
+          }
+        }
+      }
+    },
+    "alerts.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert activity and configuration"
+          }
+        }
+      }
+    },
+    "alerts.tab.active" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active"
+          }
+        }
+      }
+    },
+    "alerts.tab.configured" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configured"
+          }
+        }
+      }
+    },
+    "alerts.tab.history" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History"
+          }
+        }
+      }
+    },
+    "alerts.tab.picker" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert category"
+          }
+        }
+      }
+    },
+    "alerts.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerts"
           }
         }
       }
@@ -4200,6 +4336,7 @@
       }
     },
     "settings.notifications.configured" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4266,6 +4403,7 @@
       }
     },
     "settings.notifications.history" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

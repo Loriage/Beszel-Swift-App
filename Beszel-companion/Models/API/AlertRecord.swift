@@ -27,6 +27,16 @@ extension AlertRecord {
         }
         return alertType.formatValue(val)
     }
+
+    var activeDescription: String {
+        guard let val = value else { return "-" }
+        let formatted = alertType.formatValue(val)
+        guard let min = min, min > 0 else {
+            return "Exceeds \(formatted)"
+        }
+        let minutes = Int(min)
+        return "Exceeds \(formatted) in last \(minutes) minute\(minutes == 1 ? "" : "s")"
+    }
 }
 
 enum AlertType: String, Sendable {

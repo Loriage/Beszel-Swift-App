@@ -14,6 +14,7 @@ final class AlertManager {
     private static let lastCheckedKey = "alertsLastCheckedTimestamp"
     private static let seenAlertIDsKey = "seenAlertHistoryIDs"
     private static let notificationsEnabledKey = "alertNotificationsEnabled"
+    private static let mutedAlertIDsKey = "mutedAlertIDs"
     
     private var userDefaultsStore: UserDefaults {
         .sharedSuite
@@ -25,6 +26,50 @@ final class AlertManager {
     var isLoading = false
     var errorMessage: String?
     var pendingAlertDetail: AlertDetail?
+
+    /// IDs of active alerts the user has muted from the badge
+    private(set) var mutedAlertIDs: Set<String> = [] {
+        didSet {
+            do {
+                let data = try JSONEncoder().encode(Array(mutedAlertIDs))
+                userDefaultsStore.set(data, forKey: Self.mutedAlertIDsKey)
+            } catch {
+                logger.error("Failed to encode mutedAlertIDs: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    /// Number of active (unresolved) alerts not muted by the user
+    var badgeCount: Int {
+        let activeIDs = Set(alertHistory.filter { !$0.isResolved }.map { $0.id })
+        return activeIDs.subtracting(mutedAlertIDs).count
+    }
+
+    func isAlertMuted(_ id: String) -> Bool {
+        mutedAlertIDs.contains(id)
+    }
+
+    func toggleMute(for id: String) {
+        if mutedAlertIDs.contains(id) {
+            mutedAlertIDs.remove(id)
+        } else {
+            mutedAlertIDs.insert(id)
+        }
+    }
+
+    func muteAllActiveAlerts() {
+        let activeIDs = alertHistory.filter { !$0.isResolved }.map { $0.id }
+        mutedAlertIDs.formUnion(activeIDs)
+    }
+
+    /// Remove muted IDs for alerts that are no longer active
+    func pruneMutedAlertIDs() {
+        let activeIDs = Set(alertHistory.filter { !$0.isResolved }.map { $0.id })
+        let pruned = mutedAlertIDs.intersection(activeIDs)
+        if pruned.count < mutedAlertIDs.count {
+            mutedAlertIDs = pruned
+        }
+    }
     
     var notificationsEnabled: Bool {
         didSet {
@@ -94,6 +139,16 @@ final class AlertManager {
         }
         
         self.notificationsEnabled = store.bool(forKey: Self.notificationsEnabledKey)
+
+        if let data = store.data(forKey: Self.mutedAlertIDsKey) {
+            do {
+                let ids = try JSONDecoder().decode([String].self, from: data)
+                self.mutedAlertIDs = Set(ids)
+            } catch {
+                logger.error("Failed to decode mutedAlertIDs on init: \(error.localizedDescription)")
+                self.mutedAlertIDs = []
+            }
+        }
     }
     
     func fetchAlerts(for instance: Instance, instanceManager: InstanceManager) async {
@@ -123,7 +178,8 @@ final class AlertManager {
             
             // Prune seen IDs to prevent unbounded growth
             pruneSeenAlertIDs()
-            
+            pruneMutedAlertIDs()
+
             updateUnreadCount()
             
             logger.info("Fetched \(fetchedAlerts.count) alerts and \(fetchedHistory.count) history records")
@@ -250,7 +306,8 @@ final class AlertManager {
                 }
                 
                 pruneSeenAlertIDs()
-                
+                pruneMutedAlertIDs()
+
                 updateUnreadCount()
             }
         } catch {
@@ -265,6 +322,11 @@ final class AlertManager {
         unreadAlertCount = 0
     }
     
+    func configuredAlert(for historyRecord: AlertHistoryRecord) -> AlertRecord? {
+        guard let alertId = historyRecord.alertId else { return nil }
+        return alerts.values.flatMap { $0 }.first { $0.id == alertId }
+    }
+
     func alertsForSystem(_ systemID: String) -> [AlertRecord] {
         alerts[systemID] ?? []
     }

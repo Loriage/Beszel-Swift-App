@@ -34,6 +34,12 @@ struct MainView: View {
                         } label: {
                             Label("container.title", systemImage: "shippingbox.fill")
                         }
+                        Tab(value: .alerts) {
+                            AlertsTabView()
+                        } label: {
+                            Label("alerts.title", systemImage: "bell.fill")
+                        }
+                        .badge(alertManager.badgeCount)
                     }
                     .environment(store)
                     .toolbar {
@@ -104,6 +110,7 @@ struct MainView: View {
     @MainActor
     private func handleAlertDeepLink(_ pendingDetail: AlertDetail) async {
         isShowingSettings = false
+        selectedTab = .alerts
         if alertManager.alertHistory.isEmpty {
             await alertManager.fetchAlerts(for: instance, instanceManager: instanceManager)
         }
@@ -144,6 +151,7 @@ extension MainView {
         case home
         case system
         case container
+        case alerts
 
         var id: String { self.rawValue }
     }

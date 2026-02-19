@@ -25,13 +25,17 @@ nonisolated enum ContainerHealth: Int, Codable, Hashable, Sendable {
     case healthy = 2
     case unhealthy = 3
 
-    var displayText: String {
+    var displayTextKey: String {
         switch self {
-        case .none: return String(localized: "container.health.none")
-        case .starting: return String(localized: "container.health.starting")
-        case .healthy: return String(localized: "container.health.healthy")
-        case .unhealthy: return String(localized: "container.health.unhealthy")
+        case .none: return "container.health.none"
+        case .starting: return "container.health.starting"
+        case .healthy: return "container.health.healthy"
+        case .unhealthy: return "container.health.unhealthy"
         }
+    }
+
+    var displayText: String {
+        String(localized: String.LocalizationValue(displayTextKey))
     }
 
     var color: String {

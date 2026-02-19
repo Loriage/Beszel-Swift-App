@@ -2747,6 +2747,7 @@
       }
     },
     "container.health.healthy" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2769,6 +2770,7 @@
       }
     },
     "container.health.none" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2791,6 +2793,7 @@
       }
     },
     "container.health.starting" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2813,6 +2816,7 @@
       }
     },
     "container.health.unhealthy" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

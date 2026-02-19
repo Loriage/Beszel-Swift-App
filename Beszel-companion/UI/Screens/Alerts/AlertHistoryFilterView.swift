@@ -34,7 +34,11 @@ struct AlertHistoryFilterView: View {
                     Picker("Type", selection: $selectedAlertType) {
                         Text("All Types").tag(nil as AlertType?)
                         ForEach(AlertType.allCases) { type in
-                            Label(type.displayName, systemImage: type.iconName)
+                            Label {
+                                Text(LocalizedStringKey(type.displayNameKey))
+                            } icon: {
+                                Image(systemName: type.iconName)
+                            }
                                 .foregroundColor(.primary)
                                 .tag(type as AlertType?)
                         }

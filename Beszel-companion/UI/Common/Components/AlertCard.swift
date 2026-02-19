@@ -17,23 +17,26 @@ struct AlertCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
-                    if let name = systemName {
-                        Text("\(name) \(alert.displayName)")
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                    } else {
-                        Text(alert.displayName)
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                    }
+                    alertTitle
+                        .font(.headline)
+                        .foregroundColor(.primary)
 
-                    Text(alert.activeDescription)
+                    AlertActiveDescriptionView(alert: alert)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
 
                 Spacer()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var alertTitle: some View {
+        if let name = systemName {
+            Text("\(name) ") + Text(LocalizedStringKey(alert.displayNameKey))
+        } else {
+            Text(LocalizedStringKey(alert.displayNameKey))
         }
     }
 }
@@ -58,16 +61,11 @@ struct ActiveAlertCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
-                    if let name = systemName {
-                        Text("\(name) \(alert.displayName)")
-                            .font(.headline)
-                    } else {
-                        Text(alert.displayName)
-                            .font(.headline)
-                    }
+                    alertTitle
+                        .font(.headline)
 
-                    if let description = configuredAlert?.activeDescription {
-                        Text(description)
+                    if let configuredAlert {
+                        AlertActiveDescriptionView(alert: configuredAlert)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -89,6 +87,15 @@ struct ActiveAlertCard: View {
             }
         }
         .opacity(isMuted ? 0.6 : 1.0)
+    }
+
+    @ViewBuilder
+    private var alertTitle: some View {
+        if let name = systemName {
+            Text("\(name) ") + Text(LocalizedStringKey(alert.displayNameKey))
+        } else {
+            Text(LocalizedStringKey(alert.displayNameKey))
+        }
     }
 }
 
@@ -113,15 +120,9 @@ struct AlertHistoryRow: View {
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
-                    if let name = systemName {
-                        Text("\(name) \(alert.displayName)")
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                    } else {
-                        Text(alert.displayName)
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                    }
+                    alertTitle
+                        .font(.headline)
+                        .foregroundColor(.primary)
 
                     HStack(spacing: 4) {
                         Text(alert.createdDateDescription)
@@ -146,6 +147,34 @@ struct AlertHistoryRow: View {
 
                 Spacer()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var alertTitle: some View {
+        if let name = systemName {
+            Text("\(name) ") + Text(LocalizedStringKey(alert.displayNameKey))
+        } else {
+            Text(LocalizedStringKey(alert.displayNameKey))
+        }
+    }
+}
+
+// MARK: - Shared active description view
+
+struct AlertActiveDescriptionView: View {
+    let alert: AlertRecord
+
+    var body: some View {
+        let formatted = alert.activeDescriptionFormatted
+        if let minutes = alert.activeDescriptionMinutes {
+            if minutes == 1 {
+                Text("alerts.description.exceedsWithDuration.singular \(formatted)")
+            } else {
+                Text("alerts.description.exceedsWithDuration.plural \(formatted) \(minutes)")
+            }
+        } else {
+            Text("alerts.description.exceeds \(formatted)")
         }
     }
 }

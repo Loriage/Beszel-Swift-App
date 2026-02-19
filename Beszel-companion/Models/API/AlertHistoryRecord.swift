@@ -29,6 +29,10 @@ extension AlertHistoryRecord {
         alertType.displayName
     }
 
+    var displayNameKey: String {
+        alertType.displayNameKey
+    }
+
     var triggeredValueDescription: String {
         guard let val = value else { return "-" }
         return alertType.formatValue(val)

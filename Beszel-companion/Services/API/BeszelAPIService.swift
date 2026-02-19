@@ -135,6 +135,19 @@ actor BeszelAPIService {
         let parts = str.components(separatedBy: ".")
         return parts.count == 3 && str.hasPrefix("ey")
     }
+
+    private func userIDFromToken(_ token: String) -> String? {
+        let parts = token.components(separatedBy: ".")
+        guard parts.count == 3 else { return nil }
+        var base64 = parts[1]
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        while base64.count % 4 != 0 { base64.append("=") }
+        guard let data = Data(base64Encoded: base64),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let id = json["id"] as? String else { return nil }
+        return id
+    }
     
     private func loginWithPassword(password: String) async throws -> String {
         guard let url = URL(string: "\(baseURL)/api/collections/users/auth-with-password") else {
@@ -224,13 +237,24 @@ actor BeszelAPIService {
     
     enum BeszelAPIError: LocalizedError {
         case httpError(statusCode: Int, url: String)
-        
+        case apiError(statusCode: Int, message: String)
+
         var errorDescription: String? {
             switch self {
             case .httpError(let statusCode, let url):
                 return "HTTP \(statusCode) error for \(url)"
+            case .apiError(let statusCode, let message):
+                return "HTTP \(statusCode): \(message)"
             }
         }
+    }
+
+    private func parseAPIError(data: Data, statusCode: Int, url: URL) -> BeszelAPIError {
+        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let message = json["message"] as? String {
+            return .apiError(statusCode: statusCode, message: message)
+        }
+        return .httpError(statusCode: statusCode, url: url.absoluteString)
     }
     
     func fetchSystems() async throws -> [SystemRecord] {
@@ -297,6 +321,83 @@ actor BeszelAPIService {
         return response.items.first
     }
     
+    private func performMutatingRequest(
+        url: URL,
+        method: String,
+        body: [String: Any]? = nil
+    ) async throws -> Data {
+        let token = try await getValidToken()
+
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        if let body = body {
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        }
+
+        let (data, response) = try await session.data(for: request)
+
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
+            self.authToken = nil
+            let newToken = try await getValidToken()
+
+            var retryRequest = request
+            retryRequest.setValue("Bearer \(newToken)", forHTTPHeaderField: "Authorization")
+
+            let (retryData, retryResponse) = try await session.data(for: retryRequest)
+
+            guard let retryHttp = retryResponse as? HTTPURLResponse,
+                  (200...299).contains(retryHttp.statusCode) else {
+                throw URLError(.userAuthenticationRequired)
+            }
+            return retryData
+        }
+
+        if let httpResponse = response as? HTTPURLResponse {
+            if (200...299).contains(httpResponse.statusCode) {
+                return data
+            } else {
+                throw parseAPIError(data: data, statusCode: httpResponse.statusCode, url: url)
+            }
+        }
+        throw URLError(.badServerResponse)
+    }
+
+    func createAlert(system: String, name: String, value: Double, min: Double) async throws -> AlertRecord {
+        guard let url = URL(string: "\(baseURL)/api/collections/alerts/records") else {
+            throw URLError(.badURL)
+        }
+        let token = try await getValidToken()
+        guard let userID = userIDFromToken(token) else {
+            throw URLError(.userAuthenticationRequired)
+        }
+        let body: [String: Any] = ["user": userID, "system": system, "name": name, "value": value, "min": min]
+        let data = try await performMutatingRequest(url: url, method: "POST", body: body)
+        return try Self.jsonDecoder.decode(AlertRecord.self, from: data)
+    }
+
+    func updateAlert(id: String, system: String, name: String, value: Double, min: Double) async throws -> AlertRecord {
+        guard let url = URL(string: "\(baseURL)/api/collections/alerts/records/\(id)") else {
+            throw URLError(.badURL)
+        }
+        let token = try await getValidToken()
+        guard let userID = userIDFromToken(token) else {
+            throw URLError(.userAuthenticationRequired)
+        }
+        let body: [String: Any] = ["user": userID, "system": system, "name": name, "value": value, "min": min]
+        let data = try await performMutatingRequest(url: url, method: "PATCH", body: body)
+        return try Self.jsonDecoder.decode(AlertRecord.self, from: data)
+    }
+
+    func deleteAlert(id: String) async throws {
+        guard let url = URL(string: "\(baseURL)/api/collections/alerts/records/\(id)") else {
+            throw URLError(.badURL)
+        }
+        _ = try await performMutatingRequest(url: url, method: "DELETE")
+    }
+
     func fetchAlerts(filter: String?) async throws -> [AlertRecord] {
         try await fetchAllPages(path: "/api/collections/alerts/records", filter: filter)
     }

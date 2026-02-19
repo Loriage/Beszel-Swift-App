@@ -34,10 +34,16 @@ struct MainView: View {
                         } label: {
                             Label("container.title", systemImage: "shippingbox.fill")
                         }
+                        Tab(value: .alerts) {
+                            AlertsTabView()
+                        } label: {
+                            Label("alerts.title", systemImage: "bell.fill")
+                        }
+                        .badge(alertManager.badgeCount)
                     }
                     .environment(store)
                     .toolbar {
-                        if selectedTab != .home {
+                        if selectedTab != .home && selectedTab != .alerts {
                             ToolbarItem(placement: .topBarLeading) {
                                 SystemSwitcherView(instanceManager: instanceManager)
                             }
@@ -68,9 +74,6 @@ struct MainView: View {
                     }
                     .sheet(isPresented: $isShowingSettings) {
                         LazyView(SettingsView())
-                    }
-                    .navigationDestination(for: AlertDetail.self) { alert in
-                        AlertDetailView(alert: alert)
                     }
                     .navigationDestination(for: ProcessedContainerData.self) { container in
                         ContainerDetailView(container: container)
@@ -104,20 +107,10 @@ struct MainView: View {
     @MainActor
     private func handleAlertDeepLink(_ pendingDetail: AlertDetail) async {
         isShowingSettings = false
+        selectedTab = .alerts
         if alertManager.alertHistory.isEmpty {
             await alertManager.fetchAlerts(for: instance, instanceManager: instanceManager)
         }
-
-        let systemName = instanceManager.systems.first { $0.id == pendingDetail.systemId }?.name
-
-        let resolvedDetail: AlertDetail
-        if let matchedAlert = alertManager.alertHistory.first(where: { $0.id == pendingDetail.id }) {
-            resolvedDetail = AlertDetail(alert: matchedAlert, systemName: systemName)
-        } else {
-            resolvedDetail = pendingDetail.withSystemName(systemName ?? pendingDetail.systemName)
-        }
-
-        navigationPath.append(resolvedDetail)
         alertManager.pendingAlertDetail = nil
     }
 }
@@ -144,6 +137,7 @@ extension MainView {
         case home
         case system
         case container
+        case alerts
 
         var id: String { self.rawValue }
     }

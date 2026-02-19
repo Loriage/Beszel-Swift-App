@@ -193,7 +193,7 @@ struct HealthBadge: View {
 
     var body: some View {
         if health != .none {
-            Text(health.displayText)
+            Text(LocalizedStringKey(health.displayTextKey))
                 .font(.caption2)
                 .fontWeight(.medium)
                 .padding(.horizontal, 6)

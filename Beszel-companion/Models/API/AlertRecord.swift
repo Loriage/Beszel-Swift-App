@@ -20,6 +20,10 @@ extension AlertRecord {
         alertType.displayName
     }
 
+    var displayNameKey: String {
+        alertType.displayNameKey
+    }
+
     var thresholdDescription: String {
         guard let val = value else { return "-" }
         if let min = min {
@@ -27,19 +31,70 @@ extension AlertRecord {
         }
         return alertType.formatValue(val)
     }
+
+    var activeDescriptionFormatted: String {
+        alertType.formatValue(value ?? 0)
+    }
+
+    var activeDescriptionMinutes: Int? {
+        guard let min = min, min > 0 else { return nil }
+        return Int(min)
+    }
 }
 
-enum AlertType: String, Sendable {
+enum AlertType: String, CaseIterable, Identifiable, Sendable {
+    var id: String { rawValue }
+
+    case status = "Status"
     case cpu = "CPU"
     case memory = "Memory"
     case disk = "Disk"
     case bandwidth = "Bandwidth"
+    case gpu = "GPU"
     case temperature = "Temperature"
-    case loadAverage = "Load Average"
-    case status = "Status"
+    case loadAverage1m = "LoadAvg1"
+    case loadAverage5m = "LoadAvg5"
+    case loadAverage15m = "LoadAvg15"
+    case battery = "Battery"
+
+    var displayNameKey: String {
+        switch self {
+        case .status: return "alerts.type.name.status"
+        case .cpu: return "alerts.type.name.cpu"
+        case .memory: return "alerts.type.name.memory"
+        case .disk: return "alerts.type.name.disk"
+        case .bandwidth: return "alerts.type.name.bandwidth"
+        case .temperature: return "alerts.type.name.temperature"
+        case .loadAverage1m: return "alerts.type.name.loadAverage1m"
+        case .loadAverage5m: return "alerts.type.name.loadAverage5m"
+        case .loadAverage15m: return "alerts.type.name.loadAverage15m"
+        case .battery: return "alerts.type.name.battery"
+        case .gpu: return "alerts.type.name.gpu"
+        }
+    }
 
     var displayName: String {
-        rawValue
+        String(localized: String.LocalizationValue(displayNameKey))
+    }
+
+    var alertDescriptionKey: String {
+        switch self {
+        case .status: return "alerts.type.description.status"
+        case .cpu: return "alerts.type.description.cpu"
+        case .memory: return "alerts.type.description.memory"
+        case .disk: return "alerts.type.description.disk"
+        case .bandwidth: return "alerts.type.description.bandwidth"
+        case .temperature: return "alerts.type.description.temperature"
+        case .loadAverage1m: return "alerts.type.description.loadAverage1m"
+        case .loadAverage5m: return "alerts.type.description.loadAverage5m"
+        case .loadAverage15m: return "alerts.type.description.loadAverage15m"
+        case .battery: return "alerts.type.description.battery"
+        case .gpu: return "alerts.type.description.gpu"
+        }
+    }
+
+    var needsThreshold: Bool {
+        self != .status
     }
 
     var iconName: String {
@@ -49,21 +104,23 @@ enum AlertType: String, Sendable {
         case .disk: return "externaldrive"
         case .bandwidth: return "network"
         case .temperature: return "thermometer.medium"
-        case .loadAverage: return "chart.bar"
+        case .loadAverage1m, .loadAverage5m, .loadAverage15m: return "hourglass"
         case .status: return "power"
+        case .battery: return "battery.75percent"
+        case .gpu: return "square.stack.3d.up"
         }
     }
 
     func formatValue(_ value: Double) -> String {
         switch self {
-        case .cpu, .memory, .disk:
+        case .cpu, .memory, .disk, .gpu, .battery:
             return String(format: "%.0f%%", value)
         case .bandwidth:
-            return String(format: "%.1f MB/s", value)
+            return String(format: "%.0f MB/s", value)
         case .temperature:
             return String(format: "%.0f°C", value)
-        case .loadAverage:
-            return String(format: "%.2f", value)
+        case .loadAverage1m, .loadAverage5m, .loadAverage15m:
+            return String(format: "%.0f", value)
         case .status:
             return value > 0 ? "Online" : "Offline"
         }

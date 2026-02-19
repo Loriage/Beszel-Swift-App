@@ -220,7 +220,7 @@ struct ConfiguredAlertsView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(type.displayName)
+                        Text(LocalizedStringKey(type.displayNameKey))
                             .font(.headline)
 
                         Text(LocalizedStringKey(type.alertDescriptionKey))

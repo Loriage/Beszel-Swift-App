@@ -54,20 +54,24 @@ enum AlertType: String, CaseIterable, Identifiable, Sendable {
     case loadAverage15m = "LoadAvg15"
     case battery = "Battery"
 
-    var displayName: String {
+    var displayNameKey: String {
         switch self {
-        case .status: return "Status"
-        case .cpu: return "CPU Usage"
-        case .memory: return "Memory Usage"
-        case .disk: return "Disk Usage"
-        case .bandwidth: return "Bandwidth"
-        case .temperature: return "Temperature"
-        case .loadAverage1m: return "Load Average 1m"
-        case .loadAverage5m: return "Load Average 5m"
-        case .loadAverage15m: return "Load Average 15m"
-        case .battery: return "Battery"
-        case .gpu: return "GPU Usage"
+        case .status: return "alerts.type.name.status"
+        case .cpu: return "alerts.type.name.cpu"
+        case .memory: return "alerts.type.name.memory"
+        case .disk: return "alerts.type.name.disk"
+        case .bandwidth: return "alerts.type.name.bandwidth"
+        case .temperature: return "alerts.type.name.temperature"
+        case .loadAverage1m: return "alerts.type.name.loadAverage1m"
+        case .loadAverage5m: return "alerts.type.name.loadAverage5m"
+        case .loadAverage15m: return "alerts.type.name.loadAverage15m"
+        case .battery: return "alerts.type.name.battery"
+        case .gpu: return "alerts.type.name.gpu"
         }
+    }
+
+    var displayName: String {
+        String(localized: String.LocalizationValue(displayNameKey))
     }
 
     var alertDescriptionKey: String {

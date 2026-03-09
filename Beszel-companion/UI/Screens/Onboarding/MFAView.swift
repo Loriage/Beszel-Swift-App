@@ -1,10 +1,12 @@
 import SwiftUI
+import Security
 
 struct MFAView: View {
     let url: String
     let mfaId: String
     let otpId: String?
     let email: String?
+    var clientIdentity: SecIdentity?
     var onComplete: (String) -> Void
     var onCancel: () -> Void
 
@@ -15,7 +17,7 @@ struct MFAView: View {
     @State private var errorMessage: String?
     @State private var otpRequested = false
 
-    private let apiService = OnboardingAPIService()
+    private var apiService: OnboardingAPIService { OnboardingAPIService(clientIdentity: clientIdentity) }
 
     private var isVerifyDisabled: Bool {
         otpCode.isEmpty || currentOtpId == nil

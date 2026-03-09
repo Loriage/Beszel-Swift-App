@@ -14,6 +14,7 @@ struct SettingsView: View {
     @State private var isShowingResetAlert = false
     @State private var isAddingInstance = false
     @State private var editingInstance: Instance?
+    @State private var managingMTLSInstance: Instance?
     @State private var isShowingShareSheet = false
     @State private var isAuthenticating = false
     
@@ -101,6 +102,13 @@ struct SettingsView: View {
                                 Label("common.edit", systemImage: "pencil")
                             }
                             .tint(.orange)
+
+                            Button {
+                                managingMTLSInstance = instance
+                            } label: {
+                                Label("settings.instances.manageCert", systemImage: "lock.shield")
+                            }
+                            .tint(.blue)
                         }
                     }
 
@@ -197,8 +205,8 @@ struct SettingsView: View {
                 }
             }
             .sheet(isPresented: $isAddingInstance) {
-                OnboardingView { name, url, email, password in
-                    instanceManager.addInstance(name: name, url: url, email: email, password: password)
+                OnboardingView { name, url, email, password, cert in
+                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: cert)
                     isAddingInstance = false
                 }
             }
@@ -224,12 +232,15 @@ struct SettingsView: View {
             .sheet(item: $editingInstance) { instance in
                 OnboardingView(
                     editingInstance: instance,
-                    onComplete: { name, url, email, password in
+                    onComplete: { name, url, email, password, _ in
                         instanceManager.updateInstance(instance, name: name, url: url, email: email, password: password)
                         WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                         editingInstance = nil
                     }
                 )
+            }
+            .sheet(item: $managingMTLSInstance) { instance in
+                InstanceMTLSView(instance: instance)
             }
         }
     }

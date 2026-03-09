@@ -1,12 +1,28 @@
 import Foundation
+import Security
 
 struct OnboardingAPIService {
+    private let session: URLSession
+
+    init(clientIdentity: SecIdentity? = nil) {
+        if let identity = clientIdentity {
+            let delegate = MTLSSessionDelegate(temporaryIdentity: identity)
+            let config = URLSessionConfiguration.default
+            config.timeoutIntervalForRequest = 15
+            config.timeoutIntervalForResource = 30
+            self.session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
+        } else {
+            self.session = .shared
+        }
+    }
+
     enum OnboardingError: Error, LocalizedError {
         case invalidURL
         case networkError(Error)
         case decodingError(Error)
         case hubUnreachable
         case authenticationFailed
+        case clientCertificateRequired
         case mfaRequired(mfaId: String, otpId: String)
         case oauthMfaRequired(mfaId: String)
 
@@ -22,6 +38,8 @@ struct OnboardingAPIService {
                 return String(localized: "onboarding.error.hubUnreachable")
             case .authenticationFailed:
                 return String(localized: "onboarding.error.authFailed")
+            case .clientCertificateRequired:
+                return String(localized: "onboarding.error.clientCertificateRequired")
             case .mfaRequired, .oauthMfaRequired:
                 return String(localized: "onboarding.error.mfaRequired")
             }
@@ -40,15 +58,22 @@ struct OnboardingAPIService {
         let requestURL = hubURL.appendingPathComponent("/api/collections/users/auth-methods")
 
         do {
-            let (data, _) = try await URLSession.shared.data(from: requestURL)
+            let (data, response) = try await session.data(from: requestURL)
+            if let httpResponse = response as? HTTPURLResponse,
+               httpResponse.statusCode == 400 || httpResponse.statusCode == 403 {
+                throw OnboardingError.clientCertificateRequired
+            }
             let decodedMethods = try JSONDecoder().decode(AuthMethodsResponse.self, from: data)
             return decodedMethods
         } catch let error as URLError {
+            if error.code == .clientCertificateRequired {
+                throw OnboardingError.clientCertificateRequired
+            }
             throw OnboardingError.networkError(error)
         } catch let error as DecodingError {
             throw OnboardingError.decodingError(error)
         } catch {
-            throw OnboardingError.hubUnreachable
+            throw error
         }
     }
     
@@ -72,7 +97,7 @@ struct OnboardingAPIService {
         let body = TokenRequestBody(provider: provider.name, code: code, codeVerifier: provider.codeVerifier, redirectURL: "beszel-companion://redirect")
         request.httpBody = try JSONEncoder().encode(body)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await session.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse {
             if httpResponse.statusCode == 200 {
@@ -108,7 +133,7 @@ struct OnboardingAPIService {
         let body: [String: String] = ["identity": email, "password": password]
         request.httpBody = try JSONEncoder().encode(body)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await session.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse {
             if httpResponse.statusCode == 200 {
@@ -140,7 +165,7 @@ struct OnboardingAPIService {
         let body: [String: String] = ["email": email]
         request.httpBody = try JSONEncoder().encode(body)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw OnboardingError.authenticationFailed
@@ -165,7 +190,7 @@ struct OnboardingAPIService {
         ]
         request.httpBody = try JSONEncoder().encode(body)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw OnboardingError.authenticationFailed

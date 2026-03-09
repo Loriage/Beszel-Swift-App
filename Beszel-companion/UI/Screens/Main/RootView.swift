@@ -12,8 +12,8 @@ struct RootView: View {
     var body: some View {
         Group {
             if instanceManager.instances.isEmpty {
-                OnboardingView { name, url, email, password in
-                    instanceManager.addInstance(name: name, url: url, email: email, password: password)
+                OnboardingView { name, url, email, password, cert in
+                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: cert)
                 }
             } else if let activeInstance = instanceManager.activeInstance {
                 if instanceManager.isLoadingSystems {

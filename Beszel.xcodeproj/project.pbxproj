@@ -94,10 +94,12 @@
 				Models/Domain/TimeRangeOption.swift,
 				Services/API/BeszelAPIService.swift,
 				Services/API/OnboardingAPIService.swift,
+				Services/ClientCertificateManager.swift,
 				Services/Managers/DashboardManager.swift,
 				Services/Managers/InstanceManager.swift,
 				Services/Managers/LanguageManager.swift,
 				Services/Managers/SettingsManager.swift,
+				Services/MTLSSessionDelegate.swift,
 				Services/Store/BeszelStore.swift,
 				UI/Common/Charts/Metrics/SystemBandwidthChartView.swift,
 				UI/Common/Charts/Metrics/SystemDiskIOChartView.swift,
@@ -261,7 +263,6 @@
 			knownRegions = (
 				en,
 				Base,
-				es,
 			);
 			mainGroup = 87EB266C2E05AAAE002A98E2;
 			minimizedProjectReferenceProxies = 1;

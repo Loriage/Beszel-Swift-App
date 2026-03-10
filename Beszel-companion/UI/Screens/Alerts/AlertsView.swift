@@ -133,22 +133,22 @@ struct AlertHistoryView: View {
 struct ConfiguredAlertsView: View {
     @Environment(AlertManager.self) var alertManager
     @Environment(InstanceManager.self) var instanceManager
-
+    
     @State private var selectedSystemID: String?
     @State private var alertStates: [AlertType: AlertTypeState] = [:]
     @State private var debounceTask: [AlertType: Task<Void, Never>] = [:]
-
+    
     struct AlertTypeState {
         var isEnabled: Bool = false
         var threshold: Double = 50
         var duration: Double = 1
         var alertRecordId: String?
     }
-
+    
     var body: some View {
         VStack(spacing: 0) {
             systemFilterView
-
+            
             contentView
         }
         .onAppear {
@@ -161,7 +161,7 @@ struct ConfiguredAlertsView: View {
             loadExistingAlerts()
         }
     }
-
+    
     @ViewBuilder
     private var systemFilterView: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -179,7 +179,7 @@ struct ConfiguredAlertsView: View {
             .padding(.vertical, 8)
         }
     }
-
+    
     @ViewBuilder
     private var contentView: some View {
         if selectedSystemID == nil {
@@ -200,13 +200,11 @@ struct ConfiguredAlertsView: View {
             .groupBoxStyle(CardGroupBoxStyle())
         }
     }
-
-    // MARK: - Alert Type Card
-
+    
     @ViewBuilder
     private func alertTypeCard(for type: AlertType) -> some View {
         let state = alertStates[type] ?? AlertTypeState()
-
+        
         GroupBox {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 12) {
@@ -214,27 +212,27 @@ struct ConfiguredAlertsView: View {
                         Circle()
                             .fill(state.isEnabled ? Color.accentColor.opacity(0.15) : Color.secondary.opacity(0.1))
                             .frame(width: 40, height: 40)
-
+                        
                         Image(systemName: type.iconName)
                             .foregroundColor(state.isEnabled ? .accentColor : .secondary)
                     }
-
+                    
                     VStack(alignment: .leading, spacing: 2) {
                         Text(LocalizedStringKey(type.displayNameKey))
                             .font(.headline)
-
+                        
                         Text(LocalizedStringKey(type.alertDescriptionKey))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-
+                    
                     Spacer()
-
+                    
                     Toggle("", isOn: toggleBinding(for: type))
                         .labelsHidden()
                         .tint(.green)
                 }
-
+                
                 if state.isEnabled {
                     slidersView(for: type, state: state)
                         .transition(.opacity.combined(with: .move(edge: .top)))
@@ -243,11 +241,11 @@ struct ConfiguredAlertsView: View {
         }
         .animation(.easeInOut(duration: 0.2), value: state.isEnabled)
     }
-
+    
     @ViewBuilder
     private func slidersView(for type: AlertType, state: AlertTypeState) -> some View {
         Divider()
-
+        
         if type.needsThreshold {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
@@ -266,7 +264,7 @@ struct ConfiguredAlertsView: View {
                 .tint(.accentColor)
             }
         }
-
+        
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text("alerts.form.duration")
@@ -280,9 +278,7 @@ struct ConfiguredAlertsView: View {
                 .tint(.accentColor)
         }
     }
-
-    // MARK: - Bindings
-
+    
     private func toggleBinding(for type: AlertType) -> Binding<Bool> {
         Binding(
             get: { alertStates[type]?.isEnabled ?? false },
@@ -296,7 +292,7 @@ struct ConfiguredAlertsView: View {
             }
         )
     }
-
+    
     private func thresholdBinding(for type: AlertType) -> Binding<Double> {
         Binding(
             get: { alertStates[type]?.threshold ?? 50 },
@@ -306,7 +302,7 @@ struct ConfiguredAlertsView: View {
             }
         )
     }
-
+    
     private func durationBinding(for type: AlertType) -> Binding<Double> {
         Binding(
             get: { alertStates[type]?.duration ?? 1 },
@@ -316,9 +312,7 @@ struct ConfiguredAlertsView: View {
             }
         )
     }
-
-    // MARK: - Threshold config per type
-
+    
     private func thresholdRange(for type: AlertType) -> ClosedRange<Double> {
         switch type {
         case .cpu, .memory, .disk, .gpu, .battery: return 1...99
@@ -328,7 +322,7 @@ struct ConfiguredAlertsView: View {
         case .status: return 0...1
         }
     }
-
+    
     private func defaultThreshold(for type: AlertType) -> Double {
         switch type {
         case .loadAverage1m, .loadAverage5m, .loadAverage15m: return 10
@@ -336,14 +330,12 @@ struct ConfiguredAlertsView: View {
         default: return 50
         }
     }
-
-    // MARK: - Data loading
-
+    
     private func loadExistingAlerts() {
         guard let systemID = selectedSystemID else { return }
-
+        
         let existingAlerts = alertManager.alertsForSystem(systemID)
-
+        
         var newStates: [AlertType: AlertTypeState] = [:]
         for type in AlertType.allCases {
             if let alert = existingAlerts.first(where: { $0.alertType == type }) {
@@ -359,17 +351,15 @@ struct ConfiguredAlertsView: View {
         }
         alertStates = newStates
     }
-
-    // MARK: - API actions
-
+    
     private func createAlert(for type: AlertType) {
         guard let systemID = selectedSystemID,
               let instance = instanceManager.activeInstance else { return }
-
+        
         let state = alertStates[type] ?? AlertTypeState()
         let thresholdValue: Double = type.needsThreshold ? state.threshold : 0
         let durationValue: Double = state.duration
-
+        
         Task {
             do {
                 try await alertManager.createAlert(
@@ -390,11 +380,11 @@ struct ConfiguredAlertsView: View {
             }
         }
     }
-
+    
     private func deleteAlert(for type: AlertType) {
         guard let recordId = alertStates[type]?.alertRecordId,
               let instance = instanceManager.activeInstance else { return }
-
+        
         Task {
             do {
                 try await alertManager.deleteAlert(
@@ -409,7 +399,7 @@ struct ConfiguredAlertsView: View {
             }
         }
     }
-
+    
     private func debouncedUpdate(for type: AlertType) {
         debounceTask[type]?.cancel()
         debounceTask[type] = Task {
@@ -418,15 +408,15 @@ struct ConfiguredAlertsView: View {
             await updateAlert(for: type)
         }
     }
-
+    
     private func updateAlert(for type: AlertType) async {
         guard let state = alertStates[type],
               let recordId = state.alertRecordId,
               let systemID = selectedSystemID,
               let instance = instanceManager.activeInstance else { return }
-
+        
         let thresholdValue: Double = type.needsThreshold ? state.threshold : 0
-
+        
         do {
             try await alertManager.updateAlert(
                 id: recordId,
@@ -447,7 +437,7 @@ struct FilterChip: View {
     let title: String
     let isSelected: Bool
     let action: () -> Void
-
+    
     var body: some View {
         Button(action: action) {
             Text(title)

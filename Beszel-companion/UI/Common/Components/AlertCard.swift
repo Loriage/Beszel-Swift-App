@@ -160,8 +160,6 @@ struct AlertHistoryRow: View {
     }
 }
 
-// MARK: - Shared active description view
-
 struct AlertActiveDescriptionView: View {
     let alert: AlertRecord
 

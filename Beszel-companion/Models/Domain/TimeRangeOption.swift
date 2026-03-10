@@ -45,7 +45,6 @@ extension TimeRangeOption {
         return "created >= '\(dateString)'"
     }
     
-    /// Interval for full data refresh (historical charts)
     var refreshInterval: TimeInterval {
         switch self {
         case .lastHour: return 60
@@ -53,8 +52,7 @@ extension TimeRangeOption {
         case .last24Hours, .last7Days, .last30Days: return 60 * 60
         }
     }
-
-    /// Interval for fast polling (latest stats only) - ~12 seconds for real-time feel
+    
     var fastRefreshInterval: TimeInterval {
         return 12
     }

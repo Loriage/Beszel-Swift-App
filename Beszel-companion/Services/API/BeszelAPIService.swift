@@ -37,24 +37,25 @@ actor BeszelAPIService {
         return decoder
     }()
     
-    private let session: URLSession = {
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 15
-        config.timeoutIntervalForResource = 30
-        return URLSession(configuration: config)
-    }()
-    
+    private let session: URLSession
+
     init(instance: Instance, instanceManager: InstanceManager) {
         self.instance = instance
         self.instanceManager = instanceManager
-        
+
         var cleanUrl = instance.url.trimmingCharacters(in: .whitespacesAndNewlines)
         if cleanUrl.hasSuffix("/") {
             cleanUrl.removeLast()
         }
-        
+
         self.baseURL = cleanUrl
         self.email = instance.email
+
+        let delegate = MTLSSessionDelegate(instanceId: instance.id)
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15
+        config.timeoutIntervalForResource = 30
+        self.session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
     }
     
     private func getStoredCredential() -> String {

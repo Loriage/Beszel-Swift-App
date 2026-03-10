@@ -100,7 +100,6 @@ final class AlertManager {
         }
     }
     
-    // Cache API service to avoid creating new instances and auth conflicts
     private var cachedApiService: BeszelAPIService?
     private var cachedInstanceId: UUID?
     
@@ -114,7 +113,6 @@ final class AlertManager {
         return service
     }
     
-    /// Clears the cached API service to free memory (useful after background tasks)
     func clearCachedApiService() {
         cachedApiService = nil
         cachedInstanceId = nil
@@ -171,12 +169,10 @@ final class AlertManager {
             
             self.alertHistory = fetchedHistory.sorted { $0.created > $1.created }
             
-            // Keep history at reasonable size
             if alertHistory.count > 200 {
                 alertHistory = Array(alertHistory.prefix(200))
             }
             
-            // Prune seen IDs to prevent unbounded growth
             pruneSeenAlertIDs()
             pruneMutedAlertIDs()
 
@@ -216,12 +212,10 @@ final class AlertManager {
                 alertHistory.insert(contentsOf: newUniqueAlerts, at: 0)
                 alertHistory.sort { $0.created > $1.created }
                 
-                // Keep history at reasonable size to prevent memory growth
                 if alertHistory.count > 200 {
                     alertHistory = Array(alertHistory.prefix(200))
                 }
                 
-                // Prune seen IDs to prevent unbounded growth
                 pruneSeenAlertIDs()
                 
                 updateUnreadCount()

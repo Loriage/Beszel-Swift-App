@@ -2,8 +2,6 @@ import Foundation
 import Security
 import OSLog
 
-/// Payload carrying both the live SecIdentity (for in-session mTLS) and the raw P12 data
-/// needed to persist the certificate across instances.
 struct ClientCertificatePayload {
     let identity: SecIdentity
     let p12Data: Data
@@ -27,9 +25,7 @@ struct ClientCertificateManager {
             }
         }
     }
-
-    // MARK: - P12 storage (kSecClassGenericPassword — one slot per instance, no shared-key conflicts)
-
+    
     private nonisolated static func encodePayload(p12Data: Data, password: String) -> Data? {
         let dict: [String: Any] = ["p12": p12Data.base64EncodedString(), "pw": password]
         return try? JSONSerialization.data(withJSONObject: dict)
@@ -43,10 +39,9 @@ struct ClientCertificateManager {
         else { return nil }
         return (p12Data, password)
     }
-
-    /// Import a PKCS#12 file and store it in the keychain for the given instance.
+    
     nonisolated static func importAndStore(p12Data: Data, password: String, for instanceId: UUID) throws {
-        _ = try importIdentity(from: p12Data, password: password) // validate before storing
+        _ = try importIdentity(from: p12Data, password: password)
         try store(p12Data: p12Data, password: password, for: instanceId)
     }
 
@@ -111,10 +106,7 @@ struct ClientCertificateManager {
         guard let certificate = cert else { return nil }
         return SecCertificateCopySubjectSummary(certificate) as String?
     }
-
-    // MARK: - Import helper (no keychain storage)
-
-    /// Import a PKCS#12 file and return the identity without storing it.
+    
     nonisolated static func importIdentity(from p12Data: Data, password: String) throws -> SecIdentity {
         var items: CFArray?
         let options = [kSecImportExportPassphrase as String: password] as CFDictionary
@@ -132,7 +124,7 @@ struct ClientCertificateManager {
               let identityRef = first[kSecImportItemIdentity as String] else {
             throw MTLSError.importFailed
         }
-        // SecIdentity is a CF type alias for AnyObject; force cast is correct here.
+        
         let identity = identityRef as! SecIdentity // swiftlint:disable:this force_cast
         return identity
     }

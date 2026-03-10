@@ -1,26 +1,20 @@
 import Foundation
 import Security
 
-/// URLSessionDelegate that handles mutual TLS (mTLS) client certificate challenges.
-///
-/// Used by both `BeszelAPIService` (loads the identity from the keychain by instance ID)
-/// and `OnboardingAPIService` (uses a temporary in-memory identity during onboarding).
 final class MTLSSessionDelegate: NSObject, URLSessionDelegate, @unchecked Sendable {
     private let instanceId: UUID?
     private let temporaryIdentity: SecIdentity?
-
-    /// Create a delegate that loads the client identity from the keychain at challenge time.
+    
     init(instanceId: UUID) {
         self.instanceId = instanceId
         self.temporaryIdentity = nil
     }
-
-    /// Create a delegate that uses a pre-imported identity (for onboarding, before the instance is saved).
+    
     init(temporaryIdentity: SecIdentity) {
         self.instanceId = nil
         self.temporaryIdentity = temporaryIdentity
     }
-
+    
     func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,
@@ -30,7 +24,7 @@ final class MTLSSessionDelegate: NSObject, URLSessionDelegate, @unchecked Sendab
             completionHandler(.performDefaultHandling, nil)
             return
         }
-
+        
         let identity: SecIdentity?
         if let temp = temporaryIdentity {
             identity = temp
@@ -39,7 +33,7 @@ final class MTLSSessionDelegate: NSObject, URLSessionDelegate, @unchecked Sendab
         } else {
             identity = nil
         }
-
+        
         if let identity {
             let credential = URLCredential(identity: identity, certificates: nil, persistence: .forSession)
             completionHandler(.useCredential, credential)

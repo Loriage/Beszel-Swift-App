@@ -47,8 +47,7 @@ struct ExtraFilesystemPoint: Identifiable, Sendable {
     let percent: Double        // Usage percent
 }
 
-// MARK: - Downsampling for SystemDataPoint
-
+// Downsampling for SystemDataPoint
 extension Array where Element == SystemDataPoint {
     nonisolated func downsampled(bucketInterval: TimeInterval) -> [SystemDataPoint] {
         guard !isEmpty else { return [] }

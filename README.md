@@ -28,15 +28,15 @@ This application allows you to view your server and container statistics directl
 
 ## Key Features
 
-- **System stats** — Charts for CPU, memory, swap, disk, network, load average, temperatures, GPU, and battery.
-- **Container stats** — Browse Docker containers with CPU, memory, network usage, and logs.
-- **Custom dashboard** — Pin your favorite charts with search and flexible sorting for quick access.
-- **Alerts & notifications** — Push notifications for system status, with configurable thresholds for CPU, memory, temperature, load average, battery, and GPU.
-- **Widgets** — Home Screen and Lock Screen widgets for glanceable stats.
-- **Multiple hub management** — Manage and switch between multiple Beszel hubs and their associated systems.
-- **Secure connections** — mTLS with client certificates, SSO / OAuth, 2FA, and credentials stored in the iOS Keychain.
-- **Polished experience** — Face ID / passcode lock and theme support.
-- **Localization** — Available in English, French, and Polish. [Contribute on Crowdin](https://crowdin.com/project/beszel-swift-app).
+- **System stats**: Charts for CPU, memory, swap, disk, network, load average, temperatures, GPU, and battery.
+- **Container stats**: Browse Docker containers with CPU, memory, network usage, and logs.
+- **Custom dashboard**: Pin your favorite charts with search and flexible sorting for quick access.
+- **Alerts & notifications**: Push notifications for system status, with configurable thresholds for CPU, memory, temperature, load average, battery, and GPU.
+- **Widgets**: Home Screen and Lock Screen widgets for glanceable stats.
+- **Multiple hub management**: Manage and switch between multiple Beszel hubs and their associated systems.
+- **Secure connections**: mTLS with client certificates, SSO / OAuth, 2FA, and credentials stored in the iOS Keychain.
+- **Polished experience**: Face ID / passcode lock and theme support.
+- **Localization**: Available in English, French, and Polish. [Contribute on Crowdin](https://crowdin.com/project/beszel-swift-app).
 
 > [!TIP]
 > Looking for macOS? Check out [BeszelBar](https://github.com/Loriage/BeszelBar), a native macOS menu bar client for Beszel.

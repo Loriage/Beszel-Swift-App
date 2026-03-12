@@ -35,7 +35,7 @@ This application allows you to view your server and container statistics directl
 - **Widgets** — Home Screen and Lock Screen widgets for glanceable stats.
 - **Multiple hub management** — Manage and switch between multiple Beszel hubs and their associated systems.
 - **Secure connections** — mTLS with client certificates, SSO / OAuth, 2FA, and credentials stored in the iOS Keychain.
-- **Polished experience** — Keychain storage, Face ID / passcode lock, and theme support.
+- **Polished experience** — Face ID / passcode lock and theme support.
 - **Localization** — Available in English, French, and Polish. [Contribute on Crowdin](https://crowdin.com/project/beszel-swift-app).
 
 > [!TIP]

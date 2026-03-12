@@ -28,22 +28,15 @@ This application allows you to view your server and container statistics directl
 
 ## Key Features
 
-- [x] **Secure Connection**: Connects to your Beszel instance via its API. Credentials are securely stored in the iOS Keychain.
-- [x] **Custom Dashboard**: Pin your favorite charts (System CPU, a specific container's memory, etc.) to a home screen for quick access.
-- [x] **Powerful Search & Sorting**: Instantly find any pinned chart on your dashboard with a robust search bar and flexible sorting options.
-- [x] **System Stats**: Visualize historical data for CPU usage, memory usage, and temperatures of your host systems.
-- [x] **Container Stats**: Browse a list of all your Docker containers and analyze their historical CPU and memory consumption.
-- [x] **Interactive charts**: Clean, responsive, and interactive charts built with Swift Charts.
-- [x] **Time range filtering**: Display data from the last hour, last 24 hours, last 7 days, and more.
-- [x] **Native experience**: A smooth and integrated user experience, built entirely with SwiftUI.
-- [x] **Theme support**: Choose between system, light, and dark appearance.
-- [x] **Widgets**: Display key information directly on your Home Screen.
-- [x] **Lock screen widgets**: Glanceable stats right on your Lock Screen.
-- [x] **Multiple hub management**: Easily manage and monitor multiple Beszel hubs and their associated systems.
-- [x] **SSO support**: Log in via your configured SSO/OAuth provider.
-- [x] **Push notifications**: Get alerted when a system goes down or triggers a threshold.
-- [x] **App lock**: Protect the app with Face ID or passcode.
-- [x] **Localization**: Available in English, French, and Polish. [Contribute on Crowdin](https://crowdin.com/project/beszel-swift-app).
+- **System stats** — Charts for CPU, memory, swap, disk, network, load average, temperatures, GPU, and battery.
+- **Container stats** — Browse Docker containers with CPU, memory, network usage, and logs.
+- **Custom dashboard** — Pin your favorite charts with search and flexible sorting for quick access.
+- **Alerts & notifications** — Push notifications for system status, with configurable thresholds for CPU, memory, temperature, load average, battery, and GPU.
+- **Widgets** — Home Screen and Lock Screen widgets for glanceable stats.
+- **Multiple hub management** — Manage and switch between multiple Beszel hubs and their associated systems.
+- **Secure connections** — mTLS with client certificates, SSO / OAuth, 2FA, and credentials stored in the iOS Keychain.
+- **Polished experience** — Keychain storage, Face ID / passcode lock, and theme support.
+- **Localization** — Available in English, French, and Polish. [Contribute on Crowdin](https://crowdin.com/project/beszel-swift-app).
 
 > [!TIP]
 > Looking for macOS? Check out [BeszelBar](https://github.com/Loriage/BeszelBar), a native macOS menu bar client for Beszel.
@@ -54,6 +47,7 @@ This application allows you to view your server and container statistics directl
 - **Swift Charts**: For creating all charts within the application.
 - **Swift Concurrency (`async/await`)**: For modern and performant network calls.
 - **WidgetKit**: To display information on the Home Screen.
+- **Security**: For Keychain storage and mTLS client certificate management.
 
 ## Installation
 

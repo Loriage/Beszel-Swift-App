@@ -132,7 +132,7 @@ extension Array where Element == SystemDataPoint {
             let duCount = Double(diskUsagePoints.count)
             avgDiskUsage = (
                 used: diskUsagePoints.map { $0.used }.reduce(0, +) / duCount,
-                total: diskUsagePoints.map { $0.total }.reduce(0, +) / duCount
+                total: diskUsagePoints.map { $0.total }.max() ?? 0
             )
         } else {
             avgDiskUsage = nil
@@ -210,13 +210,13 @@ extension Array where Element == SystemDataPoint {
         }
 
         // Average extra filesystems by name
-        var fsSums: [String: (used: Double, total: Double, percent: Double, diskRead: Double, diskWrite: Double, ioCount: Int, count: Int)] = [:]
+        var fsSums: [String: (used: Double, maxTotal: Double, percent: Double, diskRead: Double, diskWrite: Double, ioCount: Int, count: Int)] = [:]
         for point in points {
             for fs in point.extraFilesystems {
                 let existing = fsSums[fs.name] ?? (0, 0, 0, 0, 0, 0, 0)
                 fsSums[fs.name] = (
                     used: existing.used + fs.used,
-                    total: existing.total + fs.total,
+                    maxTotal: Swift.max(existing.maxTotal, fs.total),
                     percent: existing.percent + fs.percent,
                     diskRead: existing.diskRead + (fs.diskRead ?? 0),
                     diskWrite: existing.diskWrite + (fs.diskWrite ?? 0),
@@ -231,7 +231,7 @@ extension Array where Element == SystemDataPoint {
             return ExtraFilesystemPoint(
                 name: name,
                 used: data.used / c,
-                total: data.total / c,
+                total: data.maxTotal,
                 percent: data.percent / c,
                 diskRead: ioC > 0 ? data.diskRead / ioC : nil,
                 diskWrite: ioC > 0 ? data.diskWrite / ioC : nil

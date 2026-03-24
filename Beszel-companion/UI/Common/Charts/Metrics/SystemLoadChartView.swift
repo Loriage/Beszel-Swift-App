@@ -6,14 +6,14 @@ struct SystemLoadChartView: View {
     let xAxisFormat: Date.FormatStyle
 
     var systemName: String? = nil
-    
+
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
-    
+
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-            Text("Load Average")
+            Text("chart.loadAverage")
                 .font(.headline)
                 if let systemName = systemName {
                     Text(systemName)
@@ -25,6 +25,7 @@ struct SystemLoadChartView: View {
             Spacer()
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {
+            VStack(spacing: 4) {
             Chart(dataPoints) { point in
                 if let load = point.loadAverage {
                     LineMark(
@@ -34,7 +35,7 @@ struct SystemLoadChartView: View {
                     )
                     .foregroundStyle(.purple)
                     .interpolationMethod(.catmullRom)
-                    
+
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Load", load.l5),
@@ -42,7 +43,7 @@ struct SystemLoadChartView: View {
                     )
                     .foregroundStyle(.blue)
                     .interpolationMethod(.catmullRom)
-                    
+
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Load", load.l15),
@@ -63,18 +64,30 @@ struct SystemLoadChartView: View {
                     AxisValueLabel()
                 }
             }
-            .chartForegroundStyleScale([
-                String(localized: "1 min"): .purple,
-                String(localized: "5 min"): .blue,
-                String(localized: "15 min"): .orange
-            ])
-            .chartLegend(position: .bottom, alignment: .center)
+            .chartLegend(.hidden)
             .padding(.top, 5)
-            .frame(height: 200)
+            .frame(height: 185)
             .drawingGroup()
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text("Load Average"))
+            .accessibilityLabel(Text("chart.loadAverage"))
             .accessibilityValue(accessibilityDescription)
+
+            HStack(spacing: 12) {
+                HStack(spacing: 4) {
+                    Circle().fill(.purple).frame(width: 8, height: 8)
+                    Text("chart.load.1min").font(.caption2).foregroundStyle(.secondary)
+                }
+                HStack(spacing: 4) {
+                    Circle().fill(.blue).frame(width: 8, height: 8)
+                    Text("chart.load.5min").font(.caption2).foregroundStyle(.secondary)
+                }
+                HStack(spacing: 4) {
+                    Circle().fill(.orange).frame(width: 8, height: 8)
+                    Text("chart.load.15min").font(.caption2).foregroundStyle(.secondary)
+                }
+            }
+            }
+            .frame(height: 200)
         }
     }
 

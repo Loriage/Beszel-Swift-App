@@ -14,6 +14,10 @@ struct SystemSwapChartView: View {
         dataPoints.contains { $0.swap != nil }
     }
 
+    private var totalSwap: Double {
+        dataPoints.compactMap { $0.swap?.total }.max() ?? 0
+    }
+
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -29,9 +33,10 @@ struct SystemSwapChartView: View {
             Spacer()
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {
-            Chart(dataPoints) { point in
-                if let swap = point.swap {
-                    Plot {
+            VStack(spacing: 4) {
+            Chart {
+                ForEach(dataPoints) { point in
+                    if let swap = point.swap {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Used", swap.used),
@@ -47,17 +52,10 @@ struct SystemSwapChartView: View {
                         )
                         .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
                     }
-
-                    Plot {
-                        LineMark(
-                            x: .value("Date", point.date),
-                            y: .value("Total", swap.total),
-                            series: .value("Type", "Total")
-                        )
-                        .foregroundStyle(.gray.opacity(0.5))
-                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
-                    }
                 }
+                RuleMark(y: .value("Total", totalSwap))
+                    .foregroundStyle(.gray.opacity(0.5))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
             }
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in
@@ -75,17 +73,28 @@ struct SystemSwapChartView: View {
                     }
                 }
             }
-            .chartForegroundStyleScale([
-                String(localized: "chart.swap.used"): .orange,
-                String(localized: "chart.swap.total"): .gray.opacity(0.5)
-            ])
-            .chartLegend(position: .bottom, alignment: .center)
+            .chartLegend(.hidden)
             .padding(.top, 5)
-            .frame(height: 200)
+            .frame(height: 185)
             .drawingGroup()
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text("chart.swapUsage"))
             .accessibilityValue(accessibilityDescription)
+
+            HStack(spacing: 12) {
+                HStack(spacing: 4) {
+                    Circle().fill(.orange).frame(width: 8, height: 8)
+                    Text("chart.swap.used").font(.caption2).foregroundStyle(.secondary)
+                }
+                HStack(spacing: 4) {
+                    Rectangle()
+                        .fill(.gray.opacity(0.5))
+                        .frame(width: 12, height: 1.5)
+                    Text("chart.swap.total").font(.caption2).foregroundStyle(.secondary)
+                }
+            }
+            }
+            .frame(height: 200)
         }
     }
 

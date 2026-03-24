@@ -13,7 +13,7 @@ struct SystemDiskIOChartView: View {
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-            Text("Disk I/O (MB/s)")
+            Text("chart.diskIO")
                 .font(.headline)
                 if let systemName = systemName {
                     Text(systemName)
@@ -25,6 +25,7 @@ struct SystemDiskIOChartView: View {
             Spacer()
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {
+            VStack(spacing: 4) {
             Chart(dataPoints) { point in
                 if let io = point.diskIO {
                     Plot {
@@ -79,17 +80,26 @@ struct SystemDiskIOChartView: View {
                     }
                 }
             }
-            .chartForegroundStyleScale([
-                String(localized: "Write"): .orange,
-                String(localized: "Read"): .blue,
-            ])
-            .chartLegend(position: .bottom, alignment: .center)
+            .chartLegend(.hidden)
             .padding(.top, 5)
-            .frame(height: 200)
+            .frame(height: 185)
             .drawingGroup()
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text("Disk I/O (MB/s)"))
+            .accessibilityLabel(Text("chart.diskIO"))
             .accessibilityValue(accessibilityDescription)
+
+            HStack(spacing: 12) {
+                HStack(spacing: 4) {
+                    Circle().fill(.blue).frame(width: 8, height: 8)
+                    Text("chart.diskIO.read").font(.caption2).foregroundStyle(.secondary)
+                }
+                HStack(spacing: 4) {
+                    Circle().fill(.orange).frame(width: 8, height: 8)
+                    Text("chart.diskIO.write").font(.caption2).foregroundStyle(.secondary)
+                }
+            }
+            }
+            .frame(height: 200)
         }
     }
 

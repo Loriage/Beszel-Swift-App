@@ -10,6 +10,10 @@ struct SystemDiskUsageChartView: View {
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
+    private var totalDisk: Double {
+        dataPoints.compactMap { $0.diskUsage?.total }.max() ?? 0
+    }
+
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -25,63 +29,68 @@ struct SystemDiskUsageChartView: View {
             Spacer()
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {
-            Chart(dataPoints) { point in
-                if let disk = point.diskUsage {
-                    Plot {
-                        LineMark(
-                            x: .value("Date", point.date),
-                            y: .value("Used", disk.used),
-                            series: .value("Type", "Used")
-                        )
-                        .foregroundStyle(.purple)
+            VStack(spacing: 4) {
+                Chart {
+                    ForEach(dataPoints) { point in
+                        if let disk = point.diskUsage {
+                            LineMark(
+                                x: .value("Date", point.date),
+                                y: .value("Used", disk.used),
+                                series: .value("Type", "Used")
+                            )
+                            .foregroundStyle(.purple)
 
-                        AreaMark(
-                            x: .value("Date", point.date),
-                            yStart: .value("Type", 0),
-                            yEnd: .value("Used", disk.used),
-                            series: .value("Type", "Used")
-                        )
-                        .foregroundStyle(LinearGradient(colors: [.purple.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
+                            AreaMark(
+                                x: .value("Date", point.date),
+                                yStart: .value("Type", 0),
+                                yEnd: .value("Used", disk.used),
+                                series: .value("Type", "Used")
+                            )
+                            .foregroundStyle(LinearGradient(colors: [.purple.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
+                        }
                     }
-
-                    Plot {
-                        LineMark(
-                            x: .value("Date", point.date),
-                            y: .value("Total", disk.total),
-                            series: .value("Type", "Total")
-                        )
+                    RuleMark(y: .value("Total", totalDisk))
                         .foregroundStyle(.gray.opacity(0.5))
                         .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
+                }
+                .chartXAxis {
+                    AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                        AxisValueLabel(format: xAxisFormat, centered: true)
                     }
                 }
-            }
-            .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                    AxisValueLabel(format: xAxisFormat, centered: true)
-                }
-            }
-            .chartYAxis {
-                AxisMarks(values: .automatic(desiredCount: 4)) { value in
-                    AxisGridLine()
-                    AxisValueLabel {
-                        if let gb = value.as(Double.self) {
-                            Text(String(format: "%.0f GB", gb))
-                                .font(.caption)
+                .chartYAxis {
+                    AxisMarks(values: .automatic(desiredCount: 4)) { value in
+                        AxisGridLine()
+                        AxisValueLabel {
+                            if let gb = value.as(Double.self) {
+                                Text(String(format: "%.0f GB", gb))
+                                    .font(.caption)
+                            }
                         }
                     }
                 }
+                .chartLegend(.hidden)
+                .padding(.top, 5)
+                .frame(height: 185)
+                .drawingGroup()
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(Text("chart.diskUsage"))
+                .accessibilityValue(accessibilityDescription)
+
+                HStack(spacing: 12) {
+                    HStack(spacing: 4) {
+                        Circle().fill(.purple).frame(width: 8, height: 8)
+                        Text("chart.disk.used").font(.caption2).foregroundStyle(.secondary)
+                    }
+                    HStack(spacing: 4) {
+                        Rectangle()
+                            .fill(.gray.opacity(0.5))
+                            .frame(width: 12, height: 1.5)
+                        Text("chart.disk.total").font(.caption2).foregroundStyle(.secondary)
+                    }
+                }
             }
-            .chartForegroundStyleScale([
-                String(localized: "chart.disk.used"): .purple,
-                String(localized: "chart.disk.total"): .gray.opacity(0.5)
-            ])
-            .chartLegend(position: .bottom, alignment: .center)
-            .padding(.top, 5)
             .frame(height: 200)
-            .drawingGroup()
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text("chart.diskUsage"))
-            .accessibilityValue(accessibilityDescription)
         }
     }
 

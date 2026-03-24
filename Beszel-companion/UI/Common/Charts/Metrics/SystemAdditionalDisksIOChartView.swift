@@ -11,10 +11,14 @@ struct ExtraDiskUsageChartView: View {
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
+    private var totalDisk: Double {
+        dataPoints.compactMap { $0.extraFilesystems.first(where: { $0.name == diskName })?.total }.max() ?? 0
+    }
+
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(diskName) Usage")
+                Text("\(LocalizedStringResource("chart.extraDisk.usage")) \(diskName)")
                     .font(.headline)
                 if let systemName = systemName {
                     Text(systemName)
@@ -26,9 +30,10 @@ struct ExtraDiskUsageChartView: View {
             Spacer()
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {
-            Chart(dataPoints) { point in
-                if let fs = point.extraFilesystems.first(where: { $0.name == diskName }) {
-                    Plot {
+            VStack(spacing: 4) {
+            Chart {
+                ForEach(dataPoints) { point in
+                    if let fs = point.extraFilesystems.first(where: { $0.name == diskName }) {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Used", fs.used),
@@ -44,17 +49,10 @@ struct ExtraDiskUsageChartView: View {
                         )
                         .foregroundStyle(LinearGradient(colors: [.purple.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
                     }
-
-                    Plot {
-                        LineMark(
-                            x: .value("Date", point.date),
-                            y: .value("Total", fs.total),
-                            series: .value("Type", "Total")
-                        )
-                        .foregroundStyle(.gray.opacity(0.5))
-                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
-                    }
                 }
+                RuleMark(y: .value("Total", totalDisk))
+                    .foregroundStyle(.gray.opacity(0.5))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
             }
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in
@@ -72,14 +70,25 @@ struct ExtraDiskUsageChartView: View {
                     }
                 }
             }
-            .chartForegroundStyleScale([
-                String(localized: "chart.disk.used"): .purple,
-                String(localized: "chart.disk.total"): .gray.opacity(0.5)
-            ])
-            .chartLegend(position: .bottom, alignment: .center)
+            .chartLegend(.hidden)
             .padding(.top, 5)
-            .frame(height: 200)
+            .frame(height: 185)
             .drawingGroup()
+
+            HStack(spacing: 12) {
+                HStack(spacing: 4) {
+                    Circle().fill(.purple).frame(width: 8, height: 8)
+                    Text("chart.disk.used").font(.caption2).foregroundStyle(.secondary)
+                }
+                HStack(spacing: 4) {
+                    Rectangle()
+                        .fill(.gray.opacity(0.5))
+                        .frame(width: 12, height: 1.5)
+                    Text("chart.disk.total").font(.caption2).foregroundStyle(.secondary)
+                }
+            }
+            }
+            .frame(height: 200)
         }
     }
 
@@ -107,13 +116,20 @@ struct ExtraDiskIOChartView: View {
     private var maxIO: Double {
         dataPoints.compactMap { point in
             point.extraFilesystems.first(where: { $0.name == diskName })
-        }.map { max($0.diskRead ?? 0, $0.diskWrite ?? 0) }.max() ?? 0
+        }.map { Swift.max($0.diskRead ?? 0, $0.diskWrite ?? 0) }.max() ?? 0
+    }
+
+    private var unitLabel: String {
+        if maxIO >= 1_073_741_824 { return "GB/s" }
+        if maxIO >= 1_048_576 { return "MB/s" }
+        if maxIO >= 1024 { return "KB/s" }
+        return "B/s"
     }
 
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(diskName) I/O")
+                Text("\(LocalizedStringResource("chart.extraDisk.io")) \(diskName) (\(unitLabel))")
                     .font(.headline)
                 if let systemName = systemName {
                     Text(systemName)
@@ -125,6 +141,7 @@ struct ExtraDiskIOChartView: View {
             Spacer()
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {
+            VStack(spacing: 4) {
             Chart(dataPoints) { point in
                 if let fs = point.extraFilesystems.first(where: { $0.name == diskName }),
                    let read = fs.diskRead, let write = fs.diskWrite {
@@ -179,15 +196,24 @@ struct ExtraDiskIOChartView: View {
                     }
                 }
             }
-            .chartYScale(domain: 0...max(maxIO, 1))
-            .chartForegroundStyleScale([
-                String(localized: "Read"): .blue,
-                String(localized: "Write"): .orange
-            ])
-            .chartLegend(position: .bottom, alignment: .center)
+            .chartYScale(domain: 0...Swift.max(maxIO, 1))
+            .chartLegend(.hidden)
             .padding(.top, 5)
-            .frame(height: 200)
+            .frame(height: 185)
             .drawingGroup()
+
+            HStack(spacing: 12) {
+                HStack(spacing: 4) {
+                    Circle().fill(.blue).frame(width: 8, height: 8)
+                    Text("chart.diskIO.read").font(.caption2).foregroundStyle(.secondary)
+                }
+                HStack(spacing: 4) {
+                    Circle().fill(.orange).frame(width: 8, height: 8)
+                    Text("chart.diskIO.write").font(.caption2).foregroundStyle(.secondary)
+                }
+            }
+            }
+            .frame(height: 200)
         }
     }
 

@@ -6,14 +6,14 @@ struct SystemBandwidthChartView: View {
     let xAxisFormat: Date.FormatStyle
 
     var systemName: String? = nil
-    
+
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-            Text("Bandwidth (MB/s)")
+            Text("chart.bandwidth")
                 .font(.headline)
                 if let systemName = systemName {
                     Text(systemName)
@@ -25,6 +25,7 @@ struct SystemBandwidthChartView: View {
             Spacer()
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {
+            VStack(spacing: 4) {
             Chart(dataPoints) { point in
                 if let bandwidth = point.bandwidth {
                     Plot {
@@ -34,7 +35,7 @@ struct SystemBandwidthChartView: View {
                             series: .value("Period", "Download")
                         )
                         .foregroundStyle(.green)
-                        
+
                         AreaMark(
                             x: .value("Date", point.date),
                             yStart: .value("Period", 0),
@@ -43,7 +44,7 @@ struct SystemBandwidthChartView: View {
                         )
                         .foregroundStyle(LinearGradient(colors: [.green.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
-                    
+
                     Plot {
                         LineMark(
                             x: .value("Date", point.date),
@@ -51,7 +52,7 @@ struct SystemBandwidthChartView: View {
                             series: .value("Period", "Upload")
                         )
                         .foregroundStyle(.red)
-                        
+
                         AreaMark(
                             x: .value("Date", point.date),
                             yStart: .value("Period", 0),
@@ -79,17 +80,26 @@ struct SystemBandwidthChartView: View {
                     }
                 }
             }
-            .chartForegroundStyleScale([
-                String(localized: "Received"): .green,
-                String(localized: "Sent"): .red,
-            ])
-            .chartLegend(position: .bottom, alignment: .center)
+            .chartLegend(.hidden)
             .padding(.top, 5)
-            .frame(height: 200)
+            .frame(height: 185)
             .drawingGroup()
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text("Bandwidth (MB/s)"))
+            .accessibilityLabel(Text("chart.bandwidth"))
             .accessibilityValue(accessibilityDescription)
+
+            HStack(spacing: 12) {
+                HStack(spacing: 4) {
+                    Circle().fill(.green).frame(width: 8, height: 8)
+                    Text("chart.bandwidth.download").font(.caption2).foregroundStyle(.secondary)
+                }
+                HStack(spacing: 4) {
+                    Circle().fill(.red).frame(width: 8, height: 8)
+                    Text("chart.bandwidth.upload").font(.caption2).foregroundStyle(.secondary)
+                }
+            }
+            }
+            .frame(height: 200)
         }
     }
 

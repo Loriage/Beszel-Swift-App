@@ -105,12 +105,24 @@ struct SystemView: View {
                         )
                     }
                     if store.hasExtraFilesystemsData {
-                        SystemExtraFilesystemsChartView(
-                            dataPoints: store.systemDataPoints,
-                            xAxisFormat: store.xAxisFormat,
-                            isPinned: store.isPinned(.systemExtraFilesystems),
-                            onPinToggle: { store.togglePin(for: .systemExtraFilesystems) }
-                        )
+                        ForEach(store.extraDiskNames, id: \.self) { diskName in
+                            ExtraDiskUsageChartView(
+                                diskName: diskName,
+                                dataPoints: store.systemDataPoints,
+                                xAxisFormat: store.xAxisFormat,
+                                isPinned: store.isPinned(.extraDiskUsage(name: diskName)),
+                                onPinToggle: { store.togglePin(for: .extraDiskUsage(name: diskName)) }
+                            )
+                            if store.hasIOData(forDisk: diskName) {
+                                ExtraDiskIOChartView(
+                                    diskName: diskName,
+                                    dataPoints: store.systemDataPoints,
+                                    xAxisFormat: store.xAxisFormat,
+                                    isPinned: store.isPinned(.extraDiskIO(name: diskName)),
+                                    onPinToggle: { store.togglePin(for: .extraDiskIO(name: diskName)) }
+                                )
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal)

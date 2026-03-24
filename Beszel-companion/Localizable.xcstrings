@@ -88,6 +88,9 @@
         }
       }
     },
+    "%@ I/O" : {
+
+    },
     "%@ MB/s" : {
       "localizations" : {
         "en" : {
@@ -131,6 +134,9 @@
           }
         }
       }
+    },
+    "%@ Usage" : {
+
     },
     "%lld min" : {
       "comment" : "A label displaying the duration of an alert in minutes. The argument is the duration of the alert in minutes.",
@@ -4498,6 +4504,29 @@
         }
       }
     },
+    "onboarding.continueButton" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuer"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontynuuj"
+          }
+        }
+      }
+    },
     "onboarding.error.authFailed" : {
       "localizations" : {
         "en" : {
@@ -4516,28 +4545,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Uwierzytelnianie nie powiodło się. Sprawdź swoje dane logowania."
-          }
-        }
-      }
-    },
-    "onboarding.error.hubUnreachable" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to reach the hub. Please check the URL and your connection."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossible de joindre le hub. Vérifiez l'URL et votre connexion."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie można połączyć się z hubem. Sprawdź adres URL i połączenie."
           }
         }
       }
@@ -4561,6 +4568,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ten serwer wymaga certyfikatu klienta. Dodaj go w sekcji Zaawansowane."
+          }
+        }
+      }
+    },
+    "onboarding.error.hubUnreachable" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to reach the hub. Please check the URL and your connection."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de joindre le hub. Vérifiez l'URL et votre connexion."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można połączyć się z hubem. Sprawdź adres URL i połączenie."
           }
         }
       }
@@ -4782,29 +4811,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nazwa huba (np. Lokalne lub Serwer)"
-          }
-        }
-      }
-    },
-    "onboarding.continueButton" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Continue"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Continuer"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontynuuj"
           }
         }
       }

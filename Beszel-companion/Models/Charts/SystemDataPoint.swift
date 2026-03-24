@@ -45,6 +45,8 @@ struct ExtraFilesystemPoint: Identifiable, Sendable {
     let used: Double           // Disk used (GB)
     let total: Double          // Disk total (GB)
     let percent: Double        // Usage percent
+    let diskRead: Double?      // Disk read (bytes/s)
+    let diskWrite: Double?     // Disk write (bytes/s)
 }
 
 // Downsampling for SystemDataPoint
@@ -208,21 +210,32 @@ extension Array where Element == SystemDataPoint {
         }
 
         // Average extra filesystems by name
-        var fsSums: [String: (used: Double, total: Double, percent: Double, count: Int)] = [:]
+        var fsSums: [String: (used: Double, total: Double, percent: Double, diskRead: Double, diskWrite: Double, ioCount: Int, count: Int)] = [:]
         for point in points {
             for fs in point.extraFilesystems {
-                let existing = fsSums[fs.name] ?? (0, 0, 0, 0)
+                let existing = fsSums[fs.name] ?? (0, 0, 0, 0, 0, 0, 0)
                 fsSums[fs.name] = (
                     used: existing.used + fs.used,
                     total: existing.total + fs.total,
                     percent: existing.percent + fs.percent,
+                    diskRead: existing.diskRead + (fs.diskRead ?? 0),
+                    diskWrite: existing.diskWrite + (fs.diskWrite ?? 0),
+                    ioCount: existing.ioCount + (fs.diskRead != nil ? 1 : 0),
                     count: existing.count + 1
                 )
             }
         }
         let avgExtraFs = fsSums.map { (name, data) -> ExtraFilesystemPoint in
             let c = Double(data.count)
-            return ExtraFilesystemPoint(name: name, used: data.used / c, total: data.total / c, percent: data.percent / c)
+            let ioC = Double(data.ioCount)
+            return ExtraFilesystemPoint(
+                name: name,
+                used: data.used / c,
+                total: data.total / c,
+                percent: data.percent / c,
+                diskRead: ioC > 0 ? data.diskRead / ioC : nil,
+                diskWrite: ioC > 0 ? data.diskWrite / ioC : nil
+            )
         }
 
         return SystemDataPoint(

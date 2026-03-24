@@ -105,9 +105,11 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
 nonisolated struct ExtraFsStats: Codable, Sendable {
     let d: Double?    // disk size (gb)
     let du: Double?   // disk used (gb)
-    let dp: Double?   // disk percent
-    let dr: Double?   // disk read (mb)
-    let dw: Double?   // disk write (mb)
+    let dp: Double?   // disk percent (may not be present, calculated from du/d)
+    let r: Double?    // disk read (mb)
+    let w: Double?    // disk write (mb)
+    let rb: Double?   // disk read (bytes)
+    let wb: Double?   // disk write (bytes)
 }
 
 nonisolated struct GPUData: Codable, Sendable {
@@ -252,12 +254,35 @@ extension Array where Element == SystemStatsRecord {
 
             // Extra filesystems
             let extraFilesystems: [ExtraFilesystemPoint] = (stats.extraFilesystems ?? [:]).compactMap { (name, data) in
-                guard let used = data.du, let total = data.d, let percent = data.dp else { return nil }
+                guard let used = data.du, let total = data.d, total > 0 else { return nil }
+                let percent = data.dp ?? (used / total * 100)
+
+                // I/O: prefer bytes (rb/wb), fall back to MB (r/w) converted to bytes
+                let mbToBytes = 1_048_576.0
+                let diskRead: Double?
+                if let rb = data.rb {
+                    diskRead = rb
+                } else if let r = data.r {
+                    diskRead = r * mbToBytes
+                } else {
+                    diskRead = nil
+                }
+                let diskWrite: Double?
+                if let wb = data.wb {
+                    diskWrite = wb
+                } else if let w = data.w {
+                    diskWrite = w * mbToBytes
+                } else {
+                    diskWrite = nil
+                }
+
                 return ExtraFilesystemPoint(
                     name: name,
                     used: used,
                     total: total,
-                    percent: percent
+                    percent: percent,
+                    diskRead: diskRead,
+                    diskWrite: diskWrite
                 )
             }
 

@@ -287,13 +287,23 @@ struct HomeView: View {
                 isPinned: store.isPinned(.systemNetworkInterfaces, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemNetworkInterfaces, onSystem: resolvedItem.systemID) }
             )
-        case .systemExtraFilesystems:
-            SystemExtraFilesystemsChartView(
+        case .extraDiskUsage(let name):
+            ExtraDiskUsageChartView(
+                diskName: name,
                 dataPoints: systemData,
                 xAxisFormat: store.xAxisFormat,
                 systemName: systemName,
-                isPinned: store.isPinned(.systemExtraFilesystems, onSystem: resolvedItem.systemID),
-                onPinToggle: { store.togglePin(for: .systemExtraFilesystems, onSystem: resolvedItem.systemID) }
+                isPinned: store.isPinned(.extraDiskUsage(name: name), onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .extraDiskUsage(name: name), onSystem: resolvedItem.systemID) }
+            )
+        case .extraDiskIO(let name):
+            ExtraDiskIOChartView(
+                diskName: name,
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.extraDiskIO(name: name), onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .extraDiskIO(name: name), onSystem: resolvedItem.systemID) }
             )
         case .containerCPU(let name):
             if let container = containerData.first(where: { $0.id == name }) {

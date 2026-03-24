@@ -90,6 +90,21 @@ final class BeszelStore {
     var hasExtraFilesystemsData: Bool {
         systemDataPoints.contains { !$0.extraFilesystems.isEmpty }
     }
+
+    var hasAdditionalDisksIOData: Bool {
+        systemDataPoints.contains { $0.extraFilesystems.contains { $0.diskRead != nil || $0.diskWrite != nil } }
+    }
+
+    var extraDiskNames: [String] {
+        let allNames = systemDataPoints.flatMap { $0.extraFilesystems.map(\.name) }
+        return Array(Set(allNames)).sorted()
+    }
+
+    func hasIOData(forDisk name: String) -> Bool {
+        systemDataPoints.contains { point in
+            point.extraFilesystems.contains { $0.name == name && ($0.diskRead != nil || $0.diskWrite != nil) }
+        }
+    }
     
     func updateDataForActiveSystem() {
         guard let activeSystemID = instanceManager.activeSystem?.id else {

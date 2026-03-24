@@ -130,6 +130,28 @@
         }
       }
     },
+    "%@ I/O" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ I/O"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ I/O"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ I/O"
+          }
+        }
+      }
+    },
     "%@ MB/s" : {
       "localizations" : {
         "en" : {
@@ -182,6 +204,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ rx | %2$@ tx"
+          }
+        }
+      }
+    },
+    "%@ Usage" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ Usage"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ Usage"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ Usage"
           }
         }
       }
@@ -5719,6 +5763,35 @@
         }
       }
     },
+    "onboarding.continueButton" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Continue"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuer"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontynuuj"
+          }
+        }
+      }
+    },
     "onboarding.error.authFailed" : {
       "localizations" : {
         "en" : {
@@ -5743,34 +5816,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Uwierzytelnianie nie powiodło się. Sprawdź swoje dane logowania."
-          }
-        }
-      }
-    },
-    "onboarding.error.hubUnreachable" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to reach the hub. Please check the URL and your connection."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to reach the hub. Please check the URL and your connection."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossible de joindre le hub. Vérifiez l'URL et votre connexion."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie można połączyć się z hubem. Sprawdź adres URL i połączenie."
           }
         }
       }
@@ -5800,6 +5845,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ten serwer wymaga certyfikatu klienta. Dodaj go w sekcji Zaawansowane."
+          }
+        }
+      }
+    },
+    "onboarding.error.hubUnreachable" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to reach the hub. Please check the URL and your connection."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to reach the hub. Please check the URL and your connection."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de joindre le hub. Vérifiez l'URL et votre connexion."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można połączyć się z hubem. Sprawdź adres URL i połączenie."
           }
         }
       }
@@ -6081,35 +6154,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nazwa huba (np. Lokalne lub Serwer)"
-          }
-        }
-      }
-    },
-    "onboarding.continueButton" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Continue"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Continue"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Continuer"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontynuuj"
           }
         }
       }

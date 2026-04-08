@@ -18,6 +18,7 @@ final class BeszelStore {
     var networkDomain: [String] = []
     
     var systemDataPoints: [SystemDataPoint] = []
+    var smartDevices: [SmartDeviceRecord] = []
     var containerData: [ProcessedContainerData] = [] {
         didSet {
             self.sortedContainerData = containerData.sorted { $0.name < $1.name }
@@ -40,6 +41,7 @@ final class BeszelStore {
     private var containerDataBySystem: [String: [ProcessedContainerData]] = [:]
     private var containerRecordsBySystem: [String: [ContainerRecord]] = [:]
     private var latestStatsBySystem: [String: SystemStatsRecord] = [:]
+    private var smartDevicesBySystem: [String: [SmartDeviceRecord]] = [:]
     
     private let instance: Instance
     private let apiService: BeszelAPIService
@@ -95,6 +97,14 @@ final class BeszelStore {
         systemDataPoints.contains { $0.extraFilesystems.contains { $0.diskRead != nil || $0.diskWrite != nil } }
     }
 
+    var hasDiskIOStatsData: Bool {
+        systemDataPoints.contains { $0.diskIOStats != nil }
+    }
+
+    var hasSmartData: Bool {
+        !smartDevices.isEmpty
+    }
+
     var extraDiskNames: [String] {
         let allNames = systemDataPoints.flatMap { $0.extraFilesystems.map(\.name) }
         return Array(Set(allNames)).sorted()
@@ -112,12 +122,14 @@ final class BeszelStore {
             self.containerData = []
             self.containerRecords = []
             self.latestSystemStats = nil
+            self.smartDevices = []
             return
         }
         self.systemDataPoints = systemDataPointsBySystem[activeSystemID] ?? []
         self.containerData = containerDataBySystem[activeSystemID] ?? []
         self.containerRecords = containerRecordsBySystem[activeSystemID] ?? []
         self.latestSystemStats = latestStatsBySystem[activeSystemID]
+        self.smartDevices = smartDevicesBySystem[activeSystemID] ?? []
     }
     
     private func cleanupStaleSystemData() {
@@ -143,10 +155,12 @@ final class BeszelStore {
         containerDataBySystem.removeAll()
         containerRecordsBySystem.removeAll()
         latestStatsBySystem.removeAll()
+        smartDevicesBySystem.removeAll()
         systemDataPoints = []
         containerData = []
         containerRecords = []
         latestSystemStats = nil
+        smartDevices = []
         stackedCpuData = []
         stackedMemoryData = []
         stackedNetworkData = []
@@ -254,7 +268,8 @@ final class BeszelStore {
             }
             
             await fetchContainerRecords(for: systemsToFetch)
-            
+            await fetchSmartDevices(for: systemsToFetch)
+
             self.updateDataForActiveSystem()
             
         } catch {
@@ -262,6 +277,18 @@ final class BeszelStore {
         }
     }
     
+    private func fetchSmartDevices(for systems: [SystemRecord]) async {
+        let apiService = self.apiService
+        for system in systems {
+            do {
+                let devices = try await apiService.fetchSmartDevices(systemID: system.id)
+                self.smartDevicesBySystem[system.id] = devices
+            } catch {
+                logger.warning("Failed to fetch SMART devices for \(system.id): \(error.localizedDescription)")
+            }
+        }
+    }
+
     private func fetchContainerRecords(for systems: [SystemRecord]) async {
         let apiService = self.apiService
         

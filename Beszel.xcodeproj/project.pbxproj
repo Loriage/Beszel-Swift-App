@@ -80,6 +80,7 @@
 				Models/API/ContainerRecord.swift,
 				Models/API/ContainerStatsRecord.swift,
 				Models/API/PocketBaseResponse.swift,
+				Models/API/SmartDeviceRecord.swift,
 				Models/API/SystemDetailsRecord.swift,
 				Models/API/SystemRecord.swift,
 				Models/API/SystemStatsRecord.swift,

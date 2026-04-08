@@ -4,7 +4,7 @@ import Charts
 struct SystemView: View {
     @Environment(BeszelStore.self) var store
     @Environment(InstanceManager.self) var instanceManager
-    
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -12,7 +12,7 @@ struct SystemView: View {
                     title: "system.title",
                     subtitle: store.isLoading ? "switcher.loading" : "system.subtitle"
                 )
-                
+
                 if let latestStats = store.latestSystemStats, let system = instanceManager.activeSystem {
                     SystemSummaryCard(
                         system: system,
@@ -26,7 +26,12 @@ struct SystemView: View {
                     .padding(.horizontal)
                     .transition(.scale.combined(with: .opacity))
                 }
-                
+
+                if store.hasSmartData {
+                    SmartHealthSummaryCard(devices: store.smartDevices)
+                        .padding(.horizontal)
+                }
+
                 VStack(alignment: .leading, spacing: 16) {
                     SystemMetricChartView(
                         title: "chart.cpuUsage",
@@ -34,6 +39,8 @@ struct SystemView: View {
                         dataPoints: store.systemDataPoints,
                         valueKeyPath: \.cpu,
                         color: .blue,
+                        subtitle: "chart.cpuUsage.subtitle",
+                        unit: "%",
                         isPinned: store.isPinned(.systemCPU),
                         onPinToggle: { store.togglePin(for: .systemCPU) }
                     )
@@ -43,14 +50,14 @@ struct SystemView: View {
                         dataPoints: store.systemDataPoints,
                         valueKeyPath: \.memoryPercent,
                         color: .green,
+                        subtitle: "chart.memoryUsage.subtitle",
+                        unit: "%",
                         isPinned: store.isPinned(.systemMemory),
                         onPinToggle: { store.togglePin(for: .systemMemory) }
                     )
-                    SystemDiskIOChartView(
+                    DiskIOSummaryChartView(
                         dataPoints: store.systemDataPoints,
-                        xAxisFormat: store.xAxisFormat,
-                        isPinned: store.isPinned(.systemDiskIO),
-                        onPinToggle: { store.togglePin(for: .systemDiskIO) }
+                        systemID: instanceManager.activeSystem?.id
                     )
                     if store.hasDiskUsageData {
                         SystemDiskUsageChartView(
@@ -60,11 +67,9 @@ struct SystemView: View {
                             onPinToggle: { store.togglePin(for: .systemDiskUsage) }
                         )
                     }
-                    SystemBandwidthChartView(
+                    BandwidthSummaryChartView(
                         dataPoints: store.systemDataPoints,
-                        xAxisFormat: store.xAxisFormat,
-                        isPinned: store.isPinned(.systemBandwidth),
-                        onPinToggle: { store.togglePin(for: .systemBandwidth) }
+                        systemID: instanceManager.activeSystem?.id
                     )
                     SystemLoadChartView(
                         dataPoints: store.systemDataPoints,
@@ -96,14 +101,6 @@ struct SystemView: View {
                             onPinToggle: { store.togglePin(for: .systemGPU) }
                         )
                     }
-                    if store.hasNetworkInterfacesData {
-                        SystemNetworkInterfacesChartView(
-                            dataPoints: store.systemDataPoints,
-                            xAxisFormat: store.xAxisFormat,
-                            isPinned: store.isPinned(.systemNetworkInterfaces),
-                            onPinToggle: { store.togglePin(for: .systemNetworkInterfaces) }
-                        )
-                    }
                     if store.hasExtraFilesystemsData {
                         ForEach(store.extraDiskNames, id: \.self) { diskName in
                             ExtraDiskUsageChartView(
@@ -114,12 +111,10 @@ struct SystemView: View {
                                 onPinToggle: { store.togglePin(for: .extraDiskUsage(name: diskName)) }
                             )
                             if store.hasIOData(forDisk: diskName) {
-                                ExtraDiskIOChartView(
+                                ExtraDiskIOSummaryChartView(
                                     diskName: diskName,
                                     dataPoints: store.systemDataPoints,
-                                    xAxisFormat: store.xAxisFormat,
-                                    isPinned: store.isPinned(.extraDiskIO(name: diskName)),
-                                    onPinToggle: { store.togglePin(for: .extraDiskIO(name: diskName)) }
+                                    systemID: instanceManager.activeSystem?.id
                                 )
                             }
                         }

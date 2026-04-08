@@ -13,11 +13,16 @@ struct SystemLoadChartView: View {
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-            Text("chart.loadAverage")
-                .font(.headline)
+                Text("chart.loadAverage")
+                    .font(.headline)
+                if systemName == nil {
+                    Text("chart.loadAverage.subtitle")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
                 if let systemName = systemName {
                     Text(systemName)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
@@ -59,7 +64,7 @@ struct SystemLoadChartView: View {
                 }
             }
             .chartYAxis {
-                AxisMarks(values: .automatic(desiredCount: 4)) { value in
+                AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                     AxisGridLine()
                     AxisValueLabel()
                 }

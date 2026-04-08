@@ -11,6 +11,8 @@ struct SystemMetricChartView: View {
     let valueKeyPath: KeyPath<SystemDataPoint, Double>
     let color: Color
     
+    var subtitle: LocalizedStringResource? = nil
+    var unit: String = ""
     var systemName: String? = nil
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
@@ -20,11 +22,16 @@ struct SystemMetricChartView: View {
         if !isForWidget {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
+                    (unit.isEmpty ? Text(title) : Text(title) + Text(" (\(unit))"))
                         .font(.headline)
+                    if let subtitle = subtitle, systemName == nil {
+                        Text(subtitle)
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
                     if let systemName = systemName {
                         Text(systemName)
-                            .font(.caption)
+                            .font(.caption2)
                             .foregroundColor(.secondary)
                     }
                 }
@@ -85,6 +92,16 @@ struct SystemMetricChartView: View {
         .chartXAxis {
             AxisMarks(values: .automatic(desiredCount: 5)) { _ in
                 AxisValueLabel(format: xAxisFormat, centered: true)
+            }
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
+                AxisGridLine()
+                AxisValueLabel {
+                    if let v = value.as(Double.self) {
+                        Text(String(format: "%.0f", v)).font(.caption2)
+                    }
+                }
             }
         }
         .padding(.top, 5)

@@ -45,9 +45,14 @@ struct StackedMemoryChartView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("charts.stacked_memory.title \(memoryUnit)")
                         .font(.headline)
+                    if systemName == nil {
+                        Text("charts.stacked_memory.subtitle")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
                     if let systemName = systemName {
                         Text(systemName)
-                            .font(.caption)
+                            .font(.caption2)
                             .foregroundColor(.secondary)
                     }
                 }
@@ -68,14 +73,16 @@ struct StackedMemoryChartView: View {
                     }
                     .chartForegroundStyleScale(domain: domain, range: gradientRange(for: domain))
                     .chartYAxis {
-                        AxisMarks { value in
+                        AxisMarks(position: .leading) { value in
                             if let yValue = value.as(Double.self) {
                                 let scaledValue = yValue / memoryLabelScale
-                                let labelText = String(format: "%.1f", scaledValue)
+                                let s = scaledValue == 0 ? "0"
+                                    : scaledValue.truncatingRemainder(dividingBy: 1) == 0
+                                        ? String(format: "%.0f", scaledValue)
+                                        : String(format: "%.1f", scaledValue)
                                 AxisGridLine()
                                 AxisValueLabel {
-                                    Text(labelText)
-                                        .font(.caption)
+                                    Text(s).font(.caption2)
                                 }
                             }
                         }

@@ -1,5 +1,14 @@
 import Foundation
 
+struct DiskIOStats: Sendable {
+    let readTimePct: Double    // read time %
+    let writeTimePct: Double   // write time %
+    let utilPct: Double        // I/O utilization %
+    let rAwait: Double         // read await (ms)
+    let wAwait: Double         // write await (ms)
+    let weightedIO: Double     // weighted I/O %
+}
+
 struct SystemDataPoint: Identifiable, Sendable {
     var id: Date { date }
 
@@ -10,6 +19,7 @@ struct SystemDataPoint: Identifiable, Sendable {
 
     let bandwidth: (upload: Double, download: Double)?
     let diskIO: (read: Double, write: Double)?
+    let diskIOStats: DiskIOStats?
     let diskUsage: (used: Double, total: Double)?
     let loadAverage: (l1: Double, l5: Double, l15: Double)?
 
@@ -47,6 +57,7 @@ struct ExtraFilesystemPoint: Identifiable, Sendable {
     let percent: Double        // Usage percent
     let diskRead: Double?      // Disk read (bytes/s)
     let diskWrite: Double?     // Disk write (bytes/s)
+    let diskIOStats: DiskIOStats?
 }
 
 // Downsampling for SystemDataPoint
@@ -123,6 +134,23 @@ extension Array where Element == SystemDataPoint {
             )
         } else {
             avgDiskIO = nil
+        }
+
+        // Average diskIOStats
+        let diskIOStatsPoints = points.compactMap { $0.diskIOStats }
+        let avgDiskIOStats: DiskIOStats?
+        if !diskIOStatsPoints.isEmpty {
+            let dCount = Double(diskIOStatsPoints.count)
+            avgDiskIOStats = DiskIOStats(
+                readTimePct: diskIOStatsPoints.map { $0.readTimePct }.reduce(0, +) / dCount,
+                writeTimePct: diskIOStatsPoints.map { $0.writeTimePct }.reduce(0, +) / dCount,
+                utilPct: diskIOStatsPoints.map { $0.utilPct }.reduce(0, +) / dCount,
+                rAwait: diskIOStatsPoints.map { $0.rAwait }.reduce(0, +) / dCount,
+                wAwait: diskIOStatsPoints.map { $0.wAwait }.reduce(0, +) / dCount,
+                weightedIO: diskIOStatsPoints.map { $0.weightedIO }.reduce(0, +) / dCount
+            )
+        } else {
+            avgDiskIOStats = nil
         }
 
         // Average disk usage
@@ -210,31 +238,50 @@ extension Array where Element == SystemDataPoint {
         }
 
         // Average extra filesystems by name
-        var fsSums: [String: (used: Double, maxTotal: Double, percent: Double, diskRead: Double, diskWrite: Double, ioCount: Int, count: Int)] = [:]
+        typealias FsSums = (used: Double, maxTotal: Double, percent: Double, diskRead: Double, diskWrite: Double, ioCount: Int, count: Int, diosRTp: Double, diosWTp: Double, diosUtil: Double, diosRA: Double, diosWA: Double, diosWIO: Double, diosCount: Int)
+        var fsSums: [String: FsSums] = [:]
         for point in points {
             for fs in point.extraFilesystems {
-                let existing = fsSums[fs.name] ?? (0, 0, 0, 0, 0, 0, 0)
+                let ex: FsSums = fsSums[fs.name] ?? (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                let s = fs.diskIOStats
                 fsSums[fs.name] = (
-                    used: existing.used + fs.used,
-                    maxTotal: Swift.max(existing.maxTotal, fs.total),
-                    percent: existing.percent + fs.percent,
-                    diskRead: existing.diskRead + (fs.diskRead ?? 0),
-                    diskWrite: existing.diskWrite + (fs.diskWrite ?? 0),
-                    ioCount: existing.ioCount + (fs.diskRead != nil ? 1 : 0),
-                    count: existing.count + 1
+                    used: ex.used + fs.used,
+                    maxTotal: Swift.max(ex.maxTotal, fs.total),
+                    percent: ex.percent + fs.percent,
+                    diskRead: ex.diskRead + (fs.diskRead ?? 0),
+                    diskWrite: ex.diskWrite + (fs.diskWrite ?? 0),
+                    ioCount: ex.ioCount + (fs.diskRead != nil ? 1 : 0),
+                    count: ex.count + 1,
+                    diosRTp: ex.diosRTp + (s?.readTimePct ?? 0),
+                    diosWTp: ex.diosWTp + (s?.writeTimePct ?? 0),
+                    diosUtil: ex.diosUtil + (s?.utilPct ?? 0),
+                    diosRA: ex.diosRA + (s?.rAwait ?? 0),
+                    diosWA: ex.diosWA + (s?.wAwait ?? 0),
+                    diosWIO: ex.diosWIO + (s?.weightedIO ?? 0),
+                    diosCount: ex.diosCount + (s != nil ? 1 : 0)
                 )
             }
         }
         let avgExtraFs = fsSums.map { (name, data) -> ExtraFilesystemPoint in
             let c = Double(data.count)
             let ioC = Double(data.ioCount)
+            let dC = Double(data.diosCount)
+            let avgDios: DiskIOStats? = dC > 0 ? DiskIOStats(
+                readTimePct: data.diosRTp / dC,
+                writeTimePct: data.diosWTp / dC,
+                utilPct: data.diosUtil / dC,
+                rAwait: data.diosRA / dC,
+                wAwait: data.diosWA / dC,
+                weightedIO: data.diosWIO / dC
+            ) : nil
             return ExtraFilesystemPoint(
                 name: name,
                 used: data.used / c,
                 total: data.maxTotal,
                 percent: data.percent / c,
                 diskRead: ioC > 0 ? data.diskRead / ioC : nil,
-                diskWrite: ioC > 0 ? data.diskWrite / ioC : nil
+                diskWrite: ioC > 0 ? data.diskWrite / ioC : nil,
+                diskIOStats: avgDios
             )
         }
 
@@ -245,6 +292,7 @@ extension Array where Element == SystemDataPoint {
             temperatures: avgTemps,
             bandwidth: avgBandwidth,
             diskIO: avgDiskIO,
+            diskIOStats: avgDiskIOStats,
             diskUsage: avgDiskUsage,
             loadAverage: avgLoad,
             swap: avgSwap,

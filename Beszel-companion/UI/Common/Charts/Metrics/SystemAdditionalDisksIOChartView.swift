@@ -18,11 +18,16 @@ struct ExtraDiskUsageChartView: View {
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(LocalizedStringResource("chart.extraDisk.usage")) \(diskName)")
+                (Text("chart.extraDisk.usage.title \(diskName)") + Text(" (\(diskSizeUnit))"))
                     .font(.headline)
+                if systemName == nil {
+                    Text("chart.extraDiskUsage.subtitle \(diskName)")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
                 if let systemName = systemName {
                     Text(systemName)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
@@ -60,12 +65,12 @@ struct ExtraDiskUsageChartView: View {
                 }
             }
             .chartYAxis {
-                AxisMarks(values: .automatic(desiredCount: 4)) { value in
+                AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                     AxisGridLine()
                     AxisValueLabel {
                         if let gb = value.as(Double.self) {
-                            Text(formatDiskSize(gb))
-                                .font(.caption)
+                            let s = formatDiskSize(gb)
+                            Text(s).font(.caption2)
                         }
                     }
                 }
@@ -92,14 +97,21 @@ struct ExtraDiskUsageChartView: View {
         }
     }
 
+    private var diskSizeUnit: String {
+        if totalDisk >= 1024 { return "TB" }
+        if totalDisk >= 1    { return "GB" }
+        return "MB"
+    }
+
     private func formatDiskSize(_ gb: Double) -> String {
-        if gb >= 1024 {
-            return String(format: "%.1f TB", gb / 1024)
-        } else if gb >= 1 {
-            return String(format: "%.0f GB", gb)
-        } else {
-            return String(format: "%.0f MB", gb * 1024)
+        func fmt(_ v: Double) -> String {
+            v.truncatingRemainder(dividingBy: 1) == 0
+                ? String(format: "%.0f", v) : String(format: "%.1f", v)
         }
+        if gb == 0 { return "0" }
+        if gb >= 1024 { return fmt(gb / 1024) }
+        if gb >= 1    { return fmt(gb) }
+        return fmt(gb * 1024)
     }
 }
 
@@ -129,11 +141,16 @@ struct ExtraDiskIOChartView: View {
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(LocalizedStringResource("chart.extraDisk.io")) \(diskName) (\(unitLabel))")
+                (Text("chart.extraDisk.io.title \(diskName)") + Text(" (\(unitLabel))"))
                     .font(.headline)
+                if systemName == nil {
+                    Text("chart.extraDiskIO.subtitle \(diskName)")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
                 if let systemName = systemName {
                     Text(systemName)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
@@ -186,12 +203,12 @@ struct ExtraDiskIOChartView: View {
                 }
             }
             .chartYAxis {
-                AxisMarks(values: .automatic(desiredCount: 4)) { value in
+                AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                     AxisGridLine()
                     AxisValueLabel {
                         if let bytes = value.as(Double.self) {
-                            Text(formatBytes(bytes))
-                                .font(.caption)
+                            let s = formatBytes(bytes)
+                            Text(s).font(.caption2)
                         }
                     }
                 }
@@ -218,14 +235,14 @@ struct ExtraDiskIOChartView: View {
     }
 
     private func formatBytes(_ bytes: Double) -> String {
-        if bytes >= 1_073_741_824 {
-            return String(format: "%.1f GB/s", bytes / 1_073_741_824)
-        } else if bytes >= 1_048_576 {
-            return String(format: "%.1f MB/s", bytes / 1_048_576)
-        } else if bytes >= 1024 {
-            return String(format: "%.1f KB/s", bytes / 1024)
-        } else {
-            return String(format: "%.0f B/s", bytes)
+        func fmt(_ v: Double) -> String {
+            v.truncatingRemainder(dividingBy: 1) == 0
+                ? String(format: "%.0f", v) : String(format: "%.1f", v)
         }
+        if bytes == 0 { return "0" }
+        if bytes >= 1_073_741_824 { return fmt(bytes / 1_073_741_824) }
+        if bytes >= 1_048_576     { return fmt(bytes / 1_048_576) }
+        if bytes >= 1024          { return fmt(bytes / 1024) }
+        return String(format: "%.0f", bytes)
     }
 }

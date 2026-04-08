@@ -398,6 +398,7 @@ private func sampleDataPoints() -> [SystemDataPoint] {
             temperatures: [],
             bandwidth: nil,
             diskIO: nil,
+            diskIOStats: nil,
             diskUsage: nil,
             loadAverage: nil,
             swap: nil,

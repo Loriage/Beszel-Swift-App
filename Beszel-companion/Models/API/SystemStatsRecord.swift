@@ -42,6 +42,8 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
     let diskWriteMax: Double?         // max disk write (mb)
     let diskIO: [Double]?             // disk I/O bytes [read, write]
     let diskIOMax: [Double]?          // max disk I/O bytes [read, write]
+    let diskIOStats: [Double]?        // [read_time%, write_time%, io_util%, r_await_ms, w_await_ms, weighted_io%]
+    let diskIOStatsMax: [Double]?     // max values for diskIOStats
 
     // Network
     let networkSent: Double?          // network sent (mb)
@@ -88,6 +90,8 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
         case diskWriteMax = "dwm"
         case diskIO = "dio"
         case diskIOMax = "diom"
+        case diskIOStats = "dios"
+        case diskIOStatsMax = "diosm"
         case networkSent = "ns"
         case networkReceived = "nr"
         case bandwidth = "b"
@@ -106,10 +110,16 @@ nonisolated struct ExtraFsStats: Codable, Sendable {
     let d: Double?    // disk size (gb)
     let du: Double?   // disk used (gb)
     let dp: Double?   // disk percent (may not be present, calculated from du/d)
-    let r: Double?    // disk read (mb)
-    let w: Double?    // disk write (mb)
-    let rb: Double?   // disk read (bytes)
-    let wb: Double?   // disk write (bytes)
+    let r: Double?         // disk read (mb)
+    let w: Double?         // disk write (mb)
+    let rb: Double?        // disk read (bytes)
+    let wb: Double?        // disk write (bytes)
+    let diskIOStats: [Double]?  // [read_time%, write_time%, io_util%, r_await_ms, w_await_ms, weighted_io%]
+
+    enum CodingKeys: String, CodingKey {
+        case d, du, dp, r, w, rb, wb
+        case diskIOStats = "dios"
+    }
 }
 
 nonisolated struct GPUData: Codable, Sendable {
@@ -150,6 +160,8 @@ extension SystemStatsDetail {
             diskWriteMax: nil,
             diskIO: nil,
             diskIOMax: nil,
+            diskIOStats: nil,
+            diskIOStatsMax: nil,
             networkSent: 1024,
             networkReceived: 5120,
             bandwidth: nil,
@@ -203,6 +215,20 @@ extension Array where Element == SystemStatsRecord {
                 diskIOTuple = (read: dr * mbToBytes, write: dw * mbToBytes)
             } else {
                 diskIOTuple = nil
+            }
+
+            let diskIOStatsParsed: DiskIOStats?
+            if let dios = stats.diskIOStats, dios.count >= 6 {
+                diskIOStatsParsed = DiskIOStats(
+                    readTimePct: dios[0],
+                    writeTimePct: dios[1],
+                    utilPct: dios[2],
+                    rAwait: dios[3],
+                    wAwait: dios[4],
+                    weightedIO: dios[5]
+                )
+            } else {
+                diskIOStatsParsed = nil
             }
 
             let diskUsageTuple: (used: Double, total: Double)?
@@ -276,13 +302,28 @@ extension Array where Element == SystemStatsRecord {
                     diskWrite = nil
                 }
 
+                let extraDiskIOStats: DiskIOStats?
+                if let dios = data.diskIOStats, dios.count >= 6 {
+                    extraDiskIOStats = DiskIOStats(
+                        readTimePct: dios[0],
+                        writeTimePct: dios[1],
+                        utilPct: dios[2],
+                        rAwait: dios[3],
+                        wAwait: dios[4],
+                        weightedIO: dios[5]
+                    )
+                } else {
+                    extraDiskIOStats = nil
+                }
+
                 return ExtraFilesystemPoint(
                     name: name,
                     used: used,
                     total: total,
                     percent: percent,
                     diskRead: diskRead,
-                    diskWrite: diskWrite
+                    diskWrite: diskWrite,
+                    diskIOStats: extraDiskIOStats
                 )
             }
 
@@ -293,6 +334,7 @@ extension Array where Element == SystemStatsRecord {
                 temperatures: tempsArray,
                 bandwidth: bandwidthTuple,
                 diskIO: diskIOTuple,
+                diskIOStats: diskIOStatsParsed,
                 diskUsage: diskUsageTuple,
                 loadAverage: loadTuple,
                 swap: swapTuple,

@@ -208,6 +208,8 @@ struct HomeView: View {
                 dataPoints: systemData,
                 valueKeyPath: \.cpu,
                 color: .blue,
+                subtitle: "chart.cpuUsage.subtitle",
+                unit: "%",
                 systemName: systemName,
                 isPinned: store.isPinned(.systemCPU, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemCPU, onSystem: resolvedItem.systemID) }
@@ -219,6 +221,8 @@ struct HomeView: View {
                 dataPoints: systemData,
                 valueKeyPath: \.memoryPercent,
                 color: .green,
+                subtitle: "chart.memoryUsage.subtitle",
+                unit: "%",
                 systemName: systemName,
                 isPinned: store.isPinned(.systemMemory, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemMemory, onSystem: resolvedItem.systemID) }
@@ -239,6 +243,38 @@ struct HomeView: View {
                 isPinned: store.isPinned(.systemDiskIO, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemDiskIO, onSystem: resolvedItem.systemID) }
             )
+        case .systemDiskIOUtilization:
+            SystemDiskIOUtilizationChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.systemDiskIOUtilization, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemDiskIOUtilization, onSystem: resolvedItem.systemID) }
+            )
+        case .systemDiskIOTimes:
+            SystemDiskIOTimesChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.systemDiskIOTimes, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemDiskIOTimes, onSystem: resolvedItem.systemID) }
+            )
+        case .systemDiskAwait:
+            SystemDiskAwaitChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.systemDiskAwait, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemDiskAwait, onSystem: resolvedItem.systemID) }
+            )
+        case .systemDiskIOQueueDepth:
+            SystemDiskIOQueueDepthChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.systemDiskIOQueueDepth, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemDiskIOQueueDepth, onSystem: resolvedItem.systemID) }
+            )
         case .systemDiskUsage:
             SystemDiskUsageChartView(
                 dataPoints: systemData,
@@ -254,6 +290,38 @@ struct HomeView: View {
                 systemName: systemName,
                 isPinned: store.isPinned(.systemBandwidth, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemBandwidth, onSystem: resolvedItem.systemID) }
+            )
+        case .systemBandwidthDownload:
+            BandwidthDownloadChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.systemBandwidthDownload, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemBandwidthDownload, onSystem: resolvedItem.systemID) }
+            )
+        case .systemBandwidthUpload:
+            BandwidthUploadChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.systemBandwidthUpload, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemBandwidthUpload, onSystem: resolvedItem.systemID) }
+            )
+        case .systemBandwidthCumulativeDownload:
+            BandwidthCumulativeDownloadChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.systemBandwidthCumulativeDownload, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemBandwidthCumulativeDownload, onSystem: resolvedItem.systemID) }
+            )
+        case .systemBandwidthCumulativeUpload:
+            BandwidthCumulativeUploadChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.systemBandwidthCumulativeUpload, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemBandwidthCumulativeUpload, onSystem: resolvedItem.systemID) }
             )
         case .systemLoadAverage:
             SystemLoadChartView(
@@ -305,6 +373,42 @@ struct HomeView: View {
                 isPinned: store.isPinned(.extraDiskIO(name: name), onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .extraDiskIO(name: name), onSystem: resolvedItem.systemID) }
             )
+        case .extraDiskIOUtilization(let name):
+            ExtraDiskIOUtilizationChartView(
+                diskName: name,
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.extraDiskIOUtilization(name: name), onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .extraDiskIOUtilization(name: name), onSystem: resolvedItem.systemID) }
+            )
+        case .extraDiskIOTimes(let name):
+            ExtraDiskIOTimesChartView(
+                diskName: name,
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.extraDiskIOTimes(name: name), onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .extraDiskIOTimes(name: name), onSystem: resolvedItem.systemID) }
+            )
+        case .extraDiskAwait(let name):
+            ExtraDiskAwaitChartView(
+                diskName: name,
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.extraDiskAwait(name: name), onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .extraDiskAwait(name: name), onSystem: resolvedItem.systemID) }
+            )
+        case .extraDiskIOQueueDepth(let name):
+            ExtraDiskIOQueueDepthChartView(
+                diskName: name,
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.extraDiskIOQueueDepth(name: name), onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .extraDiskIOQueueDepth(name: name), onSystem: resolvedItem.systemID) }
+            )
         case .containerCPU(let name):
             if let container = containerData.first(where: { $0.id == name }) {
                 ContainerMetricChartView(
@@ -314,9 +418,12 @@ struct HomeView: View {
                     container: container,
                     valueKeyPath: \.cpu,
                     color: .blue,
+                    subtitleKey: "chart.container.cpuUsage.subtitle",
                     systemName: systemName,
                     isPinned: store.isPinned(.containerCPU(name: container.name), onSystem: resolvedItem.systemID),
-                    onPinToggle: { store.togglePin(for: .containerCPU(name: container.name), onSystem: resolvedItem.systemID) }
+                    onPinToggle: { store.togglePin(for: .containerCPU(name: container.name), onSystem: resolvedItem.systemID) },
+                    yAxisFormatter: { String(format: "%.0f", $0) },
+                    yAxisUnit: "%"
                 )
             }
         case .containerMemory(let name):
@@ -328,9 +435,12 @@ struct HomeView: View {
                     container: container,
                     valueKeyPath: \.memory,
                     color: .green,
+                    subtitleKey: "chart.container.memoryUsage.subtitle",
                     systemName: systemName,
                     isPinned: store.isPinned(.containerMemory(name: container.name), onSystem: resolvedItem.systemID),
-                    onPinToggle: { store.togglePin(for: .containerMemory(name: container.name), onSystem: resolvedItem.systemID) }
+                    onPinToggle: { store.togglePin(for: .containerMemory(name: container.name), onSystem: resolvedItem.systemID) },
+                    yAxisFormatter: { String(format: "%.0f", $0) },
+                    yAxisUnit: "MB"
                 )
             }
         case .stackedContainerCPU:

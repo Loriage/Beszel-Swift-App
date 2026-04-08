@@ -17,11 +17,16 @@ struct SystemDiskUsageChartView: View {
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-            Text("chart.diskUsage")
-                .font(.headline)
+                (Text("chart.diskUsage") + Text(" (\(totalDisk >= 1024 ? "TB" : "GB"))"))
+                    .font(.headline)
+                if systemName == nil {
+                    Text("chart.diskUsage.subtitle")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
                 if let systemName = systemName {
                     Text(systemName)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
@@ -59,12 +64,15 @@ struct SystemDiskUsageChartView: View {
                     }
                 }
                 .chartYAxis {
-                    AxisMarks(values: .automatic(desiredCount: 4)) { value in
+                    AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                         AxisGridLine()
                         AxisValueLabel {
                             if let gb = value.as(Double.self) {
-                                Text(String(format: "%.0f GB", gb))
-                                    .font(.caption)
+                                let s = gb == 0 ? "0"
+                                    : gb >= 1024
+                                        ? String(format: "%.0f", gb / 1024)
+                                        : String(format: "%.0f", gb)
+                                Text(s).font(.caption2)
                             }
                         }
                     }

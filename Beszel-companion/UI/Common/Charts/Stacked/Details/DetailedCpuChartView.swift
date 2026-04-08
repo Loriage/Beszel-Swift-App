@@ -188,14 +188,13 @@ struct CpuChartSectionView: View {
             }
             .chartForegroundStyleScale(domain: domain, range: gradientRange(for: domain))
             .chartYAxis {
-                AxisMarks { value in
+                AxisMarks(position: .leading) { value in
                     if let yValue = value.as(Double.self) {
                         let scaledValue = yValue / labelScale
-                        let labelText = String(format: "%.1f", scaledValue)
+                        let s = String(format: "%.1f", scaledValue)
                         AxisGridLine()
                         AxisValueLabel {
-                            Text(labelText)
-                                .font(.caption)
+                            Text(s).font(.caption2)
                         }
                     }
                 }

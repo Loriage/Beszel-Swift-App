@@ -25,11 +25,16 @@ struct StackedCpuChartView: View {
         )) {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("charts.stacked_cpu.title")
+                    (Text("charts.stacked_cpu.title") + Text(" (%)"))
                         .font(.headline)
+                    if systemName == nil {
+                        Text("charts.stacked_cpu.subtitle")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
                     if let systemName = systemName {
                         Text(systemName)
-                            .font(.caption)
+                            .font(.caption2)
                             .foregroundColor(.secondary)
                     }
                 }
@@ -49,6 +54,16 @@ struct StackedCpuChartView: View {
                         .interpolationMethod(.monotone)
                     }
                     .chartForegroundStyleScale(domain: domain, range: gradientRange(for: domain))
+                    .chartYAxis {
+                        AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
+                            AxisGridLine()
+                            AxisValueLabel {
+                                if let v = value.as(Double.self) {
+                                    Text(String(format: "%.0f", v)).font(.caption2)
+                                }
+                            }
+                        }
+                    }
                     .padding(.top, 5)
                     .drawingGroup()
                 }

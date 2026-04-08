@@ -6,14 +6,26 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
     case systemMemory
     case systemTemperature
     case systemDiskIO
+    case systemDiskIOUtilization
+    case systemDiskIOTimes
+    case systemDiskAwait
+    case systemDiskIOQueueDepth
     case systemDiskUsage
     case systemBandwidth
+    case systemBandwidthDownload
+    case systemBandwidthUpload
+    case systemBandwidthCumulativeDownload
+    case systemBandwidthCumulativeUpload
     case systemLoadAverage
     case systemSwap
     case systemGPU
     case systemNetworkInterfaces
     case extraDiskUsage(name: String)
     case extraDiskIO(name: String)
+    case extraDiskIOUtilization(name: String)
+    case extraDiskIOTimes(name: String)
+    case extraDiskAwait(name: String)
+    case extraDiskIOQueueDepth(name: String)
     case containerCPU(name: String)
     case containerMemory(name: String)
     case stackedContainerCPU
@@ -27,14 +39,26 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
         case .systemMemory: return "system_memory"
         case .systemTemperature: return "system_temperature"
         case .systemDiskIO: return "system_disk_io"
+        case .systemDiskIOUtilization: return "system_disk_io_utilization"
+        case .systemDiskIOTimes: return "system_disk_io_times"
+        case .systemDiskAwait: return "system_disk_await"
+        case .systemDiskIOQueueDepth: return "system_disk_io_queue_depth"
         case .systemDiskUsage: return "system_disk_usage"
         case .systemBandwidth: return "system_bandwidth"
+        case .systemBandwidthDownload: return "system_bandwidth_download"
+        case .systemBandwidthUpload: return "system_bandwidth_upload"
+        case .systemBandwidthCumulativeDownload: return "system_bandwidth_cumulative_download"
+        case .systemBandwidthCumulativeUpload: return "system_bandwidth_cumulative_upload"
         case .systemLoadAverage: return "system_loadaverage"
         case .systemSwap: return "system_swap"
         case .systemGPU: return "system_gpu"
         case .systemNetworkInterfaces: return "system_network_interfaces"
         case .extraDiskUsage(let name): return "extra_disk_usage_\(name)"
         case .extraDiskIO(let name): return "extra_disk_io_\(name)"
+        case .extraDiskIOUtilization(let name): return "extra_disk_io_utilization_\(name)"
+        case .extraDiskIOTimes(let name): return "extra_disk_io_times_\(name)"
+        case .extraDiskAwait(let name): return "extra_disk_await_\(name)"
+        case .extraDiskIOQueueDepth(let name): return "extra_disk_io_queue_depth_\(name)"
         case .containerCPU(let name): return "container_cpu_\(name)"
         case .containerMemory(let name): return "container_memory_\(name)"
         case .stackedContainerCPU: return "stacked_container_cpu"
@@ -55,10 +79,26 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
             return NSLocalizedString("pinned.item.system.temperature", bundle: bundle, comment: "")
         case .systemDiskIO:
             return NSLocalizedString("pinned.item.system.disk", bundle: bundle, comment: "")
+        case .systemDiskIOUtilization:
+            return NSLocalizedString("pinned.item.system.disk.utilization", bundle: bundle, comment: "")
+        case .systemDiskIOTimes:
+            return NSLocalizedString("pinned.item.system.disk.times", bundle: bundle, comment: "")
+        case .systemDiskAwait:
+            return NSLocalizedString("pinned.item.system.disk.await", bundle: bundle, comment: "")
+        case .systemDiskIOQueueDepth:
+            return NSLocalizedString("pinned.item.system.disk.queuedepth", bundle: bundle, comment: "")
         case .systemDiskUsage:
             return NSLocalizedString("pinned.item.system.diskusage", bundle: bundle, comment: "")
         case .systemBandwidth:
             return NSLocalizedString("pinned.item.system.bandwidth", bundle: bundle, comment: "")
+        case .systemBandwidthDownload:
+            return NSLocalizedString("pinned.item.system.bandwidth.download", bundle: bundle, comment: "")
+        case .systemBandwidthUpload:
+            return NSLocalizedString("pinned.item.system.bandwidth.upload", bundle: bundle, comment: "")
+        case .systemBandwidthCumulativeDownload:
+            return NSLocalizedString("pinned.item.system.bandwidth.cumulative.download", bundle: bundle, comment: "")
+        case .systemBandwidthCumulativeUpload:
+            return NSLocalizedString("pinned.item.system.bandwidth.cumulative.upload", bundle: bundle, comment: "")
         case .systemLoadAverage:
             return NSLocalizedString("pinned.item.system.loadaverage", bundle: bundle, comment: "")
         case .systemSwap:
@@ -71,6 +111,14 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
             return "\(name) Usage"
         case .extraDiskIO(let name):
             return "\(name) I/O"
+        case .extraDiskIOUtilization(let name):
+            return "\(name) I/O Utilization"
+        case .extraDiskIOTimes(let name):
+            return "\(name) I/O Times"
+        case .extraDiskAwait(let name):
+            return "\(name) Await"
+        case .extraDiskIOQueueDepth(let name):
+            return "\(name) Queue Depth"
         case .containerCPU(let name):
             let format = NSLocalizedString("pinned.item.container.cpu", bundle: bundle, comment: "")
             return String(format: format, name)
@@ -94,14 +142,26 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
         case .stackedContainerNetwork: return "Network I/O"
         case .systemTemperature: return "Temperature"
         case .systemDiskIO: return "Disk I/O"
+        case .systemDiskIOUtilization: return "Disk I/O Utilization"
+        case .systemDiskIOTimes: return "Disk I/O Times"
+        case .systemDiskAwait: return "Disk Await"
+        case .systemDiskIOQueueDepth: return "Disk I/O Queue Depth"
         case .systemDiskUsage: return "Disk Usage"
         case .systemBandwidth: return "Bandwidth"
+        case .systemBandwidthDownload: return "Bandwidth Download"
+        case .systemBandwidthUpload: return "Bandwidth Upload"
+        case .systemBandwidthCumulativeDownload: return "Cumulative Download"
+        case .systemBandwidthCumulativeUpload: return "Cumulative Upload"
         case .systemLoadAverage: return "Load Average"
         case .systemSwap: return "Swap"
         case .systemGPU: return "GPU"
         case .systemNetworkInterfaces: return "Network Interfaces"
         case .extraDiskUsage(let name): return "\(name) Usage"
         case .extraDiskIO(let name): return "\(name) I/O"
+        case .extraDiskIOUtilization(let name): return "\(name) I/O Utilization"
+        case .extraDiskIOTimes(let name): return "\(name) I/O Times"
+        case .extraDiskAwait(let name): return "\(name) Await"
+        case .extraDiskIOQueueDepth(let name): return "\(name) Queue Depth"
         }
     }
 

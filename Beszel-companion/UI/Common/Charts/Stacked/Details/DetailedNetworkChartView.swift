@@ -221,11 +221,13 @@ struct NetworkChartSectionView: View {
             .chartOverlay { proxy in
                 GeometryReader { geometry in
                     ZStack(alignment: .topLeading) {
+                        let plotFrame = proxy.plotFrame.map { geometry[$0] } ?? .zero
+
                         if let snappedDate = snappedDate {
-                            let xPosition = proxy.position(forX: snappedDate) ?? 0
+                            let xPosition = (proxy.position(forX: snappedDate) ?? 0) + plotFrame.origin.x
                             Path { path in
-                                path.move(to: CGPoint(x: xPosition, y: 0))
-                                path.addLine(to: CGPoint(x: xPosition, y: geometry.size.height))
+                                path.move(to: CGPoint(x: xPosition, y: plotFrame.origin.y))
+                                path.addLine(to: CGPoint(x: xPosition, y: plotFrame.origin.y + plotFrame.size.height))
                             }
                             .stroke(Color.gray.opacity(0.5), style: StrokeStyle(lineWidth: 1, dash: [5]))
                         }
@@ -237,7 +239,8 @@ struct NetworkChartSectionView: View {
                                 DragGesture()
                                     .onChanged { value in
                                         dragLocation = value.location
-                                        if let date = proxy.value(atX: value.location.x, as: Date.self) {
+                                        let clampedX = max(plotFrame.minX, min(plotFrame.maxX, value.location.x))
+                                        if let date = proxy.value(atX: clampedX - plotFrame.origin.x, as: Date.self) {
                                             snappedDate = uniqueDates.min(by: { abs($0.timeIntervalSince(date)) < abs($1.timeIntervalSince(date)) })
                                         }
                                     }

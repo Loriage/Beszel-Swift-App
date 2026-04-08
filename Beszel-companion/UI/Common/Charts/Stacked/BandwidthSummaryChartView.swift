@@ -7,6 +7,7 @@ struct BandwidthSummaryChartView: View {
     var systemName: String? = nil
 
     @Environment(SettingsManager.self) var settingsManager
+    @Environment(\.chartXDomain) private var chartXDomain
 
     private var xAxisFormat: Date.FormatStyle {
         settingsManager.selectedTimeRange.xAxisFormat
@@ -16,7 +17,8 @@ struct BandwidthSummaryChartView: View {
         NavigationLink(destination: DetailedBandwidthView(
             dataPoints: dataPoints,
             xAxisFormat: xAxisFormat,
-            systemID: systemID
+            systemID: systemID,
+            xDomain: chartXDomain
         )) {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
@@ -95,6 +97,7 @@ struct BandwidthSummaryChartView: View {
                         }
                     }
                     .chartLegend(.hidden)
+                    .chartXScaleIfNeeded(chartXDomain)
                     .padding(.top, 5)
                     .frame(height: 185)
                     .drawingGroup()

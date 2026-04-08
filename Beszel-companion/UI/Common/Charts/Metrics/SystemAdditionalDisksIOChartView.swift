@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 
 struct ExtraDiskUsageChartView: View {
+    @Environment(\.chartXDomain) private var chartXDomain
     let diskName: String
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
@@ -76,6 +77,7 @@ struct ExtraDiskUsageChartView: View {
                 }
             }
             .chartLegend(.hidden)
+            .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)
             .frame(height: 185)
             .drawingGroup()
@@ -116,6 +118,7 @@ struct ExtraDiskUsageChartView: View {
 }
 
 struct ExtraDiskIOChartView: View {
+    @Environment(\.chartXDomain) private var chartXDomain
     let diskName: String
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
@@ -215,6 +218,7 @@ struct ExtraDiskIOChartView: View {
             }
             .chartYScale(domain: 0...Swift.max(maxIO, 1))
             .chartLegend(.hidden)
+            .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)
             .frame(height: 185)
             .drawingGroup()

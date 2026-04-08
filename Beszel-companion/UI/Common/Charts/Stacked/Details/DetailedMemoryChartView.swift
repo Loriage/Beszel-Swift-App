@@ -12,6 +12,7 @@ struct DetailedMemoryChartView: View {
     let systemID: String?
 
     let settingsManager: SettingsManager
+    var xDomain: ClosedRange<Date>? = nil
     @Environment(DashboardManager.self) var dashboardManager
     @Environment(\.locale) private var locale
 
@@ -93,6 +94,7 @@ struct DetailedMemoryChartView: View {
             .groupBoxStyle(CardGroupBoxStyle())
             .padding()
         }
+        .environment(\.chartXDomain, xDomain)
         .navigationTitle(Text("details.memory.title \(memoryUnit)"))
     }
 }
@@ -150,6 +152,7 @@ struct MemoryChartSectionView: View {
     let xAxisFormat: Date.FormatStyle
     let settingsManager: SettingsManager
 
+    @Environment(\.chartXDomain) private var chartXDomain
     @Binding var snappedDate: Date?
     @Binding var dragLocation: CGPoint?
 
@@ -233,7 +236,7 @@ struct MemoryChartSectionView: View {
             }
             .padding(.top, 5)
             .drawingGroup()
-            .commonChartCustomization(xAxisFormat: xAxisFormat)
+            .commonChartCustomization(xAxisFormat: xAxisFormat, xDomain: chartXDomain)
         }
     }
 }

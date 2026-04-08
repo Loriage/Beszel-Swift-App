@@ -42,6 +42,8 @@ struct SystemCpuTimeBreakdownChartView: View {
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
+    @Environment(\.chartXDomain) private var chartXDomain
+
     private var samples: [CpuBreakdownSample] { buildBreakdownSamples(from: dataPoints) }
 
     var body: some View {
@@ -92,6 +94,7 @@ struct SystemCpuTimeBreakdownChartView: View {
                     }
                 }
                 .chartLegend(.hidden)
+                .chartXScaleIfNeeded(chartXDomain)
                 .padding(.top, 5)
                 .frame(height: 185)
                 .drawingGroup()
@@ -131,6 +134,8 @@ struct SystemCpuCoresChartView: View {
     var systemName: String? = nil
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
+
+    @Environment(\.chartXDomain) private var chartXDomain
 
     private var coreNames: [String] {
         guard let first = dataPoints.first, let cores = first.cpuPerCore else { return [] }
@@ -200,6 +205,7 @@ struct SystemCpuCoresChartView: View {
                     }
                 }
                 .chartLegend(.hidden)
+                .chartXScaleIfNeeded(chartXDomain)
                 .padding(.top, 5)
                 .frame(height: 185)
                 .drawingGroup()

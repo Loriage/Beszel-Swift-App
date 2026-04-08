@@ -6,6 +6,7 @@ struct StackedCpuChartView: View {
     let domain: [String]
     
     @Environment(SettingsManager.self) var settingsManager
+    @Environment(\.chartXDomain) private var chartXDomain
     
     let systemID: String?
     var systemName: String? = nil
@@ -21,7 +22,8 @@ struct StackedCpuChartView: View {
             uniqueDates: uniqueDates,
             xAxisFormat: settingsManager.selectedTimeRange.xAxisFormat,
             systemID: systemID,
-            settingsManager: settingsManager
+            settingsManager: settingsManager,
+            xDomain: chartXDomain
         )) {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
@@ -67,7 +69,7 @@ struct StackedCpuChartView: View {
                     .padding(.top, 5)
                     .drawingGroup()
                 }
-                .commonChartCustomization(xAxisFormat: settingsManager.selectedTimeRange.xAxisFormat)
+                .commonChartCustomization(xAxisFormat: settingsManager.selectedTimeRange.xAxisFormat, xDomain: chartXDomain)
             }
         }
         .buttonStyle(PlainButtonStyle())

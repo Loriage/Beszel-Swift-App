@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 
 struct SystemNetworkInterfacesChartView: View {
+    @Environment(\.chartXDomain) private var chartXDomain
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
 
@@ -95,6 +96,7 @@ struct SystemNetworkInterfacesChartView: View {
             }
         }
         .chartLegend(.hidden)
+        .chartXScaleIfNeeded(chartXDomain)
         .padding(.top, 5)
         .drawingGroup()
     }

@@ -9,6 +9,8 @@ struct ExtraDiskIOUtilizationChartView: View {
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
+    @Environment(\.chartXDomain) private var chartXDomain
+
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -46,6 +48,7 @@ struct ExtraDiskIOUtilizationChartView: View {
                 }
             }
             .chartLegend(.hidden)
+            .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)
             .frame(height: 200)
             .drawingGroup()
@@ -60,6 +63,8 @@ struct ExtraDiskIOTimesChartView: View {
     var systemName: String? = nil
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
+
+    @Environment(\.chartXDomain) private var chartXDomain
 
     var body: some View {
         GroupBox(label: HStack {
@@ -109,6 +114,7 @@ struct ExtraDiskIOTimesChartView: View {
                     }
                 }
                     .chartLegend(.hidden)
+                .chartXScaleIfNeeded(chartXDomain)
                 .padding(.top, 5)
                 .frame(height: 185)
                 .drawingGroup()
@@ -130,6 +136,8 @@ struct ExtraDiskAwaitChartView: View {
     var systemName: String? = nil
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
+
+    @Environment(\.chartXDomain) private var chartXDomain
 
     private var maxAwait: Double {
         dataPoints.compactMap {
@@ -185,6 +193,7 @@ struct ExtraDiskAwaitChartView: View {
                 }
                 .chartYScale(domain: 0...Swift.max(maxAwait * 1.15, 1.0))
                 .chartLegend(.hidden)
+                .chartXScaleIfNeeded(chartXDomain)
                 .padding(.top, 5)
                 .frame(height: 185)
                 .drawingGroup()
@@ -206,6 +215,8 @@ struct ExtraDiskIOQueueDepthChartView: View {
     var systemName: String? = nil
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
+
+    @Environment(\.chartXDomain) private var chartXDomain
 
     private var maxDepth: Double {
         dataPoints.compactMap {
@@ -253,6 +264,7 @@ struct ExtraDiskIOQueueDepthChartView: View {
                 }
             }
             .chartLegend(.hidden)
+            .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)
             .frame(height: 200)
             .drawingGroup()

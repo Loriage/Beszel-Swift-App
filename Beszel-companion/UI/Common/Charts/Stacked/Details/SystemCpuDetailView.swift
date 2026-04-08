@@ -11,6 +11,7 @@ struct SystemCpuDetailView: View {
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
     let systemID: String?
+    var xDomain: ClosedRange<Date>? = nil
 
     @Environment(DashboardManager.self) var dashboardManager
 
@@ -68,6 +69,7 @@ struct SystemCpuDetailView: View {
             .groupBoxStyle(CardGroupBoxStyle())
             .padding()
         }
+        .environment(\.chartXDomain, xDomain)
         .navigationTitle(Text("chart.cpuUsage"))
     }
 
@@ -124,6 +126,7 @@ struct SystemCpuDetailView: View {
                 }
             }
             .chartLegend(.hidden)
+            .chartXScaleIfNeeded(xDomain)
             .padding(.top, 5)
             .frame(height: 200)
             .drawingGroup()

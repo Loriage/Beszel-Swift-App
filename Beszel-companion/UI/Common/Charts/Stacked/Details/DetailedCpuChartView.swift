@@ -10,8 +10,9 @@ struct DetailedCpuChartView: View {
     let systemID: String?
     
     let settingsManager: SettingsManager
+    var xDomain: ClosedRange<Date>? = nil
     @Environment(DashboardManager.self) var dashboardManager
-    
+
     @Environment(\.locale) private var locale
 
     @State private var snappedDate: Date?
@@ -93,6 +94,7 @@ struct DetailedCpuChartView: View {
             .groupBoxStyle(CardGroupBoxStyle())
             .padding()
         }
+        .environment(\.chartXDomain, xDomain)
         .navigationTitle(Text("details.cpu.title"))
     }
 }
@@ -150,13 +152,14 @@ struct CpuChartSectionView: View {
     let labelScale: Double
     let xAxisFormat: Date.FormatStyle
     let settingsManager: SettingsManager
-    
+
+    @Environment(\.chartXDomain) private var chartXDomain
     @Binding var snappedDate: Date?
     @Binding var dragLocation: CGPoint?
-    
+
     var isPinned: Bool
     var onPinToggle: () -> Void
-    
+
     init(stackedData: [StackedCpuData], domain: [String], uniqueDates: [Date], labelScale: Double = 1.0, xAxisFormat: Date.FormatStyle, settingsManager: SettingsManager, snappedDate: Binding<Date?>, dragLocation: Binding<CGPoint?>, isPinned: Bool, onPinToggle: @escaping () -> Void) {
         self.stackedData = stackedData
         self.domain = domain
@@ -231,7 +234,7 @@ struct CpuChartSectionView: View {
             }
             .padding(.top, 5)
             .drawingGroup()
-            .commonChartCustomization(xAxisFormat: xAxisFormat)
+            .commonChartCustomization(xAxisFormat: xAxisFormat, xDomain: chartXDomain)
         }
     }
 }

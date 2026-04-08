@@ -4,6 +4,7 @@ import WidgetKit
 
 struct SystemMetricChartView: View {
     @Environment(\.widgetFamily) private var widgetFamily
+    @Environment(\.chartXDomain) private var chartXDomain
     
     let title: LocalizedStringResource
     let xAxisFormat: Date.FormatStyle
@@ -104,6 +105,7 @@ struct SystemMetricChartView: View {
                 }
             }
         }
+        .chartXScaleIfNeeded(chartXDomain)
         .padding(.top, 5)
         .drawingGroup()
         .accessibilityElement(children: .ignore)

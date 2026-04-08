@@ -18,6 +18,7 @@ struct DetailedNetworkChartView: View {
     let systemID: String?
 
     let settingsManager: SettingsManager
+    var xDomain: ClosedRange<Date>? = nil
     @Environment(DashboardManager.self) var dashboardManager
     @Environment(\.locale) private var locale
 
@@ -98,6 +99,7 @@ struct DetailedNetworkChartView: View {
             .groupBoxStyle(CardGroupBoxStyle())
             .padding()
         }
+        .environment(\.chartXDomain, xDomain)
         .navigationTitle(Text("details.network.title \(networkUnit)"))
     }
 }
@@ -177,6 +179,7 @@ struct NetworkChartSectionView: View {
     let xAxisFormat: Date.FormatStyle
     let settingsManager: SettingsManager
 
+    @Environment(\.chartXDomain) private var chartXDomain
     @Binding var snappedDate: Date?
     @Binding var dragLocation: CGPoint?
 
@@ -247,7 +250,7 @@ struct NetworkChartSectionView: View {
             }
             .padding(.top, 5)
             .drawingGroup()
-            .commonChartCustomization(xAxisFormat: xAxisFormat)
+            .commonChartCustomization(xAxisFormat: xAxisFormat, xDomain: chartXDomain)
         }
     }
 }

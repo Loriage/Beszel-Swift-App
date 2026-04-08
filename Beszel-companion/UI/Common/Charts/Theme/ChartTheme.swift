@@ -1,6 +1,28 @@
 import SwiftUI
 import Charts
 
+private struct ChartXDomainKey: EnvironmentKey {
+    static let defaultValue: ClosedRange<Date>? = nil
+}
+
+extension EnvironmentValues {
+    var chartXDomain: ClosedRange<Date>? {
+        get { self[ChartXDomainKey.self] }
+        set { self[ChartXDomainKey.self] = newValue }
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func chartXScaleIfNeeded(_ domain: ClosedRange<Date>?) -> some View {
+        if let domain {
+            self.chartXScale(domain: domain)
+        } else {
+            self
+        }
+    }
+}
+
 func generateColors(for domainCount: Int) -> [Color] {
     if domainCount == 0 {
         return []
@@ -59,7 +81,7 @@ func formatMemory(value: Double, fromUnit unit: String) -> String {
 }
 
 extension View {
-    func commonChartCustomization(xAxisFormat: Date.FormatStyle) -> some View {
+    func commonChartCustomization(xAxisFormat: Date.FormatStyle, xDomain: ClosedRange<Date>? = nil) -> some View {
         self
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in
@@ -67,6 +89,7 @@ extension View {
                 }
             }
             .chartLegend(.hidden)
+            .chartXScaleIfNeeded(xDomain)
             .frame(height: 250)
     }
 }

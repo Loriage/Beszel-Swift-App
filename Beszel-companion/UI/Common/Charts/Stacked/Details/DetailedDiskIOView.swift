@@ -5,6 +5,7 @@ struct DetailedDiskIOView: View {
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
     let systemID: String?
+    var xDomain: ClosedRange<Date>? = nil
 
     @Environment(DashboardManager.self) var dashboardManager
 
@@ -60,6 +61,7 @@ struct DetailedDiskIOView: View {
             .groupBoxStyle(CardGroupBoxStyle())
             .padding()
         }
+        .environment(\.chartXDomain, xDomain)
         .navigationTitle(Text("details.diskIO.title"))
     }
 }

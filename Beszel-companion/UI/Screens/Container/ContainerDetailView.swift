@@ -141,6 +141,7 @@ struct ContainerDetailView: View {
             .padding()
         }
         .groupBoxStyle(CardGroupBoxStyle())
+        .environment(\.chartXDomain, store.xDomain)
     }
 
     @ViewBuilder

@@ -6,6 +6,7 @@ struct StackedNetworkChartView: View {
     let domain: [String]
 
     @Environment(SettingsManager.self) var settingsManager
+    @Environment(\.chartXDomain) private var chartXDomain
 
     let systemID: String?
     var systemName: String? = nil
@@ -39,7 +40,8 @@ struct StackedNetworkChartView: View {
             networkLabelScale: networkLabelScale,
             xAxisFormat: xAxisFormat,
             systemID: systemID,
-            settingsManager: settingsManager
+            settingsManager: settingsManager,
+            xDomain: chartXDomain
         )) {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
@@ -90,7 +92,7 @@ struct StackedNetworkChartView: View {
                     .padding(.top, 5)
                     .drawingGroup()
                 }
-                .commonChartCustomization(xAxisFormat: xAxisFormat)
+                .commonChartCustomization(xAxisFormat: xAxisFormat, xDomain: chartXDomain)
             }
         }
         .buttonStyle(PlainButtonStyle())

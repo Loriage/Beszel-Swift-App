@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 
 struct SystemGPUChartView: View {
+    @Environment(\.chartXDomain) private var chartXDomain
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
 
@@ -102,6 +103,7 @@ struct SystemGPUChartView: View {
         }
         .chartYScale(domain: 0...100)
         .chartLegend(.hidden)
+        .chartXScaleIfNeeded(chartXDomain)
         .padding(.top, 5)
         .drawingGroup()
         .accessibilityElement(children: .ignore)

@@ -36,6 +36,7 @@ struct ContainerView: View {
                         )
                     }
                 }
+                .environment(\.chartXDomain, store.xDomain)
                 .padding(.horizontal)
                 .opacity(store.containerData.isEmpty ? 0 : 1)
 

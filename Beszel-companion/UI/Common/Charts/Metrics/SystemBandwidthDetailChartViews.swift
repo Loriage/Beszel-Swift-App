@@ -73,6 +73,8 @@ struct BandwidthDownloadChartView: View {
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
+    @Environment(\.chartXDomain) private var chartXDomain
+
     private var interfaceNames: [String] {
         Array(Set(dataPoints.flatMap { $0.networkInterfaces.map(\.name) })).sorted()
     }
@@ -119,6 +121,7 @@ struct BandwidthDownloadChartView: View {
             }
         }
         .chartLegend(.hidden)
+        .chartXScaleIfNeeded(chartXDomain)
         .padding(.top, 5)
         .frame(height: 185)
         .drawingGroup()
@@ -180,6 +183,8 @@ struct BandwidthUploadChartView: View {
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
+    @Environment(\.chartXDomain) private var chartXDomain
+
     private var interfaceNames: [String] {
         Array(Set(dataPoints.flatMap { $0.networkInterfaces.map(\.name) })).sorted()
     }
@@ -226,6 +231,7 @@ struct BandwidthUploadChartView: View {
             }
         }
         .chartLegend(.hidden)
+        .chartXScaleIfNeeded(chartXDomain)
         .padding(.top, 5)
         .frame(height: 185)
         .drawingGroup()
@@ -287,6 +293,8 @@ struct BandwidthCumulativeDownloadChartView: View {
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
+    @Environment(\.chartXDomain) private var chartXDomain
+
     private var interfaceNames: [String] {
         Array(Set(dataPoints.flatMap { $0.networkInterfaces.map(\.name) })).sorted()
     }
@@ -322,6 +330,7 @@ struct BandwidthCumulativeDownloadChartView: View {
             }
         }
         .chartLegend(.hidden)
+        .chartXScaleIfNeeded(chartXDomain)
         .padding(.top, 5)
         .frame(height: 185)
         .drawingGroup()
@@ -383,6 +392,8 @@ struct BandwidthCumulativeUploadChartView: View {
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
+    @Environment(\.chartXDomain) private var chartXDomain
+
     private var interfaceNames: [String] {
         Array(Set(dataPoints.flatMap { $0.networkInterfaces.map(\.name) })).sorted()
     }
@@ -418,6 +429,7 @@ struct BandwidthCumulativeUploadChartView: View {
             }
         }
         .chartLegend(.hidden)
+        .chartXScaleIfNeeded(chartXDomain)
         .padding(.top, 5)
         .frame(height: 185)
         .drawingGroup()

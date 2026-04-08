@@ -16,6 +16,8 @@ struct ContainerMetricChartView: View {
     var yAxisFormatter: (Double) -> String = { String(format: "%.0f", $0) }
     var yAxisUnit: String = ""
 
+    @Environment(\.chartXDomain) private var chartXDomain
+
     private var maxValue: Double {
         let max = container.statPoints.map { $0[keyPath: valueKeyPath] }.max() ?? 0
         return max == 0 ? 1.0 : max
@@ -57,6 +59,7 @@ struct ContainerMetricChartView: View {
                 .foregroundStyle(LinearGradient(colors: [color.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
             }
             .chartYScale(domain: 0...maxValue)
+            .chartXScaleIfNeeded(chartXDomain)
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in
                     AxisValueLabel(format: xAxisFormat, centered: true)

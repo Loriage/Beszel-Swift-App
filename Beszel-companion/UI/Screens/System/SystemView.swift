@@ -113,6 +113,7 @@ struct SystemView: View {
                         }
                     }
                 }
+                .environment(\.chartXDomain, store.xDomain)
                 .padding(.horizontal)
                 .opacity(store.systemDataPoints.isEmpty ? 0 : 1)
             }

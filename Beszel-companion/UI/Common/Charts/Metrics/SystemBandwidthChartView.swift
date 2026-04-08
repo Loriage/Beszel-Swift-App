@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 
 struct SystemBandwidthChartView: View {
+    @Environment(\.chartXDomain) private var chartXDomain
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
 
@@ -89,6 +90,7 @@ struct SystemBandwidthChartView: View {
                 }
             }
             .chartLegend(.hidden)
+            .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)
             .frame(height: 185)
             .drawingGroup()

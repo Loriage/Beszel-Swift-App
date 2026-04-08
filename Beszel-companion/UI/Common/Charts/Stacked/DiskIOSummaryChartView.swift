@@ -7,6 +7,7 @@ struct DiskIOSummaryChartView: View {
     var systemName: String? = nil
 
     @Environment(SettingsManager.self) var settingsManager
+    @Environment(\.chartXDomain) private var chartXDomain
 
     private var xAxisFormat: Date.FormatStyle {
         settingsManager.selectedTimeRange.xAxisFormat
@@ -20,7 +21,8 @@ struct DiskIOSummaryChartView: View {
         NavigationLink(destination: DetailedDiskIOView(
             dataPoints: dataPoints,
             xAxisFormat: xAxisFormat,
-            systemID: systemID
+            systemID: systemID,
+            xDomain: chartXDomain
         )) {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
@@ -99,6 +101,7 @@ struct DiskIOSummaryChartView: View {
                         }
                     }
                     .chartLegend(.hidden)
+                    .chartXScaleIfNeeded(chartXDomain)
                     .padding(.top, 5)
                     .frame(height: 185)
                     .drawingGroup()

@@ -4,6 +4,7 @@ import WidgetKit
 
 struct SystemTemperatureChartView: View {
     @Environment(\.widgetFamily) private var widgetFamily
+    @Environment(\.chartXDomain) private var chartXDomain
     
     let xAxisFormat: Date.FormatStyle
     let dataPoints: [SystemDataPoint]
@@ -131,6 +132,7 @@ struct SystemTemperatureChartView: View {
             }
         }
         .chartLegend(.hidden)
+        .chartXScaleIfNeeded(chartXDomain)
         .padding(.top, 5)
         .drawingGroup()
     }

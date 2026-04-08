@@ -42,6 +42,7 @@ struct MainView: View {
                         .badge(alertManager.badgeCount)
                     }
                     .environment(store)
+                    .environment(\.chartXDomain, store.xDomain)
                     .toolbar {
                         if selectedTab != .home && selectedTab != .alerts {
                             ToolbarItem(placement: .topBarLeading) {
@@ -78,6 +79,7 @@ struct MainView: View {
                     .navigationDestination(for: ProcessedContainerData.self) { container in
                         ContainerDetailView(container: container)
                             .environment(store)
+                            .environment(\.chartXDomain, store.xDomain)
                     }
                     .task(id: alertManager.pendingAlertDetail?.id) {
                         if let pendingDetail = alertManager.pendingAlertDetail {

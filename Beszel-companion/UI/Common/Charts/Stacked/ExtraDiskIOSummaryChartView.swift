@@ -8,6 +8,7 @@ struct ExtraDiskIOSummaryChartView: View {
     var systemName: String? = nil
 
     @Environment(SettingsManager.self) var settingsManager
+    @Environment(\.chartXDomain) private var chartXDomain
 
     private var xAxisFormat: Date.FormatStyle {
         settingsManager.selectedTimeRange.xAxisFormat
@@ -47,7 +48,8 @@ struct ExtraDiskIOSummaryChartView: View {
             diskName: diskName,
             dataPoints: dataPoints,
             xAxisFormat: xAxisFormat,
-            systemID: systemID
+            systemID: systemID,
+            xDomain: chartXDomain
         )) {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
@@ -102,6 +104,7 @@ struct ExtraDiskIOSummaryChartView: View {
                     }
                     .chartYScale(domain: 0...Swift.max(maxIO, 1))
                     .chartLegend(.hidden)
+                    .chartXScaleIfNeeded(chartXDomain)
                     .padding(.top, 5)
                     .frame(height: 185)
                     .drawingGroup()

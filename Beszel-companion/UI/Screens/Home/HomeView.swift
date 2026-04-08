@@ -140,6 +140,7 @@ struct HomeView: View {
                         pinnedItemView(for: resolvedItem)
                     }
                 }
+                .environment(\.chartXDomain, store.xDomain)
                 .padding(.horizontal)
             }
             .padding(.bottom, 24)

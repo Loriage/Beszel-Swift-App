@@ -9,6 +9,8 @@ struct SystemDiskIOUtilizationChartView: View {
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
+    @Environment(\.chartXDomain) private var chartXDomain
+
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -61,6 +63,7 @@ struct SystemDiskIOUtilizationChartView: View {
             }
             .chartYScale(domain: 0...100)
             .chartLegend(.hidden)
+            .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)
             .frame(height: 200)
             .drawingGroup()
@@ -75,6 +78,8 @@ struct SystemDiskIOTimesChartView: View {
     var systemName: String? = nil
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
+
+    @Environment(\.chartXDomain) private var chartXDomain
 
     var body: some View {
         GroupBox(label: HStack {
@@ -148,6 +153,7 @@ struct SystemDiskIOTimesChartView: View {
                 }
                     .chartYScale(domain: 0...100)
                 .chartLegend(.hidden)
+                .chartXScaleIfNeeded(chartXDomain)
                 .padding(.top, 5)
                 .frame(height: 185)
                 .drawingGroup()
@@ -175,6 +181,8 @@ struct SystemDiskAwaitChartView: View {
     var systemName: String? = nil
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
+
+    @Environment(\.chartXDomain) private var chartXDomain
 
     private var maxAwait: Double {
         dataPoints.compactMap { $0.diskIOStats }.flatMap { [$0.rAwait, $0.wAwait] }.max() ?? 0
@@ -252,6 +260,7 @@ struct SystemDiskAwaitChartView: View {
                 }
                 .chartYScale(domain: 0...Swift.max(maxAwait * 1.15, 1.0))
                 .chartLegend(.hidden)
+                .chartXScaleIfNeeded(chartXDomain)
                 .padding(.top, 5)
                 .frame(height: 185)
                 .drawingGroup()
@@ -279,6 +288,8 @@ struct SystemDiskIOQueueDepthChartView: View {
     var systemName: String? = nil
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
+
+    @Environment(\.chartXDomain) private var chartXDomain
 
     private var maxDepth: Double {
         dataPoints.compactMap { $0.diskIOStats?.weightedIO }.max() ?? 0
@@ -331,6 +342,7 @@ struct SystemDiskIOQueueDepthChartView: View {
             }
             .chartYScale(domain: 0...Swift.max(maxDepth * 1.15, 1))
             .chartLegend(.hidden)
+            .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)
             .frame(height: 200)
             .drawingGroup()

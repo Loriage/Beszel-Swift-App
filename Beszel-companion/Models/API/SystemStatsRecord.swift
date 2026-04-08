@@ -8,19 +8,16 @@ nonisolated struct SystemStatsRecord: Identifiable, Codable, Sendable {
 }
 
 nonisolated struct SystemStatsDetail: Codable, Sendable {
-    // CPU
     let cpu: Double
     let cpuPeak: Double?              // peak cpu
     let cpuBreakdown: [Double]?       // [user, system, iowait, steal, idle]
     let cpuPerCore: [Double]?         // per-core cpu usage
 
-    // Load average
     let l1: Double?                   // load average 1 min
     let l5: Double?                   // load average 5 min
     let l15: Double?                  // load average 15 min
     let load: [Double]?               // load average array [1, 5, 15]
 
-    // Memory
     let memoryTotal: Double?          // total memory (gb)
     let memoryUsed: Double            // memory used (gb)
     let memoryPercent: Double         // memory percent
@@ -28,11 +25,9 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
     let memoryMax: Double?            // max used memory (gb)
     let memoryZfs: Double?            // zfs arc memory (gb)
 
-    // Swap
     let swapTotal: Double?            // swap space (gb)
     let swapUsed: Double?             // swap used (gb)
 
-    // Disk
     let diskTotal: Double?            // disk size (gb)
     let diskUsed: Double              // disk used (gb)
     let diskPercent: Double           // disk percent
@@ -45,7 +40,6 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
     let diskIOStats: [Double]?        // [read_time%, write_time%, io_util%, r_await_ms, w_await_ms, weighted_io%]
     let diskIOStatsMax: [Double]?     // max values for diskIOStats
 
-    // Network
     let networkSent: Double?          // network sent (mb)
     let networkReceived: Double?      // network received (mb)
     let bandwidth: [Double]?          // bandwidth bytes [sent, recv]
@@ -54,16 +48,9 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
     let bandwidthMax: [Double]?       // max bandwidth bytes [sent, recv]
     let networkInterfaces: [String: [Double]]?  // interface stats [sent, recv, sentMax, recvMax]
 
-    // Temperatures
     let temperatures: [String: Double]?
-
-    // Extra filesystems
     let extraFilesystems: [String: ExtraFsStats]?
-
-    // GPU
     let gpu: [String: GPUData]?
-
-    // Battery
     let battery: [Double]?            // [percent, state]
 
     enum CodingKeys: String, CodingKey {
@@ -247,7 +234,6 @@ extension Array where Element == SystemStatsRecord {
                 loadTuple = nil
             }
 
-            // Swap usage
             let swapTuple: (used: Double, total: Double)?
             if let swapUsed = stats.swapUsed, let swapTotal = stats.swapTotal, swapTotal > 0 {
                 swapTuple = (used: swapUsed, total: swapTotal)
@@ -255,7 +241,6 @@ extension Array where Element == SystemStatsRecord {
                 swapTuple = nil
             }
 
-            // GPU metrics
             let gpuMetrics: [GPUMetricPoint] = (stats.gpu ?? [:]).compactMap { (name, data) in
                 guard let usage = data.u else { return nil }
                 return GPUMetricPoint(
@@ -268,7 +253,6 @@ extension Array where Element == SystemStatsRecord {
                 )
             }
 
-            // Network interfaces
             let networkInterfaces: [NetworkInterfacePoint] = (stats.networkInterfaces ?? [:]).compactMap { (name, values) in
                 guard values.count >= 2 else { return nil }
                 return NetworkInterfacePoint(
@@ -278,12 +262,10 @@ extension Array where Element == SystemStatsRecord {
                 )
             }
 
-            // Extra filesystems
             let extraFilesystems: [ExtraFilesystemPoint] = (stats.extraFilesystems ?? [:]).compactMap { (name, data) in
                 guard let used = data.du, let total = data.d, total > 0 else { return nil }
                 let percent = data.dp ?? (used / total * 100)
 
-                // I/O: prefer bytes (rb/wb), fall back to MB (r/w) converted to bytes
                 let mbToBytes = 1_048_576.0
                 let diskRead: Double?
                 if let rb = data.rb {

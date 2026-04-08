@@ -32,7 +32,6 @@ struct SystemCpuDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                // Overall CPU
                 SystemMetricChartView(
                     title: "chart.cpuUsage",
                     xAxisFormat: xAxisFormat,
@@ -44,7 +43,6 @@ struct SystemCpuDetailView: View {
                     onPinToggle: { togglePin(.systemCPU) }
                 )
 
-                // CPU Time Breakdown (if available)
                 if dataPoints.contains(where: { $0.cpuBreakdown != nil }) {
                     SystemCpuTimeBreakdownChartView(
                         dataPoints: dataPoints,
@@ -54,7 +52,6 @@ struct SystemCpuDetailView: View {
                     )
                 }
 
-                // CPU Cores stacked (if available)
                 if dataPoints.contains(where: { $0.cpuPerCore != nil }) {
                     SystemCpuCoresChartView(
                         dataPoints: dataPoints,
@@ -63,7 +60,6 @@ struct SystemCpuDetailView: View {
                         onPinToggle: { togglePin(.systemCPUCores) }
                     )
 
-                    // Per-core individual charts
                     ForEach(Array(coreNames.enumerated()), id: \.offset) { index, name in
                         singleCoreChart(index: index, name: name)
                     }

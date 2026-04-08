@@ -1,7 +1,6 @@
 import SwiftUI
 import Charts
 
-// Bottom to top stacking order (matches Beszel web UI)
 private let breakdownOrder = ["other", "idle", "steal", "iowait", "user", "system"]
 
 private struct CpuBreakdownSample: Identifiable {
@@ -35,8 +34,6 @@ private func buildBreakdownSamples(from dataPoints: [SystemDataPoint]) -> [CpuBr
     }
     return result
 }
-
-// MARK: - CPU Time Breakdown
 
 struct SystemCpuTimeBreakdownChartView: View {
     let dataPoints: [SystemDataPoint]
@@ -119,8 +116,6 @@ struct SystemCpuTimeBreakdownChartView: View {
         }
     }
 }
-
-// MARK: - CPU Cores (stacked)
 
 private struct PerCoreSample: Identifiable {
     let id = UUID()

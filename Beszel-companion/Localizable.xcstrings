@@ -227,7 +227,7 @@
       }
     },
     "1 min" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -250,7 +250,7 @@
       }
     },
     "5 min" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -273,7 +273,7 @@
       }
     },
     "15 min" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2082,7 +2082,7 @@
       }
     },
     "Bandwidth (MB/s)" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2462,7 +2462,7 @@
       }
     },
     "chart.container.cpuUsage.subtitle" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2508,7 +2508,7 @@
       }
     },
     "chart.container.memoryUsage.subtitle" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2531,7 +2531,7 @@
       }
     },
     "chart.cpu.breakdown.idle" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2554,7 +2554,7 @@
       }
     },
     "chart.cpu.breakdown.iowait" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2577,7 +2577,7 @@
       }
     },
     "chart.cpu.breakdown.other" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2600,7 +2600,7 @@
       }
     },
     "chart.cpu.breakdown.steal" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2645,7 +2645,7 @@
       }
     },
     "chart.cpu.breakdown.system" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2690,7 +2690,7 @@
       }
     },
     "chart.cpu.breakdown.user" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3263,7 +3263,7 @@
       }
     },
     "chart.extraDisk.io" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3308,7 +3308,7 @@
       }
     },
     "chart.extraDisk.usage" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4958,7 +4958,7 @@
       }
     },
     "Disk I/O (MB/s)" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5047,7 +5047,7 @@
       }
     },
     "Filesystem" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5379,7 +5379,7 @@
       }
     },
     "Load Average" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7216,7 +7216,7 @@
       }
     },
     "Received" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7287,7 +7287,7 @@
       }
     },
     "Sent" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {

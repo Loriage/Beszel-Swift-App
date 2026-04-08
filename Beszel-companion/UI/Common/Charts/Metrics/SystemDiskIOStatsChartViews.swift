@@ -1,8 +1,6 @@
 import SwiftUI
 import Charts
 
-// MARK: - IO Utilization chart (standalone, for dashboard use)
-
 struct SystemDiskIOUtilizationChartView: View {
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
@@ -69,8 +67,6 @@ struct SystemDiskIOUtilizationChartView: View {
         }
     }
 }
-
-// MARK: - IO Times chart (standalone)
 
 struct SystemDiskIOTimesChartView: View {
     let dataPoints: [SystemDataPoint]
@@ -171,8 +167,6 @@ struct SystemDiskIOTimesChartView: View {
         }
     }
 }
-
-// MARK: - Await chart (standalone)
 
 struct SystemDiskAwaitChartView: View {
     let dataPoints: [SystemDataPoint]
@@ -277,8 +271,6 @@ struct SystemDiskAwaitChartView: View {
         }
     }
 }
-
-// MARK: - Queue Depth chart (standalone)
 
 struct SystemDiskIOQueueDepthChartView: View {
     let dataPoints: [SystemDataPoint]

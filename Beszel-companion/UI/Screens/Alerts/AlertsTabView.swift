@@ -68,8 +68,6 @@ struct AlertsTabView: View {
         }
     }
 
-    // MARK: - Active Alerts
-
     @ViewBuilder
     private var activeAlertsSection: some View {
         let activeAlerts = alertManager.alertHistory.filter { !$0.isResolved }

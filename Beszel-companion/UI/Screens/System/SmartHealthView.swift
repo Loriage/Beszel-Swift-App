@@ -18,8 +18,6 @@ struct SmartHealthView: View {
     }
 }
 
-// MARK: - Summary card (used on SystemView)
-
 struct SmartHealthSummaryCard: View {
     let devices: [SmartDeviceRecord]
 
@@ -93,8 +91,6 @@ struct SmartHealthSummaryCard: View {
         .buttonStyle(PlainButtonStyle())
     }
 }
-
-// MARK: - Full device card (used in SmartHealthView)
 
 private struct SmartDeviceCard: View {
     let device: SmartDeviceRecord

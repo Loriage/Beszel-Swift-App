@@ -16,10 +16,15 @@ final class LanguageManager {
     
     let availableLanguages: [Language]
     
+    // Explicitly list ready languages — prevents partially-translated languages
+    // (e.g. from Crowdin) from appearing in the picker before they're complete.
+    private static let readyLanguageCodes: Set<String> = ["en", "fr", "pl"]
+
     init() {
         let supportedLanguageCodes = Bundle.main.localizations
-        
+
         self.availableLanguages = supportedLanguageCodes.compactMap {
+            guard Self.readyLanguageCodes.contains($0) else { return nil }
             let locale = Locale(identifier: $0)
             guard let name = locale.localizedString(forIdentifier: $0) else { return nil }
             return Language(code: $0, name: name.capitalized)

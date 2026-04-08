@@ -8,8 +8,6 @@ private struct InterfaceSample: Identifiable {
     let value: Double
 }
 
-// MARK: - Shared helpers
-
 private func formatAdaptiveBytes(_ bytes: Double, divisor: Double) -> String {
     let v = bytes / divisor
     return v.truncatingRemainder(dividingBy: 1) == 0
@@ -52,8 +50,6 @@ private func cumulativeSamples(
     }
     return result
 }
-
-// MARK: - Download (per-interface received rate)
 
 struct BandwidthDownloadChartView: View {
     let dataPoints: [SystemDataPoint]
@@ -162,8 +158,6 @@ struct BandwidthDownloadChartView: View {
     }
 }
 
-// MARK: - Upload (per-interface sent rate)
-
 struct BandwidthUploadChartView: View {
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
@@ -271,8 +265,6 @@ struct BandwidthUploadChartView: View {
     }
 }
 
-// MARK: - Cumulative Download (total bytes received per interface)
-
 struct BandwidthCumulativeDownloadChartView: View {
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
@@ -368,8 +360,6 @@ struct BandwidthCumulativeDownloadChartView: View {
         }
     }
 }
-
-// MARK: - Cumulative Upload (total bytes sent per interface)
 
 struct BandwidthCumulativeUploadChartView: View {
     let dataPoints: [SystemDataPoint]

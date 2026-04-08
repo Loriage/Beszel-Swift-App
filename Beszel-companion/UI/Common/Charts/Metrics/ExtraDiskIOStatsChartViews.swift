@@ -1,8 +1,6 @@
 import SwiftUI
 import Charts
 
-// MARK: - Utilization
-
 struct ExtraDiskIOUtilizationChartView: View {
     let diskName: String
     let dataPoints: [SystemDataPoint]
@@ -54,8 +52,6 @@ struct ExtraDiskIOUtilizationChartView: View {
         }
     }
 }
-
-// MARK: - IO Times
 
 struct ExtraDiskIOTimesChartView: View {
     let diskName: String
@@ -126,8 +122,6 @@ struct ExtraDiskIOTimesChartView: View {
         }
     }
 }
-
-// MARK: - Await
 
 struct ExtraDiskAwaitChartView: View {
     let diskName: String
@@ -204,8 +198,6 @@ struct ExtraDiskAwaitChartView: View {
         }
     }
 }
-
-// MARK: - Queue Depth
 
 struct ExtraDiskIOQueueDepthChartView: View {
     let diskName: String

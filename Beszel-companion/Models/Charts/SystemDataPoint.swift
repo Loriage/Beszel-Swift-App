@@ -62,7 +62,6 @@ struct ExtraFilesystemPoint: Identifiable, Sendable {
     let diskIOStats: DiskIOStats?
 }
 
-// Downsampling for SystemDataPoint
 extension Array where Element == SystemDataPoint {
     nonisolated func downsampled(bucketInterval: TimeInterval) -> [SystemDataPoint] {
         guard !isEmpty else { return [] }
@@ -98,11 +97,9 @@ extension Array where Element == SystemDataPoint {
 
         let count = Double(points.count)
 
-        // Average CPU and memory
         let avgCpu = points.map { $0.cpu }.reduce(0, +) / count
         let avgMemory = points.map { $0.memoryPercent }.reduce(0, +) / count
 
-        // Average temperatures by name
         var tempSums: [String: (sum: Double, count: Int)] = [:]
         for point in points {
             for temp in point.temperatures {
@@ -112,7 +109,6 @@ extension Array where Element == SystemDataPoint {
         }
         let avgTemps = tempSums.map { (name: $0.key, value: $0.value.sum / Double($0.value.count)) }
 
-        // Average bandwidth
         let bandwidthPoints = points.compactMap { $0.bandwidth }
         let avgBandwidth: (upload: Double, download: Double)?
         if !bandwidthPoints.isEmpty {
@@ -125,7 +121,6 @@ extension Array where Element == SystemDataPoint {
             avgBandwidth = nil
         }
 
-        // Average diskIO
         let diskIOPoints = points.compactMap { $0.diskIO }
         let avgDiskIO: (read: Double, write: Double)?
         if !diskIOPoints.isEmpty {
@@ -138,7 +133,6 @@ extension Array where Element == SystemDataPoint {
             avgDiskIO = nil
         }
 
-        // Average diskIOStats
         let diskIOStatsPoints = points.compactMap { $0.diskIOStats }
         let avgDiskIOStats: DiskIOStats?
         if !diskIOStatsPoints.isEmpty {
@@ -155,7 +149,6 @@ extension Array where Element == SystemDataPoint {
             avgDiskIOStats = nil
         }
 
-        // Average disk usage
         let diskUsagePoints = points.compactMap { $0.diskUsage }
         let avgDiskUsage: (used: Double, total: Double)?
         if !diskUsagePoints.isEmpty {
@@ -168,7 +161,6 @@ extension Array where Element == SystemDataPoint {
             avgDiskUsage = nil
         }
 
-        // Average load average
         let loadPoints = points.compactMap { $0.loadAverage }
         let avgLoad: (l1: Double, l5: Double, l15: Double)?
         if !loadPoints.isEmpty {
@@ -182,7 +174,6 @@ extension Array where Element == SystemDataPoint {
             avgLoad = nil
         }
 
-        // Average swap
         let swapPoints = points.compactMap { $0.swap }
         let avgSwap: (used: Double, total: Double)?
         if !swapPoints.isEmpty {
@@ -195,7 +186,6 @@ extension Array where Element == SystemDataPoint {
             avgSwap = nil
         }
 
-        // Average GPU metrics by name
         var gpuSums: [String: (usage: Double, memUsed: Double, memTotal: Double, power: Double, temp: Double, count: Int)] = [:]
         for point in points {
             for gpu in point.gpuMetrics {
@@ -222,7 +212,6 @@ extension Array where Element == SystemDataPoint {
             )
         }
 
-        // Average network interfaces by name
         var netSums: [String: (sent: Double, received: Double, count: Int)] = [:]
         for point in points {
             for iface in point.networkInterfaces {
@@ -239,7 +228,6 @@ extension Array where Element == SystemDataPoint {
             return NetworkInterfacePoint(name: name, sent: data.sent / c, received: data.received / c)
         }
 
-        // Average extra filesystems by name
         typealias FsSums = (used: Double, maxTotal: Double, percent: Double, diskRead: Double, diskWrite: Double, ioCount: Int, count: Int, diosRTp: Double, diosWTp: Double, diosUtil: Double, diosRA: Double, diosWA: Double, diosWIO: Double, diosCount: Int)
         var fsSums: [String: FsSums] = [:]
         for point in points {
@@ -287,25 +275,23 @@ extension Array where Element == SystemDataPoint {
             )
         }
 
-        // Average cpuBreakdown element-wise
         let breakdownPoints = points.compactMap { $0.cpuBreakdown }
         let avgCpuBreakdown: [Double]?
         if let first = breakdownPoints.first, !first.isEmpty {
-            let bdCount = Double(breakdownPoints.count)
             avgCpuBreakdown = (0..<first.count).map { i in
-                breakdownPoints.compactMap { i < $0.count ? $0[i] : nil }.reduce(0, +) / bdCount
+                let vals = breakdownPoints.compactMap { i < $0.count ? $0[i] : nil }
+                return vals.isEmpty ? 0 : vals.reduce(0, +) / Double(vals.count)
             }
         } else {
             avgCpuBreakdown = nil
         }
 
-        // Average cpuPerCore element-wise
         let perCorePoints = points.compactMap { $0.cpuPerCore }
         let avgCpuPerCore: [Double]?
         if let first = perCorePoints.first, !first.isEmpty {
-            let pcCount = Double(perCorePoints.count)
             avgCpuPerCore = (0..<first.count).map { i in
-                perCorePoints.compactMap { i < $0.count ? $0[i] : nil }.reduce(0, +) / pcCount
+                let vals = perCorePoints.compactMap { i < $0.count ? $0[i] : nil }
+                return vals.isEmpty ? 0 : vals.reduce(0, +) / Double(vals.count)
             }
         } else {
             avgCpuPerCore = nil

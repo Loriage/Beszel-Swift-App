@@ -170,8 +170,6 @@ public struct SystemQuery: EntityQuery {
         }
     }
 
-    // MARK: - Cache helpers
-
     private static func saveCachedSystems(_ systems: [SystemEntity]) {
         let data = systems.map { ["id": $0.id, "name": $0.name] }
         userDefaults.set(data, forKey: cacheKey)

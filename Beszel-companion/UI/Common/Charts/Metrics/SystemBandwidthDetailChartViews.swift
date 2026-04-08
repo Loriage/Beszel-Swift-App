@@ -31,21 +31,36 @@ private func adaptiveCumulativeUnit(for maxBytes: Double) -> (label: String, div
 
 private func cumulativeSamples(
     from dataPoints: [SystemDataPoint],
-    value keyPath: KeyPath<NetworkInterfacePoint, Double>
+    total totalKeyPath: KeyPath<NetworkInterfacePoint, Double?>,
+    rate rateKeyPath: KeyPath<NetworkInterfacePoint, Double>
 ) -> [InterfaceSample] {
-    var accumulated = [String: Double]()
-    var prevDates = [String: Date]()
+    let hasActualTotals = dataPoints.contains { point in
+        point.networkInterfaces.contains { ($0[keyPath: totalKeyPath] ?? 0) > 0 }
+    }
+
     var result = [InterfaceSample]()
 
-    for point in dataPoints {
-        for iface in point.networkInterfaces {
-            let interval = prevDates[iface.name]
-                .map { point.date.timeIntervalSince($0) } ?? 60.0
-            let contribution = iface[keyPath: keyPath] * max(interval, 0)
-            let cumulative = (accumulated[iface.name] ?? 0) + contribution
-            accumulated[iface.name] = cumulative
-            prevDates[iface.name] = point.date
-            result.append(InterfaceSample(date: point.date, name: iface.name, value: cumulative))
+    if hasActualTotals {
+        for point in dataPoints {
+            for iface in point.networkInterfaces {
+                if let total = iface[keyPath: totalKeyPath], total > 0 {
+                    result.append(InterfaceSample(date: point.date, name: iface.name, value: total))
+                }
+            }
+        }
+    } else {
+        var accumulated = [String: Double]()
+        var prevDates = [String: Date]()
+        for point in dataPoints {
+            for iface in point.networkInterfaces {
+                let interval = prevDates[iface.name]
+                    .map { point.date.timeIntervalSince($0) } ?? 60.0
+                let contribution = iface[keyPath: rateKeyPath] * max(interval, 0)
+                let cumulative = (accumulated[iface.name] ?? 0) + contribution
+                accumulated[iface.name] = cumulative
+                prevDates[iface.name] = point.date
+                result.append(InterfaceSample(date: point.date, name: iface.name, value: cumulative))
+            }
         }
     }
     return result
@@ -277,7 +292,7 @@ struct BandwidthCumulativeDownloadChartView: View {
     }
 
     private var samples: [InterfaceSample] {
-        cumulativeSamples(from: dataPoints, value: \.received)
+        cumulativeSamples(from: dataPoints, total: \.totalReceived, rate: \.received)
     }
 
     private var maxBytes: Double { samples.map(\.value).max() ?? 0 }
@@ -373,7 +388,7 @@ struct BandwidthCumulativeUploadChartView: View {
     }
 
     private var samples: [InterfaceSample] {
-        cumulativeSamples(from: dataPoints, value: \.sent)
+        cumulativeSamples(from: dataPoints, total: \.totalSent, rate: \.sent)
     }
 
     private var maxBytes: Double { samples.map(\.value).max() ?? 0 }

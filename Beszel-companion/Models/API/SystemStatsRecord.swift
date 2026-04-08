@@ -258,7 +258,9 @@ extension Array where Element == SystemStatsRecord {
                 return NetworkInterfacePoint(
                     name: name,
                     sent: values[0],
-                    received: values[1]
+                    received: values[1],
+                    totalSent: values.count >= 3 ? values[2] : nil,
+                    totalReceived: values.count >= 4 ? values[3] : nil
                 )
             }
 

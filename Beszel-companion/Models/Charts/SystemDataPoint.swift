@@ -46,8 +46,10 @@ struct NetworkInterfacePoint: Identifiable, Sendable {
     var id: String { name }
 
     let name: String           // Interface name (eth0, wlan0, etc.)
-    let sent: Double           // Bytes sent
-    let received: Double       // Bytes received
+    let sent: Double           // Bytes/s sent rate
+    let received: Double       // Bytes/s received rate
+    let totalSent: Double?     // Total bytes sent since boot
+    let totalReceived: Double? // Total bytes received since boot
 }
 
 struct ExtraFilesystemPoint: Identifiable, Sendable {
@@ -212,20 +214,28 @@ extension Array where Element == SystemDataPoint {
             )
         }
 
-        var netSums: [String: (sent: Double, received: Double, count: Int)] = [:]
+        var netSums: [String: (sent: Double, received: Double, maxTotalSent: Double?, maxTotalReceived: Double?, count: Int)] = [:]
         for point in points {
             for iface in point.networkInterfaces {
-                let existing = netSums[iface.name] ?? (0, 0, 0)
+                let existing = netSums[iface.name] ?? (0, 0, nil, nil, 0)
                 netSums[iface.name] = (
                     sent: existing.sent + iface.sent,
                     received: existing.received + iface.received,
+                    maxTotalSent: Swift.max(existing.maxTotalSent ?? 0, iface.totalSent ?? 0),
+                    maxTotalReceived: Swift.max(existing.maxTotalReceived ?? 0, iface.totalReceived ?? 0),
                     count: existing.count + 1
                 )
             }
         }
         let avgNetInterfaces = netSums.map { (name, data) -> NetworkInterfacePoint in
             let c = Double(data.count)
-            return NetworkInterfacePoint(name: name, sent: data.sent / c, received: data.received / c)
+            return NetworkInterfacePoint(
+                name: name,
+                sent: data.sent / c,
+                received: data.received / c,
+                totalSent: data.maxTotalSent.flatMap { $0 > 0 ? $0 : nil },
+                totalReceived: data.maxTotalReceived.flatMap { $0 > 0 ? $0 : nil }
+            )
         }
 
         typealias FsSums = (used: Double, maxTotal: Double, percent: Double, diskRead: Double, diskWrite: Double, ioCount: Int, count: Int, diosRTp: Double, diosWTp: Double, diosUtil: Double, diosRA: Double, diosWA: Double, diosWIO: Double, diosCount: Int)

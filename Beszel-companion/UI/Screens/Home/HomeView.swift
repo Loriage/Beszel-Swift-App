@@ -214,6 +214,22 @@ struct HomeView: View {
                 isPinned: store.isPinned(.systemCPU, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemCPU, onSystem: resolvedItem.systemID) }
             )
+        case .systemCPUTimeBreakdown:
+            SystemCpuTimeBreakdownChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.systemCPUTimeBreakdown, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemCPUTimeBreakdown, onSystem: resolvedItem.systemID) }
+            )
+        case .systemCPUCores:
+            SystemCpuCoresChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.systemCPUCores, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemCPUCores, onSystem: resolvedItem.systemID) }
+            )
         case .systemMemory:
             SystemMetricChartView(
                 title: "chart.memoryUsage",

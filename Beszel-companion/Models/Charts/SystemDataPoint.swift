@@ -14,6 +14,8 @@ struct SystemDataPoint: Identifiable, Sendable {
 
     let date: Date
     let cpu: Double
+    let cpuBreakdown: [Double]?   // [user, system, iowait, steal, idle] percentages
+    let cpuPerCore: [Double]?     // per-core cpu %
     let memoryPercent: Double
     let temperatures: [(name: String, value: Double)]
 
@@ -285,9 +287,35 @@ extension Array where Element == SystemDataPoint {
             )
         }
 
+        // Average cpuBreakdown element-wise
+        let breakdownPoints = points.compactMap { $0.cpuBreakdown }
+        let avgCpuBreakdown: [Double]?
+        if let first = breakdownPoints.first, !first.isEmpty {
+            let bdCount = Double(breakdownPoints.count)
+            avgCpuBreakdown = (0..<first.count).map { i in
+                breakdownPoints.compactMap { i < $0.count ? $0[i] : nil }.reduce(0, +) / bdCount
+            }
+        } else {
+            avgCpuBreakdown = nil
+        }
+
+        // Average cpuPerCore element-wise
+        let perCorePoints = points.compactMap { $0.cpuPerCore }
+        let avgCpuPerCore: [Double]?
+        if let first = perCorePoints.first, !first.isEmpty {
+            let pcCount = Double(perCorePoints.count)
+            avgCpuPerCore = (0..<first.count).map { i in
+                perCorePoints.compactMap { i < $0.count ? $0[i] : nil }.reduce(0, +) / pcCount
+            }
+        } else {
+            avgCpuPerCore = nil
+        }
+
         return SystemDataPoint(
             date: firstDate,
             cpu: avgCpu,
+            cpuBreakdown: avgCpuBreakdown,
+            cpuPerCore: avgCpuPerCore,
             memoryPercent: avgMemory,
             temperatures: avgTemps,
             bandwidth: avgBandwidth,

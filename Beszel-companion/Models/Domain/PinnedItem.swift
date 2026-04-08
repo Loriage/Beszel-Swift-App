@@ -3,6 +3,8 @@ import Foundation
 enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
     case systemInfo
     case systemCPU
+    case systemCPUTimeBreakdown
+    case systemCPUCores
     case systemMemory
     case systemTemperature
     case systemDiskIO
@@ -36,6 +38,8 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
         switch self {
         case .systemInfo: return "system_info"
         case .systemCPU: return "system_cpu"
+        case .systemCPUTimeBreakdown: return "system_cpu_time_breakdown"
+        case .systemCPUCores: return "system_cpu_cores"
         case .systemMemory: return "system_memory"
         case .systemTemperature: return "system_temperature"
         case .systemDiskIO: return "system_disk_io"
@@ -73,6 +77,10 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
             return NSLocalizedString("pinned.item.system.info", bundle: bundle, comment: "")
         case .systemCPU:
             return NSLocalizedString("pinned.item.system.cpu", bundle: bundle, comment: "")
+        case .systemCPUTimeBreakdown:
+            return NSLocalizedString("pinned.item.system.cpu.breakdown", bundle: bundle, comment: "")
+        case .systemCPUCores:
+            return NSLocalizedString("pinned.item.system.cpu.cores", bundle: bundle, comment: "")
         case .systemMemory:
             return NSLocalizedString("pinned.item.system.memory", bundle: bundle, comment: "")
         case .systemTemperature:
@@ -137,7 +145,7 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
     var metricName: String {
         switch self {
         case .systemInfo: return "Info"
-        case .systemCPU, .containerCPU, .stackedContainerCPU: return "CPU"
+        case .systemCPU, .systemCPUTimeBreakdown, .systemCPUCores, .containerCPU, .stackedContainerCPU: return "CPU"
         case .systemMemory, .containerMemory, .stackedContainerMemory: return "Memory"
         case .stackedContainerNetwork: return "Network I/O"
         case .systemTemperature: return "Temperature"

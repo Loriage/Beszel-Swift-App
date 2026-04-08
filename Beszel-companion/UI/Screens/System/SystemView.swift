@@ -33,16 +33,9 @@ struct SystemView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 16) {
-                    SystemMetricChartView(
-                        title: "chart.cpuUsage",
-                        xAxisFormat: store.xAxisFormat,
+                    SystemCpuSummaryChartView(
                         dataPoints: store.systemDataPoints,
-                        valueKeyPath: \.cpu,
-                        color: .blue,
-                        subtitle: "chart.cpuUsage.subtitle",
-                        unit: "%",
-                        isPinned: store.isPinned(.systemCPU),
-                        onPinToggle: { store.togglePin(for: .systemCPU) }
+                        systemID: instanceManager.activeSystem?.id
                     )
                     SystemMetricChartView(
                         title: "chart.memoryUsage",

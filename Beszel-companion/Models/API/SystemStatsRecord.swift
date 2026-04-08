@@ -330,6 +330,8 @@ extension Array where Element == SystemStatsRecord {
             return SystemDataPoint(
                 date: record.created,
                 cpu: record.stats.cpu,
+                cpuBreakdown: record.stats.cpuBreakdown,
+                cpuPerCore: record.stats.cpuPerCore,
                 memoryPercent: record.stats.memoryPercent,
                 temperatures: tempsArray,
                 bandwidth: bandwidthTuple,

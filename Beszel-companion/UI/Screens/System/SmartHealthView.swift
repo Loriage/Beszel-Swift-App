@@ -188,6 +188,7 @@ private struct SmartDeviceCard: View {
                                 .font(.caption)
                         }
                         .foregroundColor(.secondary)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
 

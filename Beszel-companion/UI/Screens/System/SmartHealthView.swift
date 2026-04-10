@@ -1,13 +1,19 @@
 import SwiftUI
 
 struct SmartHealthView: View {
+    @Environment(BeszelStore.self) var store
     let devices: [SmartDeviceRecord]
+    let systemID: String
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 ForEach(devices.sorted(by: { $0.name < $1.name })) { device in
-                    SmartDeviceCard(device: device)
+                    SmartDeviceCard(
+                        device: device,
+                        isPinned: store.isPinned(.smartDevice(name: device.name), onSystem: systemID),
+                        onPinToggle: { store.togglePin(for: .smartDevice(name: device.name), onSystem: systemID) }
+                    )
                 }
             }
             .groupBoxStyle(CardGroupBoxStyle())
@@ -19,14 +25,18 @@ struct SmartHealthView: View {
 }
 
 struct SmartHealthSummaryCard: View {
+    @Environment(BeszelStore.self) var store
     let devices: [SmartDeviceRecord]
+    let systemID: String
 
     private var failedCount: Int {
         devices.filter { $0.isFailed }.count
     }
 
     var body: some View {
-        NavigationLink(destination: SmartHealthView(devices: devices)) {
+        NavigationLink(destination: SmartHealthView(devices: devices, systemID: systemID)
+            .environment(store)
+        ) {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("smart.title")
@@ -92,8 +102,10 @@ struct SmartHealthSummaryCard: View {
     }
 }
 
-private struct SmartDeviceCard: View {
+struct SmartDeviceCard: View {
     let device: SmartDeviceRecord
+    var isPinned: Bool = false
+    var onPinToggle: (() -> Void)? = nil
     @State private var showAttributes = false
 
     var body: some View {
@@ -122,6 +134,14 @@ private struct SmartDeviceCard: View {
                     .padding(.vertical, 4)
                     .background((device.isFailed ? Color.red : (device.isPassed ? Color.green : Color.secondary)).opacity(0.15))
                     .clipShape(Capsule())
+            }
+
+            if let onPinToggle {
+                Button(action: onPinToggle) {
+                    Image(systemName: isPinned ? "pin.fill" : "pin")
+                        .foregroundColor(.accentColor)
+                }
+                .buttonStyle(.plain)
             }
         }) {
             VStack(alignment: .leading, spacing: 12) {

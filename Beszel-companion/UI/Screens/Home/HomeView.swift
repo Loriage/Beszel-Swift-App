@@ -484,6 +484,15 @@ struct HomeView: View {
                 systemID: resolvedItem.systemID,
                 systemName: systemName
             )
+        case .smartDevice(let name):
+            let devices = store.smartDevices(forSystemID: resolvedItem.systemID)
+            if let device = devices.first(where: { $0.name == name }) {
+                SmartDeviceCard(
+                    device: device,
+                    isPinned: store.isPinned(.smartDevice(name: name), onSystem: resolvedItem.systemID),
+                    onPinToggle: { store.togglePin(for: .smartDevice(name: name), onSystem: resolvedItem.systemID) }
+                )
+            }
         }
     }
 }

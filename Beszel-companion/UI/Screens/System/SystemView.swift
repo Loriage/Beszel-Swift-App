@@ -27,8 +27,8 @@ struct SystemView: View {
                     .transition(.scale.combined(with: .opacity))
                 }
 
-                if store.hasSmartData {
-                    SmartHealthSummaryCard(devices: store.smartDevices)
+                if store.hasSmartData, let systemID = instanceManager.activeSystem?.id {
+                    SmartHealthSummaryCard(devices: store.smartDevices, systemID: systemID)
                         .padding(.horizontal)
                 }
 

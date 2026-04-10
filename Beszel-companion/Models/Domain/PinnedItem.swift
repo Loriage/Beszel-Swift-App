@@ -33,6 +33,7 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
     case stackedContainerCPU
     case stackedContainerMemory
     case stackedContainerNetwork
+    case smartDevice(name: String)
 
     var id: String {
         switch self {
@@ -68,6 +69,7 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
         case .stackedContainerCPU: return "stacked_container_cpu"
         case .stackedContainerMemory: return "stacked_container_memory"
         case .stackedContainerNetwork: return "stacked_container_network"
+        case .smartDevice(let name): return "smart_device_\(name)"
         }
     }
 
@@ -139,6 +141,8 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
             return NSLocalizedString("pinned.item.stacked.memory", bundle: bundle, comment: "")
         case .stackedContainerNetwork:
             return NSLocalizedString("pinned.item.stacked.network", bundle: bundle, comment: "")
+        case .smartDevice(let name):
+            return "S.M.A.R.T \(name)"
         }
     }
 
@@ -170,6 +174,7 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
         case .extraDiskIOTimes(let name): return "\(name) I/O Times"
         case .extraDiskAwait(let name): return "\(name) Await"
         case .extraDiskIOQueueDepth(let name): return "\(name) Queue Depth"
+        case .smartDevice(let name): return "S.M.A.R.T \(name)"
         }
     }
 

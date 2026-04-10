@@ -411,6 +411,10 @@ final class BeszelStore {
     func containerData(forSystemID systemID: String) -> [ProcessedContainerData] {
         containerDataBySystem[systemID] ?? []
     }
+
+    func smartDevices(forSystemID systemID: String) -> [SmartDeviceRecord] {
+        smartDevicesBySystem[systemID] ?? []
+    }
     
     func systemName(forSystemID systemID: String) -> String? {
         instanceManager.systems.first { $0.id == systemID }?.name

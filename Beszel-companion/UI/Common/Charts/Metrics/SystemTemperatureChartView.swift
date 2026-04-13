@@ -121,12 +121,17 @@ struct SystemTemperatureChartView: View {
         .chartForegroundStyleScale { name in
             color(for: name, in: sensorNames)
         }
+        .chartXAxis {
+            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                AxisValueLabel(format: xAxisFormat, centered: true)
+            }
+        }
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                 AxisGridLine()
                 AxisValueLabel {
                     if let v = value.as(Double.self) {
-                        Text(String(format: "%.0f", v)).font(.caption2)
+                        Text(String(format: "%.0f", v)).font(.caption2).padding(.trailing, 6)
                     }
                 }
             }

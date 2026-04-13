@@ -90,7 +90,7 @@ struct SystemNetworkInterfacesChartView: View {
                 AxisGridLine()
                 AxisValueLabel {
                     if let bytes = value.as(Double.self) {
-                        Text(formatNumber(bytes)).font(.caption2)
+                        Text(formatNumber(bytes)).font(.caption2).padding(.trailing, 6)
                     }
                 }
             }

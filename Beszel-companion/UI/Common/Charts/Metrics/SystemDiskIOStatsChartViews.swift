@@ -11,6 +11,10 @@ struct SystemDiskIOUtilizationChartView: View {
 
     @Environment(\.chartXDomain) private var chartXDomain
 
+    private var maxUtil: Double {
+        dataPoints.compactMap { $0.diskIOStats?.utilPct }.max() ?? 0
+    }
+
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -56,12 +60,12 @@ struct SystemDiskIOUtilizationChartView: View {
                     AxisGridLine()
                     AxisValueLabel {
                         if let v = value.as(Double.self) {
-                            Text(String(format: "%.0f", v)).font(.caption2)
+                            Text(String(format: "%.0f", v)).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }
             }
-            .chartYScale(domain: 0...100)
+            .chartYScale(domain: 0...min(niceYDomain(maxVal: Swift.max(maxUtil, 1)).max, 100))
             .chartLegend(.hidden)
             .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)
@@ -80,6 +84,10 @@ struct SystemDiskIOTimesChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+
+    private var maxTime: Double {
+        dataPoints.compactMap { $0.diskIOStats }.flatMap { [$0.readTimePct, $0.writeTimePct] }.max() ?? 0
+    }
 
     var body: some View {
         GroupBox(label: HStack {
@@ -146,12 +154,12 @@ struct SystemDiskIOTimesChartView: View {
                         AxisGridLine()
                         AxisValueLabel {
                             if let v = value.as(Double.self) {
-                                Text(String(format: "%.0f", v)).font(.caption2)
+                                Text(String(format: "%.0f", v)).font(.caption2).padding(.trailing, 6)
                             }
                         }
                     }
                 }
-                    .chartYScale(domain: 0...100)
+                    .chartYScale(domain: 0...min(niceYDomain(maxVal: Swift.max(maxTime, 1)).max, 100))
                 .chartLegend(.hidden)
                 .chartXScaleIfNeeded(chartXDomain)
                 .padding(.top, 5)
@@ -253,12 +261,12 @@ struct SystemDiskAwaitChartView: View {
                         AxisGridLine()
                         AxisValueLabel {
                             if let v = value.as(Double.self) {
-                                Text(String(format: "%.1f", v)).font(.caption2)
+                                Text(String(format: "%.1f", v)).font(.caption2).padding(.trailing, 6)
                             }
                         }
                     }
                 }
-                .chartYScale(domain: 0...Swift.max(maxAwait * 1.15, 1.0))
+                .chartYScale(domain: 0...niceYDomain(maxVal: Swift.max(maxAwait, 1)).max)
                 .chartLegend(.hidden)
                 .chartXScaleIfNeeded(chartXDomain)
                 .padding(.top, 5)
@@ -335,12 +343,12 @@ struct SystemDiskIOQueueDepthChartView: View {
                             let s = v.truncatingRemainder(dividingBy: 1) == 0
                                 ? String(format: "%.0f", v)
                                 : String(format: "%.2f", v)
-                            Text(s).font(.caption2)
+                            Text(s).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }
             }
-            .chartYScale(domain: 0...Swift.max(maxDepth * 1.15, 1))
+            .chartYScale(domain: 0...niceYDomain(maxVal: Swift.max(maxDepth, 1)).max)
             .chartLegend(.hidden)
             .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)

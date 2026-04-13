@@ -71,7 +71,7 @@ struct ExtraDiskUsageChartView: View {
                     AxisValueLabel {
                         if let gb = value.as(Double.self) {
                             let s = formatDiskSize(gb)
-                            Text(s).font(.caption2)
+                            Text(s).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }
@@ -211,12 +211,12 @@ struct ExtraDiskIOChartView: View {
                     AxisValueLabel {
                         if let bytes = value.as(Double.self) {
                             let s = formatBytes(bytes)
-                            Text(s).font(.caption2)
+                            Text(s).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }
             }
-            .chartYScale(domain: 0...Swift.max(maxIO, 1))
+            .chartYScale(domain: 0...niceYDomain(maxVal: Swift.max(maxIO, 1)).max)
             .chartLegend(.hidden)
             .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)

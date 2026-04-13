@@ -64,12 +64,11 @@ struct SystemCpuSummaryChartView: View {
                         AxisGridLine()
                         AxisValueLabel {
                             if let v = value.as(Double.self) {
-                                Text(String(format: "%.0f", v)).font(.caption2)
+                                Text(String(format: "%.0f", v)).font(.caption2).padding(.trailing, 6)
                             }
                         }
                     }
                 }
-                .chartYScale(domain: 0...100)
                 .chartLegend(.hidden)
                 .chartXScaleIfNeeded(chartXDomain)
                 .padding(.top, 5)

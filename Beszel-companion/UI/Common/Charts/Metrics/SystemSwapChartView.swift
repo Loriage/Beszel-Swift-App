@@ -77,7 +77,7 @@ struct SystemSwapChartView: View {
                                 : gb.truncatingRemainder(dividingBy: 1) == 0
                                     ? String(format: "%.0f", gb)
                                     : String(format: "%.1f", gb)
-                            Text(s).font(.caption2)
+                            Text(s).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }

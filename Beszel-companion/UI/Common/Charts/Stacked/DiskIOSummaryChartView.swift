@@ -95,7 +95,7 @@ struct DiskIOSummaryChartView: View {
                                         : v.truncatingRemainder(dividingBy: 1) == 0
                                             ? String(format: "%.0f", v)
                                             : String(format: "%.1f", v)
-                                    Text(s).font(.caption2)
+                                    Text(s).font(.caption2).padding(.trailing, 6)
                                 }
                             }
                         }

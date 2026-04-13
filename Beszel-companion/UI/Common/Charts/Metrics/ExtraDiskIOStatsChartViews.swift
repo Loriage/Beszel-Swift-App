@@ -11,6 +11,10 @@ struct ExtraDiskIOUtilizationChartView: View {
 
     @Environment(\.chartXDomain) private var chartXDomain
 
+    private var maxUtil: Double {
+        dataPoints.compactMap { $0.extraFilesystems.first(where: { $0.name == diskName })?.diskIOStats?.utilPct }.max() ?? 0
+    }
+
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -35,14 +39,14 @@ struct ExtraDiskIOUtilizationChartView: View {
                 AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Util", util))
                     .foregroundStyle(LinearGradient(colors: [.purple.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
             }
-            .chartYScale(domain: 0...100)
+            .chartYScale(domain: 0...min(niceYDomain(maxVal: Swift.max(maxUtil, 1)).max, 100))
             .chartXAxis { AxisMarks(values: .automatic(desiredCount: 5)) { _ in AxisValueLabel(format: xAxisFormat, centered: true) } }
             .chartYAxis {
                 AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                     AxisGridLine()
                     AxisValueLabel {
                         if let v = value.as(Double.self) {
-                            Text(String(format: "%.0f", v)).font(.caption2)
+                            Text(String(format: "%.0f", v)).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }
@@ -65,6 +69,11 @@ struct ExtraDiskIOTimesChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+
+    private var maxTime: Double {
+        dataPoints.compactMap { $0.extraFilesystems.first(where: { $0.name == diskName })?.diskIOStats }
+            .flatMap { [$0.readTimePct, $0.writeTimePct] }.max() ?? 0
+    }
 
     var body: some View {
         GroupBox(label: HStack {
@@ -101,14 +110,14 @@ struct ExtraDiskIOTimesChartView: View {
                             .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
                 }
-                .chartYScale(domain: 0...100)
+                .chartYScale(domain: 0...min(niceYDomain(maxVal: Swift.max(maxTime, 1)).max, 100))
                 .chartXAxis { AxisMarks(values: .automatic(desiredCount: 5)) { _ in AxisValueLabel(format: xAxisFormat, centered: true) } }
                 .chartYAxis {
                     AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                         AxisGridLine()
                         AxisValueLabel {
                             if let v = value.as(Double.self) {
-                                Text(String(format: "%.0f", v)).font(.caption2)
+                                Text(String(format: "%.0f", v)).font(.caption2).padding(.trailing, 6)
                             }
                         }
                     }
@@ -186,12 +195,12 @@ struct ExtraDiskAwaitChartView: View {
                         AxisGridLine()
                         AxisValueLabel {
                             if let v = value.as(Double.self) {
-                                Text(String(format: "%.1f", v)).font(.caption2)
+                                Text(String(format: "%.1f", v)).font(.caption2).padding(.trailing, 6)
                             }
                         }
                     }
                 }
-                .chartYScale(domain: 0...Swift.max(maxAwait * 1.15, 1.0))
+                .chartYScale(domain: 0...niceYDomain(maxVal: Swift.max(maxAwait, 1)).max)
                 .chartLegend(.hidden)
                 .chartXScaleIfNeeded(chartXDomain)
                 .padding(.top, 5)
@@ -248,7 +257,6 @@ struct ExtraDiskIOQueueDepthChartView: View {
                 AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Depth", depth))
                     .foregroundStyle(LinearGradient(colors: [.teal.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
             }
-            .chartYScale(domain: 0...Swift.max(maxDepth * 1.15, 1))
             .chartXAxis { AxisMarks(values: .automatic(desiredCount: 5)) { _ in AxisValueLabel(format: xAxisFormat, centered: true) } }
             .chartYAxis {
                 AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
@@ -258,11 +266,12 @@ struct ExtraDiskIOQueueDepthChartView: View {
                             let s = v.truncatingRemainder(dividingBy: 1) == 0
                                 ? String(format: "%.0f", v)
                                 : String(format: "%.2f", v)
-                            Text(s).font(.caption2)
+                            Text(s).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }
             }
+            .chartYScale(domain: 0...niceYDomain(maxVal: Swift.max(maxDepth, 1)).max)
             .chartLegend(.hidden)
             .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)

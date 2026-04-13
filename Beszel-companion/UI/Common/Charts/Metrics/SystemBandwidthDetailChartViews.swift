@@ -115,7 +115,7 @@ struct BandwidthDownloadChartView: View {
                 AxisGridLine()
                 AxisValueLabel {
                     if let v = value.as(Double.self) {
-                        Text(v == 0 ? "0" : formatAdaptiveBytes(v, divisor: divisor)).font(.caption2)
+                        Text(v == 0 ? "0" : formatAdaptiveBytes(v, divisor: divisor)).font(.caption2).padding(.trailing, 6)
                     }
                 }
             }
@@ -225,7 +225,7 @@ struct BandwidthUploadChartView: View {
                 AxisGridLine()
                 AxisValueLabel {
                     if let v = value.as(Double.self) {
-                        Text(v == 0 ? "0" : formatAdaptiveBytes(v, divisor: divisor)).font(.caption2)
+                        Text(v == 0 ? "0" : formatAdaptiveBytes(v, divisor: divisor)).font(.caption2).padding(.trailing, 6)
                     }
                 }
             }
@@ -324,7 +324,7 @@ struct BandwidthCumulativeDownloadChartView: View {
                 AxisGridLine()
                 AxisValueLabel {
                     if let v = value.as(Double.self) {
-                        Text(v == 0 ? "0" : formatAdaptiveBytes(v, divisor: divisor)).font(.caption2)
+                        Text(v == 0 ? "0" : formatAdaptiveBytes(v, divisor: divisor)).font(.caption2).padding(.trailing, 6)
                     }
                 }
             }
@@ -423,7 +423,7 @@ struct BandwidthCumulativeUploadChartView: View {
                 AxisGridLine()
                 AxisValueLabel {
                     if let v = value.as(Double.self) {
-                        Text(v == 0 ? "0" : formatAdaptiveBytes(v, divisor: divisor)).font(.caption2)
+                        Text(v == 0 ? "0" : formatAdaptiveBytes(v, divisor: divisor)).font(.caption2).padding(.trailing, 6)
                     }
                 }
             }

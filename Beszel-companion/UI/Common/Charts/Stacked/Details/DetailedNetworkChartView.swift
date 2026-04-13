@@ -213,7 +213,7 @@ struct NetworkChartSectionView: View {
                                 : String(format: "%.1f", scaledValue)
                         AxisGridLine()
                         AxisValueLabel {
-                            Text(s).font(.caption2)
+                            Text(s).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }

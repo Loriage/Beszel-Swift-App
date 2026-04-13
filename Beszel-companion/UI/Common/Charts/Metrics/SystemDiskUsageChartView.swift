@@ -73,7 +73,7 @@ struct SystemDiskUsageChartView: View {
                                     : gb >= 1024
                                         ? String(format: "%.0f", gb / 1024)
                                         : String(format: "%.0f", gb)
-                                Text(s).font(.caption2)
+                                Text(s).font(.caption2).padding(.trailing, 6)
                             }
                         }
                     }

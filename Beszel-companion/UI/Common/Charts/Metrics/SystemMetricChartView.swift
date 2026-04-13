@@ -25,8 +25,8 @@ struct SystemMetricChartView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     (unit.isEmpty ? Text(title) : Text(title) + Text(" (\(unit))"))
                         .font(.headline)
-                    if let subtitle = subtitle, systemName == nil {
-                        Text(subtitle)
+                    if systemName == nil {
+                        Text("chart.cpuUsage.subtitle")
                             .font(.caption2)
                             .foregroundColor(.secondary)
                     }
@@ -74,6 +74,10 @@ struct SystemMetricChartView: View {
         dataPoints.last?[keyPath: valueKeyPath]
     }
 
+    private var maxDataValue: Double {
+        dataPoints.map { $0[keyPath: valueKeyPath] }.max() ?? 0
+    }
+
     private var chartContent: some View {
         Chart(dataPoints) { point in
             let value = point[keyPath: valueKeyPath]
@@ -100,7 +104,7 @@ struct SystemMetricChartView: View {
                 AxisGridLine()
                 AxisValueLabel {
                     if let v = value.as(Double.self) {
-                        Text(String(format: "%.0f", v)).font(.caption2)
+                        Text(adaptiveAxisLabel(v, domainMax: maxDataValue)).font(.caption2).padding(.trailing, 6)
                     }
                 }
             }

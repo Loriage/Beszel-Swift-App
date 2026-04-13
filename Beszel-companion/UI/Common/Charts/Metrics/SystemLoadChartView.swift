@@ -11,6 +11,12 @@ struct SystemLoadChartView: View {
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
+    private var maxLoadValue: Double {
+        dataPoints.compactMap { $0.loadAverage }
+            .flatMap { [$0.l1, $0.l5, $0.l15] }
+            .max() ?? 0
+    }
+
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -67,7 +73,13 @@ struct SystemLoadChartView: View {
             .chartYAxis {
                 AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                     AxisGridLine()
-                    AxisValueLabel()
+                    AxisValueLabel {
+                        if let v = value.as(Double.self) {
+                            Text(adaptiveAxisLabel(v, domainMax: maxLoadValue))
+                                .font(.caption2)
+                                .padding(.trailing, 6)
+                        }
+                    }
                 }
             }
             .chartLegend(.hidden)

@@ -61,7 +61,7 @@ struct StackedCpuChartView: View {
                             AxisGridLine()
                             AxisValueLabel {
                                 if let v = value.as(Double.self) {
-                                    Text(String(format: "%.0f", v)).font(.caption2)
+                                    Text(String(format: "%.0f", v)).font(.caption2).padding(.trailing, 6)
                                 }
                             }
                         }

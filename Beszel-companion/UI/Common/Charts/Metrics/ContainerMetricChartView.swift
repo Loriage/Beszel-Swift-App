@@ -58,7 +58,7 @@ struct ContainerMetricChartView: View {
                 )
                 .foregroundStyle(LinearGradient(colors: [color.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
             }
-            .chartYScale(domain: 0...maxValue)
+            .chartYScale(domain: 0...niceYDomain(maxVal: maxValue).max)
             .chartXScaleIfNeeded(chartXDomain)
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in
@@ -70,7 +70,7 @@ struct ContainerMetricChartView: View {
                     AxisGridLine()
                     AxisValueLabel {
                         if let v = value.as(Double.self) {
-                            Text(yAxisFormatter(v)).font(.caption2)
+                            Text(adaptiveAxisLabel(v, domainMax: maxValue)).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }

@@ -81,6 +81,8 @@ struct SystemCpuDetailView: View {
             return SingleCoreSample(date: point.date, value: cores[index])
         }
         let maxVal = samples.map(\.value).max() ?? 0
+        let (niceDomainMax, _) = niceYDomain(maxVal: maxVal > 0 ? maxVal : 100)
+        let domainMax = min(niceDomainMax, 100.0)
 
         return GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -109,7 +111,7 @@ struct SystemCpuDetailView: View {
                     endPoint: .bottom
                 ))
             }
-            .chartYScale(domain: 0...(maxVal > 0 ? min(maxVal * 1.15, 100) : 100))
+            .chartYScale(domain: 0...domainMax)
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in
                     AxisValueLabel(format: xAxisFormat, centered: true)
@@ -120,7 +122,7 @@ struct SystemCpuDetailView: View {
                     AxisGridLine()
                     AxisValueLabel {
                         if let v = value.as(Double.self) {
-                            Text(String(format: "%.0f", v)).font(.caption2)
+                            Text(adaptiveAxisLabel(v, domainMax: domainMax)).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }

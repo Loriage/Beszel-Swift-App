@@ -64,6 +64,36 @@ func gradientRange(for domain: [String]) -> [LinearGradient] {
     }
 }
 
+/// Adaptive y-axis label formatting based on domain max value.
+func adaptiveAxisLabel(_ v: Double, domainMax: Double) -> String {
+    if domainMax < 0.1 {
+        return String(format: "%.3f", v)
+    } else if domainMax < 1 {
+        return String(format: "%.2f", v)
+    } else if domainMax < 10 {
+        return String(format: "%.1f", v)
+    } else {
+        return String(format: "%.0f", v)
+    }
+}
+
+/// Computes a nice domain max and step size so that `.automatic` axis marks naturally include the top value.
+func niceYDomain(maxVal: Double, desiredCount: Int = 4) -> (max: Double, step: Double) {
+    guard maxVal > 0 else { return (100, 25) }
+    let maxWithHeadroom = maxVal * 1.1
+    let roughStep = maxWithHeadroom / Double(desiredCount)
+    let magnitude = pow(10, floor(log10(roughStep)))
+    let normalized = roughStep / magnitude
+    let niceStep: Double
+    if normalized <= 1 { niceStep = 1 * magnitude }
+    else if normalized <= 2 { niceStep = 2 * magnitude }
+    else if normalized <= 2.5 { niceStep = 2.5 * magnitude }
+    else if normalized <= 5 { niceStep = 5 * magnitude }
+    else { niceStep = 10 * magnitude }
+    let niceMax = ceil(maxWithHeadroom / niceStep) * niceStep
+    return (niceMax, niceStep)
+}
+
 func formatMemory(value: Double, fromUnit unit: String) -> String {
     let megaBytes = (unit == "GB") ? (value * 1024) : value
     

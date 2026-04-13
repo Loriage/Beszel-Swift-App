@@ -197,7 +197,7 @@ struct CpuChartSectionView: View {
                         let s = String(format: "%.1f", scaledValue)
                         AxisGridLine()
                         AxisValueLabel {
-                            Text(s).font(.caption2)
+                            Text(s).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }

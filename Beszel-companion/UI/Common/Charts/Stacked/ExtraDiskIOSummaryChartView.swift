@@ -97,12 +97,12 @@ struct ExtraDiskIOSummaryChartView: View {
                             AxisValueLabel {
                                 if let b = value.as(Double.self) {
                                     let s = formatBytes(b)
-                                    Text(s).font(.caption2)
+                                    Text(s).font(.caption2).padding(.trailing, 6)
                                 }
                             }
                         }
                     }
-                    .chartYScale(domain: 0...Swift.max(maxIO, 1))
+                    .chartYScale(domain: 0...niceYDomain(maxVal: Swift.max(maxIO, 1)).max)
                     .chartLegend(.hidden)
                     .chartXScaleIfNeeded(chartXDomain)
                     .padding(.top, 5)

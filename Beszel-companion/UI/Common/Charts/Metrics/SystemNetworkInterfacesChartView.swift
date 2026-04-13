@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 
 struct SystemNetworkInterfacesChartView: View {
+    @Environment(\.chartXDomain) private var chartXDomain
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
 
@@ -22,11 +23,16 @@ struct SystemNetworkInterfacesChartView: View {
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-            Text("chart.networkInterfaces")
-                .font(.headline)
+                (Text("chart.networkInterfaces") + Text(" (\(yAxisUnit))"))
+                    .font(.headline)
+                if systemName == nil {
+                    Text("chart.networkInterfaces.subtitle")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
                 if let systemName = systemName {
                     Text(systemName)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
@@ -80,30 +86,41 @@ struct SystemNetworkInterfacesChartView: View {
             }
         }
         .chartYAxis {
-            AxisMarks(values: .automatic(desiredCount: 4)) { value in
+            AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                 AxisGridLine()
                 AxisValueLabel {
                     if let bytes = value.as(Double.self) {
-                        Text(formatBytes(bytes))
-                            .font(.caption)
+                        Text(formatNumber(bytes)).font(.caption2).padding(.trailing, 6)
                     }
                 }
             }
         }
         .chartLegend(.hidden)
+        .chartXScaleIfNeeded(chartXDomain)
         .padding(.top, 5)
         .drawingGroup()
     }
 
-    private func formatBytes(_ bytes: Double) -> String {
-        if bytes >= 1_073_741_824 {
-            return String(format: "%.1f GB", bytes / 1_073_741_824)
-        } else if bytes >= 1_048_576 {
-            return String(format: "%.1f MB", bytes / 1_048_576)
-        } else if bytes >= 1024 {
-            return String(format: "%.1f KB", bytes / 1024)
-        } else {
-            return String(format: "%.0f B", bytes)
+    private var maxTotal: Double {
+        dataPoints.flatMap { $0.networkInterfaces.map { $0.sent + $0.received } }.max() ?? 0
+    }
+
+    private var yAxisUnit: String {
+        if maxTotal >= 1_073_741_824 { return "GB" }
+        if maxTotal >= 1_048_576     { return "MB" }
+        if maxTotal >= 1024          { return "KB" }
+        return "B"
+    }
+
+    private func formatNumber(_ bytes: Double) -> String {
+        func fmt(_ v: Double) -> String {
+            v.truncatingRemainder(dividingBy: 1) == 0
+                ? String(format: "%.0f", v) : String(format: "%.1f", v)
         }
+        if bytes == 0 { return "0" }
+        if bytes >= 1_073_741_824 { return fmt(bytes / 1_073_741_824) }
+        if bytes >= 1_048_576     { return fmt(bytes / 1_048_576) }
+        if bytes >= 1024          { return fmt(bytes / 1024) }
+        return String(format: "%.0f", bytes)
     }
 }

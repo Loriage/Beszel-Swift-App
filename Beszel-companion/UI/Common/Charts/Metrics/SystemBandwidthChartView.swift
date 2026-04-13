@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 
 struct SystemBandwidthChartView: View {
+    @Environment(\.chartXDomain) private var chartXDomain
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
 
@@ -13,11 +14,16 @@ struct SystemBandwidthChartView: View {
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-            Text("chart.bandwidth")
-                .font(.headline)
+                (Text("chart.bandwidth") + Text(" (MB/s)"))
+                    .font(.headline)
+                if systemName == nil {
+                    Text("chart.bandwidth.subtitle")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
                 if let systemName = systemName {
                     Text(systemName)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
@@ -69,18 +75,22 @@ struct SystemBandwidthChartView: View {
                 }
             }
             .chartYAxis {
-                AxisMarks(values: .automatic(desiredCount: 4)) { value in
+                AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                     AxisGridLine()
                     AxisValueLabel {
                         if let bytes = value.as(Double.self) {
-                            let labelText = String(format: "%.1f", bytes / 1024_000.0)
-                            Text(labelText)
-                                .font(.caption)
+                            let v = bytes / 1_048_576.0
+                            let s = bytes == 0 ? "0"
+                                : v.truncatingRemainder(dividingBy: 1) == 0
+                                    ? String(format: "%.0f", v)
+                                    : String(format: "%.1f", v)
+                            Text(s).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }
             }
             .chartLegend(.hidden)
+            .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)
             .frame(height: 185)
             .drawingGroup()

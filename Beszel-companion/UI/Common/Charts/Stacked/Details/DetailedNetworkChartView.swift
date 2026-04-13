@@ -18,6 +18,7 @@ struct DetailedNetworkChartView: View {
     let systemID: String?
 
     let settingsManager: SettingsManager
+    var xDomain: ClosedRange<Date>? = nil
     @Environment(DashboardManager.self) var dashboardManager
     @Environment(\.locale) private var locale
 
@@ -98,6 +99,7 @@ struct DetailedNetworkChartView: View {
             .groupBoxStyle(CardGroupBoxStyle())
             .padding()
         }
+        .environment(\.chartXDomain, xDomain)
         .navigationTitle(Text("details.network.title \(networkUnit)"))
     }
 }
@@ -177,6 +179,7 @@ struct NetworkChartSectionView: View {
     let xAxisFormat: Date.FormatStyle
     let settingsManager: SettingsManager
 
+    @Environment(\.chartXDomain) private var chartXDomain
     @Binding var snappedDate: Date?
     @Binding var dragLocation: CGPoint?
 
@@ -201,14 +204,16 @@ struct NetworkChartSectionView: View {
             }
             .chartForegroundStyleScale(domain: domain, range: gradientRange(for: domain))
             .chartYAxis {
-                AxisMarks { value in
+                AxisMarks(position: .leading) { value in
                     if let yValue = value.as(Double.self) {
                         let scaledValue = yValue / labelScale
-                        let labelText = String(format: "%.1f", scaledValue)
+                        let s = scaledValue == 0 ? "0"
+                            : scaledValue.truncatingRemainder(dividingBy: 1) == 0
+                                ? String(format: "%.0f", scaledValue)
+                                : String(format: "%.1f", scaledValue)
                         AxisGridLine()
                         AxisValueLabel {
-                            Text(labelText)
-                                .font(.caption)
+                            Text(s).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }
@@ -216,11 +221,13 @@ struct NetworkChartSectionView: View {
             .chartOverlay { proxy in
                 GeometryReader { geometry in
                     ZStack(alignment: .topLeading) {
+                        let plotFrame = proxy.plotFrame.map { geometry[$0] } ?? .zero
+
                         if let snappedDate = snappedDate {
-                            let xPosition = proxy.position(forX: snappedDate) ?? 0
+                            let xPosition = (proxy.position(forX: snappedDate) ?? 0) + plotFrame.origin.x
                             Path { path in
-                                path.move(to: CGPoint(x: xPosition, y: 0))
-                                path.addLine(to: CGPoint(x: xPosition, y: geometry.size.height))
+                                path.move(to: CGPoint(x: xPosition, y: plotFrame.origin.y))
+                                path.addLine(to: CGPoint(x: xPosition, y: plotFrame.origin.y + plotFrame.size.height))
                             }
                             .stroke(Color.gray.opacity(0.5), style: StrokeStyle(lineWidth: 1, dash: [5]))
                         }
@@ -232,7 +239,8 @@ struct NetworkChartSectionView: View {
                                 DragGesture()
                                     .onChanged { value in
                                         dragLocation = value.location
-                                        if let date = proxy.value(atX: value.location.x, as: Date.self) {
+                                        let clampedX = max(plotFrame.minX, min(plotFrame.maxX, value.location.x))
+                                        if let date = proxy.value(atX: clampedX - plotFrame.origin.x, as: Date.self) {
                                             snappedDate = uniqueDates.min(by: { abs($0.timeIntervalSince(date)) < abs($1.timeIntervalSince(date)) })
                                         }
                                     }
@@ -245,7 +253,7 @@ struct NetworkChartSectionView: View {
             }
             .padding(.top, 5)
             .drawingGroup()
-            .commonChartCustomization(xAxisFormat: xAxisFormat)
+            .commonChartCustomization(xAxisFormat: xAxisFormat, xDomain: chartXDomain)
         }
     }
 }

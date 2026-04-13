@@ -399,6 +399,11 @@ actor BeszelAPIService {
         _ = try await performMutatingRequest(url: url, method: "DELETE")
     }
 
+    func fetchSmartDevices(systemID: String) async throws -> [SmartDeviceRecord] {
+        let filter = "system = '\(systemID)'"
+        return try await fetchAllPages(path: "/api/collections/smart_devices/records", filter: filter)
+    }
+
     func fetchAlerts(filter: String?) async throws -> [AlertRecord] {
         try await fetchAllPages(path: "/api/collections/alerts/records", filter: filter)
     }

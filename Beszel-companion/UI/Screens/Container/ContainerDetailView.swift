@@ -117,10 +117,13 @@ struct ContainerDetailView: View {
                     container: container,
                     valueKeyPath: \.cpu,
                     color: .blue,
+                    subtitleKey: "chart.container.cpuUsage.subtitle",
                     isPinned: dashboardManager.isPinned(.containerCPU(name: container.name)),
-                    onPinToggle: { dashboardManager.togglePin(for: .containerCPU(name: container.name)) }
+                    onPinToggle: { dashboardManager.togglePin(for: .containerCPU(name: container.name)) },
+                    yAxisFormatter: { String(format: "%.0f", $0) },
+                    yAxisUnit: "%"
                 )
-                
+
                 ContainerMetricChartView(
                     titleKey: "chart.container.memoryUsage.bytes",
                     containerName: container.name,
@@ -128,13 +131,17 @@ struct ContainerDetailView: View {
                     container: container,
                     valueKeyPath: \.memory,
                     color: .green,
+                    subtitleKey: "chart.container.memoryUsage.subtitle",
                     isPinned: dashboardManager.isPinned(.containerMemory(name: container.name)),
-                    onPinToggle: { dashboardManager.togglePin(for: .containerMemory(name: container.name)) }
+                    onPinToggle: { dashboardManager.togglePin(for: .containerMemory(name: container.name)) },
+                    yAxisFormatter: { String(format: "%.0f", $0) },
+                    yAxisUnit: "MB"
                 )
             }
             .padding()
         }
         .groupBoxStyle(CardGroupBoxStyle())
+        .environment(\.chartXDomain, store.xDomain)
     }
 
     @ViewBuilder

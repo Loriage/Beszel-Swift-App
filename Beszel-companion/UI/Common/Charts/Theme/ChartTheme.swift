@@ -1,6 +1,28 @@
 import SwiftUI
 import Charts
 
+private struct ChartXDomainKey: EnvironmentKey {
+    static let defaultValue: ClosedRange<Date>? = nil
+}
+
+extension EnvironmentValues {
+    var chartXDomain: ClosedRange<Date>? {
+        get { self[ChartXDomainKey.self] }
+        set { self[ChartXDomainKey.self] = newValue }
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func chartXScaleIfNeeded(_ domain: ClosedRange<Date>?) -> some View {
+        if let domain {
+            self.chartXScale(domain: domain)
+        } else {
+            self
+        }
+    }
+}
+
 func generateColors(for domainCount: Int) -> [Color] {
     if domainCount == 0 {
         return []
@@ -42,6 +64,36 @@ func gradientRange(for domain: [String]) -> [LinearGradient] {
     }
 }
 
+/// Adaptive y-axis label formatting based on domain max value.
+func adaptiveAxisLabel(_ v: Double, domainMax: Double) -> String {
+    if domainMax < 0.1 {
+        return String(format: "%.3f", v)
+    } else if domainMax < 1 {
+        return String(format: "%.2f", v)
+    } else if domainMax < 10 {
+        return String(format: "%.1f", v)
+    } else {
+        return String(format: "%.0f", v)
+    }
+}
+
+/// Computes a nice domain max and step size so that `.automatic` axis marks naturally include the top value.
+func niceYDomain(maxVal: Double, desiredCount: Int = 4) -> (max: Double, step: Double) {
+    guard maxVal > 0 else { return (100, 25) }
+    let maxWithHeadroom = maxVal * 1.1
+    let roughStep = maxWithHeadroom / Double(desiredCount)
+    let magnitude = pow(10, floor(log10(roughStep)))
+    let normalized = roughStep / magnitude
+    let niceStep: Double
+    if normalized <= 1 { niceStep = 1 * magnitude }
+    else if normalized <= 2 { niceStep = 2 * magnitude }
+    else if normalized <= 2.5 { niceStep = 2.5 * magnitude }
+    else if normalized <= 5 { niceStep = 5 * magnitude }
+    else { niceStep = 10 * magnitude }
+    let niceMax = ceil(maxWithHeadroom / niceStep) * niceStep
+    return (niceMax, niceStep)
+}
+
 func formatMemory(value: Double, fromUnit unit: String) -> String {
     let megaBytes = (unit == "GB") ? (value * 1024) : value
     
@@ -59,7 +111,7 @@ func formatMemory(value: Double, fromUnit unit: String) -> String {
 }
 
 extension View {
-    func commonChartCustomization(xAxisFormat: Date.FormatStyle) -> some View {
+    func commonChartCustomization(xAxisFormat: Date.FormatStyle, xDomain: ClosedRange<Date>? = nil) -> some View {
         self
             .chartXAxis {
                 AxisMarks(values: .automatic(desiredCount: 5)) { _ in
@@ -67,6 +119,7 @@ extension View {
                 }
             }
             .chartLegend(.hidden)
+            .chartXScaleIfNeeded(xDomain)
             .frame(height: 250)
     }
 }

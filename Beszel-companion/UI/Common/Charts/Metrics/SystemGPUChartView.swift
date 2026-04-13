@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 
 struct SystemGPUChartView: View {
+    @Environment(\.chartXDomain) private var chartXDomain
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
 
@@ -22,11 +23,16 @@ struct SystemGPUChartView: View {
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-            Text("chart.gpuUsage")
-                .font(.headline)
+                (Text("chart.gpuUsage") + Text(" (%)"))
+                    .font(.headline)
+                if systemName == nil {
+                    Text("chart.gpuUsage.subtitle")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
                 if let systemName = systemName {
                     Text(systemName)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
@@ -86,18 +92,17 @@ struct SystemGPUChartView: View {
             }
         }
         .chartYAxis {
-            AxisMarks(values: .automatic(desiredCount: 4)) { value in
+            AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                 AxisGridLine()
                 AxisValueLabel {
                     if let percent = value.as(Double.self) {
-                        Text(String(format: "%.0f%%", percent))
-                            .font(.caption)
+                        Text(String(format: "%.0f", percent)).font(.caption2).padding(.trailing, 6)
                     }
                 }
             }
         }
-        .chartYScale(domain: 0...100)
         .chartLegend(.hidden)
+        .chartXScaleIfNeeded(chartXDomain)
         .padding(.top, 5)
         .drawingGroup()
         .accessibilityElement(children: .ignore)

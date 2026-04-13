@@ -27,6 +27,15 @@ struct SystemSummaryCard: View {
         }
         return systemInfo?.c
     }
+
+    /// Network usage in MB/s — supports both legacy ns/nr fields and newer bandwidth bytes array
+    private var netMBps: Double {
+        if let b = stats.bandwidth, b.count >= 2 {
+            let bytesPerSec = b[0] + b[1]
+            return bytesPerSec / 1_048_576.0
+        }
+        return (stats.networkSent ?? 0) + (stats.networkReceived ?? 0)
+    }
     
     var body: some View {
         GroupBox {
@@ -61,6 +70,8 @@ struct SystemSummaryCard: View {
                     MetricRow(label: "MEM:", value: stats.memoryPercent / 100, displayValue: String(format: "%.1f%%", stats.memoryPercent))
                     MetricRow(label: "DSK:", value: stats.diskPercent / 100, displayValue: String(format: "%.1f%%", stats.diskPercent))
                     
+                    let netUsageMB = netMBps
+
                     if let load = stats.load, let oneMinLoad = load.first {
                         HStack(spacing: 8) {
                             Text("SYS:")
@@ -80,8 +91,6 @@ struct SystemSummaryCard: View {
                                 .foregroundColor(.primary)
                             Spacer()
 
-                            let netUsageMB = (stats.networkReceived ?? 0) + (stats.networkSent ?? 0)
-
                             HStack(spacing: 8) {
                                 Text("NET:")
                                     .font(.caption)
@@ -95,6 +104,21 @@ struct SystemSummaryCard: View {
                                     .monospacedDigit()
                                     .foregroundColor(.primary)
                             }
+                        }
+                    } else if netUsageMB > 0 {
+                        HStack(spacing: 8) {
+                            Text("NET:")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .monospaced()
+                                .foregroundColor(.secondary)
+                                .frame(width: 35, alignment: .leading)
+
+                            Text("\(String(format: "%.2f", netUsageMB)) MB/s")
+                                .font(.caption)
+                                .monospacedDigit()
+                                .foregroundColor(.primary)
+                            Spacer()
                         }
                     }
                 }

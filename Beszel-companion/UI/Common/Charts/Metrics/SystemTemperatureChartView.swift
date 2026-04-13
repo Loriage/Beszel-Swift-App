@@ -4,6 +4,7 @@ import WidgetKit
 
 struct SystemTemperatureChartView: View {
     @Environment(\.widgetFamily) private var widgetFamily
+    @Environment(\.chartXDomain) private var chartXDomain
     
     let xAxisFormat: Date.FormatStyle
     let dataPoints: [SystemDataPoint]
@@ -23,11 +24,16 @@ struct SystemTemperatureChartView: View {
         if !isForWidget {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("chart.temperatures")
+                    (Text("chart.temperatures") + Text(" (°C)"))
                         .font(.headline)
+                    if systemName == nil {
+                        Text("chart.temperatures.subtitle")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
                     if let systemName = systemName {
                         Text(systemName)
-                            .font(.caption)
+                            .font(.caption2)
                             .foregroundColor(.secondary)
                     }
                 }
@@ -115,7 +121,23 @@ struct SystemTemperatureChartView: View {
         .chartForegroundStyleScale { name in
             color(for: name, in: sensorNames)
         }
+        .chartXAxis {
+            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                AxisValueLabel(format: xAxisFormat, centered: true)
+            }
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
+                AxisGridLine()
+                AxisValueLabel {
+                    if let v = value.as(Double.self) {
+                        Text(String(format: "%.0f", v)).font(.caption2).padding(.trailing, 6)
+                    }
+                }
+            }
+        }
         .chartLegend(.hidden)
+        .chartXScaleIfNeeded(chartXDomain)
         .padding(.top, 5)
         .drawingGroup()
     }

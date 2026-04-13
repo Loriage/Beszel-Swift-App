@@ -394,10 +394,13 @@ private func sampleDataPoints() -> [SystemDataPoint] {
         SystemDataPoint(
             date: Date().addingTimeInterval(TimeInterval(i * 3600)),
             cpu: Double.random(in: 20...80),
+            cpuBreakdown: nil,
+            cpuPerCore: nil,
             memoryPercent: Double.random(in: 30...60),
             temperatures: [],
             bandwidth: nil,
             diskIO: nil,
+            diskIOStats: nil,
             diskUsage: nil,
             loadAverage: nil,
             swap: nil,

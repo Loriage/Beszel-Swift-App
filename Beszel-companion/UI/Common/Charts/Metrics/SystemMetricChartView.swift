@@ -4,6 +4,7 @@ import WidgetKit
 
 struct SystemMetricChartView: View {
     @Environment(\.widgetFamily) private var widgetFamily
+    @Environment(\.chartXDomain) private var chartXDomain
     
     let title: LocalizedStringResource
     let xAxisFormat: Date.FormatStyle
@@ -11,6 +12,8 @@ struct SystemMetricChartView: View {
     let valueKeyPath: KeyPath<SystemDataPoint, Double>
     let color: Color
     
+    var subtitle: LocalizedStringResource? = nil
+    var unit: String = ""
     var systemName: String? = nil
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
@@ -20,11 +23,16 @@ struct SystemMetricChartView: View {
         if !isForWidget {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
+                    (unit.isEmpty ? Text(title) : Text(title) + Text(" (\(unit))"))
                         .font(.headline)
+                    if systemName == nil {
+                        Text("chart.cpuUsage.subtitle")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
                     if let systemName = systemName {
                         Text(systemName)
-                            .font(.caption)
+                            .font(.caption2)
                             .foregroundColor(.secondary)
                     }
                 }
@@ -66,6 +74,10 @@ struct SystemMetricChartView: View {
         dataPoints.last?[keyPath: valueKeyPath]
     }
 
+    private var maxDataValue: Double {
+        dataPoints.map { $0[keyPath: valueKeyPath] }.max() ?? 0
+    }
+
     private var chartContent: some View {
         Chart(dataPoints) { point in
             let value = point[keyPath: valueKeyPath]
@@ -87,6 +99,17 @@ struct SystemMetricChartView: View {
                 AxisValueLabel(format: xAxisFormat, centered: true)
             }
         }
+        .chartYAxis {
+            AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
+                AxisGridLine()
+                AxisValueLabel {
+                    if let v = value.as(Double.self) {
+                        Text(adaptiveAxisLabel(v, domainMax: maxDataValue)).font(.caption2).padding(.trailing, 6)
+                    }
+                }
+            }
+        }
+        .chartXScaleIfNeeded(chartXDomain)
         .padding(.top, 5)
         .drawingGroup()
         .accessibilityElement(children: .ignore)

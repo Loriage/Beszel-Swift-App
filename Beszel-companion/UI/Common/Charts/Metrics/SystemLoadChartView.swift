@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 
 struct SystemLoadChartView: View {
+    @Environment(\.chartXDomain) private var chartXDomain
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
 
@@ -10,14 +11,25 @@ struct SystemLoadChartView: View {
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
 
+    private var maxLoadValue: Double {
+        dataPoints.compactMap { $0.loadAverage }
+            .flatMap { [$0.l1, $0.l5, $0.l15] }
+            .max() ?? 0
+    }
+
     var body: some View {
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
-            Text("chart.loadAverage")
-                .font(.headline)
+                Text("chart.loadAverage")
+                    .font(.headline)
+                if systemName == nil {
+                    Text("chart.loadAverage.subtitle")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
                 if let systemName = systemName {
                     Text(systemName)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
@@ -59,12 +71,19 @@ struct SystemLoadChartView: View {
                 }
             }
             .chartYAxis {
-                AxisMarks(values: .automatic(desiredCount: 4)) { value in
+                AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                     AxisGridLine()
-                    AxisValueLabel()
+                    AxisValueLabel {
+                        if let v = value.as(Double.self) {
+                            Text(adaptiveAxisLabel(v, domainMax: maxLoadValue))
+                                .font(.caption2)
+                                .padding(.trailing, 6)
+                        }
+                    }
                 }
             }
             .chartLegend(.hidden)
+            .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)
             .frame(height: 185)
             .drawingGroup()

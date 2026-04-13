@@ -18,6 +18,7 @@ final class BeszelStore {
     var networkDomain: [String] = []
     
     var systemDataPoints: [SystemDataPoint] = []
+    var smartDevices: [SmartDeviceRecord] = []
     var containerData: [ProcessedContainerData] = [] {
         didSet {
             self.sortedContainerData = containerData.sorted { $0.name < $1.name }
@@ -40,6 +41,7 @@ final class BeszelStore {
     private var containerDataBySystem: [String: [ProcessedContainerData]] = [:]
     private var containerRecordsBySystem: [String: [ContainerRecord]] = [:]
     private var latestStatsBySystem: [String: SystemStatsRecord] = [:]
+    private var smartDevicesBySystem: [String: [SmartDeviceRecord]] = [:]
     
     private let instance: Instance
     private let apiService: BeszelAPIService
@@ -59,6 +61,10 @@ final class BeszelStore {
     
     var xAxisFormat: Date.FormatStyle {
         settingsManager.selectedTimeRange.xAxisFormat
+    }
+
+    var xDomain: ClosedRange<Date> {
+        settingsManager.selectedTimeRange.xDomain
     }
     
     var hasTemperatureData: Bool {
@@ -95,6 +101,14 @@ final class BeszelStore {
         systemDataPoints.contains { $0.extraFilesystems.contains { $0.diskRead != nil || $0.diskWrite != nil } }
     }
 
+    var hasDiskIOStatsData: Bool {
+        systemDataPoints.contains { $0.diskIOStats != nil }
+    }
+
+    var hasSmartData: Bool {
+        !smartDevices.isEmpty
+    }
+
     var extraDiskNames: [String] {
         let allNames = systemDataPoints.flatMap { $0.extraFilesystems.map(\.name) }
         return Array(Set(allNames)).sorted()
@@ -112,12 +126,14 @@ final class BeszelStore {
             self.containerData = []
             self.containerRecords = []
             self.latestSystemStats = nil
+            self.smartDevices = []
             return
         }
         self.systemDataPoints = systemDataPointsBySystem[activeSystemID] ?? []
         self.containerData = containerDataBySystem[activeSystemID] ?? []
         self.containerRecords = containerRecordsBySystem[activeSystemID] ?? []
         self.latestSystemStats = latestStatsBySystem[activeSystemID]
+        self.smartDevices = smartDevicesBySystem[activeSystemID] ?? []
     }
     
     private func cleanupStaleSystemData() {
@@ -143,10 +159,12 @@ final class BeszelStore {
         containerDataBySystem.removeAll()
         containerRecordsBySystem.removeAll()
         latestStatsBySystem.removeAll()
+        smartDevicesBySystem.removeAll()
         systemDataPoints = []
         containerData = []
         containerRecords = []
         latestSystemStats = nil
+        smartDevices = []
         stackedCpuData = []
         stackedMemoryData = []
         stackedNetworkData = []
@@ -192,7 +210,8 @@ final class BeszelStore {
         }
         
         let apiService = self.apiService
-        
+        let selectedSpan = currentTimeRange.xDomain.upperBound.timeIntervalSince(currentTimeRange.xDomain.lowerBound)
+
         do {
             let (finalSystemData, finalContainerData, finalLatestStats) = try await withThrowingTaskGroup(
                 of: (String, [SystemDataPoint], [ProcessedContainerData], SystemStatsRecord?).self,
@@ -212,15 +231,15 @@ final class BeszelStore {
                         let fetchedSystem = try await systemRecords
                         
                         let rawSystemData = fetchedSystem.asDataPoints()
-                        let transformedSystem = BeszelStore.downsampleSystemDataPoints(rawSystemData, timeRange: currentTimeRange)
+                        let transformedSystem = BeszelStore.downsampleSystemDataPoints(rawSystemData, selectedSpan: selectedSpan)
                         let rawContainers = fetchedContainers.asProcessedData()
-                        
+
                         let latestRecord = fetchedSystem.max(by: { $0.created < $1.created })
-                        
+
                         var processedContainers: [ProcessedContainerData] = []
                         for container in rawContainers {
                             var c = container
-                            c.statPoints = await BeszelStore.downsampleStatPoints(container.statPoints, timeRange: currentTimeRange)
+                            c.statPoints = await BeszelStore.downsampleStatPoints(container.statPoints, selectedSpan: selectedSpan)
                             processedContainers.append(c)
                         }
                         
@@ -254,7 +273,8 @@ final class BeszelStore {
             }
             
             await fetchContainerRecords(for: systemsToFetch)
-            
+            await fetchSmartDevices(for: systemsToFetch)
+
             self.updateDataForActiveSystem()
             
         } catch {
@@ -262,6 +282,18 @@ final class BeszelStore {
         }
     }
     
+    private func fetchSmartDevices(for systems: [SystemRecord]) async {
+        let apiService = self.apiService
+        for system in systems {
+            do {
+                let devices = try await apiService.fetchSmartDevices(systemID: system.id)
+                self.smartDevicesBySystem[system.id] = devices
+            } catch {
+                logger.warning("Failed to fetch SMART devices for \(system.id): \(error.localizedDescription)")
+            }
+        }
+    }
+
     private func fetchContainerRecords(for systems: [SystemRecord]) async {
         let apiService = self.apiService
         
@@ -379,6 +411,10 @@ final class BeszelStore {
     func containerData(forSystemID systemID: String) -> [ProcessedContainerData] {
         containerDataBySystem[systemID] ?? []
     }
+
+    func smartDevices(forSystemID systemID: String) -> [SmartDeviceRecord] {
+        smartDevicesBySystem[systemID] ?? []
+    }
     
     func systemName(forSystemID systemID: String) -> String? {
         instanceManager.systems.first { $0.id == systemID }?.name
@@ -388,59 +424,33 @@ final class BeszelStore {
         latestStatsBySystem[systemID]
     }
     
-    nonisolated private static func downsampleStatPoints(_ statPoints: [StatPoint], timeRange: TimeRangeOption) async -> [StatPoint] {
+    nonisolated private static func downsampleStatPoints(_ statPoints: [StatPoint], selectedSpan: TimeInterval) async -> [StatPoint] {
         guard !statPoints.isEmpty else { return [] }
-        if statPoints.count < 150 { return statPoints }
-        
-        let targetCount: Int
-        switch timeRange {
-        case .lastHour: targetCount = 120
-        default: targetCount = 100
-        }
-        
-        let minDate = statPoints.first?.date ?? Date()
-        let maxDate = statPoints.last?.date ?? Date()
-        let totalDuration = maxDate.timeIntervalSince(minDate)
-        
-        let minInterval: TimeInterval
-        switch timeRange {
-        case .lastHour, .last12Hours: minInterval = 30
-        case .last24Hours: minInterval = 60
-        case .last7Days: minInterval = 300
-        case .last30Days: minInterval = 900
-        }
-        
-        let calculatedInterval = max(minInterval, totalDuration / Double(max(1, targetCount)))
-        
-        return statPoints.downsampled(bucketInterval: calculatedInterval, method: .average)
+        let sorted = statPoints.sorted { $0.date < $1.date }
+        let target = scaledTargetCount(sorted.first!.date, sorted.last!.date, selectedSpan: selectedSpan)
+        guard sorted.count > target else { return sorted }
+        let stride = max(1, sorted.count / target)
+        return Swift.stride(from: 0, to: sorted.count, by: stride).map { sorted[$0] }
     }
-    
-    nonisolated private static func downsampleSystemDataPoints(_ dataPoints: [SystemDataPoint], timeRange: TimeRangeOption) -> [SystemDataPoint] {
+
+    nonisolated private static func downsampleSystemDataPoints(_ dataPoints: [SystemDataPoint], selectedSpan: TimeInterval) -> [SystemDataPoint] {
         guard !dataPoints.isEmpty else { return [] }
-        if dataPoints.count < 150 { return dataPoints }
-        
-        let sortedPoints = dataPoints.sorted { $0.date < $1.date }
-        let minDate = sortedPoints.first?.date ?? Date()
-        let maxDate = sortedPoints.last?.date ?? Date()
-        let totalDuration = maxDate.timeIntervalSince(minDate)
-        
-        let targetCount: Int
-        switch timeRange {
-        case .lastHour: targetCount = 120
-        default: targetCount = 100
-        }
-        
-        let minInterval: TimeInterval
-        switch timeRange {
-        case .lastHour, .last12Hours: minInterval = 30
-        case .last24Hours: minInterval = 60
-        case .last7Days: minInterval = 300
-        case .last30Days: minInterval = 900
-        }
-        
-        let calculatedInterval = max(minInterval, totalDuration / Double(max(1, targetCount)))
-        
-        return sortedPoints.downsampled(bucketInterval: calculatedInterval)
+        let sorted = dataPoints.sorted { $0.date < $1.date }
+        let target = scaledTargetCount(sorted.first!.date, sorted.last!.date, selectedSpan: selectedSpan)
+        guard sorted.count > target else { return sorted }
+        let stride = max(1, sorted.count / target)
+        return Swift.stride(from: 0, to: sorted.count, by: stride).map { sorted[$0] }
+    }
+
+    /// Scales target point count by the fraction of the selected range that data actually covers.
+    /// This ensures consistent visual density whether data fills the full range or just part of it.
+    nonisolated private static func scaledTargetCount(_ firstDate: Date, _ lastDate: Date, selectedSpan: TimeInterval) -> Int {
+        let maxPoints = 120
+        let minPoints = 5
+        guard selectedSpan > 0 else { return maxPoints }
+        let actualSpan = lastDate.timeIntervalSince(firstDate)
+        let fraction = min(1.0, actualSpan / selectedSpan)
+        return max(minPoints, Int(Double(maxPoints) * fraction))
     }
     
     private func calculateStackedData() {

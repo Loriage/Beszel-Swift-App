@@ -9923,6 +9923,34 @@
         }
       }
     },
+    "settings.display.chartGridLines" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chart grid lines"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Chart grid lines"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lignes de grille du graphique"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Linie siatki wykresu"
+          }
+        }
+      }
+    },
     "settings.display.chartPeriod" : {
       "localizations" : {
         "en" : {

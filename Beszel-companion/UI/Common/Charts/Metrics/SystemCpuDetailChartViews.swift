@@ -80,15 +80,12 @@ struct SystemCpuTimeBreakdownChartView: View {
                 .chartForegroundStyleScale(domain: breakdownOrder, range: gradientRange(for: breakdownOrder))
                 .chartYScale(domain: 0...100)
                 .chartXAxis {
-                    AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
                 }
                 .chartYAxis {
@@ -199,15 +196,12 @@ struct SystemCpuCoresChartView: View {
                 }
                 .chartForegroundStyleScale(domain: names, range: gradientRange(for: names))
                 .chartXAxis {
-                    AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
                 }
                 .chartYAxis {

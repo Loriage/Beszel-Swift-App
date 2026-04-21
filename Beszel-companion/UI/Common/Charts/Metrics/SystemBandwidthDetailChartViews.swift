@@ -107,15 +107,12 @@ struct BandwidthDownloadChartView: View {
         }
         .chartForegroundStyleScale { name in color(for: name, in: interfaceNames) }
         .chartXAxis {
-            AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+            AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
         }
         .chartYAxis {
@@ -225,15 +222,12 @@ struct BandwidthUploadChartView: View {
         }
         .chartForegroundStyleScale { name in color(for: name, in: interfaceNames) }
         .chartXAxis {
-            AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+            AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
         }
         .chartYAxis {
@@ -332,15 +326,12 @@ struct BandwidthCumulativeDownloadChartView: View {
         }
         .chartForegroundStyleScale { name in color(for: name, in: interfaceNames) }
         .chartXAxis {
-            AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+            AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
         }
         .chartYAxis {
@@ -439,15 +430,12 @@ struct BandwidthCumulativeUploadChartView: View {
         }
         .chartForegroundStyleScale { name in color(for: name, in: interfaceNames) }
         .chartXAxis {
-            AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+            AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
         }
         .chartYAxis {

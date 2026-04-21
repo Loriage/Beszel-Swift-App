@@ -32,10 +32,6 @@ extension View {
     }
 }
 
-extension AxisValue {
-    var edgeAnchor: UnitPoint { .top }
-}
-
 /// Evenly-spaced tick dates inset from the domain edges by `marginFraction` of the span.
 func insetTickDates(for domain: ClosedRange<Date>?, count: Int = 4, marginFraction: Double = 0.05) -> [Date] {
     guard let domain, count >= 2 else { return [] }
@@ -46,17 +42,6 @@ func insetTickDates(for domain: ClosedRange<Date>?, count: Int = 4, marginFracti
     let innerEnd = domain.upperBound.addingTimeInterval(-margin)
     let step = innerEnd.timeIntervalSince(innerStart) / Double(count - 1)
     return (0..<count).map { i in innerStart.addingTimeInterval(Double(i) * step) }
-}
-
-@ViewBuilder
-func compactXAxisLabel(
-    for date: Date,
-    xAxisFormat: Date.FormatStyle,
-    xDomain: ClosedRange<Date>?,
-    index: Int
-) -> some View {
-    Text(date, format: xAxisFormat)
-        .font(.caption2)
 }
 
 func generateColors(for domainCount: Int) -> [Color] {
@@ -154,15 +139,12 @@ private struct CommonChartCustomization: ViewModifier {
     func body(content: Content) -> some View {
         content
             .chartXAxis {
-                AxisMarks(values: insetTickDates(for: xDomain)) { value in
+                AxisMarks(values: insetTickDates(for: xDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: xDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
             }
             .chartLegend(.hidden)

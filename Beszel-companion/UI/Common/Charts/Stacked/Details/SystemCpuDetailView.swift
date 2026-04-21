@@ -114,15 +114,12 @@ struct SystemCpuDetailView: View {
             }
             .chartYScale(domain: 0...domainMax)
             .chartXAxis {
-                AxisMarks(values: insetTickDates(for: xDomain)) { value in
+                AxisMarks(values: insetTickDates(for: xDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: xDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
             }
             .chartYAxis {

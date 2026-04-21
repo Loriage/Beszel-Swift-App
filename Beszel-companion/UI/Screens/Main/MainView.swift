@@ -43,6 +43,7 @@ struct MainView: View {
                     }
                     .environment(store)
                     .environment(\.chartXDomain, store.xDomain)
+                    .environment(\.chartShowXGridLines, settingsManager.showChartGridLines)
                     .toolbar {
                         if selectedTab != .home && selectedTab != .alerts {
                             ToolbarItem(placement: .topBarLeading) {
@@ -80,6 +81,7 @@ struct MainView: View {
                         ContainerDetailView(container: container)
                             .environment(store)
                             .environment(\.chartXDomain, store.xDomain)
+                            .environment(\.chartShowXGridLines, settingsManager.showChartGridLines)
                     }
                     .task(id: alertManager.pendingAlertDetail?.id) {
                         if let pendingDetail = alertManager.pendingAlertDetail {

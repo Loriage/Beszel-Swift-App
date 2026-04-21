@@ -10,6 +10,7 @@ struct SystemDiskIOUtilizationChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var maxUtil: Double {
         dataPoints.compactMap { $0.diskIOStats?.utilPct }.max() ?? 0
@@ -51,8 +52,15 @@ struct SystemDiskIOUtilizationChartView: View {
                 }
             }
             .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                    AxisValueLabel(format: xAxisFormat, centered: true)
+                AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
                 }
             }
             .chartYAxis {
@@ -84,6 +92,7 @@ struct SystemDiskIOTimesChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var maxTime: Double {
         dataPoints.compactMap { $0.diskIOStats }.flatMap { [$0.readTimePct, $0.writeTimePct] }.max() ?? 0
@@ -145,9 +154,16 @@ struct SystemDiskIOTimesChartView: View {
                     }
                 }
                 .chartXAxis {
-                    AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                        AxisValueLabel(format: xAxisFormat, centered: true)
+                    AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                }
                 }
                 .chartYAxis {
                     AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
@@ -191,6 +207,7 @@ struct SystemDiskAwaitChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var maxAwait: Double {
         dataPoints.compactMap { $0.diskIOStats }.flatMap { [$0.rAwait, $0.wAwait] }.max() ?? 0
@@ -252,9 +269,16 @@ struct SystemDiskAwaitChartView: View {
                     }
                 }
                 .chartXAxis {
-                    AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                        AxisValueLabel(format: xAxisFormat, centered: true)
+                    AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                }
                 }
                 .chartYAxis {
                     AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
@@ -298,6 +322,7 @@ struct SystemDiskIOQueueDepthChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var maxDepth: Double {
         dataPoints.compactMap { $0.diskIOStats?.weightedIO }.max() ?? 0
@@ -331,8 +356,15 @@ struct SystemDiskIOQueueDepthChartView: View {
                     .foregroundStyle(LinearGradient(colors: [.teal.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
             }
             .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                    AxisValueLabel(format: xAxisFormat, centered: true)
+                AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
                 }
             }
             .chartYAxis {

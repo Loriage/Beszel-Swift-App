@@ -14,6 +14,7 @@ struct SystemCpuDetailView: View {
     var xDomain: ClosedRange<Date>? = nil
 
     @Environment(DashboardManager.self) var dashboardManager
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var coreNames: [String] {
         guard let first = dataPoints.first, let cores = first.cpuPerCore else { return [] }
@@ -113,8 +114,15 @@ struct SystemCpuDetailView: View {
             }
             .chartYScale(domain: 0...domainMax)
             .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                    AxisValueLabel(format: xAxisFormat, centered: true)
+                AxisMarks(values: insetTickDates(for: xDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: xDomain, index: value.index)
+                        }
+                    }
                 }
             }
             .chartYAxis {

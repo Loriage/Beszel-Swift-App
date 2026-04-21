@@ -40,6 +40,12 @@ final class SettingsManager {
         }
     }
 
+    var showChartGridLines: Bool {
+        didSet {
+            UserDefaults.sharedSuite.set(showChartGridLines, forKey: "showChartGridLines")
+        }
+    }
+
     init() {
         if let savedValue = UserDefaults.sharedSuite.string(forKey: "selectedTimeRange"),
            let option = TimeRangeOption(rawValue: savedValue) {
@@ -54,6 +60,11 @@ final class SettingsManager {
             self.selectedTheme = .system
         }
         self.appLockEnabled = UserDefaults.sharedSuite.bool(forKey: "appLockEnabled")
+        if UserDefaults.sharedSuite.object(forKey: "showChartGridLines") == nil {
+            self.showChartGridLines = true
+        } else {
+            self.showChartGridLines = UserDefaults.sharedSuite.bool(forKey: "showChartGridLines")
+        }
     }
 
     nonisolated func authenticateWithBiometrics() async -> Bool {

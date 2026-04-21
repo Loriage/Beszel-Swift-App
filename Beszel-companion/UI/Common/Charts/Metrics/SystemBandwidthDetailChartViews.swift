@@ -74,6 +74,7 @@ struct BandwidthDownloadChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var interfaceNames: [String] {
         Array(Set(dataPoints.flatMap { $0.networkInterfaces.map(\.name) })).sorted()
@@ -106,9 +107,16 @@ struct BandwidthDownloadChartView: View {
         }
         .chartForegroundStyleScale { name in color(for: name, in: interfaceNames) }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                AxisValueLabel(format: xAxisFormat, centered: true)
-            }
+            AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                }
         }
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
@@ -184,6 +192,7 @@ struct BandwidthUploadChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var interfaceNames: [String] {
         Array(Set(dataPoints.flatMap { $0.networkInterfaces.map(\.name) })).sorted()
@@ -216,9 +225,16 @@ struct BandwidthUploadChartView: View {
         }
         .chartForegroundStyleScale { name in color(for: name, in: interfaceNames) }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                AxisValueLabel(format: xAxisFormat, centered: true)
-            }
+            AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                }
         }
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
@@ -294,6 +310,7 @@ struct BandwidthCumulativeDownloadChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var interfaceNames: [String] {
         Array(Set(dataPoints.flatMap { $0.networkInterfaces.map(\.name) })).sorted()
@@ -315,9 +332,16 @@ struct BandwidthCumulativeDownloadChartView: View {
         }
         .chartForegroundStyleScale { name in color(for: name, in: interfaceNames) }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                AxisValueLabel(format: xAxisFormat, centered: true)
-            }
+            AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                }
         }
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
@@ -393,6 +417,7 @@ struct BandwidthCumulativeUploadChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var interfaceNames: [String] {
         Array(Set(dataPoints.flatMap { $0.networkInterfaces.map(\.name) })).sorted()
@@ -414,9 +439,16 @@ struct BandwidthCumulativeUploadChartView: View {
         }
         .chartForegroundStyleScale { name in color(for: name, in: interfaceNames) }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                AxisValueLabel(format: xAxisFormat, centered: true)
-            }
+            AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                }
         }
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in

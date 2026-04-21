@@ -141,6 +141,7 @@ struct HomeView: View {
                     }
                 }
                 .environment(\.chartXDomain, store.xDomain)
+                .environment(\.chartShowXGridLines, settingsManager.showChartGridLines)
                 .padding(.horizontal)
             }
             .padding(.bottom, 24)

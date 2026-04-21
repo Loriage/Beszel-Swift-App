@@ -5,10 +5,19 @@ private struct ChartXDomainKey: EnvironmentKey {
     static let defaultValue: ClosedRange<Date>? = nil
 }
 
+private struct ChartShowXGridLinesKey: EnvironmentKey {
+    static let defaultValue: Bool = true
+}
+
 extension EnvironmentValues {
     var chartXDomain: ClosedRange<Date>? {
         get { self[ChartXDomainKey.self] }
         set { self[ChartXDomainKey.self] = newValue }
+    }
+
+    var chartShowXGridLines: Bool {
+        get { self[ChartShowXGridLinesKey.self] }
+        set { self[ChartShowXGridLinesKey.self] = newValue }
     }
 }
 
@@ -21,6 +30,33 @@ extension View {
             self
         }
     }
+}
+
+extension AxisValue {
+    var edgeAnchor: UnitPoint { .top }
+}
+
+/// Evenly-spaced tick dates inset from the domain edges by `marginFraction` of the span.
+func insetTickDates(for domain: ClosedRange<Date>?, count: Int = 4, marginFraction: Double = 0.05) -> [Date] {
+    guard let domain, count >= 2 else { return [] }
+    let span = domain.upperBound.timeIntervalSince(domain.lowerBound)
+    guard span > 0 else { return [] }
+    let margin = span * marginFraction
+    let innerStart = domain.lowerBound.addingTimeInterval(margin)
+    let innerEnd = domain.upperBound.addingTimeInterval(-margin)
+    let step = innerEnd.timeIntervalSince(innerStart) / Double(count - 1)
+    return (0..<count).map { i in innerStart.addingTimeInterval(Double(i) * step) }
+}
+
+@ViewBuilder
+func compactXAxisLabel(
+    for date: Date,
+    xAxisFormat: Date.FormatStyle,
+    xDomain: ClosedRange<Date>?,
+    index: Int
+) -> some View {
+    Text(date, format: xAxisFormat)
+        .font(.caption2)
 }
 
 func generateColors(for domainCount: Int) -> [Color] {
@@ -110,16 +146,33 @@ func formatMemory(value: Double, fromUnit unit: String) -> String {
     }
 }
 
-extension View {
-    func commonChartCustomization(xAxisFormat: Date.FormatStyle, xDomain: ClosedRange<Date>? = nil) -> some View {
-        self
+private struct CommonChartCustomization: ViewModifier {
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
+    let xAxisFormat: Date.FormatStyle
+    let xDomain: ClosedRange<Date>?
+
+    func body(content: Content) -> some View {
+        content
             .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                    AxisValueLabel(format: xAxisFormat, centered: true)
+                AxisMarks(values: insetTickDates(for: xDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: xDomain, index: value.index)
+                        }
+                    }
                 }
             }
             .chartLegend(.hidden)
             .chartXScaleIfNeeded(xDomain)
             .frame(height: 250)
+    }
+}
+
+extension View {
+    func commonChartCustomization(xAxisFormat: Date.FormatStyle, xDomain: ClosedRange<Date>? = nil) -> some View {
+        modifier(CommonChartCustomization(xAxisFormat: xAxisFormat, xDomain: xDomain))
     }
 }

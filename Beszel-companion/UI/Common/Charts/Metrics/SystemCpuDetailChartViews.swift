@@ -43,6 +43,7 @@ struct SystemCpuTimeBreakdownChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var samples: [CpuBreakdownSample] { buildBreakdownSamples(from: dataPoints) }
 
@@ -79,9 +80,16 @@ struct SystemCpuTimeBreakdownChartView: View {
                 .chartForegroundStyleScale(domain: breakdownOrder, range: gradientRange(for: breakdownOrder))
                 .chartYScale(domain: 0...100)
                 .chartXAxis {
-                    AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                        AxisValueLabel(format: xAxisFormat, centered: true)
+                    AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                }
                 }
                 .chartYAxis {
                     AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
@@ -136,6 +144,7 @@ struct SystemCpuCoresChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var coreNames: [String] {
         guard let first = dataPoints.first, let cores = first.cpuPerCore else { return [] }
@@ -190,9 +199,16 @@ struct SystemCpuCoresChartView: View {
                 }
                 .chartForegroundStyleScale(domain: names, range: gradientRange(for: names))
                 .chartXAxis {
-                    AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                        AxisValueLabel(format: xAxisFormat, centered: true)
+                    AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                }
                 }
                 .chartYAxis {
                     AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in

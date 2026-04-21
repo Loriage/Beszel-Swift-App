@@ -37,6 +37,7 @@ struct ContainerView: View {
                     }
                 }
                 .environment(\.chartXDomain, store.xDomain)
+                .environment(\.chartShowXGridLines, settingsManager.showChartGridLines)
                 .padding(.horizontal)
                 .opacity(store.containerData.isEmpty ? 0 : 1)
 

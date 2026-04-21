@@ -154,6 +154,7 @@ struct CpuChartSectionView: View {
     let settingsManager: SettingsManager
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
     @Binding var snappedDate: Date?
     @Binding var dragLocation: CGPoint?
 

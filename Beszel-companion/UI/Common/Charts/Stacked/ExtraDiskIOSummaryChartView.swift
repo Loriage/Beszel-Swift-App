@@ -9,6 +9,7 @@ struct ExtraDiskIOSummaryChartView: View {
 
     @Environment(SettingsManager.self) var settingsManager
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var xAxisFormat: Date.FormatStyle {
         settingsManager.selectedTimeRange.xAxisFormat
@@ -90,7 +91,16 @@ struct ExtraDiskIOSummaryChartView: View {
                             }
                         }
                     }
-                    .chartXAxis { AxisMarks(values: .automatic(desiredCount: 5)) { _ in AxisValueLabel(format: xAxisFormat, centered: true) } }
+                    .chartXAxis { AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                } }
                     .chartYAxis {
                         AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                             AxisGridLine()

@@ -10,6 +10,7 @@ struct ExtraDiskIOUtilizationChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var maxUtil: Double {
         dataPoints.compactMap { $0.extraFilesystems.first(where: { $0.name == diskName })?.diskIOStats?.utilPct }.max() ?? 0
@@ -40,7 +41,16 @@ struct ExtraDiskIOUtilizationChartView: View {
                     .foregroundStyle(LinearGradient(colors: [.purple.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
             }
             .chartYScale(domain: 0...min(niceYDomain(maxVal: Swift.max(maxUtil, 1)).max, 100))
-            .chartXAxis { AxisMarks(values: .automatic(desiredCount: 5)) { _ in AxisValueLabel(format: xAxisFormat, centered: true) } }
+            .chartXAxis { AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                } }
             .chartYAxis {
                 AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                     AxisGridLine()
@@ -69,6 +79,7 @@ struct ExtraDiskIOTimesChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var maxTime: Double {
         dataPoints.compactMap { $0.extraFilesystems.first(where: { $0.name == diskName })?.diskIOStats }
@@ -111,7 +122,16 @@ struct ExtraDiskIOTimesChartView: View {
                     }
                 }
                 .chartYScale(domain: 0...min(niceYDomain(maxVal: Swift.max(maxTime, 1)).max, 100))
-                .chartXAxis { AxisMarks(values: .automatic(desiredCount: 5)) { _ in AxisValueLabel(format: xAxisFormat, centered: true) } }
+                .chartXAxis { AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                } }
                 .chartYAxis {
                     AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                         AxisGridLine()
@@ -147,6 +167,7 @@ struct ExtraDiskAwaitChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var maxAwait: Double {
         dataPoints.compactMap {
@@ -189,7 +210,16 @@ struct ExtraDiskAwaitChartView: View {
                             .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
                 }
-                .chartXAxis { AxisMarks(values: .automatic(desiredCount: 5)) { _ in AxisValueLabel(format: xAxisFormat, centered: true) } }
+                .chartXAxis { AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                } }
                 .chartYAxis {
                     AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                         AxisGridLine()
@@ -226,6 +256,7 @@ struct ExtraDiskIOQueueDepthChartView: View {
     var onPinToggle: () -> Void = {}
 
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var maxDepth: Double {
         dataPoints.compactMap {
@@ -257,7 +288,16 @@ struct ExtraDiskIOQueueDepthChartView: View {
                 AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Depth", depth))
                     .foregroundStyle(LinearGradient(colors: [.teal.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
             }
-            .chartXAxis { AxisMarks(values: .automatic(desiredCount: 5)) { _ in AxisValueLabel(format: xAxisFormat, centered: true) } }
+            .chartXAxis { AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                } }
             .chartYAxis {
                 AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                     AxisGridLine()

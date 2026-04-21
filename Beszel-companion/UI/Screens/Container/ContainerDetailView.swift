@@ -142,6 +142,7 @@ struct ContainerDetailView: View {
         }
         .groupBoxStyle(CardGroupBoxStyle())
         .environment(\.chartXDomain, store.xDomain)
+        .environment(\.chartShowXGridLines, settingsManager.showChartGridLines)
     }
 
     @ViewBuilder

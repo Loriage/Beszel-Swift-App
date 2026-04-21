@@ -7,6 +7,7 @@ struct StackedCpuChartView: View {
     
     @Environment(SettingsManager.self) var settingsManager
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
     
     let systemID: String?
     var systemName: String? = nil

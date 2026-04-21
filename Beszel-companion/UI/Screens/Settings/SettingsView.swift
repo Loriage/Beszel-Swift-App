@@ -151,6 +151,11 @@ struct SettingsView: View {
                         WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                     }
 
+                    Toggle(isOn: $bindableSettingsManager.showChartGridLines) {
+                        Label("settings.display.chartGridLines", systemImage: "grid")
+                            .foregroundStyle(.primary)
+                    }
+
                     Toggle(isOn: Binding(
                         get: { settingsManager.appLockEnabled },
                         set: { newValue in
@@ -306,6 +311,7 @@ struct SettingsView: View {
         suite.removeObject(forKey: "selectedLanguage")
         suite.removeObject(forKey: "pinnedItemsByInstance")
         suite.removeObject(forKey: "appLockEnabled")
+        suite.removeObject(forKey: "showChartGridLines")
 
         // Notifications
         suite.removeObject(forKey: "alertsLastCheckedTimestamp")

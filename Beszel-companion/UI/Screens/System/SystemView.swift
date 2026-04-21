@@ -4,6 +4,7 @@ import Charts
 struct SystemView: View {
     @Environment(BeszelStore.self) var store
     @Environment(InstanceManager.self) var instanceManager
+    @Environment(SettingsManager.self) var settingsManager
 
     var body: some View {
         ScrollView {
@@ -114,6 +115,7 @@ struct SystemView: View {
                     }
                 }
                 .environment(\.chartXDomain, store.xDomain)
+                .environment(\.chartShowXGridLines, settingsManager.showChartGridLines)
                 .padding(.horizontal)
                 .opacity(store.systemDataPoints.isEmpty ? 0 : 1)
             }

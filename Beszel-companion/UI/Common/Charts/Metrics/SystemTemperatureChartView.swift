@@ -5,6 +5,7 @@ import WidgetKit
 struct SystemTemperatureChartView: View {
     @Environment(\.widgetFamily) private var widgetFamily
     @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
     
     let xAxisFormat: Date.FormatStyle
     let dataPoints: [SystemDataPoint]
@@ -61,9 +62,16 @@ struct SystemTemperatureChartView: View {
                 case .systemMedium, .systemLarge:
                     chartBody
                         .chartXAxis {
-                            AxisMarks(values: .automatic(desiredCount: 4)) { _ in
-                                AxisValueLabel(format: xAxisFormat, centered: true)
-                            }
+                            AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                }
                         }
                     
                 default:
@@ -122,9 +130,16 @@ struct SystemTemperatureChartView: View {
             color(for: name, in: sensorNames)
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                AxisValueLabel(format: xAxisFormat, centered: true)
-            }
+            AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    if chartShowXGridLines {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    }
+                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
+                        if let date = value.as(Date.self) {
+                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
+                        }
+                    }
+                }
         }
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in

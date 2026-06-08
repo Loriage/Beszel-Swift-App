@@ -5,6 +5,7 @@ private struct SingleCoreSample: Identifiable {
     let id = UUID()
     let date: Date
     let value: Double
+    let segmentID: Int
 }
 
 struct SystemCpuDetailView: View {
@@ -79,7 +80,7 @@ struct SystemCpuDetailView: View {
         let coreColor = color(for: name, in: names)
         let samples: [SingleCoreSample] = dataPoints.compactMap { point in
             guard let cores = point.cpuPerCore, index < cores.count else { return nil }
-            return SingleCoreSample(date: point.date, value: cores[index])
+            return SingleCoreSample(date: point.date, value: cores[index], segmentID: point.segmentID)
         }
         let maxVal = samples.map(\.value).max() ?? 0
         let (niceDomainMax, _) = niceYDomain(maxVal: maxVal > 0 ? maxVal : 100)
@@ -98,13 +99,15 @@ struct SystemCpuDetailView: View {
             Chart(samples) { sample in
                 LineMark(
                     x: .value("Date", sample.date),
-                    y: .value("CPU", sample.value)
+                    y: .value("CPU", sample.value),
+                    series: .value("Seg", "\(sample.segmentID)")
                 )
                 .foregroundStyle(coreColor)
                 AreaMark(
                     x: .value("Date", sample.date),
                     yStart: .value("", 0),
-                    yEnd: .value("CPU", sample.value)
+                    yEnd: .value("CPU", sample.value),
+                    series: .value("Seg", "\(sample.segmentID)")
                 )
                 .foregroundStyle(LinearGradient(
                     colors: [coreColor.opacity(0.25), .clear],

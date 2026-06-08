@@ -46,16 +46,18 @@ struct ContainerMetricChartView: View {
         }) {
             Chart(container.statPoints) { point in
                 let value = point[keyPath: valueKeyPath]
-                
+
                 LineMark(
                     x: .value("Date", point.date),
-                    y: .value("Value", value)
+                    y: .value("Value", value),
+                    series: .value("Seg", "\(point.segmentID)")
                 )
                 .foregroundStyle(color)
-                
+
                 AreaMark(
                     x: .value("Date", point.date),
-                    y: .value("Value", value)
+                    y: .value("Value", value),
+                    series: .value("Seg", "\(point.segmentID)")
                 )
                 .foregroundStyle(LinearGradient(colors: [color.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
             }

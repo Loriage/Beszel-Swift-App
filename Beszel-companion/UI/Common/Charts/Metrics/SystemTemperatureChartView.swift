@@ -117,9 +117,10 @@ struct SystemTemperatureChartView: View {
         Chart(dataPoints) { point in
             ForEach(point.temperatures, id: \.name) { temp in
                 LineMark(
-                    x: .value("Date", point.date),
-                    y: .value("Temp", temp.value)
-                )
+                x: .value("Date", point.date),
+                y: .value("Temp", temp.value),
+                series: .value("Seg", "\(temp.name)-\(point.segmentID)")
+            )
                 .foregroundStyle(by: .value("Source", temp.name))
             }
         }

@@ -78,15 +78,15 @@ struct ExtraDiskIOSummaryChartView: View {
                         if let fs = point.extraFilesystems.first(where: { $0.name == diskName }),
                            let read = fs.diskRead, let write = fs.diskWrite {
                             Plot {
-                                LineMark(x: .value("Date", point.date), y: .value("Read", read), series: .value("S", "Read"))
+                                LineMark(x: .value("Date", point.date), y: .value("Read", read), series: .value("S", "Read-\(point.segmentID)"))
                                     .foregroundStyle(.blue)
-                                AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Read", read), series: .value("S", "Read"))
+                                AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Read", read), series: .value("S", "Read-\(point.segmentID)"))
                                     .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                             }
                             Plot {
-                                LineMark(x: .value("Date", point.date), y: .value("Write", write), series: .value("S", "Write"))
+                                LineMark(x: .value("Date", point.date), y: .value("Write", write), series: .value("S", "Write-\(point.segmentID)"))
                                     .foregroundStyle(.orange)
-                                AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Write", write), series: .value("S", "Write"))
+                                AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Write", write), series: .value("S", "Write-\(point.segmentID)"))
                                     .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                             }
                         }

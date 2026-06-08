@@ -39,9 +39,10 @@ struct SystemDiskIOUtilizationChartView: View {
             Chart(dataPoints) { point in
                 if let stats = point.diskIOStats {
                     LineMark(
-                        x: .value("Date", point.date),
-                        y: .value("Util", stats.utilPct)
-                    )
+                x: .value("Date", point.date),
+                y: .value("Util", stats.utilPct),
+                series: .value("Seg", "\(point.segmentID)")
+            )
                     .foregroundStyle(.purple)
                     AreaMark(
                         x: .value("Date", point.date),
@@ -122,14 +123,14 @@ struct SystemDiskIOTimesChartView: View {
                             LineMark(
                                 x: .value("Date", point.date),
                                 y: .value("Read", stats.readTimePct),
-                                series: .value("S", "Read")
+                                series: .value("S", "Read-\(point.segmentID)")
                             )
                             .foregroundStyle(.blue)
                             AreaMark(
                                 x: .value("Date", point.date),
                                 yStart: .value("", 0),
                                 yEnd: .value("Read", stats.readTimePct),
-                                series: .value("S", "Read")
+                                series: .value("S", "Read-\(point.segmentID)")
                             )
                             .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                         }
@@ -137,14 +138,14 @@ struct SystemDiskIOTimesChartView: View {
                             LineMark(
                                 x: .value("Date", point.date),
                                 y: .value("Write", stats.writeTimePct),
-                                series: .value("S", "Write")
+                                series: .value("S", "Write-\(point.segmentID)")
                             )
                             .foregroundStyle(.orange)
                             AreaMark(
                                 x: .value("Date", point.date),
                                 yStart: .value("", 0),
                                 yEnd: .value("Write", stats.writeTimePct),
-                                series: .value("S", "Write")
+                                series: .value("S", "Write-\(point.segmentID)")
                             )
                             .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                         }
@@ -234,14 +235,14 @@ struct SystemDiskAwaitChartView: View {
                             LineMark(
                                 x: .value("Date", point.date),
                                 y: .value("rAwait", stats.rAwait),
-                                series: .value("S", "Read")
+                                series: .value("S", "Read-\(point.segmentID)")
                             )
                             .foregroundStyle(.blue)
                             AreaMark(
                                 x: .value("Date", point.date),
                                 yStart: .value("", 0),
                                 yEnd: .value("rAwait", stats.rAwait),
-                                series: .value("S", "Read")
+                                series: .value("S", "Read-\(point.segmentID)")
                             )
                             .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                         }
@@ -249,14 +250,14 @@ struct SystemDiskAwaitChartView: View {
                             LineMark(
                                 x: .value("Date", point.date),
                                 y: .value("wAwait", stats.wAwait),
-                                series: .value("S", "Write")
+                                series: .value("S", "Write-\(point.segmentID)")
                             )
                             .foregroundStyle(.orange)
                             AreaMark(
                                 x: .value("Date", point.date),
                                 yStart: .value("", 0),
                                 yEnd: .value("wAwait", stats.wAwait),
-                                series: .value("S", "Write")
+                                series: .value("S", "Write-\(point.segmentID)")
                             )
                             .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                         }
@@ -341,7 +342,11 @@ struct SystemDiskIOQueueDepthChartView: View {
         }) {
             Chart(dataPoints) { point in
                 let depth = point.diskIOStats?.weightedIO ?? 0
-                LineMark(x: .value("Date", point.date), y: .value("Depth", depth))
+                LineMark(
+                x: .value("Date", point.date),
+                y: .value("Depth", depth),
+                series: .value("Seg", "\(point.segmentID)")
+            )
                     .foregroundStyle(.teal)
                 AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Depth", depth))
                     .foregroundStyle(LinearGradient(colors: [.teal.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))

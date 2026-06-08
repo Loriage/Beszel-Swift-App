@@ -6,6 +6,7 @@ private struct InterfaceSample: Identifiable {
     let date: Date
     let name: String
     let value: Double
+    let segmentID: Int
 }
 
 private func formatAdaptiveBytes(_ bytes: Double, divisor: Double) -> String {
@@ -44,7 +45,7 @@ private func cumulativeSamples(
         for point in dataPoints {
             for iface in point.networkInterfaces {
                 if let total = iface[keyPath: totalKeyPath], total > 0 {
-                    result.append(InterfaceSample(date: point.date, name: iface.name, value: total))
+                    result.append(InterfaceSample(date: point.date, name: iface.name, value: total, segmentID: point.segmentID))
                 }
             }
         }
@@ -59,7 +60,7 @@ private func cumulativeSamples(
                 let cumulative = (accumulated[iface.name] ?? 0) + contribution
                 accumulated[iface.name] = cumulative
                 prevDates[iface.name] = point.date
-                result.append(InterfaceSample(date: point.date, name: iface.name, value: cumulative))
+                result.append(InterfaceSample(date: point.date, name: iface.name, value: cumulative, segmentID: point.segmentID))
             }
         }
     }
@@ -83,7 +84,7 @@ struct BandwidthDownloadChartView: View {
     private var samples: [InterfaceSample] {
         dataPoints.flatMap { point in
             point.networkInterfaces.map { iface in
-                InterfaceSample(date: point.date, name: iface.name, value: iface.received)
+                InterfaceSample(date: point.date, name: iface.name, value: iface.received, segmentID: point.segmentID)
             }
         }
     }
@@ -95,13 +96,15 @@ struct BandwidthDownloadChartView: View {
             AreaMark(
                 x: .value("Date", sample.date),
                 yStart: .value("", 0),
-                yEnd: .value("Rate", sample.value)
+                yEnd: .value("Rate", sample.value),
+                series: .value("Seg", "\(sample.name)-\(sample.segmentID)")
             )
             .foregroundStyle(by: .value("Interface", sample.name))
             .opacity(0.25)
             LineMark(
                 x: .value("Date", sample.date),
-                y: .value("Rate", sample.value)
+                y: .value("Rate", sample.value),
+                series: .value("Seg", "\(sample.name)-\(sample.segmentID)")
             )
             .foregroundStyle(by: .value("Interface", sample.name))
         }
@@ -198,7 +201,7 @@ struct BandwidthUploadChartView: View {
     private var samples: [InterfaceSample] {
         dataPoints.flatMap { point in
             point.networkInterfaces.map { iface in
-                InterfaceSample(date: point.date, name: iface.name, value: iface.sent)
+                InterfaceSample(date: point.date, name: iface.name, value: iface.sent, segmentID: point.segmentID)
             }
         }
     }
@@ -210,13 +213,15 @@ struct BandwidthUploadChartView: View {
             AreaMark(
                 x: .value("Date", sample.date),
                 yStart: .value("", 0),
-                yEnd: .value("Rate", sample.value)
+                yEnd: .value("Rate", sample.value),
+                series: .value("Seg", "\(sample.name)-\(sample.segmentID)")
             )
             .foregroundStyle(by: .value("Interface", sample.name))
             .opacity(0.25)
             LineMark(
                 x: .value("Date", sample.date),
-                y: .value("Rate", sample.value)
+                y: .value("Rate", sample.value),
+                series: .value("Seg", "\(sample.name)-\(sample.segmentID)")
             )
             .foregroundStyle(by: .value("Interface", sample.name))
         }
@@ -320,7 +325,8 @@ struct BandwidthCumulativeDownloadChartView: View {
         Chart(samples) { sample in
             LineMark(
                 x: .value("Date", sample.date),
-                y: .value("Value", sample.value)
+                y: .value("Value", sample.value),
+                series: .value("Seg", "\(sample.name)-\(sample.segmentID)")
             )
             .foregroundStyle(by: .value("Interface", sample.name))
         }
@@ -424,7 +430,8 @@ struct BandwidthCumulativeUploadChartView: View {
         Chart(samples) { sample in
             LineMark(
                 x: .value("Date", sample.date),
-                y: .value("Value", sample.value)
+                y: .value("Value", sample.value),
+                series: .value("Seg", "\(sample.name)-\(sample.segmentID)")
             )
             .foregroundStyle(by: .value("Interface", sample.name))
         }

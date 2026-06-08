@@ -71,15 +71,17 @@ struct SystemGPUChartView: View {
         Chart(dataPoints) { point in
             ForEach(point.gpuMetrics) { gpu in
                 LineMark(
-                    x: .value("Date", point.date),
-                    y: .value("Usage", gpu.usage)
-                )
+                x: .value("Date", point.date),
+                y: .value("Usage", gpu.usage),
+                series: .value("Seg", "\(gpu.name)-\(point.segmentID)")
+            )
                 .foregroundStyle(by: .value("GPU", gpu.name))
 
                 AreaMark(
-                    x: .value("Date", point.date),
-                    y: .value("Usage", gpu.usage)
-                )
+                x: .value("Date", point.date),
+                y: .value("Usage", gpu.usage),
+                series: .value("Seg", "\(gpu.name)-\(point.segmentID)")
+            )
                 .foregroundStyle(by: .value("GPU", gpu.name))
                 .opacity(0.2)
             }

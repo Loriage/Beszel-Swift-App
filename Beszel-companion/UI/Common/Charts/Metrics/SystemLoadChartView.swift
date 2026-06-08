@@ -44,7 +44,7 @@ struct SystemLoadChartView: View {
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Load", load.l1),
-                        series: .value("Period", "1 min")
+                        series: .value("Period", "1 min-\(point.segmentID)")
                     )
                     .foregroundStyle(.purple)
                     .interpolationMethod(.catmullRom)
@@ -52,7 +52,7 @@ struct SystemLoadChartView: View {
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Load", load.l5),
-                        series: .value("Period", "5 min")
+                        series: .value("Period", "5 min-\(point.segmentID)")
                     )
                     .foregroundStyle(.blue)
                     .interpolationMethod(.catmullRom)
@@ -60,7 +60,7 @@ struct SystemLoadChartView: View {
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Load", load.l15),
-                        series: .value("Period", "15 min")
+                        series: .value("Period", "15 min-\(point.segmentID)")
                     )
                     .foregroundStyle(.orange)
                     .interpolationMethod(.catmullRom)

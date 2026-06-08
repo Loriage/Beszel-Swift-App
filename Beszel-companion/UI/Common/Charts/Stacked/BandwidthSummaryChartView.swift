@@ -49,14 +49,14 @@ struct BandwidthSummaryChartView: View {
                                 LineMark(
                                     x: .value("Date", point.date),
                                     y: .value("Download", bandwidth.download),
-                                    series: .value("Period", "Download")
+                                    series: .value("Period", "Download-\(point.segmentID)")
                                 )
                                 .foregroundStyle(.green)
                                 AreaMark(
                                     x: .value("Date", point.date),
                                     yStart: .value("Period", 0),
                                     yEnd: .value("Download", bandwidth.download),
-                                    series: .value("Period", "Download")
+                                    series: .value("Period", "Download-\(point.segmentID)")
                                 )
                                 .foregroundStyle(LinearGradient(colors: [.green.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                             }
@@ -64,14 +64,14 @@ struct BandwidthSummaryChartView: View {
                                 LineMark(
                                     x: .value("Date", point.date),
                                     y: .value("Upload", bandwidth.upload),
-                                    series: .value("Period", "Upload")
+                                    series: .value("Period", "Upload-\(point.segmentID)")
                                 )
                                 .foregroundStyle(.red)
                                 AreaMark(
                                     x: .value("Date", point.date),
                                     yStart: .value("Period", 0),
                                     yEnd: .value("Upload", bandwidth.upload),
-                                    series: .value("Period", "Upload")
+                                    series: .value("Period", "Upload-\(point.segmentID)")
                                 )
                                 .foregroundStyle(LinearGradient(colors: [.red.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                             }

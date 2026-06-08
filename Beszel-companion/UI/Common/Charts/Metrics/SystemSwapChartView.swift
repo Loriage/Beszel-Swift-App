@@ -47,7 +47,7 @@ struct SystemSwapChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Used", swap.used),
-                            series: .value("Type", "Used")
+                            series: .value("Type", "Used-\(point.segmentID)")
                         )
                         .foregroundStyle(.orange)
 
@@ -55,7 +55,7 @@ struct SystemSwapChartView: View {
                             x: .value("Date", point.date),
                             yStart: .value("Type", 0),
                             yEnd: .value("Used", swap.used),
-                            series: .value("Type", "Used")
+                            series: .value("Type", "Used-\(point.segmentID)")
                         )
                         .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
                     }

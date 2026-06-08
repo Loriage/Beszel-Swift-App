@@ -72,9 +72,10 @@ struct SystemNetworkInterfacesChartView: View {
             ForEach(point.networkInterfaces) { iface in
                 let total = iface.sent + iface.received
                 LineMark(
-                    x: .value("Date", point.date),
-                    y: .value("Bandwidth", total)
-                )
+                x: .value("Date", point.date),
+                y: .value("Bandwidth", total),
+                series: .value("Seg", "\(iface.name)-\(point.segmentID)")
+            )
                 .foregroundStyle(by: .value("Interface", iface.name))
             }
         }

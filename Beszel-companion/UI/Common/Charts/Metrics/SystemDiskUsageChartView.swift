@@ -43,7 +43,7 @@ struct SystemDiskUsageChartView: View {
                             LineMark(
                                 x: .value("Date", point.date),
                                 y: .value("Used", disk.used),
-                                series: .value("Type", "Used")
+                                series: .value("Type", "Used-\(point.segmentID)")
                             )
                             .foregroundStyle(.purple)
 
@@ -51,7 +51,7 @@ struct SystemDiskUsageChartView: View {
                                 x: .value("Date", point.date),
                                 yStart: .value("Type", 0),
                                 yEnd: .value("Used", disk.used),
-                                series: .value("Type", "Used")
+                                series: .value("Type", "Used-\(point.segmentID)")
                             )
                             .foregroundStyle(LinearGradient(colors: [.purple.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
                         }

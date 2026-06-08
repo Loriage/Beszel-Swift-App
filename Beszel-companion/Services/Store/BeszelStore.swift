@@ -211,6 +211,7 @@ final class BeszelStore {
         
         let apiService = self.apiService
         let selectedSpan = currentTimeRange.xDomain.upperBound.timeIntervalSince(currentTimeRange.xDomain.lowerBound)
+        let expectedInterval = currentTimeRange.expectedInterval
 
         do {
             let (finalSystemData, finalContainerData, finalLatestStats) = try await withThrowingTaskGroup(
@@ -231,7 +232,8 @@ final class BeszelStore {
                         let fetchedSystem = try await systemRecords
                         
                         let rawSystemData = fetchedSystem.asDataPoints()
-                        let transformedSystem = BeszelStore.downsampleSystemDataPoints(rawSystemData, selectedSpan: selectedSpan)
+                        let downsampledSystem = BeszelStore.downsampleSystemDataPoints(rawSystemData, selectedSpan: selectedSpan)
+                        let transformedSystem = BeszelStore.assignGapSegments(downsampledSystem, expectedInterval: expectedInterval)
                         let rawContainers = fetchedContainers.asProcessedData()
 
                         let latestRecord = fetchedSystem.max(by: { $0.created < $1.created })
@@ -239,7 +241,8 @@ final class BeszelStore {
                         var processedContainers: [ProcessedContainerData] = []
                         for container in rawContainers {
                             var c = container
-                            c.statPoints = await BeszelStore.downsampleStatPoints(container.statPoints, selectedSpan: selectedSpan)
+                            let downsampled = await BeszelStore.downsampleStatPoints(container.statPoints, selectedSpan: selectedSpan)
+                            c.statPoints = BeszelStore.assignGapSegments(downsampled, expectedInterval: expectedInterval)
                             processedContainers.append(c)
                         }
                         
@@ -442,6 +445,46 @@ final class BeszelStore {
         return Swift.stride(from: 0, to: sorted.count, by: stride).map { sorted[$0] }
     }
 
+    /// Walks sorted points and bumps segmentID whenever the gap between consecutive points exceeds
+    /// `expectedInterval × 1.5`. The resulting IDs are consumed by chart `LineMark`/`AreaMark` `series:`
+    /// tags so the renderer draws disconnected segments across data outages.
+    nonisolated private static func assignGapSegments(_ points: [SystemDataPoint], expectedInterval: TimeInterval) -> [SystemDataPoint] {
+        guard !points.isEmpty else { return [] }
+        let threshold = expectedInterval * 1.5
+        var segmentID = 0
+        var previousDate: Date? = nil
+        return points.map { point in
+            if let prev = previousDate, point.date.timeIntervalSince(prev) > threshold {
+                segmentID += 1
+            }
+            previousDate = point.date
+            var tagged = point
+            tagged.segmentID = segmentID
+            return tagged
+        }
+    }
+
+    nonisolated private static func assignGapSegments(_ points: [StatPoint], expectedInterval: TimeInterval) -> [StatPoint] {
+        guard !points.isEmpty else { return [] }
+        let threshold = expectedInterval * 1.5
+        var segmentID = 0
+        var previousDate: Date? = nil
+        return points.map { point in
+            if let prev = previousDate, point.date.timeIntervalSince(prev) > threshold {
+                segmentID += 1
+            }
+            previousDate = point.date
+            return StatPoint(
+                date: point.date,
+                cpu: point.cpu,
+                memory: point.memory,
+                netSent: point.netSent,
+                netReceived: point.netReceived,
+                segmentID: segmentID
+            )
+        }
+    }
+
     /// Scales target point count by the fraction of the selected range that data actually covers.
     /// This ensures consistent visual density whether data fills the full range or just part of it.
     nonisolated private static func scaledTargetCount(_ firstDate: Date, _ lastDate: Date, selectedSpan: TimeInterval) -> Int {
@@ -554,7 +597,9 @@ final class BeszelStore {
     }
 
     func buildStackedCpuData(from data: [ProcessedContainerData], domain: [String], timeRange: TimeRangeOption? = nil) -> [StackedCpuData] {
-        let interval = bucketInterval(for: timeRange ?? settingsManager.selectedTimeRange)
+        let resolvedRange = timeRange ?? settingsManager.selectedTimeRange
+        let interval = bucketInterval(for: resolvedRange)
+        let gapThreshold = resolvedRange.expectedInterval * 1.5
         let allPoints = data.flatMap { container in
             container.statPoints.map { AggregatedCpuData(date: $0.date, name: container.name, cpu: $0.cpu) }
         }
@@ -575,7 +620,15 @@ final class BeszelStore {
             lastKnownValue[name] = 0
         }
 
+        var segmentID = 0
+        var previousDate: Date? = nil
+
         for date in uniqueDates {
+            if let prev = previousDate, date.timeIntervalSince(prev) > gapThreshold {
+                segmentID += 1
+            }
+            previousDate = date
+
             let pointsInBucket = pointDict[date] ?? []
 
             // Average values per container within each bucket
@@ -606,7 +659,7 @@ final class BeszelStore {
             var cumulative = 0.0
             for name in sortedNames {
                 let val = avgByName[name] ?? 0
-                stacked.append(StackedCpuData(date: date, name: name, yStart: cumulative, yEnd: cumulative + val))
+                stacked.append(StackedCpuData(date: date, name: name, yStart: cumulative, yEnd: cumulative + val, segmentID: segmentID))
                 cumulative += val
             }
         }
@@ -614,7 +667,9 @@ final class BeszelStore {
     }
     
     func buildStackedMemoryData(from data: [ProcessedContainerData], domain: [String], timeRange: TimeRangeOption? = nil) -> [StackedMemoryData] {
-        let interval = bucketInterval(for: timeRange ?? settingsManager.selectedTimeRange)
+        let resolvedRange = timeRange ?? settingsManager.selectedTimeRange
+        let interval = bucketInterval(for: resolvedRange)
+        let gapThreshold = resolvedRange.expectedInterval * 1.5
         let allPoints = data.flatMap { container in
             container.statPoints.map { AggregatedMemoryData(date: $0.date, name: container.name, memory: $0.memory) }
         }
@@ -635,7 +690,15 @@ final class BeszelStore {
             lastKnownValue[name] = 0
         }
 
+        var segmentID = 0
+        var previousDate: Date? = nil
+
         for date in uniqueDates {
+            if let prev = previousDate, date.timeIntervalSince(prev) > gapThreshold {
+                segmentID += 1
+            }
+            previousDate = date
+
             let pointsInBucket = pointDict[date] ?? []
 
             // Average values per container within each bucket
@@ -666,7 +729,7 @@ final class BeszelStore {
             var cumulative = 0.0
             for name in sortedNames {
                 let val = avgByName[name] ?? 0
-                stacked.append(StackedMemoryData(date: date, name: name, yStart: cumulative, yEnd: cumulative + val))
+                stacked.append(StackedMemoryData(date: date, name: name, yStart: cumulative, yEnd: cumulative + val, segmentID: segmentID))
                 cumulative += val
             }
         }
@@ -674,7 +737,9 @@ final class BeszelStore {
     }
 
     func buildStackedNetworkData(from data: [ProcessedContainerData], domain: [String], timeRange: TimeRangeOption? = nil) -> [StackedNetworkData] {
-        let interval = bucketInterval(for: timeRange ?? settingsManager.selectedTimeRange)
+        let resolvedRange = timeRange ?? settingsManager.selectedTimeRange
+        let interval = bucketInterval(for: resolvedRange)
+        let gapThreshold = resolvedRange.expectedInterval * 1.5
         let allPoints = data.flatMap { container in
             container.statPoints.map { AggregatedNetworkData(date: $0.date, name: container.name, netSent: $0.netSent, netReceived: $0.netReceived) }
         }
@@ -695,7 +760,15 @@ final class BeszelStore {
             lastKnownReceived[name] = 0
         }
 
+        var segmentID = 0
+        var previousDate: Date? = nil
+
         for date in uniqueDates {
+            if let prev = previousDate, date.timeIntervalSince(prev) > gapThreshold {
+                segmentID += 1
+            }
+            previousDate = date
+
             let pointsInBucket = pointDict[date] ?? []
 
             var avgSentByName: [String: Double] = [:]
@@ -731,7 +804,7 @@ final class BeszelStore {
                 let sent = avgSentByName[name] ?? 0
                 let received = avgReceivedByName[name] ?? 0
                 let total = sent + received
-                stacked.append(StackedNetworkData(date: date, name: name, yStart: cumulative, yEnd: cumulative + total, netSent: sent, netReceived: received))
+                stacked.append(StackedNetworkData(date: date, name: name, yStart: cumulative, yEnd: cumulative + total, netSent: sent, netReceived: received, segmentID: segmentID))
                 cumulative += total
             }
         }

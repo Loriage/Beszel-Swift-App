@@ -9,6 +9,7 @@ private struct CpuBreakdownSample: Identifiable {
     let category: String
     let yStart: Double
     let yEnd: Double
+    let segmentID: Int
 }
 
 private func buildBreakdownSamples(from dataPoints: [SystemDataPoint]) -> [CpuBreakdownSample] {
@@ -28,7 +29,7 @@ private func buildBreakdownSamples(from dataPoints: [SystemDataPoint]) -> [CpuBr
         var y = 0.0
         for cat in breakdownOrder {
             let v = values[cat] ?? 0
-            result.append(CpuBreakdownSample(date: point.date, category: cat, yStart: y, yEnd: y + v))
+            result.append(CpuBreakdownSample(date: point.date, category: cat, yStart: y, yEnd: y + v, segmentID: point.segmentID))
             y += v
         }
     }
@@ -72,7 +73,8 @@ struct SystemCpuTimeBreakdownChartView: View {
                     AreaMark(
                         x: .value("Date", sample.date),
                         yStart: .value("", sample.yStart),
-                        yEnd: .value("", sample.yEnd)
+                        yEnd: .value("", sample.yEnd),
+                        series: .value("Seg", "\(sample.category)-\(sample.segmentID)")
                     )
                     .foregroundStyle(by: .value("Category", sample.category))
                     .interpolationMethod(.monotone)
@@ -131,6 +133,7 @@ private struct PerCoreSample: Identifiable {
     let coreName: String
     let yStart: Double
     let yEnd: Double
+    let segmentID: Int
 }
 
 struct SystemCpuCoresChartView: View {
@@ -156,7 +159,7 @@ struct SystemCpuCoresChartView: View {
             guard let cores = point.cpuPerCore, cores.count == names.count else { continue }
             var y = 0.0
             for (i, val) in cores.enumerated() {
-                result.append(PerCoreSample(date: point.date, coreName: names[i], yStart: y, yEnd: y + val))
+                result.append(PerCoreSample(date: point.date, coreName: names[i], yStart: y, yEnd: y + val, segmentID: point.segmentID))
                 y += val
             }
         }
@@ -189,7 +192,8 @@ struct SystemCpuCoresChartView: View {
                     AreaMark(
                         x: .value("Date", sample.date),
                         yStart: .value("", sample.yStart),
-                        yEnd: .value("", sample.yEnd)
+                        yEnd: .value("", sample.yEnd),
+                        series: .value("Seg", "\(sample.coreName)-\(sample.segmentID)")
                     )
                     .foregroundStyle(by: .value("Core", sample.coreName))
                     .interpolationMethod(.monotone)

@@ -44,9 +44,10 @@ struct SystemCpuSummaryChartView: View {
             }) {
                 Chart(dataPoints) { point in
                     LineMark(
-                        x: .value("Date", point.date),
-                        y: .value("CPU", point.cpu)
-                    )
+                x: .value("Date", point.date),
+                y: .value("CPU", point.cpu),
+                series: .value("Seg", "\(point.segmentID)")
+            )
                     .foregroundStyle(.blue)
                     AreaMark(
                         x: .value("Date", point.date),

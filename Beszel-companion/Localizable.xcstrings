@@ -9530,6 +9530,28 @@
         }
       }
     },
+    "Seg" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Seg"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Seg"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Seg"
+          }
+        }
+      }
+    },
     "Sent" : {
       "extractionState" : "manual",
       "localizations" : {

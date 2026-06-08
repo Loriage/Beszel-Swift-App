@@ -39,7 +39,7 @@ struct SystemBandwidthChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Download", bandwidth.download),
-                            series: .value("Period", "Download")
+                            series: .value("Period", "Download-\(point.segmentID)")
                         )
                         .foregroundStyle(.green)
 
@@ -47,7 +47,7 @@ struct SystemBandwidthChartView: View {
                             x: .value("Date", point.date),
                             yStart: .value("Period", 0),
                             yEnd: .value("Download", bandwidth.download),
-                            series: .value("Period", "Download")
+                            series: .value("Period", "Download-\(point.segmentID)")
                         )
                         .foregroundStyle(LinearGradient(colors: [.green.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
@@ -56,7 +56,7 @@ struct SystemBandwidthChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Upload", bandwidth.upload),
-                            series: .value("Period", "Upload")
+                            series: .value("Period", "Upload-\(point.segmentID)")
                         )
                         .foregroundStyle(.red)
 
@@ -64,22 +64,19 @@ struct SystemBandwidthChartView: View {
                             x: .value("Date", point.date),
                             yStart: .value("Period", 0),
                             yEnd: .value("Upload", bandwidth.upload),
-                            series: .value("Period", "Upload")
+                            series: .value("Period", "Upload-\(point.segmentID)")
                         )
                         .foregroundStyle(LinearGradient(colors: [.red.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
                 }
             }
             .chartXAxis {
-                AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
             }
             .chartYAxis {

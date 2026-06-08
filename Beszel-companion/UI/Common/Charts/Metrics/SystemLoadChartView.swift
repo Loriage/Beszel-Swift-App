@@ -44,7 +44,7 @@ struct SystemLoadChartView: View {
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Load", load.l1),
-                        series: .value("Period", "1 min")
+                        series: .value("Period", "1 min-\(point.segmentID)")
                     )
                     .foregroundStyle(.purple)
                     .interpolationMethod(.catmullRom)
@@ -52,7 +52,7 @@ struct SystemLoadChartView: View {
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Load", load.l5),
-                        series: .value("Period", "5 min")
+                        series: .value("Period", "5 min-\(point.segmentID)")
                     )
                     .foregroundStyle(.blue)
                     .interpolationMethod(.catmullRom)
@@ -60,22 +60,19 @@ struct SystemLoadChartView: View {
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Load", load.l15),
-                        series: .value("Period", "15 min")
+                        series: .value("Period", "15 min-\(point.segmentID)")
                     )
                     .foregroundStyle(.orange)
                     .interpolationMethod(.catmullRom)
                 }
             }
             .chartXAxis {
-                AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
             }
             .chartYAxis {

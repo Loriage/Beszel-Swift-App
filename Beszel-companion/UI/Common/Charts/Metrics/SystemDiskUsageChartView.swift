@@ -43,7 +43,7 @@ struct SystemDiskUsageChartView: View {
                             LineMark(
                                 x: .value("Date", point.date),
                                 y: .value("Used", disk.used),
-                                series: .value("Type", "Used")
+                                series: .value("Type", "Used-\(point.segmentID)")
                             )
                             .foregroundStyle(.purple)
 
@@ -51,7 +51,7 @@ struct SystemDiskUsageChartView: View {
                                 x: .value("Date", point.date),
                                 yStart: .value("Type", 0),
                                 yEnd: .value("Used", disk.used),
-                                series: .value("Type", "Used")
+                                series: .value("Type", "Used-\(point.segmentID)")
                             )
                             .foregroundStyle(LinearGradient(colors: [.purple.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
                         }
@@ -61,15 +61,12 @@ struct SystemDiskUsageChartView: View {
                         .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
                 }
                 .chartXAxis {
-                    AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                    AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
                 }
                 .chartYAxis {

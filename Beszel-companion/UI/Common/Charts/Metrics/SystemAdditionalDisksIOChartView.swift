@@ -44,7 +44,7 @@ struct ExtraDiskUsageChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Used", fs.used),
-                            series: .value("Type", "Used")
+                            series: .value("Type", "Used-\(point.segmentID)")
                         )
                         .foregroundStyle(.purple)
 
@@ -52,7 +52,7 @@ struct ExtraDiskUsageChartView: View {
                             x: .value("Date", point.date),
                             yStart: .value("Type", 0),
                             yEnd: .value("Used", fs.used),
-                            series: .value("Type", "Used")
+                            series: .value("Type", "Used-\(point.segmentID)")
                         )
                         .foregroundStyle(LinearGradient(colors: [.purple.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
                     }
@@ -62,15 +62,12 @@ struct ExtraDiskUsageChartView: View {
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
             }
             .chartXAxis {
-                AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
             }
             .chartYAxis {
@@ -178,7 +175,7 @@ struct ExtraDiskIOChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Read", read),
-                            series: .value("Period", "Read")
+                            series: .value("Period", "Read-\(point.segmentID)")
                         )
                         .foregroundStyle(.blue)
 
@@ -186,7 +183,7 @@ struct ExtraDiskIOChartView: View {
                             x: .value("Date", point.date),
                             yStart: .value("Period", 0),
                             yEnd: .value("Read", read),
-                            series: .value("Period", "Read")
+                            series: .value("Period", "Read-\(point.segmentID)")
                         )
                         .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
@@ -195,7 +192,7 @@ struct ExtraDiskIOChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Write", write),
-                            series: .value("Period", "Write")
+                            series: .value("Period", "Write-\(point.segmentID)")
                         )
                         .foregroundStyle(.orange)
 
@@ -203,22 +200,19 @@ struct ExtraDiskIOChartView: View {
                             x: .value("Date", point.date),
                             yStart: .value("Period", 0),
                             yEnd: .value("Write", write),
-                            series: .value("Period", "Write")
+                            series: .value("Period", "Write-\(point.segmentID)")
                         )
                         .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
                 }
             }
             .chartXAxis {
-                AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+                AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
             }
             .chartYAxis {

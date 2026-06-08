@@ -50,6 +50,17 @@ extension TimeRangeOption {
         }
     }
 
+    /// Expected spacing between consecutive record points for this range, in seconds.
+    var expectedInterval: TimeInterval {
+        switch self {
+        case .lastHour: return 60
+        case .last12Hours: return 10 * 60
+        case .last24Hours: return 20 * 60
+        case .last7Days: return 120 * 60
+        case .last30Days: return 480 * 60
+        }
+    }
+
     /// Interval buffer added before the window start to ensure the chart has a data point at the left edge.
     private var fetchBuffer: TimeInterval {
         switch self {

@@ -7286,6 +7286,9 @@
         }
       }
     },
+    "Seg" : {
+
+    },
     "Sent" : {
       "extractionState" : "manual",
       "localizations" : {

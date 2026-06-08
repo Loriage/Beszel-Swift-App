@@ -29,6 +29,8 @@ struct SystemDataPoint: Identifiable, Sendable {
     let gpuMetrics: [GPUMetricPoint]
     let networkInterfaces: [NetworkInterfacePoint]
     let extraFilesystems: [ExtraFilesystemPoint]
+
+    var segmentID: Int = 0
 }
 
 struct GPUMetricPoint: Identifiable, Sendable {

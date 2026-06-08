@@ -259,22 +259,14 @@ actor BeszelAPIService {
     }
     
     func fetchSystems() async throws -> [SystemRecord] {
-        guard let url = URL(string: "\(baseURL)/api/collections/systems/records") else {
-            throw URLError(.badURL)
-        }
-        let response: PocketBaseListResponse<SystemRecord> = try await performRequest(with: url)
-        return response.items
+        try await fetchAllPages(path: "/api/collections/systems/records", filter: nil)
     }
-    
+
     /// Fetches system details from the new endpoint (Beszel agent 0.18.0+).
     /// Returns empty array for servers running older agents that don't have this endpoint.
     func fetchSystemDetails() async throws -> [SystemDetailsRecord] {
-        guard let url = URL(string: "\(baseURL)/api/collections/system_details/records") else {
-            throw URLError(.badURL)
-        }
         do {
-            let response: PocketBaseListResponse<SystemDetailsRecord> = try await performRequest(with: url)
-            return response.items
+            return try await fetchAllPages(path: "/api/collections/system_details/records", filter: nil)
         } catch let error as BeszelAPIError {
             if case .httpError(let statusCode, _) = error, statusCode == 404 {
                 return []

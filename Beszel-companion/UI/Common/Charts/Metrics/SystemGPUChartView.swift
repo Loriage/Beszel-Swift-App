@@ -71,15 +71,17 @@ struct SystemGPUChartView: View {
         Chart(dataPoints) { point in
             ForEach(point.gpuMetrics) { gpu in
                 LineMark(
-                    x: .value("Date", point.date),
-                    y: .value("Usage", gpu.usage)
-                )
+                x: .value("Date", point.date),
+                y: .value("Usage", gpu.usage),
+                series: .value("Seg", "\(gpu.name)-\(point.segmentID)")
+            )
                 .foregroundStyle(by: .value("GPU", gpu.name))
 
                 AreaMark(
-                    x: .value("Date", point.date),
-                    y: .value("Usage", gpu.usage)
-                )
+                x: .value("Date", point.date),
+                y: .value("Usage", gpu.usage),
+                series: .value("Seg", "\(gpu.name)-\(point.segmentID)")
+            )
                 .foregroundStyle(by: .value("GPU", gpu.name))
                 .opacity(0.2)
             }
@@ -88,15 +90,12 @@ struct SystemGPUChartView: View {
             color(for: name, in: gpuNames)
         }
         .chartXAxis {
-            AxisMarks(values: insetTickDates(for: chartXDomain)) { value in
+            AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                     }
-                    AxisValueLabel(anchor: value.edgeAnchor, collisionResolution: .disabled) {
-                        if let date = value.as(Date.self) {
-                            compactXAxisLabel(for: date, xAxisFormat: xAxisFormat, xDomain: chartXDomain, index: value.index)
-                        }
-                    }
+                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                        .font(.caption2)
                 }
         }
         .chartYAxis {

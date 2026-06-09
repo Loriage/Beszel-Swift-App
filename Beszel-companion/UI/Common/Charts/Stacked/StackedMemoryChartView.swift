@@ -43,7 +43,9 @@ struct StackedMemoryChartView: View {
             systemID: systemID,
             settingsManager: settingsManager,
             xDomain: chartXDomain
-        )) {
+        )
+        .environment(\.chartShowXGridLines, chartShowXGridLines)
+        ) {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("charts.stacked_memory.title \(memoryUnit)")
@@ -70,7 +72,6 @@ struct StackedMemoryChartView: View {
                             x: .value("Date", data.date),
                             yStart: .value("Start", data.yStart),
                             yEnd: .value("End", data.yEnd),
-                            series: .value("Seg", "\(data.name)-\(data.segmentID)")
                         )
                         .foregroundStyle(by: .value("Conteneur", data.name))
                         .interpolationMethod(.monotone)

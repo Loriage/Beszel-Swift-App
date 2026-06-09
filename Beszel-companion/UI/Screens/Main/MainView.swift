@@ -61,12 +61,20 @@ struct MainView: View {
                         await store.fetchData()
                         await alertManager.fetchAlerts(for: instance, instanceManager: instanceManager)
 
+                        var elapsed: TimeInterval = 0
                         while !Task.isCancelled {
                             let fastInterval = settingsManager.selectedTimeRange.fastRefreshInterval
+                            let refreshInterval = settingsManager.selectedTimeRange.refreshInterval
 
                             try? await Task.sleep(for: .seconds(fastInterval))
+                            elapsed += fastInterval
                             if !Task.isCancelled && !isShowingSettings {
-                                await store.refreshLatestStatsOnly()
+                                if elapsed >= refreshInterval {
+                                    elapsed = 0
+                                    await store.fetchData()
+                                } else {
+                                    await store.refreshLatestStatsOnly()
+                                }
                                 await alertManager.refreshAlertsQuick(for: instance, instanceManager: instanceManager)
                             }
                         }

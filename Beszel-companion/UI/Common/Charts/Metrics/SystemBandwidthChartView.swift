@@ -39,7 +39,7 @@ struct SystemBandwidthChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Download", bandwidth.download),
-                            series: .value("Period", "Download-\(point.segmentID)")
+                            series: .value("Period", "Download")
                         )
                         .foregroundStyle(.green)
 
@@ -47,7 +47,7 @@ struct SystemBandwidthChartView: View {
                             x: .value("Date", point.date),
                             yStart: .value("Period", 0),
                             yEnd: .value("Download", bandwidth.download),
-                            series: .value("Period", "Download-\(point.segmentID)")
+                            series: .value("Period", "Download")
                         )
                         .foregroundStyle(LinearGradient(colors: [.green.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
@@ -56,7 +56,7 @@ struct SystemBandwidthChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Upload", bandwidth.upload),
-                            series: .value("Period", "Upload-\(point.segmentID)")
+                            series: .value("Period", "Upload")
                         )
                         .foregroundStyle(.red)
 
@@ -64,7 +64,7 @@ struct SystemBandwidthChartView: View {
                             x: .value("Date", point.date),
                             yStart: .value("Period", 0),
                             yEnd: .value("Upload", bandwidth.upload),
-                            series: .value("Period", "Upload-\(point.segmentID)")
+                            series: .value("Period", "Upload")
                         )
                         .foregroundStyle(LinearGradient(colors: [.red.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
@@ -74,8 +74,9 @@ struct SystemBandwidthChartView: View {
                 AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
             }

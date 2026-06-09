@@ -7,15 +7,13 @@ struct StatPoint: Identifiable, Sendable, Hashable {
     let memory: Double
     let netSent: Double
     let netReceived: Double
-    var segmentID: Int = 0
 
-    nonisolated init(date: Date, cpu: Double, memory: Double, netSent: Double = 0, netReceived: Double = 0, segmentID: Int = 0) {
+    nonisolated init(date: Date, cpu: Double, memory: Double, netSent: Double = 0, netReceived: Double = 0) {
         self.date = date
         self.cpu = cpu
         self.memory = memory
         self.netSent = netSent
         self.netReceived = netReceived
-        self.segmentID = segmentID
     }
 }
 

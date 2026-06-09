@@ -74,7 +74,6 @@ struct SystemNetworkInterfacesChartView: View {
                 LineMark(
                 x: .value("Date", point.date),
                 y: .value("Bandwidth", total),
-                series: .value("Seg", "\(iface.name)-\(point.segmentID)")
             )
                 .foregroundStyle(by: .value("Interface", iface.name))
             }
@@ -86,8 +85,9 @@ struct SystemNetworkInterfacesChartView: View {
             AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
         }

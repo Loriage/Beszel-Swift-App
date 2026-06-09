@@ -20,7 +20,9 @@ struct SystemCpuSummaryChartView: View {
             xAxisFormat: xAxisFormat,
             systemID: systemID,
             xDomain: chartXDomain
-        )) {
+        )
+        .environment(\.chartShowXGridLines, chartShowXGridLines)
+        ) {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     (Text("chart.cpuUsage") + Text(" (%)"))
@@ -46,7 +48,6 @@ struct SystemCpuSummaryChartView: View {
                     LineMark(
                 x: .value("Date", point.date),
                 y: .value("CPU", point.cpu),
-                series: .value("Seg", "\(point.segmentID)")
             )
                     .foregroundStyle(.blue)
                     AreaMark(
@@ -60,8 +61,9 @@ struct SystemCpuSummaryChartView: View {
                     AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
                 }

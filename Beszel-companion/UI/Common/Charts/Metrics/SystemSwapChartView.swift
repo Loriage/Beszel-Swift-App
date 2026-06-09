@@ -47,7 +47,6 @@ struct SystemSwapChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Used", swap.used),
-                            series: .value("Type", "Used-\(point.segmentID)")
                         )
                         .foregroundStyle(.orange)
 
@@ -55,7 +54,6 @@ struct SystemSwapChartView: View {
                             x: .value("Date", point.date),
                             yStart: .value("Type", 0),
                             yEnd: .value("Used", swap.used),
-                            series: .value("Type", "Used-\(point.segmentID)")
                         )
                         .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
                     }
@@ -68,8 +66,9 @@ struct SystemSwapChartView: View {
                 AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
             }

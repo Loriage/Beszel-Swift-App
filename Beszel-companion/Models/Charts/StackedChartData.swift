@@ -6,7 +6,6 @@ struct StackedCpuData: Identifiable, Sendable {
     let name: String
     let yStart: Double
     let yEnd: Double
-    let segmentID: Int
 }
 
 struct StackedMemoryData: Identifiable, Sendable {
@@ -15,7 +14,6 @@ struct StackedMemoryData: Identifiable, Sendable {
     let name: String
     let yStart: Double
     let yEnd: Double
-    let segmentID: Int
 }
 
 struct AggregatedCpuData: Identifiable, Sendable {
@@ -40,7 +38,6 @@ struct StackedNetworkData: Identifiable, Sendable {
     let yEnd: Double
     let netSent: Double
     let netReceived: Double
-    let segmentID: Int
 }
 
 struct AggregatedNetworkData: Identifiable, Sendable {

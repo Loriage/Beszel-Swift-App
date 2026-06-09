@@ -73,14 +73,12 @@ struct SystemGPUChartView: View {
                 LineMark(
                 x: .value("Date", point.date),
                 y: .value("Usage", gpu.usage),
-                series: .value("Seg", "\(gpu.name)-\(point.segmentID)")
             )
                 .foregroundStyle(by: .value("GPU", gpu.name))
 
                 AreaMark(
                 x: .value("Date", point.date),
                 y: .value("Usage", gpu.usage),
-                series: .value("Seg", "\(gpu.name)-\(point.segmentID)")
             )
                 .foregroundStyle(by: .value("GPU", gpu.name))
                 .opacity(0.2)
@@ -93,8 +91,9 @@ struct SystemGPUChartView: View {
             AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
         }

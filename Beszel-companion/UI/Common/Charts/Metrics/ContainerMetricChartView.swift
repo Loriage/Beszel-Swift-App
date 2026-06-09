@@ -50,14 +50,12 @@ struct ContainerMetricChartView: View {
                 LineMark(
                     x: .value("Date", point.date),
                     y: .value("Value", value),
-                    series: .value("Seg", "\(point.segmentID)")
                 )
                 .foregroundStyle(color)
 
                 AreaMark(
                     x: .value("Date", point.date),
                     y: .value("Value", value),
-                    series: .value("Seg", "\(point.segmentID)")
                 )
                 .foregroundStyle(LinearGradient(colors: [color.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
             }
@@ -67,8 +65,9 @@ struct ContainerMetricChartView: View {
                 AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
             }

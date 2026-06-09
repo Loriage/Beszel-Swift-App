@@ -60,13 +60,14 @@ struct SystemMetricChartView: View {
                         .chartLegend(position: .bottom, alignment: .center)
                         .chartXAxis {
                             AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
-                    if chartShowXGridLines {
-                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
-                    }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
-                        .font(.caption2)
-                }
+                                if chartShowXGridLines {
+                                    AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                                    AxisTick()
+                                }
+                                AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
+                                    .font(.caption2)
                         }
+                    }
                 default:
                     chartContent
                 }
@@ -90,25 +91,24 @@ struct SystemMetricChartView: View {
             LineMark(
                 x: .value("Date", point.date),
                 y: .value("Value", value),
-                series: .value("Seg", "\(point.segmentID)")
             )
             .foregroundStyle(color)
 
             AreaMark(
                 x: .value("Date", point.date),
                 y: .value("Value", value),
-                series: .value("Seg", "\(point.segmentID)")
             )
             .foregroundStyle(LinearGradient(colors: [color.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
         }
         .chartXAxis {
             AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
-                    if chartShowXGridLines {
-                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
-                    }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
-                        .font(.caption2)
+                if chartShowXGridLines {
+                    AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    AxisTick()
                 }
+                AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
+                    .font(.caption2)
+            }
         }
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in

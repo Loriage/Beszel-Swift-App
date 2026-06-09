@@ -6,7 +6,6 @@ private struct InterfaceSample: Identifiable {
     let date: Date
     let name: String
     let value: Double
-    let segmentID: Int
 }
 
 private func formatAdaptiveBytes(_ bytes: Double, divisor: Double) -> String {
@@ -45,7 +44,7 @@ private func cumulativeSamples(
         for point in dataPoints {
             for iface in point.networkInterfaces {
                 if let total = iface[keyPath: totalKeyPath], total > 0 {
-                    result.append(InterfaceSample(date: point.date, name: iface.name, value: total, segmentID: point.segmentID))
+                    result.append(InterfaceSample(date: point.date, name: iface.name, value: total))
                 }
             }
         }
@@ -60,7 +59,7 @@ private func cumulativeSamples(
                 let cumulative = (accumulated[iface.name] ?? 0) + contribution
                 accumulated[iface.name] = cumulative
                 prevDates[iface.name] = point.date
-                result.append(InterfaceSample(date: point.date, name: iface.name, value: cumulative, segmentID: point.segmentID))
+                result.append(InterfaceSample(date: point.date, name: iface.name, value: cumulative))
             }
         }
     }
@@ -84,7 +83,7 @@ struct BandwidthDownloadChartView: View {
     private var samples: [InterfaceSample] {
         dataPoints.flatMap { point in
             point.networkInterfaces.map { iface in
-                InterfaceSample(date: point.date, name: iface.name, value: iface.received, segmentID: point.segmentID)
+                InterfaceSample(date: point.date, name: iface.name, value: iface.received)
             }
         }
     }
@@ -97,14 +96,12 @@ struct BandwidthDownloadChartView: View {
                 x: .value("Date", sample.date),
                 yStart: .value("", 0),
                 yEnd: .value("Rate", sample.value),
-                series: .value("Seg", "\(sample.name)-\(sample.segmentID)")
             )
             .foregroundStyle(by: .value("Interface", sample.name))
             .opacity(0.25)
             LineMark(
                 x: .value("Date", sample.date),
                 y: .value("Rate", sample.value),
-                series: .value("Seg", "\(sample.name)-\(sample.segmentID)")
             )
             .foregroundStyle(by: .value("Interface", sample.name))
         }
@@ -113,8 +110,9 @@ struct BandwidthDownloadChartView: View {
             AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
         }
@@ -201,7 +199,7 @@ struct BandwidthUploadChartView: View {
     private var samples: [InterfaceSample] {
         dataPoints.flatMap { point in
             point.networkInterfaces.map { iface in
-                InterfaceSample(date: point.date, name: iface.name, value: iface.sent, segmentID: point.segmentID)
+                InterfaceSample(date: point.date, name: iface.name, value: iface.sent)
             }
         }
     }
@@ -214,14 +212,12 @@ struct BandwidthUploadChartView: View {
                 x: .value("Date", sample.date),
                 yStart: .value("", 0),
                 yEnd: .value("Rate", sample.value),
-                series: .value("Seg", "\(sample.name)-\(sample.segmentID)")
             )
             .foregroundStyle(by: .value("Interface", sample.name))
             .opacity(0.25)
             LineMark(
                 x: .value("Date", sample.date),
                 y: .value("Rate", sample.value),
-                series: .value("Seg", "\(sample.name)-\(sample.segmentID)")
             )
             .foregroundStyle(by: .value("Interface", sample.name))
         }
@@ -230,8 +226,9 @@ struct BandwidthUploadChartView: View {
             AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
         }
@@ -326,7 +323,6 @@ struct BandwidthCumulativeDownloadChartView: View {
             LineMark(
                 x: .value("Date", sample.date),
                 y: .value("Value", sample.value),
-                series: .value("Seg", "\(sample.name)-\(sample.segmentID)")
             )
             .foregroundStyle(by: .value("Interface", sample.name))
         }
@@ -335,8 +331,9 @@ struct BandwidthCumulativeDownloadChartView: View {
             AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
         }
@@ -431,7 +428,6 @@ struct BandwidthCumulativeUploadChartView: View {
             LineMark(
                 x: .value("Date", sample.date),
                 y: .value("Value", sample.value),
-                series: .value("Seg", "\(sample.name)-\(sample.segmentID)")
             )
             .foregroundStyle(by: .value("Interface", sample.name))
         }
@@ -440,8 +436,9 @@ struct BandwidthCumulativeUploadChartView: View {
             AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
         }

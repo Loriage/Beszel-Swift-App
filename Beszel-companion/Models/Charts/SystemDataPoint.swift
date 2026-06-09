@@ -30,7 +30,6 @@ struct SystemDataPoint: Identifiable, Sendable {
     let networkInterfaces: [NetworkInterfacePoint]
     let extraFilesystems: [ExtraFilesystemPoint]
 
-    var segmentID: Int = 0
 }
 
 struct GPUMetricPoint: Identifiable, Sendable {

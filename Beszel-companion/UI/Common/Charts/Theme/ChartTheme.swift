@@ -32,7 +32,7 @@ extension View {
     }
 }
 
-/// Evenly-spaced tick dates inset from the domain edges by `marginFraction` of the span.
+/// Evenly-spaced tick dates inset from the domain edges so edge labels stay fully on-screen.
 func insetTickDates(for domain: ClosedRange<Date>?, count: Int = 4, marginFraction: Double = 0.05) -> [Date] {
     guard let domain, count >= 2 else { return [] }
     let span = domain.upperBound.timeIntervalSince(domain.lowerBound)
@@ -142,8 +142,9 @@ private struct CommonChartCustomization: ViewModifier {
                 AxisMarks(values: insetTickDates(for: xDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
             }

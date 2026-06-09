@@ -44,7 +44,7 @@ struct SystemLoadChartView: View {
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Load", load.l1),
-                        series: .value("Period", "1 min-\(point.segmentID)")
+                        series: .value("Period", "1 min")
                     )
                     .foregroundStyle(.purple)
                     .interpolationMethod(.catmullRom)
@@ -52,7 +52,7 @@ struct SystemLoadChartView: View {
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Load", load.l5),
-                        series: .value("Period", "5 min-\(point.segmentID)")
+                        series: .value("Period", "5 min")
                     )
                     .foregroundStyle(.blue)
                     .interpolationMethod(.catmullRom)
@@ -60,7 +60,7 @@ struct SystemLoadChartView: View {
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Load", load.l15),
-                        series: .value("Period", "15 min-\(point.segmentID)")
+                        series: .value("Period", "15 min")
                     )
                     .foregroundStyle(.orange)
                     .interpolationMethod(.catmullRom)
@@ -70,8 +70,9 @@ struct SystemLoadChartView: View {
                 AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
             }

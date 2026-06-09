@@ -49,22 +49,21 @@ final class BeszelStore {
     private let dashboardManager: DashboardManager
     private let instanceManager: InstanceManager
     
+    private(set) var xDomain: ClosedRange<Date>
+
     init(instance: Instance, settingsManager: SettingsManager, dashboardManager: DashboardManager, instanceManager: InstanceManager) {
         self.instance = instance
         self.apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
         self.settingsManager = settingsManager
         self.dashboardManager = dashboardManager
         self.instanceManager = instanceManager
-        
+        self.xDomain = settingsManager.selectedTimeRange.xDomain
+
         updateDataForActiveSystem()
     }
-    
+
     var xAxisFormat: Date.FormatStyle {
         settingsManager.selectedTimeRange.xAxisFormat
-    }
-
-    var xDomain: ClosedRange<Date> {
-        settingsManager.selectedTimeRange.xDomain
     }
     
     var hasTemperatureData: Bool {
@@ -127,6 +126,7 @@ final class BeszelStore {
             self.containerRecords = []
             self.latestSystemStats = nil
             self.smartDevices = []
+            self.xDomain = settingsManager.selectedTimeRange.xDomain
             return
         }
         self.systemDataPoints = systemDataPointsBySystem[activeSystemID] ?? []
@@ -134,6 +134,29 @@ final class BeszelStore {
         self.containerRecords = containerRecordsBySystem[activeSystemID] ?? []
         self.latestSystemStats = latestStatsBySystem[activeSystemID]
         self.smartDevices = smartDevicesBySystem[activeSystemID] ?? []
+        self.xDomain = dataXDomain()
+    }
+
+    private func dataXDomain() -> ClosedRange<Date> {
+        var earliest: Date?
+        var latest: Date?
+        func consider(_ date: Date) {
+            if earliest == nil || date < earliest! { earliest = date }
+            if latest == nil || date > latest! { latest = date }
+        }
+
+        for point in systemDataPoints { consider(point.date) }
+        for container in containerData {
+            for point in container.statPoints { consider(point.date) }
+        }
+        for point in stackedCpuData { consider(point.date) }
+        for point in stackedMemoryData { consider(point.date) }
+        for point in stackedNetworkData { consider(point.date) }
+
+        guard let lower = earliest, let upper = latest, lower < upper else {
+            return settingsManager.selectedTimeRange.xDomain
+        }
+        return lower...upper
     }
     
     private func cleanupStaleSystemData() {
@@ -174,9 +197,10 @@ final class BeszelStore {
     }
     
     func fetchData() async {
+        self.xDomain = settingsManager.selectedTimeRange.xDomain
         self.isLoading = true
         self.errorMessage = nil
-        
+
         var systemsToFetch = instanceManager.systems
         let timeFilter = settingsManager.selectedTimeRange.apiFilterString
         let currentTimeRange = settingsManager.selectedTimeRange
@@ -211,7 +235,6 @@ final class BeszelStore {
         
         let apiService = self.apiService
         let selectedSpan = currentTimeRange.xDomain.upperBound.timeIntervalSince(currentTimeRange.xDomain.lowerBound)
-        let expectedInterval = currentTimeRange.expectedInterval
 
         do {
             let (finalSystemData, finalContainerData, finalLatestStats) = try await withThrowingTaskGroup(
@@ -233,7 +256,6 @@ final class BeszelStore {
                         
                         let rawSystemData = fetchedSystem.asDataPoints()
                         let downsampledSystem = BeszelStore.downsampleSystemDataPoints(rawSystemData, selectedSpan: selectedSpan)
-                        let transformedSystem = BeszelStore.assignGapSegments(downsampledSystem, expectedInterval: expectedInterval)
                         let rawContainers = fetchedContainers.asProcessedData()
 
                         let latestRecord = fetchedSystem.max(by: { $0.created < $1.created })
@@ -241,12 +263,11 @@ final class BeszelStore {
                         var processedContainers: [ProcessedContainerData] = []
                         for container in rawContainers {
                             var c = container
-                            let downsampled = await BeszelStore.downsampleStatPoints(container.statPoints, selectedSpan: selectedSpan)
-                            c.statPoints = BeszelStore.assignGapSegments(downsampled, expectedInterval: expectedInterval)
+                            c.statPoints = await BeszelStore.downsampleStatPoints(container.statPoints, selectedSpan: selectedSpan)
                             processedContainers.append(c)
                         }
                         
-                        return (system.id, transformedSystem, processedContainers, latestRecord)
+                        return (system.id, downsampledSystem, processedContainers, latestRecord)
                     }
                 }
                 
@@ -445,46 +466,6 @@ final class BeszelStore {
         return Swift.stride(from: 0, to: sorted.count, by: stride).map { sorted[$0] }
     }
 
-    /// Walks sorted points and bumps segmentID whenever the gap between consecutive points exceeds
-    /// `expectedInterval × 1.5`. The resulting IDs are consumed by chart `LineMark`/`AreaMark` `series:`
-    /// tags so the renderer draws disconnected segments across data outages.
-    nonisolated private static func assignGapSegments(_ points: [SystemDataPoint], expectedInterval: TimeInterval) -> [SystemDataPoint] {
-        guard !points.isEmpty else { return [] }
-        let threshold = expectedInterval * 1.5
-        var segmentID = 0
-        var previousDate: Date? = nil
-        return points.map { point in
-            if let prev = previousDate, point.date.timeIntervalSince(prev) > threshold {
-                segmentID += 1
-            }
-            previousDate = point.date
-            var tagged = point
-            tagged.segmentID = segmentID
-            return tagged
-        }
-    }
-
-    nonisolated private static func assignGapSegments(_ points: [StatPoint], expectedInterval: TimeInterval) -> [StatPoint] {
-        guard !points.isEmpty else { return [] }
-        let threshold = expectedInterval * 1.5
-        var segmentID = 0
-        var previousDate: Date? = nil
-        return points.map { point in
-            if let prev = previousDate, point.date.timeIntervalSince(prev) > threshold {
-                segmentID += 1
-            }
-            previousDate = point.date
-            return StatPoint(
-                date: point.date,
-                cpu: point.cpu,
-                memory: point.memory,
-                netSent: point.netSent,
-                netReceived: point.netReceived,
-                segmentID: segmentID
-            )
-        }
-    }
-
     /// Scales target point count by the fraction of the selected range that data actually covers.
     /// This ensures consistent visual density whether data fills the full range or just part of it.
     nonisolated private static func scaledTargetCount(_ firstDate: Date, _ lastDate: Date, selectedSpan: TimeInterval) -> Int {
@@ -599,7 +580,6 @@ final class BeszelStore {
     func buildStackedCpuData(from data: [ProcessedContainerData], domain: [String], timeRange: TimeRangeOption? = nil) -> [StackedCpuData] {
         let resolvedRange = timeRange ?? settingsManager.selectedTimeRange
         let interval = bucketInterval(for: resolvedRange)
-        let gapThreshold = resolvedRange.expectedInterval * 1.5
         let allPoints = data.flatMap { container in
             container.statPoints.map { AggregatedCpuData(date: $0.date, name: container.name, cpu: $0.cpu) }
         }
@@ -620,15 +600,7 @@ final class BeszelStore {
             lastKnownValue[name] = 0
         }
 
-        var segmentID = 0
-        var previousDate: Date? = nil
-
         for date in uniqueDates {
-            if let prev = previousDate, date.timeIntervalSince(prev) > gapThreshold {
-                segmentID += 1
-            }
-            previousDate = date
-
             let pointsInBucket = pointDict[date] ?? []
 
             // Average values per container within each bucket
@@ -659,7 +631,7 @@ final class BeszelStore {
             var cumulative = 0.0
             for name in sortedNames {
                 let val = avgByName[name] ?? 0
-                stacked.append(StackedCpuData(date: date, name: name, yStart: cumulative, yEnd: cumulative + val, segmentID: segmentID))
+                stacked.append(StackedCpuData(date: date, name: name, yStart: cumulative, yEnd: cumulative + val))
                 cumulative += val
             }
         }
@@ -669,7 +641,6 @@ final class BeszelStore {
     func buildStackedMemoryData(from data: [ProcessedContainerData], domain: [String], timeRange: TimeRangeOption? = nil) -> [StackedMemoryData] {
         let resolvedRange = timeRange ?? settingsManager.selectedTimeRange
         let interval = bucketInterval(for: resolvedRange)
-        let gapThreshold = resolvedRange.expectedInterval * 1.5
         let allPoints = data.flatMap { container in
             container.statPoints.map { AggregatedMemoryData(date: $0.date, name: container.name, memory: $0.memory) }
         }
@@ -690,15 +661,8 @@ final class BeszelStore {
             lastKnownValue[name] = 0
         }
 
-        var segmentID = 0
-        var previousDate: Date? = nil
 
         for date in uniqueDates {
-            if let prev = previousDate, date.timeIntervalSince(prev) > gapThreshold {
-                segmentID += 1
-            }
-            previousDate = date
-
             let pointsInBucket = pointDict[date] ?? []
 
             // Average values per container within each bucket
@@ -729,7 +693,7 @@ final class BeszelStore {
             var cumulative = 0.0
             for name in sortedNames {
                 let val = avgByName[name] ?? 0
-                stacked.append(StackedMemoryData(date: date, name: name, yStart: cumulative, yEnd: cumulative + val, segmentID: segmentID))
+                stacked.append(StackedMemoryData(date: date, name: name, yStart: cumulative, yEnd: cumulative + val))
                 cumulative += val
             }
         }
@@ -739,7 +703,6 @@ final class BeszelStore {
     func buildStackedNetworkData(from data: [ProcessedContainerData], domain: [String], timeRange: TimeRangeOption? = nil) -> [StackedNetworkData] {
         let resolvedRange = timeRange ?? settingsManager.selectedTimeRange
         let interval = bucketInterval(for: resolvedRange)
-        let gapThreshold = resolvedRange.expectedInterval * 1.5
         let allPoints = data.flatMap { container in
             container.statPoints.map { AggregatedNetworkData(date: $0.date, name: container.name, netSent: $0.netSent, netReceived: $0.netReceived) }
         }
@@ -760,15 +723,8 @@ final class BeszelStore {
             lastKnownReceived[name] = 0
         }
 
-        var segmentID = 0
-        var previousDate: Date? = nil
 
         for date in uniqueDates {
-            if let prev = previousDate, date.timeIntervalSince(prev) > gapThreshold {
-                segmentID += 1
-            }
-            previousDate = date
-
             let pointsInBucket = pointDict[date] ?? []
 
             var avgSentByName: [String: Double] = [:]
@@ -804,7 +760,7 @@ final class BeszelStore {
                 let sent = avgSentByName[name] ?? 0
                 let received = avgReceivedByName[name] ?? 0
                 let total = sent + received
-                stacked.append(StackedNetworkData(date: date, name: name, yStart: cumulative, yEnd: cumulative + total, netSent: sent, netReceived: received, segmentID: segmentID))
+                stacked.append(StackedNetworkData(date: date, name: name, yStart: cumulative, yEnd: cumulative + total, netSent: sent, netReceived: received))
                 cumulative += total
             }
         }

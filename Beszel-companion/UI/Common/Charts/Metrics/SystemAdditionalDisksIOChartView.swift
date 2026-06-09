@@ -44,7 +44,6 @@ struct ExtraDiskUsageChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Used", fs.used),
-                            series: .value("Type", "Used-\(point.segmentID)")
                         )
                         .foregroundStyle(.purple)
 
@@ -52,7 +51,6 @@ struct ExtraDiskUsageChartView: View {
                             x: .value("Date", point.date),
                             yStart: .value("Type", 0),
                             yEnd: .value("Used", fs.used),
-                            series: .value("Type", "Used-\(point.segmentID)")
                         )
                         .foregroundStyle(LinearGradient(colors: [.purple.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
                     }
@@ -65,8 +63,9 @@ struct ExtraDiskUsageChartView: View {
                 AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
             }
@@ -175,7 +174,7 @@ struct ExtraDiskIOChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Read", read),
-                            series: .value("Period", "Read-\(point.segmentID)")
+                            series: .value("Period", "Read")
                         )
                         .foregroundStyle(.blue)
 
@@ -183,7 +182,7 @@ struct ExtraDiskIOChartView: View {
                             x: .value("Date", point.date),
                             yStart: .value("Period", 0),
                             yEnd: .value("Read", read),
-                            series: .value("Period", "Read-\(point.segmentID)")
+                            series: .value("Period", "Read")
                         )
                         .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
@@ -192,7 +191,7 @@ struct ExtraDiskIOChartView: View {
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Write", write),
-                            series: .value("Period", "Write-\(point.segmentID)")
+                            series: .value("Period", "Write")
                         )
                         .foregroundStyle(.orange)
 
@@ -200,7 +199,7 @@ struct ExtraDiskIOChartView: View {
                             x: .value("Date", point.date),
                             yStart: .value("Period", 0),
                             yEnd: .value("Write", write),
-                            series: .value("Period", "Write-\(point.segmentID)")
+                            series: .value("Period", "Write")
                         )
                         .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
@@ -210,8 +209,9 @@ struct ExtraDiskIOChartView: View {
                 AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
             }

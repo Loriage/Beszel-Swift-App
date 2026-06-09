@@ -9,7 +9,6 @@ private struct CpuBreakdownSample: Identifiable {
     let category: String
     let yStart: Double
     let yEnd: Double
-    let segmentID: Int
 }
 
 private func buildBreakdownSamples(from dataPoints: [SystemDataPoint]) -> [CpuBreakdownSample] {
@@ -29,7 +28,7 @@ private func buildBreakdownSamples(from dataPoints: [SystemDataPoint]) -> [CpuBr
         var y = 0.0
         for cat in breakdownOrder {
             let v = values[cat] ?? 0
-            result.append(CpuBreakdownSample(date: point.date, category: cat, yStart: y, yEnd: y + v, segmentID: point.segmentID))
+            result.append(CpuBreakdownSample(date: point.date, category: cat, yStart: y, yEnd: y + v))
             y += v
         }
     }
@@ -37,14 +36,14 @@ private func buildBreakdownSamples(from dataPoints: [SystemDataPoint]) -> [CpuBr
 }
 
 struct SystemCpuTimeBreakdownChartView: View {
+    @Environment(\.chartXDomain) private var chartXDomain
+    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
+    
     let dataPoints: [SystemDataPoint]
     let xAxisFormat: Date.FormatStyle
     var systemName: String? = nil
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
-
-    @Environment(\.chartXDomain) private var chartXDomain
-    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
 
     private var samples: [CpuBreakdownSample] { buildBreakdownSamples(from: dataPoints) }
 
@@ -74,7 +73,6 @@ struct SystemCpuTimeBreakdownChartView: View {
                         x: .value("Date", sample.date),
                         yStart: .value("", sample.yStart),
                         yEnd: .value("", sample.yEnd),
-                        series: .value("Seg", "\(sample.category)-\(sample.segmentID)")
                     )
                     .foregroundStyle(by: .value("Category", sample.category))
                     .interpolationMethod(.monotone)
@@ -85,8 +83,9 @@ struct SystemCpuTimeBreakdownChartView: View {
                     AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
                 }
@@ -133,7 +132,6 @@ private struct PerCoreSample: Identifiable {
     let coreName: String
     let yStart: Double
     let yEnd: Double
-    let segmentID: Int
 }
 
 struct SystemCpuCoresChartView: View {
@@ -159,7 +157,7 @@ struct SystemCpuCoresChartView: View {
             guard let cores = point.cpuPerCore, cores.count == names.count else { continue }
             var y = 0.0
             for (i, val) in cores.enumerated() {
-                result.append(PerCoreSample(date: point.date, coreName: names[i], yStart: y, yEnd: y + val, segmentID: point.segmentID))
+                result.append(PerCoreSample(date: point.date, coreName: names[i], yStart: y, yEnd: y + val))
                 y += val
             }
         }
@@ -193,7 +191,6 @@ struct SystemCpuCoresChartView: View {
                         x: .value("Date", sample.date),
                         yStart: .value("", sample.yStart),
                         yEnd: .value("", sample.yEnd),
-                        series: .value("Seg", "\(sample.coreName)-\(sample.segmentID)")
                     )
                     .foregroundStyle(by: .value("Core", sample.coreName))
                     .interpolationMethod(.monotone)
@@ -203,8 +200,9 @@ struct SystemCpuCoresChartView: View {
                     AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
                 }

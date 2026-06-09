@@ -24,7 +24,9 @@ struct DiskIOSummaryChartView: View {
             xAxisFormat: xAxisFormat,
             systemID: systemID,
             xDomain: chartXDomain
-        )) {
+        )
+        .environment(\.chartShowXGridLines, chartShowXGridLines)
+        ) {
             GroupBox(label: HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     (Text("chart.diskIO") + Text(" (MB/s)"))
@@ -53,14 +55,14 @@ struct DiskIOSummaryChartView: View {
                                 LineMark(
                                     x: .value("Date", point.date),
                                     y: .value("Read", io.read),
-                                    series: .value("Period", "Read-\(point.segmentID)")
+                            series: .value("Period", "Read")
                                 )
                                 .foregroundStyle(.blue)
                                 AreaMark(
                                     x: .value("Date", point.date),
                                     yStart: .value("Period", 0),
                                     yEnd: .value("Read", io.read),
-                                    series: .value("Period", "Read-\(point.segmentID)")
+                            series: .value("Period", "Read")
                                 )
                                 .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                             }
@@ -68,14 +70,14 @@ struct DiskIOSummaryChartView: View {
                                 LineMark(
                                     x: .value("Date", point.date),
                                     y: .value("Write", io.write),
-                                    series: .value("Period", "Write-\(point.segmentID)")
+                            series: .value("Period", "Write")
                                 )
                                 .foregroundStyle(.orange)
                                 AreaMark(
                                     x: .value("Date", point.date),
                                     yStart: .value("Period", 0),
                                     yEnd: .value("Write", io.write),
-                                    series: .value("Period", "Write-\(point.segmentID)")
+                            series: .value("Period", "Write")
                                 )
                                 .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                             }
@@ -85,8 +87,9 @@ struct DiskIOSummaryChartView: View {
                         AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
                     }

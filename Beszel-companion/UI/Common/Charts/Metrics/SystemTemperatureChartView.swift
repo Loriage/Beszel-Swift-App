@@ -65,8 +65,9 @@ struct SystemTemperatureChartView: View {
                             AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
                         }
@@ -119,7 +120,6 @@ struct SystemTemperatureChartView: View {
                 LineMark(
                 x: .value("Date", point.date),
                 y: .value("Temp", temp.value),
-                series: .value("Seg", "\(temp.name)-\(point.segmentID)")
             )
                 .foregroundStyle(by: .value("Source", temp.name))
             }
@@ -131,8 +131,9 @@ struct SystemTemperatureChartView: View {
             AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 }
         }

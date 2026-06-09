@@ -38,7 +38,6 @@ struct ExtraDiskIOUtilizationChartView: View {
                 LineMark(
                 x: .value("Date", point.date),
                 y: .value("Util", util),
-                series: .value("Seg", "\(point.segmentID)")
             )
                     .foregroundStyle(.purple)
                 AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Util", util))
@@ -48,8 +47,9 @@ struct ExtraDiskIOUtilizationChartView: View {
             .chartXAxis { AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 } }
             .chartYAxis {
@@ -110,15 +110,15 @@ struct ExtraDiskIOTimesChartView: View {
                     let readTime = stats?.readTimePct ?? 0
                     let writeTime = stats?.writeTimePct ?? 0
                     Plot {
-                        LineMark(x: .value("Date", point.date), y: .value("Read", readTime), series: .value("S", "Read-\(point.segmentID)"))
+                        LineMark(x: .value("Date", point.date), y: .value("Read", readTime), series: .value("Period", "Read"))
                             .foregroundStyle(.blue)
-                        AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Read", readTime), series: .value("S", "Read-\(point.segmentID)"))
+                        AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Read", readTime), series: .value("Period", "Read"))
                             .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
                     Plot {
-                        LineMark(x: .value("Date", point.date), y: .value("Write", writeTime), series: .value("S", "Write-\(point.segmentID)"))
+                        LineMark(x: .value("Date", point.date), y: .value("Write", writeTime), series: .value("Period", "Write"))
                             .foregroundStyle(.orange)
-                        AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Write", writeTime), series: .value("S", "Write-\(point.segmentID)"))
+                        AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Write", writeTime), series: .value("Period", "Write"))
                             .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
                 }
@@ -126,8 +126,9 @@ struct ExtraDiskIOTimesChartView: View {
                 .chartXAxis { AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 } }
                 .chartYAxis {
@@ -196,23 +197,24 @@ struct ExtraDiskAwaitChartView: View {
                     let rAwait = stats?.rAwait ?? 0
                     let wAwait = stats?.wAwait ?? 0
                     Plot {
-                        LineMark(x: .value("Date", point.date), y: .value("rAwait", rAwait), series: .value("S", "Read-\(point.segmentID)"))
+                        LineMark(x: .value("Date", point.date), y: .value("rAwait", rAwait), series: .value("Period", "Read"))
                             .foregroundStyle(.blue)
-                        AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("rAwait", rAwait), series: .value("S", "Read-\(point.segmentID)"))
+                        AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("rAwait", rAwait), series: .value("Period", "Read"))
                             .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
                     Plot {
-                        LineMark(x: .value("Date", point.date), y: .value("wAwait", wAwait), series: .value("S", "Write-\(point.segmentID)"))
+                        LineMark(x: .value("Date", point.date), y: .value("wAwait", wAwait), series: .value("Period", "Write"))
                             .foregroundStyle(.orange)
-                        AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("wAwait", wAwait), series: .value("S", "Write-\(point.segmentID)"))
+                        AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("wAwait", wAwait), series: .value("Period", "Write"))
                             .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                     }
                 }
                 .chartXAxis { AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 } }
                 .chartYAxis {
@@ -281,7 +283,6 @@ struct ExtraDiskIOQueueDepthChartView: View {
                 LineMark(
                 x: .value("Date", point.date),
                 y: .value("Depth", depth),
-                series: .value("Seg", "\(point.segmentID)")
             )
                     .foregroundStyle(.teal)
                 AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Depth", depth))
@@ -290,8 +291,9 @@ struct ExtraDiskIOQueueDepthChartView: View {
             .chartXAxis { AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
                     if chartShowXGridLines {
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                        AxisTick()
                     }
-                    AxisValueLabel(format: xAxisFormat, anchor: .top, collisionResolution: .disabled)
+                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
                         .font(.caption2)
                 } }
             .chartYAxis {

@@ -75,7 +75,7 @@ struct MainView: View {
                         store.updateDataForActiveSystem()
                     }
                     .sheet(isPresented: $isShowingSettings) {
-                        LazyView(SettingsView())
+                        LazyView(SettingsView()).environment(store)
                     }
                     .navigationDestination(for: ProcessedContainerData.self) { container in
                         ContainerDetailView(container: container)

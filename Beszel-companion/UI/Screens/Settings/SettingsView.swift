@@ -7,10 +7,12 @@ struct SettingsView: View {
     @Environment(LanguageManager.self) var languageManager
     @Environment(InstanceManager.self) var instanceManager
     @Environment(AlertManager.self) var alertManager
-    
+    @Environment(BeszelStore.self) var store
+
     @Environment(\.dismiss) var dismiss
-    
+
     @State private var isShowingClearPinsAlert = false
+    @State private var isShowingClearCacheAlert = false
     @State private var isShowingResetAlert = false
     @State private var isAddingInstance = false
     @State private var editingInstance: Instance?
@@ -223,6 +225,15 @@ struct SettingsView: View {
             } message: {
                 Text("settings.dashboard.clearPins.alert.message")
             }
+            .alert("settings.application.clearCache.alert.title", isPresented: $isShowingClearCacheAlert) {
+                Button("common.cancel", role: .cancel) { }
+                Button("settings.application.clearCache.alert.confirm", role: .destructive) {
+                    store.clearAllCachedData()
+                    Task { await store.fetchData() }
+                }
+            } message: {
+                Text("settings.application.clearCache.alert.message")
+            }
             .alert("settings.application.resetAll.alert.title", isPresented: $isShowingResetAlert) {
                 Button("common.cancel", role: .cancel) { }
                 Button("settings.application.resetAll.alert.confirm", role: .destructive) {
@@ -284,6 +295,10 @@ struct SettingsView: View {
                 isShowingClearPinsAlert = true
             }
             .disabled(!dashboardManager.hasPinsForActiveInstance())
+
+            Button("settings.application.clearCache", role: .destructive) {
+                isShowingClearCacheAlert = true
+            }
 
             Button("settings.application.resetAll", role: .destructive) {
                 isShowingResetAlert = true

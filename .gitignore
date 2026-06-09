@@ -4,6 +4,8 @@
 
 ## User settings
 xcuserdata/
+xcshareddata/xcodecloud/
+Beszel.xcodeproj/xcshareddata/xcodecloud/manifest.json
 
 ## compatibility with Xcode 8 and earlier (ignoring not required starting Xcode 9)
 *.xcscmblueprint

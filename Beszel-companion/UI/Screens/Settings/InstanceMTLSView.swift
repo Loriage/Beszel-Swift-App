@@ -14,6 +14,11 @@ struct InstanceMTLSView: View {
     @State private var errorMessage: String?
     @State private var isShowingRemoveConfirm = false
 
+    @State private var caSubject: String?
+    @State private var isShowingCAFilePicker = false
+    @State private var isShowingCARemoveConfirm = false
+    @State private var caErrorMessage: String?
+
     var body: some View {
         NavigationStack {
             Form {
@@ -47,6 +52,37 @@ struct InstanceMTLSView: View {
                             .font(.caption)
                     }
                 }
+
+                Section {
+                    if let subject = caSubject {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("mtls.caInstalled")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Text(subject)
+                        }
+
+                        Button("mtls.removeCA", role: .destructive) {
+                            isShowingCARemoveConfirm = true
+                        }
+                    } else {
+                        Button("mtls.importCA") {
+                            isShowingCAFilePicker = true
+                        }
+                    }
+                } header: {
+                    Text("mtls.serverCertificate")
+                } footer: {
+                    Text("mtls.serverCADescription")
+                }
+
+                if let error = caErrorMessage {
+                    Section {
+                        Text(error)
+                            .foregroundStyle(.red)
+                            .font(.caption)
+                    }
+                }
             }
             .navigationTitle("mtls.title")
             .navigationBarTitleDisplayMode(.inline)
@@ -61,6 +97,7 @@ struct InstanceMTLSView: View {
             }
             .onAppear {
                 certSubject = ClientCertificateManager.certificateSubject(for: instance.id)
+                caSubject = ServerCACertificateManager.certificateSubject(for: instance.id)
             }
         }
         .fileImporter(
@@ -72,6 +109,20 @@ struct InstanceMTLSView: View {
         ) { result in
             if case .success(let url) = result {
                 handleFileSelected(url)
+            }
+        }
+        .fileImporter(
+            isPresented: $isShowingCAFilePicker,
+            allowedContentTypes: [
+                .x509Certificate,
+                UTType(filenameExtension: "pem") ?? .data,
+                UTType(filenameExtension: "crt") ?? .data,
+                UTType(filenameExtension: "cer") ?? .data,
+                UTType(filenameExtension: "der") ?? .data
+            ]
+        ) { result in
+            if case .success(let url) = result {
+                handleCAFileSelected(url)
             }
         }
         .alert("mtls.enterPassword", isPresented: $isShowingPasswordAlert) {
@@ -86,6 +137,28 @@ struct InstanceMTLSView: View {
             Button("common.cancel", role: .cancel) {}
             Button("common.delete", role: .destructive) { removeCert() }
         }
+        .alert("mtls.confirmRemoveCA", isPresented: $isShowingCARemoveConfirm) {
+            Button("common.cancel", role: .cancel) {}
+            Button("common.delete", role: .destructive) { removeCACert() }
+        }
+    }
+
+    private func handleCAFileSelected(_ fileURL: URL) {
+        guard fileURL.startAccessingSecurityScopedResource() else { return }
+        defer { fileURL.stopAccessingSecurityScopedResource() }
+        do {
+            let data = try Data(contentsOf: fileURL)
+            try ServerCACertificateManager.importAndStore(certData: data, for: instance.id)
+            caSubject = ServerCACertificateManager.certificateSubject(for: instance.id)
+            caErrorMessage = nil
+        } catch {
+            caErrorMessage = error.localizedDescription
+        }
+    }
+
+    private func removeCACert() {
+        ServerCACertificateManager.delete(for: instance.id)
+        caSubject = nil
     }
 
     private func handleFileSelected(_ fileURL: URL) {

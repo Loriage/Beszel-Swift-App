@@ -195,11 +195,14 @@ final class InstanceManager {
         loadError = nil
     }
     
-    func addInstance(name: String, url: String, email: String, password: String, clientCert: ClientCertificatePayload? = nil) {
+    func addInstance(name: String, url: String, email: String, password: String, clientCert: ClientCertificatePayload? = nil, caCert: ServerCACertificatePayload? = nil) {
         let newInstance = Instance(id: UUID(), name: name, url: url, email: email, notifyWorkerURL: nil, notifyWebhookSecret: nil)
         saveCredential(credential: password, for: newInstance)
         if let cert = clientCert {
             try? ClientCertificateManager.store(p12Data: cert.p12Data, password: cert.password, for: newInstance.id)
+        }
+        if let caCert {
+            try? ServerCACertificateManager.store(payload: caCert, for: newInstance.id)
         }
         instances.append(newInstance)
         saveInstances()
@@ -248,6 +251,7 @@ final class InstanceManager {
     func deleteInstance(_ instance: Instance) {
         deleteCredential(for: instance)
         ClientCertificateManager.delete(for: instance.id)
+        ServerCACertificateManager.delete(for: instance.id)
         instances.removeAll { $0.id == instance.id }
         saveInstances()
 

@@ -5446,6 +5446,29 @@
         }
       }
     },
+    "mtls.caInstalled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed CA Certificate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certificat CA installé"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zainstalowany certyfikat CA"
+          }
+        }
+      }
+    },
     "mtls.certInstalled" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5511,6 +5534,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Usunąć ten certyfikat?"
+          }
+        }
+      }
+    },
+    "mtls.confirmRemoveCA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove this CA certificate?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer ce certificat CA ?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć ten certyfikat CA?"
           }
         }
       }
@@ -5584,6 +5630,9 @@
         }
       }
     },
+    "mtls.error.invalidCertificate" : {
+
+    },
     "mtls.error.invalidPasswordOrFile" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5653,6 +5702,29 @@
         }
       }
     },
+    "mtls.importCA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import CA Certificate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer un certificat CA"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importuj certyfikat CA"
+          }
+        }
+      }
+    },
     "mtls.importCert" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5699,6 +5771,29 @@
         }
       }
     },
+    "mtls.removeCA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove CA Certificate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer le certificat CA"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń certyfikat CA"
+          }
+        }
+      }
+    },
     "mtls.removeCert" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5718,6 +5813,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Usuń certyfikat"
+          }
+        }
+      }
+    },
+    "mtls.serverCADescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trust a server whose TLS certificate is signed by a private or self-signed Certificate Authority. Import the CA certificate (.crt, .cer, .pem, or .der). If you've already installed this CA on your device, enable it under Settings → General → About → Certificate Trust Settings and it will be trusted automatically."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faites confiance à un serveur dont le certificat TLS est signé par une autorité de certification privée ou auto-signée. Importez le certificat de l'autorité (.crt, .cer, .pem ou .der). Si vous avez déjà installé cette autorité sur votre appareil, activez-la dans Réglages → Général → Informations → Réglages des certificats de confiance pour qu'elle soit approuvée automatiquement."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaufaj serwerowi, którego certyfikat TLS jest podpisany przez prywatny lub samodzielnie podpisany urząd certyfikacji. Zaimportuj certyfikat urzędu (.crt, .cer, .pem lub .der). Jeśli ten urząd jest już zainstalowany na urządzeniu, włącz go w Ustawienia → Ogólne → To urządzenie → Ustawienia zaufania certyfikatów, aby był zaufany automatycznie."
+          }
+        }
+      }
+    },
+    "mtls.serverCertificate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server CA Certificate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certificat CA du serveur"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certyfikat CA serwera"
           }
         }
       }
@@ -5922,6 +6063,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Importuj certyfikat klienta (.p12)"
+          }
+        }
+      }
+    },
+    "onboarding.advanced.importServerCA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import CA certificate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer un certificat CA"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importuj certyfikat CA"
+          }
+        }
+      }
+    },
+    "onboarding.advanced.serverCA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server CA Certificate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certificat CA du serveur"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certyfikat CA serwera"
           }
         }
       }

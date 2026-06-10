@@ -76,49 +76,8 @@ struct SettingsView: View {
         
         NavigationStack {
             Form {
-                Section(header: Text("settings.instances.title")) {
-                    ForEach(instanceManager.instances) { instance in
-                        HStack {
-                            Text(instance.name)
-                            Spacer()
-                            if instance.id == instanceManager.activeInstance?.id {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
-                            }
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            instanceManager.setActiveInstance(instance)
-                            WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button(role: .destructive) {
-                                instanceManager.deleteInstance(instance)
-                            } label: {
-                                Label("common.delete", systemImage: "trash")
-                            }
+                instancesSection
 
-                            Button {
-                                editingInstance = instance
-                            } label: {
-                                Label("common.edit", systemImage: "pencil")
-                            }
-                            .tint(.orange)
-
-                            Button {
-                                managingMTLSInstance = instance
-                            } label: {
-                                Label("settings.instances.manageCert", systemImage: "lock.shield")
-                            }
-                            .tint(.blue)
-                        }
-                    }
-
-                    Button("settings.instances.add") {
-                        isAddingInstance = true
-                    }
-                }
-                
                 Section(header: Text("settings.title")) {
                     Picker(selection: $bindableLanguageManager.currentLanguageCode) {
                         ForEach(languageManager.availableLanguages, id: \.code) { lang in
@@ -212,8 +171,8 @@ struct SettingsView: View {
                 }
             }
             .sheet(isPresented: $isAddingInstance) {
-                OnboardingView { name, url, email, password, cert in
-                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: cert)
+                OnboardingView { name, url, email, password, cert, caCert in
+                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: cert, caCert: caCert)
                     isAddingInstance = false
                 }
             }
@@ -248,7 +207,7 @@ struct SettingsView: View {
             .sheet(item: $editingInstance) { instance in
                 OnboardingView(
                     editingInstance: instance,
-                    onComplete: { name, url, email, password, _ in
+                    onComplete: { name, url, email, password, _, _ in
                         instanceManager.updateInstance(instance, name: name, url: url, email: email, password: password)
                         WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                         editingInstance = nil
@@ -257,6 +216,51 @@ struct SettingsView: View {
             }
             .sheet(item: $managingMTLSInstance) { instance in
                 InstanceMTLSView(instance: instance)
+            }
+        }
+    }
+
+    private var instancesSection: some View {
+        Section(header: Text("settings.instances.title")) {
+            ForEach(instanceManager.instances) { instance in
+                HStack {
+                    Text(instance.name)
+                    Spacer()
+                    if instance.id == instanceManager.activeInstance?.id {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                    }
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    instanceManager.setActiveInstance(instance)
+                    WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
+                }
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button(role: .destructive) {
+                        instanceManager.deleteInstance(instance)
+                    } label: {
+                        Label("common.delete", systemImage: "trash")
+                    }
+
+                    Button {
+                        editingInstance = instance
+                    } label: {
+                        Label("common.edit", systemImage: "pencil")
+                    }
+                    .tint(.orange)
+
+                    Button {
+                        managingMTLSInstance = instance
+                    } label: {
+                        Label("settings.instances.manageCert", systemImage: "lock.shield")
+                    }
+                    .tint(.blue)
+                }
+            }
+
+            Button("settings.instances.add") {
+                isAddingInstance = true
             }
         }
     }

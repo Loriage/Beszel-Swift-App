@@ -4,9 +4,9 @@ import Security
 struct OnboardingAPIService {
     private let session: URLSession
 
-    init(clientIdentity: SecIdentity? = nil) {
-        if let identity = clientIdentity {
-            let delegate = MTLSSessionDelegate(temporaryIdentity: identity)
+    init(clientIdentity: SecIdentity? = nil, caCertificate: SecCertificate? = nil) {
+        if clientIdentity != nil || caCertificate != nil {
+            let delegate = MTLSSessionDelegate(temporaryIdentity: clientIdentity, temporaryCACertificate: caCertificate)
             let config = URLSessionConfiguration.default
             config.timeoutIntervalForRequest = 15
             config.timeoutIntervalForResource = 30

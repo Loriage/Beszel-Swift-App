@@ -101,6 +101,7 @@
 				Services/Managers/LanguageManager.swift,
 				Services/Managers/SettingsManager.swift,
 				Services/MTLSSessionDelegate.swift,
+				Services/ServerCACertificateManager.swift,
 				Services/Store/BeszelStore.swift,
 				UI/Common/Charts/Metrics/SystemBandwidthChartView.swift,
 				UI/Common/Charts/Metrics/SystemDiskIOChartView.swift,

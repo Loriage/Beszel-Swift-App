@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 
 struct OnboardingView: View {
     var editingInstance: Instance?
-    var onComplete: (String, String, String, String, ClientCertificatePayload?) -> Void
+    var onComplete: (String, String, String, String, ClientCertificatePayload?, ServerCACertificatePayload?) -> Void
 
     @Environment(\.dismiss) private var dismiss
 
@@ -27,6 +27,11 @@ struct OnboardingView: View {
     @State private var certImportError: String?
     @State private var isAdvancedExpanded = false
 
+    @State private var selectedCACert: ServerCACertificatePayload?
+    @State private var selectedCACertSubject: String?
+    @State private var isShowingCAPicker = false
+    @State private var caImportError: String?
+
     private var appIcon: UIImage? {
         guard
             let icons = Bundle.main.infoDictionary?["CFBundleIcons"] as? [String: Any],
@@ -37,7 +42,7 @@ struct OnboardingView: View {
         return UIImage(named: name)
     }
 
-    private var apiService: OnboardingAPIService { OnboardingAPIService(clientIdentity: selectedCert?.identity) }
+    private var apiService: OnboardingAPIService { OnboardingAPIService(clientIdentity: selectedCert?.identity, caCertificate: selectedCACert?.certificate) }
 
     private var isEditing: Bool { editingInstance != nil }
 
@@ -70,144 +75,178 @@ struct OnboardingView: View {
         instanceName.isEmpty || !isValidURL
     }
 
+    private static let clientCertTypes: [UTType] = [
+        UTType(filenameExtension: "p12") ?? .data,
+        UTType(filenameExtension: "pfx") ?? .data
+    ]
+
+    private static let caCertTypes: [UTType] = [
+        .x509Certificate,
+        UTType(filenameExtension: "pem") ?? .data,
+        UTType(filenameExtension: "crt") ?? .data,
+        UTType(filenameExtension: "cer") ?? .data,
+        UTType(filenameExtension: "der") ?? .data
+    ]
+
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                Spacer()
-
-                if let icon = appIcon {
-                    Image(uiImage: icon)
-                        .resizable()
-                        .frame(width: 100, height: 100)
-                        .clipShape(RoundedRectangle(cornerRadius: 22))
-                } else {
-                    Image(systemName: "server.rack")
-                        .font(.system(size: 60))
-                        .foregroundStyle(Color.accentColor)
+            content
+                .toolbar { toolbarContent }
+                .onAppear { applyEditingInstanceIfNeeded() }
+                .navigationDestination(isPresented: $navigateToLogin) { loginDestination }
+                .fileImporter(isPresented: $isShowingCertPicker, allowedContentTypes: Self.clientCertTypes) { result in
+                    if case .success(let url) = result { handleCertFileSelected(url) }
                 }
-
-                Text("onboarding.title")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-
-                VStack {
-                    TextField("onboarding.instanceNamePlaceholder", text: $instanceName)
-                        .padding()
-                        .background(.thinMaterial)
-                        .cornerRadius(10)
-
-                    HStack(spacing: 10) {
-                        Picker("Scheme", selection: $selectedScheme) {
-                            ForEach(ServerScheme.allCases) { scheme in
-                                Text(scheme.rawValue).tag(scheme)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .frame(height: 54)
-                        .background(.thinMaterial)
-                        .cornerRadius(10)
-                        .tint(Color.primary)
-
-                        TextField("onboarding.urlPlaceholder", text: $serverAddress)
-                            .keyboardType(.URL)
-                            .textContentType(.URL)
-                            .autocapitalization(.none)
-                            .padding()
-                            .background(.thinMaterial)
-                            .cornerRadius(10)
-                            .onSubmit {
-                                if !isContinueDisabled { fetchAuthMethods() }
-                            }
-                    }
+                .fileImporter(isPresented: $isShowingCAPicker, allowedContentTypes: Self.caCertTypes) { result in
+                    if case .success(let url) = result { handleCACertFileSelected(url) }
                 }
-                .padding(.horizontal)
+                .alert("onboarding.advanced.enterCertPassword", isPresented: $isShowingCertPasswordAlert) {
+                    passwordAlertActions
+                }
+        }
+    }
 
-                clientCertificateSection
-
-                if isLoading {
-                    ProgressView()
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        if isEditing {
+            ToolbarItem(placement: .cancellationAction) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark")
                 }
-
-                if let errorMessage = errorMessage {
-                    Text(LocalizedStringKey(errorMessage))
-                        .foregroundStyle(.red)
-                        .font(.caption)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-
-                Button(action: fetchAuthMethods) {
-                    Text("onboarding.continueButton")
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(isContinueDisabled ? Color.gray : Color.accentColor)
-                        .foregroundStyle(.white)
-                        .cornerRadius(10)
-                }
-                .padding(.horizontal)
-                .disabled(isContinueDisabled || isLoading)
-
-                Spacer()
-            }
-            .toolbar {
-                if isEditing {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Image(systemName: "xmark")
-                        }
-                    }
-                }
-            }
-            .onAppear {
-                if let instance = editingInstance {
-                    instanceName = instance.name
-                    if instance.url.hasPrefix("http://") {
-                        selectedScheme = .http
-                        serverAddress = String(instance.url.dropFirst(7))
-                    } else if instance.url.hasPrefix("https://") {
-                        selectedScheme = .https
-                        serverAddress = String(instance.url.dropFirst(8))
-                    } else {
-                        serverAddress = instance.url
-                    }
-                    fetchAuthMethods()
-                }
-            }
-            .navigationDestination(isPresented: $navigateToLogin) {
-                if let methods = authMethods {
-                    OnboardingLoginView(
-                        instanceName: instanceName,
-                        url: url,
-                        authMethods: methods,
-                        clientCert: selectedCert,
-                        initialEmail: editingInstance?.email ?? "",
-                        onComplete: onComplete
-                    )
-                }
-            }
-            .fileImporter(
-                isPresented: $isShowingCertPicker,
-                allowedContentTypes: [
-                    UTType(filenameExtension: "p12") ?? .data,
-                    UTType(filenameExtension: "pfx") ?? .data
-                ]
-            ) { result in
-                if case .success(let url) = result {
-                    handleCertFileSelected(url)
-                }
-            }
-            .alert("onboarding.advanced.enterCertPassword", isPresented: $isShowingCertPasswordAlert) {
-                SecureField("onboarding.advanced.certPasswordPlaceholder", text: $certPassword)
-                Button("common.cancel", role: .cancel) {
-                    certPassword = ""
-                    pendingCertData = nil
-                }
-                Button("onboarding.advanced.import") { importCertificate() }
             }
         }
+    }
+
+    @ViewBuilder
+    private var loginDestination: some View {
+        if let methods = authMethods {
+            OnboardingLoginView(
+                instanceName: instanceName,
+                url: url,
+                authMethods: methods,
+                clientCert: selectedCert,
+                caCert: selectedCACert,
+                initialEmail: editingInstance?.email ?? "",
+                onComplete: onComplete
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var passwordAlertActions: some View {
+        SecureField("onboarding.advanced.certPasswordPlaceholder", text: $certPassword)
+        Button("common.cancel", role: .cancel) {
+            certPassword = ""
+            pendingCertData = nil
+        }
+        Button("onboarding.advanced.import") { importCertificate() }
+    }
+
+    private func applyEditingInstanceIfNeeded() {
+        guard let instance = editingInstance else { return }
+        instanceName = instance.name
+        if instance.url.hasPrefix("http://") {
+            selectedScheme = .http
+            serverAddress = String(instance.url.dropFirst(7))
+        } else if instance.url.hasPrefix("https://") {
+            selectedScheme = .https
+            serverAddress = String(instance.url.dropFirst(8))
+        } else {
+            serverAddress = instance.url
+        }
+        fetchAuthMethods()
+    }
+
+    private var content: some View {
+        VStack(spacing: 20) {
+            Spacer()
+
+            headerView
+
+            serverInputFields
+
+            clientCertificateSection
+
+            if isLoading {
+                ProgressView()
+            }
+
+            if let errorMessage = errorMessage {
+                Text(LocalizedStringKey(errorMessage))
+                    .foregroundStyle(.red)
+                    .font(.caption)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            }
+
+            Button(action: fetchAuthMethods) {
+                Text("onboarding.continueButton")
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(isContinueDisabled ? Color.gray : Color.accentColor)
+                    .foregroundStyle(.white)
+                    .cornerRadius(10)
+            }
+            .padding(.horizontal)
+            .disabled(isContinueDisabled || isLoading)
+
+            Spacer()
+        }
+    }
+
+    @ViewBuilder
+    private var headerView: some View {
+        if let icon = appIcon {
+            Image(uiImage: icon)
+                .resizable()
+                .frame(width: 100, height: 100)
+                .clipShape(RoundedRectangle(cornerRadius: 22))
+        } else {
+            Image(systemName: "server.rack")
+                .font(.system(size: 60))
+                .foregroundStyle(Color.accentColor)
+        }
+
+        Text("onboarding.title")
+            .font(.largeTitle)
+            .fontWeight(.bold)
+    }
+
+    private var serverInputFields: some View {
+        VStack {
+            TextField("onboarding.instanceNamePlaceholder", text: $instanceName)
+                .padding()
+                .background(.thinMaterial)
+                .cornerRadius(10)
+
+            HStack(spacing: 10) {
+                Picker("Scheme", selection: $selectedScheme) {
+                    ForEach(ServerScheme.allCases) { scheme in
+                        Text(scheme.rawValue).tag(scheme)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(height: 54)
+                .background(.thinMaterial)
+                .cornerRadius(10)
+                .tint(Color.primary)
+
+                TextField("onboarding.urlPlaceholder", text: $serverAddress)
+                    .keyboardType(.URL)
+                    .textContentType(.URL)
+                    .autocapitalization(.none)
+                    .padding()
+                    .background(.thinMaterial)
+                    .cornerRadius(10)
+                    .onSubmit {
+                        if !isContinueDisabled { fetchAuthMethods() }
+                    }
+            }
+        }
+        .padding(.horizontal)
     }
 
     @ViewBuilder
@@ -232,63 +271,103 @@ struct OnboardingView: View {
             .buttonStyle(.plain)
 
             if isAdvancedExpanded {
-                Button(action: { if selectedCertSubject == nil { isShowingCertPicker = true } }) {
-                    HStack(spacing: 12) {
-                        Image(systemName: selectedCertSubject != nil ? "lock.shield.fill" : "lock.shield")
-                            .font(.body)
-                            .foregroundStyle(selectedCertSubject != nil ? Color.accentColor : Color.secondary)
-                            .frame(width: 24)
-
-                        if let subject = selectedCertSubject {
-                            VStack(alignment: .leading, spacing: 1) {
-                                Text("onboarding.advanced.clientCertificate")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                Text(subject)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.primary)
-                            }
-                        } else {
-                            Text("onboarding.advanced.importCertificate")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-
-                        Spacer()
-
-                        if selectedCertSubject != nil {
-                            Button {
-                                selectedCert = nil
-                                selectedCertSubject = nil
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .buttonStyle(.borderless)
-                        } else {
-                            Image(systemName: "plus")
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                        }
+                certificateRow(
+                    icon: "lock.shield",
+                    subjectLabel: "onboarding.advanced.clientCertificate",
+                    emptyLabel: "onboarding.advanced.importCertificate",
+                    subject: selectedCertSubject,
+                    onTap: { isShowingCertPicker = true },
+                    onClear: {
+                        selectedCert = nil
+                        selectedCertSubject = nil
                     }
-                    .padding()
-                    .background(.thinMaterial)
-                    .cornerRadius(10)
-                }
-                .buttonStyle(.plain)
-                .transition(.opacity.combined(with: .move(edge: .top)))
+                )
 
                 if let certError = certImportError {
-                    Text(certError)
-                        .foregroundStyle(.red)
-                        .font(.caption)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                        .transition(.opacity)
+                    certificateError(certError)
+                }
+
+                certificateRow(
+                    icon: "checkmark.seal",
+                    subjectLabel: "onboarding.advanced.serverCA",
+                    emptyLabel: "onboarding.advanced.importServerCA",
+                    subject: selectedCACertSubject,
+                    onTap: { isShowingCAPicker = true },
+                    onClear: {
+                        selectedCACert = nil
+                        selectedCACertSubject = nil
+                    }
+                )
+
+                if let caError = caImportError {
+                    certificateError(caError)
                 }
             }
         }
         .padding(.horizontal)
+    }
+
+    @ViewBuilder
+    private func certificateRow(
+        icon: String,
+        subjectLabel: LocalizedStringKey,
+        emptyLabel: LocalizedStringKey,
+        subject: String?,
+        onTap: @escaping () -> Void,
+        onClear: @escaping () -> Void
+    ) -> some View {
+        let isSet = subject != nil
+        Button(action: { if !isSet { onTap() } }) {
+            HStack(spacing: 12) {
+                Image(systemName: isSet ? "\(icon).fill" : icon)
+                    .font(.body)
+                    .foregroundStyle(isSet ? Color.accentColor : Color.secondary)
+                    .frame(width: 24)
+
+                if let subject {
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(subjectLabel)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(subject)
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                    }
+                } else {
+                    Text(emptyLabel)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                if isSet {
+                    Button(action: onClear) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.borderless)
+                } else {
+                    Image(systemName: "plus")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding()
+            .background(.thinMaterial)
+            .cornerRadius(10)
+        }
+        .buttonStyle(.plain)
+        .transition(.opacity.combined(with: .move(edge: .top)))
+    }
+
+    private func certificateError(_ message: String) -> some View {
+        Text(message)
+            .foregroundStyle(.red)
+            .font(.caption)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal)
+            .transition(.opacity)
     }
 
     private func fetchAuthMethods() {
@@ -321,6 +400,24 @@ struct OnboardingView: View {
             isShowingCertPasswordAlert = true
         } catch {
             certImportError = error.localizedDescription
+        }
+    }
+
+    private func handleCACertFileSelected(_ fileURL: URL) {
+        guard fileURL.startAccessingSecurityScopedResource() else { return }
+        defer { fileURL.stopAccessingSecurityScopedResource() }
+        do {
+            let data = try Data(contentsOf: fileURL)
+            guard let certificate = ServerCACertificateManager.parseCertificate(from: data) else {
+                caImportError = String(localized: "mtls.error.invalidCertificate")
+                return
+            }
+            let der = SecCertificateCopyData(certificate) as Data
+            selectedCACert = ServerCACertificatePayload(certificate: certificate, certData: der)
+            selectedCACertSubject = SecCertificateCopySubjectSummary(certificate) as String?
+            caImportError = nil
+        } catch {
+            caImportError = error.localizedDescription
         }
     }
 

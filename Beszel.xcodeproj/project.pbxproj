@@ -162,13 +162,13 @@
 		87EB266C2E05AAAE002A98E2 = {
 			isa = PBXGroup;
 			children = (
-				878F14832E282B94001A5DD1 /* AppIcon.icon */,
 				87FE4DA72E0D25F300163BCE /* Beszel.entitlements */,
 				87FE4DA62E0D25CD00163BCE /* BeszelWidgetExtension.entitlements */,
 				87EB26772E05AAAE002A98E2 /* Beszel-companion */,
 				87FE4D752E0D241200163BCE /* BeszelWidget */,
 				87FE4D702E0D241200163BCE /* Frameworks */,
 				87EB26762E05AAAE002A98E2 /* Products */,
+				878F14832E282B94001A5DD1 /* AppIcon.icon */,
 			);
 			sourceTree = "<group>";
 		};

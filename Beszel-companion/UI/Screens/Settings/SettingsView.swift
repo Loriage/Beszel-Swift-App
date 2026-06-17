@@ -7,7 +7,7 @@ struct SettingsView: View {
     @Environment(LanguageManager.self) var languageManager
     @Environment(InstanceManager.self) var instanceManager
     @Environment(AlertManager.self) var alertManager
-    @Environment(BeszelStore.self) var store
+    @Environment(BeszelStore.self) var store: BeszelStore?
 
     @Environment(\.dismiss) var dismiss
 
@@ -187,8 +187,8 @@ struct SettingsView: View {
             .alert("settings.application.clearCache.alert.title", isPresented: $isShowingClearCacheAlert) {
                 Button("common.cancel", role: .cancel) { }
                 Button("settings.application.clearCache.alert.confirm", role: .destructive) {
-                    store.clearAllCachedData()
-                    Task { await store.fetchData() }
+                    store?.clearAllCachedData()
+                    Task { await store?.fetchData() }
                 }
             } message: {
                 Text("settings.application.clearCache.alert.message")
@@ -303,6 +303,7 @@ struct SettingsView: View {
             Button("settings.application.clearCache", role: .destructive) {
                 isShowingClearCacheAlert = true
             }
+            .disabled(store == nil)
 
             Button("settings.application.resetAll", role: .destructive) {
                 isShowingResetAlert = true

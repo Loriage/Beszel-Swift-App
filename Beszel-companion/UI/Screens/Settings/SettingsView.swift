@@ -171,8 +171,8 @@ struct SettingsView: View {
                 }
             }
             .sheet(isPresented: $isAddingInstance) {
-                OnboardingView { name, url, email, password, cert, caCert in
-                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: cert, caCert: caCert)
+                OnboardingView { name, url, email, password, cert, caCert, headers in
+                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: cert, caCert: caCert, customHeaders: headers)
                     isAddingInstance = false
                 }
             }
@@ -207,7 +207,7 @@ struct SettingsView: View {
             .sheet(item: $editingInstance) { instance in
                 OnboardingView(
                     editingInstance: instance,
-                    onComplete: { name, url, email, password, _, _ in
+                    onComplete: { name, url, email, password, _, _, _ in
                         instanceManager.updateInstance(instance, name: name, url: url, email: email, password: password)
                         WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                         editingInstance = nil

@@ -8,8 +8,9 @@ struct OnboardingLoginView: View {
     let authMethods: AuthMethodsResponse
     let clientCert: ClientCertificatePayload?
     let caCert: ServerCACertificatePayload?
+    let customHeaders: [String: String]
     let initialEmail: String
-    var onComplete: (String, String, String, String, ClientCertificatePayload?, ServerCACertificatePayload?) -> Void
+    var onComplete: (String, String, String, String, ClientCertificatePayload?, ServerCACertificatePayload?, [String: String]) -> Void
 
     @State private var email = ""
     @State private var password = ""
@@ -34,7 +35,7 @@ struct OnboardingLoginView: View {
         return UIImage(named: name)
     }
 
-    private var apiService: OnboardingAPIService { OnboardingAPIService(clientIdentity: clientCert?.identity, caCertificate: caCert?.certificate) }
+    private var apiService: OnboardingAPIService { OnboardingAPIService(clientIdentity: clientCert?.identity, caCertificate: caCert?.certificate, customHeaders: customHeaders) }
     private let contextProvider = WebAuthSessionContextProvider()
 
     private var isPasswordLoginDisabled: Bool {
@@ -134,9 +135,10 @@ struct OnboardingLoginView: View {
                 email: state.email,
                 clientIdentity: clientCert?.identity,
                 caCertificate: caCert?.certificate,
+                customHeaders: customHeaders,
                 onComplete: { token in
                     mfaState = nil
-                    onComplete(instanceName, url, state.email ?? email, token, clientCert, caCert)
+                    onComplete(instanceName, url, state.email ?? email, token, clientCert, caCert, customHeaders)
                 },
                 onCancel: {
                     mfaState = nil
@@ -154,7 +156,7 @@ struct OnboardingLoginView: View {
                 try await apiService.verifyCredentials(url: url, email: email, password: password)
                 await MainActor.run {
                     isLoading = false
-                    onComplete(instanceName, url, email, password, clientCert, caCert)
+                    onComplete(instanceName, url, email, password, clientCert, caCert, customHeaders)
                 }
             } catch OnboardingAPIService.OnboardingError.mfaRequired(let mfaId, let otpId) {
                 await MainActor.run {
@@ -196,7 +198,7 @@ struct OnboardingLoginView: View {
                 let (accessToken, userEmail) = try await apiService.exchangeCodeForToken(code: code, provider: provider, hubURL: url)
 
                 self.isLoading = false
-                onComplete(instanceName, url, userEmail, accessToken, clientCert, caCert)
+                onComplete(instanceName, url, userEmail, accessToken, clientCert, caCert, customHeaders)
 
             } catch OnboardingAPIService.OnboardingError.oauthMfaRequired(let mfaId) {
                 self.isLoading = false

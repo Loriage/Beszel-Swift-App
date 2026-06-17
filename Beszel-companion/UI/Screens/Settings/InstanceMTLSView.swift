@@ -19,6 +19,9 @@ struct InstanceMTLSView: View {
     @State private var isShowingCARemoveConfirm = false
     @State private var caErrorMessage: String?
 
+    @State private var customHeaders: [String: String] = [:]
+    @State private var isShowingHeadersEditor = false
+
     var body: some View {
         NavigationStack {
             Form {
@@ -83,6 +86,28 @@ struct InstanceMTLSView: View {
                             .font(.caption)
                     }
                 }
+
+                Section {
+                    if customHeaders.isEmpty {
+                        Button("headers.add") { isShowingHeadersEditor = true }
+                    } else {
+                        ForEach(customHeaders.keys.sorted(), id: \.self) { key in
+                            HStack {
+                                Text(key)
+                                    .font(.subheadline)
+                                Spacer()
+                                Text("headers.valueHidden")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        Button("headers.edit") { isShowingHeadersEditor = true }
+                    }
+                } header: {
+                    Text("headers.title")
+                } footer: {
+                    Text("headers.description")
+                }
             }
             .navigationTitle("mtls.title")
             .navigationBarTitleDisplayMode(.inline)
@@ -98,6 +123,7 @@ struct InstanceMTLSView: View {
             .onAppear {
                 certSubject = ClientCertificateManager.certificateSubject(for: instance.id)
                 caSubject = ServerCACertificateManager.certificateSubject(for: instance.id)
+                customHeaders = CustomHeadersManager.load(for: instance.id)
             }
         }
         .fileImporter(
@@ -140,6 +166,12 @@ struct InstanceMTLSView: View {
         .alert("mtls.confirmRemoveCA", isPresented: $isShowingCARemoveConfirm) {
             Button("common.cancel", role: .cancel) {}
             Button("common.delete", role: .destructive) { removeCACert() }
+        }
+        .sheet(isPresented: $isShowingHeadersEditor) {
+            CustomHeadersEditorView(headers: customHeaders) { headers in
+                CustomHeadersManager.store(headers, for: instance.id)
+                customHeaders = headers
+            }
         }
     }
 

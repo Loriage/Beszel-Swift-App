@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 
 struct OnboardingView: View {
     var editingInstance: Instance?
-    var onComplete: (String, String, String, String, ClientCertificatePayload?, ServerCACertificatePayload?) -> Void
+    var onComplete: (String, String, String, String, ClientCertificatePayload?, ServerCACertificatePayload?, [String: String]) -> Void
 
     @Environment(\.dismiss) private var dismiss
 
@@ -32,6 +32,9 @@ struct OnboardingView: View {
     @State private var isShowingCAPicker = false
     @State private var caImportError: String?
 
+    @State private var customHeaders: [String: String] = [:]
+    @State private var isShowingHeadersEditor = false
+
     private var appIcon: UIImage? {
         guard
             let icons = Bundle.main.infoDictionary?["CFBundleIcons"] as? [String: Any],
@@ -42,7 +45,7 @@ struct OnboardingView: View {
         return UIImage(named: name)
     }
 
-    private var apiService: OnboardingAPIService { OnboardingAPIService(clientIdentity: selectedCert?.identity, caCertificate: selectedCACert?.certificate) }
+    private var apiService: OnboardingAPIService { OnboardingAPIService(clientIdentity: selectedCert?.identity, caCertificate: selectedCACert?.certificate, customHeaders: customHeaders) }
 
     private var isEditing: Bool { editingInstance != nil }
 
@@ -103,6 +106,9 @@ struct OnboardingView: View {
                 .alert("onboarding.advanced.enterCertPassword", isPresented: $isShowingCertPasswordAlert) {
                     passwordAlertActions
                 }
+                .sheet(isPresented: $isShowingHeadersEditor) {
+                    CustomHeadersEditorView(headers: customHeaders) { customHeaders = $0 }
+                }
         }
     }
 
@@ -128,6 +134,7 @@ struct OnboardingView: View {
                 authMethods: methods,
                 clientCert: selectedCert,
                 caCert: selectedCACert,
+                customHeaders: customHeaders,
                 initialEmail: editingInstance?.email ?? "",
                 onComplete: onComplete
             )
@@ -302,9 +309,50 @@ struct OnboardingView: View {
                 if let caError = caImportError {
                     certificateError(caError)
                 }
+
+                customHeadersRow
             }
         }
         .padding(.horizontal)
+    }
+
+    private var customHeadersRow: some View {
+        let isSet = !customHeaders.isEmpty
+        return Button(action: { isShowingHeadersEditor = true }) {
+            HStack(spacing: 12) {
+                Image(systemName: isSet ? "list.bullet.rectangle.fill" : "list.bullet.rectangle")
+                    .font(.body)
+                    .foregroundStyle(isSet ? Color.accentColor : Color.secondary)
+                    .frame(width: 24)
+
+                if isSet {
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("onboarding.advanced.customHeaders")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(customHeaders.keys.sorted().joined(separator: ", "))
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                } else {
+                    Text("onboarding.advanced.customHeaders")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Image(systemName: isSet ? "chevron.right" : "plus")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+            .padding()
+            .background(.thinMaterial)
+            .cornerRadius(10)
+        }
+        .buttonStyle(.plain)
+        .transition(.opacity.combined(with: .move(edge: .top)))
     }
 
     @ViewBuilder

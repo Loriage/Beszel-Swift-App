@@ -4,12 +4,15 @@ import Security
 struct OnboardingAPIService {
     private let session: URLSession
 
-    init(clientIdentity: SecIdentity? = nil, caCertificate: SecCertificate? = nil) {
-        if clientIdentity != nil || caCertificate != nil {
+    init(clientIdentity: SecIdentity? = nil, caCertificate: SecCertificate? = nil, customHeaders: [String: String] = [:]) {
+        if clientIdentity != nil || caCertificate != nil || !customHeaders.isEmpty {
             let delegate = MTLSSessionDelegate(temporaryIdentity: clientIdentity, temporaryCACertificate: caCertificate)
             let config = URLSessionConfiguration.default
             config.timeoutIntervalForRequest = 15
             config.timeoutIntervalForResource = 30
+            if !customHeaders.isEmpty {
+                config.httpAdditionalHeaders = customHeaders
+            }
             self.session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
         } else {
             self.session = .shared

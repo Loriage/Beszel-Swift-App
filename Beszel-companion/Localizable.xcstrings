@@ -5446,6 +5446,78 @@
         }
       }
     },
+    "common.save" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Enregistrer" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Zapisz" } }
+      }
+    },
+    "headers.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom HTTP Headers" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En-têtes HTTP personnalisés" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Niestandardowe nagłówki HTTP" } }
+      }
+    },
+    "headers.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sent with every request to this instance. Useful for reverse-proxy authentication such as Cloudflare Access (CF-Access-Client-Id / CF-Access-Client-Secret)." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Envoyés avec chaque requête vers cette instance. Utile pour l'authentification via un proxy inverse comme Cloudflare Access (CF-Access-Client-Id / CF-Access-Client-Secret)." } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wysyłane z każdym żądaniem do tej instancji. Przydatne do uwierzytelniania przez reverse proxy, np. Cloudflare Access (CF-Access-Client-Id / CF-Access-Client-Secret)." } }
+      }
+    },
+    "headers.add" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Header" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajouter un en-tête" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Dodaj nagłówek" } }
+      }
+    },
+    "headers.edit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit Headers" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Modifier les en-têtes" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Edytuj nagłówki" } }
+      }
+    },
+    "headers.namePlaceholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Header name" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nom de l'en-tête" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Nazwa nagłówka" } }
+      }
+    },
+    "headers.valuePlaceholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Value" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Valeur" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wartość" } }
+      }
+    },
+    "headers.valueHidden" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "••••••" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "••••••" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "••••••" } }
+      }
+    },
+    "onboarding.advanced.customHeaders" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom HTTP Headers" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En-têtes HTTP personnalisés" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Niestandardowe nagłówki HTTP" } }
+      }
+    },
     "mtls.caInstalled" : {
       "extractionState" : "manual",
       "localizations" : {

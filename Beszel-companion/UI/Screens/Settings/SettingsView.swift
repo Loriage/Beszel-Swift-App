@@ -16,7 +16,7 @@ struct SettingsView: View {
     @State private var isShowingResetAlert = false
     @State private var isAddingInstance = false
     @State private var editingInstance: Instance?
-    @State private var managingMTLSInstance: Instance?
+    @State private var managingAdvancedInstance: Instance?
     @State private var isShowingShareSheet = false
     @State private var isAuthenticating = false
     
@@ -171,8 +171,8 @@ struct SettingsView: View {
                 }
             }
             .sheet(isPresented: $isAddingInstance) {
-                OnboardingView { name, url, email, password, cert, caCert, headers in
-                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: cert, caCert: caCert, customHeaders: headers)
+                OnboardingView { name, url, email, password, advanced in
+                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: advanced.clientCert, caCert: advanced.caCert, customHeaders: advanced.customHeaders)
                     isAddingInstance = false
                 }
             }
@@ -207,15 +207,15 @@ struct SettingsView: View {
             .sheet(item: $editingInstance) { instance in
                 OnboardingView(
                     editingInstance: instance,
-                    onComplete: { name, url, email, password, _, _, _ in
+                    onComplete: { name, url, email, password, _ in
                         instanceManager.updateInstance(instance, name: name, url: url, email: email, password: password)
                         WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
                         editingInstance = nil
                     }
                 )
             }
-            .sheet(item: $managingMTLSInstance) { instance in
-                InstanceMTLSView(instance: instance)
+            .sheet(item: $managingAdvancedInstance) { instance in
+                InstanceAdvancedView(instance: instance)
             }
         }
     }
@@ -251,9 +251,9 @@ struct SettingsView: View {
                     .tint(.orange)
 
                     Button {
-                        managingMTLSInstance = instance
+                        managingAdvancedInstance = instance
                     } label: {
-                        Label("settings.instances.manageCert", systemImage: "lock.shield")
+                        Label("settings.instances.advanced", systemImage: "slider.horizontal.3")
                     }
                     .tint(.blue)
                 }

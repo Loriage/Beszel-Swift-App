@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 
 struct OnboardingView: View {
     var editingInstance: Instance?
-    var onComplete: (String, String, String, String, ClientCertificatePayload?, ServerCACertificatePayload?, [String: String]) -> Void
+    var onComplete: (String, String, String, String, InstanceAdvancedOptions) -> Void
 
     @Environment(\.dismiss) private var dismiss
 
@@ -132,9 +132,7 @@ struct OnboardingView: View {
                 instanceName: instanceName,
                 url: url,
                 authMethods: methods,
-                clientCert: selectedCert,
-                caCert: selectedCACert,
-                customHeaders: customHeaders,
+                advanced: InstanceAdvancedOptions(clientCert: selectedCert, caCert: selectedCACert, customHeaders: customHeaders),
                 initialEmail: editingInstance?.email ?? "",
                 onComplete: onComplete
             )

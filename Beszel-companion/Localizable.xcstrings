@@ -5935,25 +5935,25 @@
         }
       }
     },
-    "mtls.title" : {
+    "advanced.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Client Certificate"
+            "value" : "Advanced"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Certificat client"
+            "value" : "Avancé"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Certyfikat klienta"
+            "value" : "Zaawansowane"
           }
         }
       }
@@ -8048,25 +8048,25 @@
         }
       }
     },
-    "settings.instances.manageCert" : {
+    "settings.instances.advanced" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Certificate"
+            "value" : "Advanced"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Certificat"
+            "value" : "Avancé"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Certyfikat"
+            "value" : "Zaawansowane"
           }
         }
       }

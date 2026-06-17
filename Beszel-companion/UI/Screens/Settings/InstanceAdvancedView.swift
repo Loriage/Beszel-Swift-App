@@ -1,7 +1,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct InstanceMTLSView: View {
+struct InstanceAdvancedView: View {
     let instance: Instance
 
     @Environment(\.dismiss) private var dismiss
@@ -109,7 +109,7 @@ struct InstanceMTLSView: View {
                     Text("headers.description")
                 }
             }
-            .navigationTitle("mtls.title")
+            .navigationTitle("advanced.title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

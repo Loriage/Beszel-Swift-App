@@ -7,6 +7,8 @@ struct MFAView: View {
     let otpId: String?
     let email: String?
     var clientIdentity: SecIdentity?
+    var caCertificate: SecCertificate?
+    var customHeaders: [String: String] = [:]
     var onComplete: (String) -> Void
     var onCancel: () -> Void
 
@@ -17,7 +19,7 @@ struct MFAView: View {
     @State private var errorMessage: String?
     @State private var otpRequested = false
 
-    private var apiService: OnboardingAPIService { OnboardingAPIService(clientIdentity: clientIdentity) }
+    private var apiService: OnboardingAPIService { OnboardingAPIService(clientIdentity: clientIdentity, caCertificate: caCertificate, customHeaders: customHeaders) }
 
     private var isVerifyDisabled: Bool {
         otpCode.isEmpty || currentOtpId == nil

@@ -55,6 +55,10 @@ actor BeszelAPIService {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 15
         config.timeoutIntervalForResource = 30
+        let customHeaders = CustomHeadersManager.load(for: instance.id)
+        if !customHeaders.isEmpty {
+            config.httpAdditionalHeaders = customHeaders
+        }
         self.session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
     }
     

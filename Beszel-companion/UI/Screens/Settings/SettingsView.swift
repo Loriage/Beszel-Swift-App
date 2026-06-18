@@ -7,7 +7,7 @@ struct SettingsView: View {
     @Environment(LanguageManager.self) var languageManager
     @Environment(InstanceManager.self) var instanceManager
     @Environment(AlertManager.self) var alertManager
-    @Environment(BeszelStore.self) var store
+    @Environment(BeszelStore.self) var store: BeszelStore?
 
     @Environment(\.dismiss) var dismiss
 
@@ -16,7 +16,7 @@ struct SettingsView: View {
     @State private var isShowingResetAlert = false
     @State private var isAddingInstance = false
     @State private var editingInstance: Instance?
-    @State private var managingMTLSInstance: Instance?
+    @State private var managingAdvancedInstance: Instance?
     @State private var isShowingShareSheet = false
     @State private var isAuthenticating = false
     
@@ -76,49 +76,8 @@ struct SettingsView: View {
         
         NavigationStack {
             Form {
-                Section(header: Text("settings.instances.title")) {
-                    ForEach(instanceManager.instances) { instance in
-                        HStack {
-                            Text(instance.name)
-                            Spacer()
-                            if instance.id == instanceManager.activeInstance?.id {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
-                            }
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            instanceManager.setActiveInstance(instance)
-                            WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button(role: .destructive) {
-                                instanceManager.deleteInstance(instance)
-                            } label: {
-                                Label("common.delete", systemImage: "trash")
-                            }
+                instancesSection
 
-                            Button {
-                                editingInstance = instance
-                            } label: {
-                                Label("common.edit", systemImage: "pencil")
-                            }
-                            .tint(.orange)
-
-                            Button {
-                                managingMTLSInstance = instance
-                            } label: {
-                                Label("settings.instances.manageCert", systemImage: "lock.shield")
-                            }
-                            .tint(.blue)
-                        }
-                    }
-
-                    Button("settings.instances.add") {
-                        isAddingInstance = true
-                    }
-                }
-                
                 Section(header: Text("settings.title")) {
                     Picker(selection: $bindableLanguageManager.currentLanguageCode) {
                         ForEach(languageManager.availableLanguages, id: \.code) { lang in
@@ -212,8 +171,8 @@ struct SettingsView: View {
                 }
             }
             .sheet(isPresented: $isAddingInstance) {
-                OnboardingView { name, url, email, password, cert in
-                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: cert)
+                OnboardingView { name, url, email, password, advanced in
+                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: advanced.clientCert, caCert: advanced.caCert, customHeaders: advanced.customHeaders)
                     isAddingInstance = false
                 }
             }
@@ -228,8 +187,8 @@ struct SettingsView: View {
             .alert("settings.application.clearCache.alert.title", isPresented: $isShowingClearCacheAlert) {
                 Button("common.cancel", role: .cancel) { }
                 Button("settings.application.clearCache.alert.confirm", role: .destructive) {
-                    store.clearAllCachedData()
-                    Task { await store.fetchData() }
+                    store?.clearAllCachedData()
+                    Task { await store?.fetchData() }
                 }
             } message: {
                 Text("settings.application.clearCache.alert.message")
@@ -255,8 +214,53 @@ struct SettingsView: View {
                     }
                 )
             }
-            .sheet(item: $managingMTLSInstance) { instance in
-                InstanceMTLSView(instance: instance)
+            .sheet(item: $managingAdvancedInstance) { instance in
+                InstanceAdvancedView(instance: instance)
+            }
+        }
+    }
+
+    private var instancesSection: some View {
+        Section(header: Text("settings.instances.title")) {
+            ForEach(instanceManager.instances) { instance in
+                HStack {
+                    Text(instance.name)
+                    Spacer()
+                    if instance.id == instanceManager.activeInstance?.id {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                    }
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    instanceManager.setActiveInstance(instance)
+                    WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
+                }
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button(role: .destructive) {
+                        instanceManager.deleteInstance(instance)
+                    } label: {
+                        Label("common.delete", systemImage: "trash")
+                    }
+
+                    Button {
+                        editingInstance = instance
+                    } label: {
+                        Label("common.edit", systemImage: "pencil")
+                    }
+                    .tint(.orange)
+
+                    Button {
+                        managingAdvancedInstance = instance
+                    } label: {
+                        Label("settings.instances.advanced", systemImage: "slider.horizontal.3")
+                    }
+                    .tint(.blue)
+                }
+            }
+
+            Button("settings.instances.add") {
+                isAddingInstance = true
             }
         }
     }
@@ -299,6 +303,7 @@ struct SettingsView: View {
             Button("settings.application.clearCache", role: .destructive) {
                 isShowingClearCacheAlert = true
             }
+            .disabled(store == nil)
 
             Button("settings.application.resetAll", role: .destructive) {
                 isShowingResetAlert = true

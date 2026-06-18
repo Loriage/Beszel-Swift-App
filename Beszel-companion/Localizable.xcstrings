@@ -5446,6 +5446,101 @@
         }
       }
     },
+    "common.save" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Enregistrer" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Zapisz" } }
+      }
+    },
+    "headers.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom HTTP Headers" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En-têtes HTTP personnalisés" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Niestandardowe nagłówki HTTP" } }
+      }
+    },
+    "headers.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sent with every request to this instance. Useful for reverse-proxy authentication such as Cloudflare Access (CF-Access-Client-Id / CF-Access-Client-Secret)." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Envoyés avec chaque requête vers cette instance. Utile pour l'authentification via un proxy inverse comme Cloudflare Access (CF-Access-Client-Id / CF-Access-Client-Secret)." } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wysyłane z każdym żądaniem do tej instancji. Przydatne do uwierzytelniania przez reverse proxy, np. Cloudflare Access (CF-Access-Client-Id / CF-Access-Client-Secret)." } }
+      }
+    },
+    "headers.add" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Header" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajouter un en-tête" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Dodaj nagłówek" } }
+      }
+    },
+    "headers.edit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit Headers" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Modifier les en-têtes" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Edytuj nagłówki" } }
+      }
+    },
+    "headers.namePlaceholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Header name" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nom de l'en-tête" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Nazwa nagłówka" } }
+      }
+    },
+    "headers.valuePlaceholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Value" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Valeur" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wartość" } }
+      }
+    },
+    "headers.valueHidden" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "••••••" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "••••••" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "••••••" } }
+      }
+    },
+    "onboarding.advanced.customHeaders" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom HTTP Headers" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En-têtes HTTP personnalisés" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Niestandardowe nagłówki HTTP" } }
+      }
+    },
+    "mtls.caInstalled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed CA Certificate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certificat CA installé"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zainstalowany certyfikat CA"
+          }
+        }
+      }
+    },
     "mtls.certInstalled" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5511,6 +5606,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Usunąć ten certyfikat?"
+          }
+        }
+      }
+    },
+    "mtls.confirmRemoveCA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove this CA certificate?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer ce certificat CA ?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć ten certyfikat CA?"
           }
         }
       }
@@ -5584,6 +5702,9 @@
         }
       }
     },
+    "mtls.error.invalidCertificate" : {
+
+    },
     "mtls.error.invalidPasswordOrFile" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5653,6 +5774,29 @@
         }
       }
     },
+    "mtls.importCA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import CA Certificate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer un certificat CA"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importuj certyfikat CA"
+          }
+        }
+      }
+    },
     "mtls.importCert" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5699,6 +5843,29 @@
         }
       }
     },
+    "mtls.removeCA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove CA Certificate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer le certificat CA"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń certyfikat CA"
+          }
+        }
+      }
+    },
     "mtls.removeCert" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5722,25 +5889,71 @@
         }
       }
     },
-    "mtls.title" : {
+    "mtls.serverCADescription" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Client Certificate"
+            "value" : "Trust a server whose TLS certificate is signed by a private or self-signed Certificate Authority. Import the CA certificate (.crt, .cer, .pem, or .der). If you've already installed this CA on your device, enable it under Settings → General → About → Certificate Trust Settings and it will be trusted automatically."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Certificat client"
+            "value" : "Faites confiance à un serveur dont le certificat TLS est signé par une autorité de certification privée ou auto-signée. Importez le certificat de l'autorité (.crt, .cer, .pem ou .der). Si vous avez déjà installé cette autorité sur votre appareil, activez-la dans Réglages → Général → Informations → Réglages des certificats de confiance pour qu'elle soit approuvée automatiquement."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Certyfikat klienta"
+            "value" : "Zaufaj serwerowi, którego certyfikat TLS jest podpisany przez prywatny lub samodzielnie podpisany urząd certyfikacji. Zaimportuj certyfikat urzędu (.crt, .cer, .pem lub .der). Jeśli ten urząd jest już zainstalowany na urządzeniu, włącz go w Ustawienia → Ogólne → To urządzenie → Ustawienia zaufania certyfikatów, aby był zaufany automatycznie."
+          }
+        }
+      }
+    },
+    "mtls.serverCertificate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server CA Certificate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certificat CA du serveur"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certyfikat CA serwera"
+          }
+        }
+      }
+    },
+    "advanced.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Advanced"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avancé"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaawansowane"
           }
         }
       }
@@ -5922,6 +6135,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Importuj certyfikat klienta (.p12)"
+          }
+        }
+      }
+    },
+    "onboarding.advanced.importServerCA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import CA certificate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer un certificat CA"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importuj certyfikat CA"
+          }
+        }
+      }
+    },
+    "onboarding.advanced.serverCA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server CA Certificate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certificat CA du serveur"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certyfikat CA serwera"
           }
         }
       }
@@ -7789,25 +8048,25 @@
         }
       }
     },
-    "settings.instances.manageCert" : {
+    "settings.instances.advanced" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Certificate"
+            "value" : "Advanced"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Certificat"
+            "value" : "Avancé"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Certyfikat"
+            "value" : "Zaawansowane"
           }
         }
       }

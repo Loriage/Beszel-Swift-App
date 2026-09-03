@@ -174,7 +174,7 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $isAddingInstance) {
                 OnboardingView { name, url, email, password, advanced in
-                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: advanced.clientCert, caCert: advanced.caCert, customHeaders: advanced.customHeaders)
+                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: advanced.clientCert, caCert: advanced.caCert, customHeaders: advanced.customHeaders, fallbackURL: advanced.fallbackURL)
                     isAddingInstance = false
                 }
             }
@@ -209,9 +209,9 @@ struct SettingsView: View {
             .sheet(item: $editingInstance) { instance in
                 OnboardingView(
                     editingInstance: instance,
-                    onComplete: { name, url, email, password, _ in
-                        instanceManager.updateInstance(instance, name: name, url: url, email: email, password: password)
-                        WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
+                    onComplete: { name, url, email, password, advanced in
+                        instanceManager.updateInstance(instance, name: name, url: url, email: email, password: password, fallbackURL: advanced.fallbackURL)
+                        WidgetCenter.shared.reloadAllTimelines()
                         editingInstance = nil
                     }
                 )

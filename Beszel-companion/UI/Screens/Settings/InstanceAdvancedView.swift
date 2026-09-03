@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import WidgetKit
 
 struct InstanceAdvancedView: View {
     let instance: Instance
@@ -25,6 +26,8 @@ struct InstanceAdvancedView: View {
     var body: some View {
         NavigationStack {
             Form {
+                InstanceFallbackURLSection(instanceID: instance.id, fallbackURL: instance.fallbackURL)
+
                 Section {
                     if let subject = certSubject {
                         VStack(alignment: .leading, spacing: 4) {
@@ -220,5 +223,42 @@ struct InstanceAdvancedView: View {
     private func removeCert() {
         ClientCertificateManager.delete(for: instance.id)
         certSubject = nil
+    }
+}
+
+private struct InstanceFallbackURLSection: View {
+    let instanceID: UUID
+    @Environment(InstanceManager.self) private var instanceManager
+    @State private var fallbackURL: String
+    @State private var savedFallbackURL: String
+    @State private var saveError = false
+
+    init(instanceID: UUID, fallbackURL: String?) {
+        self.instanceID = instanceID
+        self.fallbackURL = fallbackURL ?? ""
+        self.savedFallbackURL = fallbackURL ?? ""
+    }
+
+    var body: some View {
+        Section {
+            HubFallbackURLInput(text: $fallbackURL)
+            Button("common.save") {
+                do {
+                    try instanceManager.updateFallbackURL(for: instanceID, fallbackURL: fallbackURL)
+                    fallbackURL = HubURL.normalized(fallbackURL) ?? ""
+                    savedFallbackURL = fallbackURL
+                    saveError = false
+                    WidgetCenter.shared.reloadAllTimelines()
+                } catch {
+                    saveError = true
+                }
+            }
+            .disabled(!HubURL.isValidFallback(fallbackURL) || HubURL.normalized(fallbackURL) == HubURL.normalized(savedFallbackURL))
+            .accessibilityIdentifier("hub.fallback.save")
+            if saveError {
+                Text("hub.fallback.invalidURL")
+                    .foregroundStyle(.red)
+            }
+        }
     }
 }

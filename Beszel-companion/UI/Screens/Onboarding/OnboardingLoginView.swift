@@ -33,7 +33,9 @@ struct OnboardingLoginView: View {
         return UIImage(named: name)
     }
 
-    private var apiService: OnboardingAPIService { OnboardingAPIService(clientIdentity: advanced.clientCert?.identity, caCertificate: advanced.caCert?.certificate, customHeaders: advanced.customHeaders) }
+    private var apiService: OnboardingAPIService {
+        OnboardingAPIService(baseURL: url, fallbackURL: advanced.fallbackURL, clientIdentity: advanced.clientCert?.identity, caCertificate: advanced.caCert?.certificate, customHeaders: advanced.customHeaders)
+    }
     private let contextProvider = WebAuthSessionContextProvider()
 
     private var isPasswordLoginDisabled: Bool {
@@ -145,6 +147,7 @@ struct OnboardingLoginView: View {
                 clientIdentity: advanced.clientCert?.identity,
                 caCertificate: advanced.caCert?.certificate,
                 customHeaders: advanced.customHeaders,
+                fallbackURL: advanced.fallbackURL,
                 onComplete: { token in
                     mfaState = nil
                     onComplete(instanceName, url, state.email ?? email, token, advanced)

@@ -13,6 +13,9 @@ struct OnboardingView: View {
     @State private var instanceName = ""
     @State private var selectedScheme: ServerScheme = .https
     @State private var serverAddress = ""
+    @State private var fallbackURL = ""
+    @State private var didLoadEditingInstance = false
+    @State private var authMethodsRequestID: UUID?
 
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -46,7 +49,9 @@ struct OnboardingView: View {
         return UIImage(named: name)
     }
 
-    private var apiService: OnboardingAPIService { OnboardingAPIService(clientIdentity: selectedCert?.identity, caCertificate: selectedCACert?.certificate, customHeaders: customHeaders) }
+    private var apiService: OnboardingAPIService {
+        OnboardingAPIService(baseURL: url, fallbackURL: fallbackURL, clientIdentity: selectedCert?.identity, caCertificate: selectedCACert?.certificate, customHeaders: customHeaders)
+    }
 
     private var isEditing: Bool { editingInstance != nil }
 
@@ -57,26 +62,18 @@ struct OnboardingView: View {
     }
 
     private var url: String {
-        selectedScheme.rawValue + serverAddress
+        HubURL.normalized(selectedScheme.rawValue + serverAddress
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "http://", with: "")
-            .replacingOccurrences(of: "https://", with: "")
+            .replacingOccurrences(of: "https://", with: "")) ?? ""
     }
 
     private var isValidURL: Bool {
-        guard !serverAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return false
-        }
-        guard let urlComponents = URLComponents(string: url),
-              let host = urlComponents.host,
-              !host.isEmpty else {
-            return false
-        }
-        return true
+        HubURL.baseURL(url) != nil
     }
 
     private var isContinueDisabled: Bool {
-        instanceName.isEmpty || !isValidURL
+        instanceName.isEmpty || !isValidURL || !HubURL.isValidFallback(fallbackURL)
     }
 
     private static let clientCertTypes: [UTType] = [
@@ -97,6 +94,10 @@ struct OnboardingView: View {
             content
                 .toolbar { toolbarContent }
                 .onAppear { applyEditingInstanceIfNeeded() }
+                .task(id: authMethodsRequestID) {
+                    guard let requestID = authMethodsRequestID else { return }
+                    await loadAuthMethods(requestID: requestID)
+                }
                 .navigationDestination(isPresented: $navigateToLogin) { loginDestination }
                 .fileImporter(isPresented: $isShowingCertPicker, allowedContentTypes: Self.clientCertTypes) { result in
                     if case .success(let url) = result { handleCertFileSelected(url) }
@@ -133,7 +134,7 @@ struct OnboardingView: View {
                 instanceName: instanceName,
                 url: url,
                 authMethods: methods,
-                advanced: InstanceAdvancedOptions(clientCert: selectedCert, caCert: selectedCACert, customHeaders: customHeaders),
+                advanced: InstanceAdvancedOptions(clientCert: selectedCert, caCert: selectedCACert, customHeaders: customHeaders, fallbackURL: HubURL.normalized(fallbackURL)),
                 initialEmail: editingInstance?.email ?? "",
                 onComplete: onComplete
             )
@@ -151,8 +152,10 @@ struct OnboardingView: View {
     }
 
     private func applyEditingInstanceIfNeeded() {
-        guard let instance = editingInstance else { return }
+        guard !didLoadEditingInstance, let instance = editingInstance else { return }
+        didLoadEditingInstance = true
         instanceName = instance.name
+        fallbackURL = instance.fallbackURL ?? ""
         if instance.url.hasPrefix("http://") {
             selectedScheme = .http
             serverAddress = String(instance.url.dropFirst(7))
@@ -162,7 +165,6 @@ struct OnboardingView: View {
         } else {
             serverAddress = instance.url
         }
-        fetchAuthMethods()
     }
 
     private var content: some View {
@@ -173,8 +175,10 @@ struct OnboardingView: View {
                 headerView
 
                 serverInputFields
+                    .disabled(isLoading)
 
                 clientCertificateSection
+                    .disabled(isLoading)
 
                 if isLoading {
                     ProgressView()
@@ -197,6 +201,7 @@ struct OnboardingView: View {
                 .controlSize(.large)
                 .padding(.horizontal)
                 .disabled(isContinueDisabled || isLoading)
+                .accessibilityIdentifier("onboarding.continue")
 
                 Spacer(minLength: MonitoringSpacing.screen)
             }
@@ -228,6 +233,7 @@ struct OnboardingView: View {
     private var serverInputFields: some View {
         VStack {
             TextField("onboarding.instanceNamePlaceholder", text: $instanceName)
+                .accessibilityIdentifier("onboarding.hubName")
                 .padding()
                 .background(.thinMaterial)
                 .cornerRadius(10)
@@ -262,6 +268,7 @@ struct OnboardingView: View {
 
     private var serverAddressField: some View {
         TextField("onboarding.urlPlaceholder", text: $serverAddress)
+            .accessibilityIdentifier("onboarding.primaryURL")
             .keyboardType(.URL)
             .textContentType(.URL)
             .textInputAutocapitalization(.never)
@@ -304,6 +311,11 @@ struct OnboardingView: View {
             .accessibilityIdentifier("onboarding.advanced.toggle")
 
             if isAdvancedExpanded {
+                HubFallbackURLInput(text: $fallbackURL)
+                    .padding()
+                    .background(.thinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: MonitoringRadius.control, style: .continuous))
+
                 certificateRow(
                     icon: "lock.shield",
                     subjectLabel: "onboarding.advanced.clientCertificate",
@@ -446,7 +458,7 @@ struct OnboardingView: View {
     }
 
     private func fetchAuthMethods() {
-        guard isValidURL else {
+        guard isValidURL, HubURL.isValidFallback(fallbackURL) else {
             self.errorMessage = String(localized: "onboarding.error.invalid_url")
             return
         }
@@ -454,16 +466,26 @@ struct OnboardingView: View {
         isLoading = true
         authMethods = nil
         errorMessage = nil
+        authMethodsRequestID = UUID()
+    }
 
-        Task {
-            do {
-                let methods = try await apiService.fetchAuthMethods(from: url)
-                self.authMethods = methods
-                self.navigateToLogin = true
-            } catch {
-                self.errorMessage = (error as? LocalizedError)?.errorDescription ?? String(localized: "common.error.unknown")
+    private func loadAuthMethods(requestID: UUID) async {
+        defer {
+            if authMethodsRequestID == requestID {
+                isLoading = false
+                authMethodsRequestID = nil
             }
-            self.isLoading = false
+        }
+        do {
+            let methods = try await apiService.fetchAuthMethods(from: url)
+            try Task.checkCancellation()
+            guard authMethodsRequestID == requestID else { return }
+            authMethods = methods
+            navigateToLogin = true
+        } catch {
+            guard !Task.isCancelled, authMethodsRequestID == requestID else { return }
+            if let error = error as? URLError, error.code == .cancelled { return }
+            errorMessage = (error as? LocalizedError)?.errorDescription ?? String(localized: "common.error.unknown")
         }
     }
 

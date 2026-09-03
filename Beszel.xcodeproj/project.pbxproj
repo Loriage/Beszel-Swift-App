@@ -112,6 +112,7 @@
 				Models/Domain/PinnedItem.swift,
 				Models/Domain/TimeRangeOption.swift,
 				Services/API/BeszelAPIService.swift,
+				Services/API/HubConnection.swift,
 				Services/API/OnboardingAPIService.swift,
 				Services/ClientCertificateManager.swift,
 				Services/CustomHeadersManager.swift,

@@ -160,6 +160,7 @@ struct NotificationSettingsView: View {
                 name: instance.name,
                 url: instance.url,
                 email: instance.email,
+                fallbackURL: instance.fallbackURL,
                 notifyWorkerURL: effectiveWorkerURL,
                 notifyWebhookSecret: webhookSecret
             )

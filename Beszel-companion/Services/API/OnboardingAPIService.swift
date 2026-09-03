@@ -2,10 +2,11 @@ import Foundation
 import Security
 
 struct OnboardingAPIService {
-    private let session: URLSession
+    private let connection: HubConnection
 
-    init(clientIdentity: SecIdentity? = nil, caCertificate: SecCertificate? = nil, customHeaders: [String: String] = [:]) {
-        if clientIdentity != nil || caCertificate != nil || !customHeaders.isEmpty {
+    init(baseURL: String, fallbackURL: String? = nil, clientIdentity: SecIdentity? = nil, caCertificate: SecCertificate? = nil, customHeaders: [String: String] = [:]) {
+        let session: URLSession
+        if clientIdentity != nil || caCertificate != nil || !customHeaders.isEmpty || HubURL.normalized(fallbackURL) != nil {
             let delegate = MTLSSessionDelegate(temporaryIdentity: clientIdentity, temporaryCACertificate: caCertificate)
             let config = URLSessionConfiguration.default
             config.timeoutIntervalForRequest = 15
@@ -13,9 +14,12 @@ struct OnboardingAPIService {
             if !customHeaders.isEmpty {
                 config.httpAdditionalHeaders = customHeaders
             }
-            self.session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
+            session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
         } else {
-            self.session = .shared
+            session = .shared
+        }
+        connection = HubConnection(baseURL: baseURL, fallbackURL: fallbackURL) { request in
+            try await session.data(for: request)
         }
     }
 
@@ -61,7 +65,7 @@ struct OnboardingAPIService {
         let requestURL = hubURL.appendingPathComponent("/api/collections/users/auth-methods")
 
         do {
-            let (data, response) = try await session.data(from: requestURL)
+            let (data, response) = try await connection.data(for: URLRequest(url: requestURL))
             if let httpResponse = response as? HTTPURLResponse,
                httpResponse.statusCode == 400 || httpResponse.statusCode == 403 {
                 throw OnboardingError.clientCertificateRequired
@@ -100,7 +104,7 @@ struct OnboardingAPIService {
         let body = TokenRequestBody(provider: provider.name, code: code, codeVerifier: provider.codeVerifier, redirectURL: "beszel-companion://redirect")
         request.httpBody = try JSONEncoder().encode(body)
 
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await connection.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse {
             if httpResponse.statusCode == 200 {
@@ -136,7 +140,7 @@ struct OnboardingAPIService {
         let body: [String: String] = ["identity": email, "password": password]
         request.httpBody = try JSONEncoder().encode(body)
 
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await connection.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse {
             if httpResponse.statusCode == 200 {
@@ -168,7 +172,7 @@ struct OnboardingAPIService {
         let body: [String: String] = ["email": email]
         request.httpBody = try JSONEncoder().encode(body)
 
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await connection.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw OnboardingError.authenticationFailed
@@ -193,7 +197,7 @@ struct OnboardingAPIService {
         ]
         request.httpBody = try JSONEncoder().encode(body)
 
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await connection.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw OnboardingError.authenticationFailed

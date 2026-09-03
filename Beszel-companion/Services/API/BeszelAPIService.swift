@@ -38,18 +38,13 @@ actor BeszelAPIService {
         return decoder
     }()
     
-    private let session: URLSession
+    private let connection: HubConnection
 
     init(instance: Instance, instanceManager: InstanceManager) {
         self.instance = instance
         self.instanceManager = instanceManager
 
-        var cleanUrl = instance.url.trimmingCharacters(in: .whitespacesAndNewlines)
-        if cleanUrl.hasSuffix("/") {
-            cleanUrl.removeLast()
-        }
-
-        self.baseURL = cleanUrl
+        self.baseURL = HubURL.normalized(instance.url) ?? instance.url
         self.email = instance.email
 
         let delegate = MTLSSessionDelegate(instanceId: instance.id)
@@ -60,7 +55,10 @@ actor BeszelAPIService {
         if !customHeaders.isEmpty {
             config.httpAdditionalHeaders = customHeaders
         }
-        self.session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
+        let session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
+        self.connection = HubConnection(baseURL: self.baseURL, fallbackURL: instance.fallbackURL) { request in
+            try await session.data(for: request)
+        }
     }
     
     private func getStoredCredential() -> String {
@@ -218,7 +216,7 @@ actor BeszelAPIService {
         let body: [String: String] = ["identity": self.email, "password": password]
         request.httpBody = try JSONEncoder().encode(body)
         
-        let (data, response) = try await self.session.data(for: request)
+        let (data, response) = try await connection.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw URLError(.userAuthenticationRequired)
@@ -237,7 +235,7 @@ actor BeszelAPIService {
         request.httpMethod = "POST"
         request.addValue("Bearer \(currentToken)", forHTTPHeaderField: "Authorization")
         
-        let (data, response) = try await self.session.data(for: request)
+        let (data, response) = try await connection.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw URLError(.userAuthenticationRequired)
@@ -262,7 +260,7 @@ actor BeszelAPIService {
         var request = URLRequest(url: url)
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
-        let (data, response) = try await self.session.data(for: request)
+        let (data, response) = try await connection.data(for: request)
         
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
             self.authToken = nil
@@ -273,7 +271,7 @@ actor BeszelAPIService {
             var retryRequest = request
             retryRequest.setValue("Bearer \(newToken)", forHTTPHeaderField: "Authorization")
             
-            let (retryData, retryResponse) = try await self.session.data(for: retryRequest)
+            let (retryData, retryResponse) = try await connection.data(for: retryRequest)
             
             if let retryHttpResponse = retryResponse as? HTTPURLResponse, retryHttpResponse.statusCode == 200 {
                 return try Self.jsonDecoder.decode(T.self, from: retryData)
@@ -359,7 +357,7 @@ actor BeszelAPIService {
     
     func fetchLatestSystemStats(systemID: String) async throws -> SystemStatsRecord? {
         guard var components = URLComponents(string: baseURL) else { throw URLError(.badURL) }
-        components.path = "/api/collections/system_stats/records"
+        components.percentEncodedPath += "/api/collections/system_stats/records"
         components.queryItems = [
             URLQueryItem(name: "perPage", value: "1"),
             URLQueryItem(name: "sort", value: "-created"),
@@ -387,7 +385,7 @@ actor BeszelAPIService {
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
         }
 
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await connection.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
             self.authToken = nil
@@ -397,7 +395,7 @@ actor BeszelAPIService {
             var retryRequest = request
             retryRequest.setValue("Bearer \(newToken)", forHTTPHeaderField: "Authorization")
 
-            let (retryData, retryResponse) = try await session.data(for: retryRequest)
+            let (retryData, retryResponse) = try await connection.data(for: retryRequest)
 
             guard let retryHttp = retryResponse as? HTTPURLResponse,
                   (200...299).contains(retryHttp.statusCode) else {
@@ -474,7 +472,7 @@ actor BeszelAPIService {
     
     func fetchLatestAlertHistory(limit: Int = 50) async throws -> [AlertHistoryRecord] {
         guard var components = URLComponents(string: baseURL) else { throw URLError(.badURL) }
-        components.path = "/api/collections/alerts_history/records"
+        components.percentEncodedPath += "/api/collections/alerts_history/records"
         components.queryItems = [
             URLQueryItem(name: "perPage", value: String(limit)),
             URLQueryItem(name: "sort", value: "-created")
@@ -491,7 +489,7 @@ actor BeszelAPIService {
     
     func fetchContainerLogs(systemID: String, containerID: String) async throws -> String {
         guard var components = URLComponents(string: baseURL) else { throw URLError(.badURL) }
-        components.path = "/api/beszel/containers/logs"
+        components.percentEncodedPath += "/api/beszel/containers/logs"
         components.queryItems = [
             URLQueryItem(name: "system", value: systemID),
             URLQueryItem(name: "container", value: containerID)
@@ -503,7 +501,7 @@ actor BeszelAPIService {
         var request = URLRequest(url: url)
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await connection.data(for: request)
         
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
             return String(data: data, encoding: .utf8) ?? ""
@@ -515,7 +513,7 @@ actor BeszelAPIService {
     
     func fetchContainerInfo(systemID: String, containerID: String) async throws -> String {
         guard var components = URLComponents(string: baseURL) else { throw URLError(.badURL) }
-        components.path = "/api/beszel/containers/info"
+        components.percentEncodedPath += "/api/beszel/containers/info"
         components.queryItems = [
             URLQueryItem(name: "system", value: systemID),
             URLQueryItem(name: "container", value: containerID)
@@ -527,7 +525,7 @@ actor BeszelAPIService {
         var request = URLRequest(url: url)
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await connection.data(for: request)
         
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
             if let json = try? JSONSerialization.jsonObject(with: data),
@@ -547,7 +545,7 @@ actor BeszelAPIService {
             throw URLError(.badURL)
         }
         
-        components.path = path
+        components.percentEncodedPath += path
         
         components.queryItems = [
             URLQueryItem(name: "perPage", value: "500"),

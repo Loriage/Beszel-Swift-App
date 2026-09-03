@@ -21,7 +21,7 @@ struct RootView: View {
         Group {
             if instanceManager.instances.isEmpty && !isLoadingStateForcedForUITesting {
                 OnboardingView { name, url, email, password, advanced in
-                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: advanced.clientCert, caCert: advanced.caCert, customHeaders: advanced.customHeaders)
+                    instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: advanced.clientCert, caCert: advanced.caCert, customHeaders: advanced.customHeaders, fallbackURL: advanced.fallbackURL)
                 }
             } else if let activeInstance = instanceManager.activeInstance {
                 if instanceManager.isLoadingSystems || isLoadingStateForcedForUITesting {

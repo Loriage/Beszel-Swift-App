@@ -106,11 +106,12 @@ final class InstanceManager {
     }
 
     func fetchSystemsForInstance(_ instance: Instance) async {
+        let requestID = systemsLoadRequestID
         isLoadingSystems = true
         loadError = nil
 
         defer {
-            if activeInstance?.id == instance.id {
+            if activeInstance?.id == instance.id, systemsLoadRequestID == requestID {
                 isLoadingSystems = false
             }
         }
@@ -120,7 +121,7 @@ final class InstanceManager {
         do {
             let (fetchedSystems, fetchedDetails) = try await fetchSystemsWithRetry(using: apiService)
             try Task.checkCancellation()
-            guard activeInstance?.id == instance.id else { return }
+            guard activeInstance?.id == instance.id, systemsLoadRequestID == requestID else { return }
 
             systems = fetchedSystems.sorted(by: { $0.name < $1.name })
             systemDetails = Dictionary(
@@ -134,7 +135,7 @@ final class InstanceManager {
         } catch let error as URLError where error.code == .cancelled {
             return
         } catch {
-            guard activeInstance?.id == instance.id else { return }
+            guard activeInstance?.id == instance.id, systemsLoadRequestID == requestID else { return }
             logger.error("Error fetching systems: \(error.localizedDescription)")
             loadError = error
             systems = []
@@ -256,8 +257,8 @@ final class InstanceManager {
         updateActiveSystem()
     }
     
-    func addInstance(name: String, url: String, email: String, password: String, clientCert: ClientCertificatePayload? = nil, caCert: ServerCACertificatePayload? = nil, customHeaders: [String: String] = [:]) {
-        let newInstance = Instance(id: UUID(), name: name, url: url, email: email, notifyWorkerURL: nil, notifyWebhookSecret: nil)
+    func addInstance(name: String, url: String, email: String, password: String, clientCert: ClientCertificatePayload? = nil, caCert: ServerCACertificatePayload? = nil, customHeaders: [String: String] = [:], fallbackURL: String? = nil) {
+        let newInstance = Instance(id: UUID(), name: name, url: url, email: email, fallbackURL: HubURL.normalized(fallbackURL), notifyWorkerURL: nil, notifyWebhookSecret: nil)
         saveCredential(credential: password, for: newInstance)
         if let cert = clientCert {
             try? ClientCertificateManager.store(p12Data: cert.p12Data, password: cert.password, for: newInstance.id)
@@ -277,13 +278,14 @@ final class InstanceManager {
         saveCredential(credential: newCredential, for: instance)
     }
     
-    func updateInstance(_ instance: Instance, name: String, url: String, email: String, password: String) {
+    func updateInstance(_ instance: Instance, name: String, url: String, email: String, password: String, fallbackURL: String?) {
         guard let index = instances.firstIndex(where: { $0.id == instance.id }) else { return }
         let updatedInstance = Instance(
             id: instance.id,
             name: name,
             url: url,
             email: email,
+            fallbackURL: HubURL.normalized(fallbackURL),
             notifyWorkerURL: instance.notifyWorkerURL,
             notifyWebhookSecret: instance.notifyWebhookSecret
         )
@@ -295,6 +297,18 @@ final class InstanceManager {
         if activeInstance?.id == instance.id {
             requestSystemsReload()
         }
+    }
+
+    func updateFallbackURL(for instanceID: UUID, fallbackURL: String?) throws {
+        let normalized = HubURL.normalized(fallbackURL)
+        guard normalized.map({ HubURL.baseURL($0) != nil }) ?? true else { throw URLError(.badURL) }
+        guard let index = instances.firstIndex(where: { $0.id == instanceID }) else { return }
+        // Update the current stored value, preserving credentials, notification
+        // settings, and any other edits made while the settings sheet was open.
+        instances[index].fallbackURL = normalized
+        saveInstances()
+        updateActiveInstance()
+        if activeInstance?.id == instanceID { requestSystemsReload() }
     }
 
     func updateInstanceNotificationSettings(_ instance: Instance, workerURL: String, webhookSecret: String) {
@@ -310,6 +324,7 @@ final class InstanceManager {
             name: instance.name,
             url: instance.url,
             email: instance.email,
+            fallbackURL: instances[index].fallbackURL,
             notifyWorkerURL: workerURL.isEmpty ? nil : workerURL,
             notifyWebhookSecret: normalizedSecret
         )

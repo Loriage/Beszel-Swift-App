@@ -5894,6 +5894,36 @@
         }
       }
     },
+    "hub.fallback.description" : {
+      "comment" : "Explains the optional second address of the same hub and its shared security settings.",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Optional alternative address for the same hub, such as Tailscale. Uses the same sign-in, certificates and headers when the primary address cannot be reached." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Adresse alternative facultative du même hub, par exemple via Tailscale. Utilise les mêmes identifiants, certificats et en-têtes si l’adresse principale est inaccessible." } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Opcjonalny alternatywny adres tego samego huba, np. przez Tailscale. Używa tych samych danych logowania, certyfikatów i nagłówków, gdy główny adres jest niedostępny." } }
+      }
+    },
+    "hub.fallback.invalidURL" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter a complete http:// or https:// URL without login details, a query or a fragment." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Saisissez une URL complète en http:// ou https://, sans identifiants, paramètres de requête ni fragment." } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wprowadź pełny adres URL z http:// lub https://, bez danych logowania, parametrów zapytania ani fragmentu." } }
+      }
+    },
+    "hub.fallback.placeholder" : {
+      "comment" : "Example URL, not a real server address.",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "http://100.x.x.x:8090" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "http://100.x.x.x:8090" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "http://100.x.x.x:8090" } }
+      }
+    },
+    "hub.fallback.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fallback URL" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "URL de secours" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Zapasowy adres URL" } }
+      }
+    },
     "Instance" : {
       "localizations" : {
         "en" : {

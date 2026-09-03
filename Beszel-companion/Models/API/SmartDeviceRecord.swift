@@ -26,6 +26,14 @@ nonisolated struct SmartDeviceRecord: Identifiable, Codable, Sendable {
         return u == "FAILED" || u == "FAILING"
     }
 
+    var isWarning: Bool { state?.uppercased() == "WARNING" }
+
+    var healthSymbol: String {
+        if isFailed { return "xmark.circle.fill" }
+        if isWarning { return "exclamationmark.triangle.fill" }
+        return isPassed ? "checkmark.circle.fill" : "questionmark.circle"
+    }
+
     var formattedCapacity: String? {
         guard let cap = capacity, cap > 0 else { return nil }
         let gb = Double(cap) / 1_000_000_000.0

@@ -22,11 +22,11 @@ nonisolated struct AlertHistoryRecord: Codable, Identifiable, Hashable, Sendable
 
 extension AlertHistoryRecord {
     var alertType: AlertType {
-        AlertType(rawValue: name) ?? .status
+        AlertType.classify(name)
     }
 
     var displayName: String {
-        alertType.displayName
+        alertType.displayName(for: name)
     }
 
     var displayNameKey: String {

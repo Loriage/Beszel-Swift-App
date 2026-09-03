@@ -317,6 +317,34 @@ actor BeszelAPIService {
         try await fetchAllPages(path: "/api/collections/systems/records", filter: nil)
     }
 
+    func fetchHubInfo() async throws -> HubInfo? {
+        for path in ["/api/beszel/info", "/api/beszel/getkey"] {
+            guard let url = URL(string: baseURL + path) else { throw URLError(.badURL) }
+            do {
+                return try await performRequest(with: url)
+            } catch BeszelAPIError.httpError(statusCode: 404) {
+                // Older hubs used getkey, or exposed no version endpoint.
+                continue
+            }
+        }
+        return nil
+    }
+
+    func fetchZFSPools(systemID: String) async throws -> [ZFSPoolRecord] {
+        // IDs come from a system record, never a user-entered pool name.
+        guard !systemID.isEmpty, systemID.utf8.allSatisfy({
+            (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0)
+        }) else { throw URLError(.badURL) }
+        do {
+            return try await fetchAllPages(
+                path: "/api/collections/zfs_pools/records",
+                filter: "system = '\(systemID)'"
+            )
+        } catch BeszelAPIError.httpError(statusCode: 404) {
+            return []
+        }
+    }
+
     /// Fetches system details from the new endpoint (Beszel agent 0.18.0+).
     /// Returns empty array for servers running older agents that don't have this endpoint.
     func fetchSystemDetails() async throws -> [SystemDetailsRecord] {

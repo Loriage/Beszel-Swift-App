@@ -9,6 +9,14 @@ struct RootView: View {
 
     @State private var isShowingSettings = false
 
+    private var isCompatibilityUITesting: Bool {
+#if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--ui-testing-beszel019")
+#else
+        false
+#endif
+    }
+
     private var isLoadingStateForcedForUITesting: Bool {
 #if DEBUG
         ProcessInfo.processInfo.arguments.contains("--ui-testing-loading-systems")
@@ -19,7 +27,11 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if instanceManager.instances.isEmpty && !isLoadingStateForcedForUITesting {
+            if isCompatibilityUITesting {
+#if DEBUG
+                Beszel019UITestView(legacy: ProcessInfo.processInfo.arguments.contains("--legacy-hub"))
+#endif
+            } else if instanceManager.instances.isEmpty && !isLoadingStateForcedForUITesting {
                 OnboardingView { name, url, email, password, advanced in
                     instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: advanced.clientCert, caCert: advanced.caCert, customHeaders: advanced.customHeaders, fallbackURL: advanced.fallbackURL)
                 }
@@ -57,6 +69,7 @@ struct RootView: View {
                 .environment(alertManager)
         }
         .task(id: instanceManager.systemsLoadRequestID) {
+            guard !isCompatibilityUITesting else { return }
             guard let instance = instanceManager.activeInstance else { return }
             await instanceManager.fetchSystemsForInstance(instance)
         }

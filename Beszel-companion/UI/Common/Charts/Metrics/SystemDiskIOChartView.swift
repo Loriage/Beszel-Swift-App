@@ -8,6 +8,7 @@ struct SystemDiskIOChartView: View {
     let xAxisFormat: Date.FormatStyle
 
     var systemName: String? = nil
+    var diskName: String? = nil
     
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
@@ -17,6 +18,9 @@ struct SystemDiskIOChartView: View {
             VStack(alignment: .leading, spacing: 2) {
                 (Text("chart.diskIO") + Text(" (MB/s)"))
                     .font(.headline)
+                if let diskName, !diskName.isEmpty {
+                    Text(verbatim: diskName).font(.subheadline)
+                }
                 if systemName == nil {
                     Text("chart.diskIO.subtitle")
                         .font(.caption2)

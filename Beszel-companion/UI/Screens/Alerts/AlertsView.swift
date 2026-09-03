@@ -138,6 +138,7 @@ struct AlertHistoryView: View {
 struct ConfiguredAlertsView: View {
     @Environment(AlertManager.self) var alertManager
     @Environment(InstanceManager.self) var instanceManager
+    @Environment(BeszelStore.self) private var store
     
     @State private var selectedSystemID: String?
     @State private var alertStates: [AlertType: AlertTypeState] = [:]
@@ -148,6 +149,17 @@ struct ConfiguredAlertsView: View {
         var threshold: Double = 50
         var duration: Double = 1
         var alertRecordId: String?
+    }
+
+    private var availableTypes: [AlertType] {
+        let system = instanceManager.systems.first { $0.id == selectedSystemID }
+        let info = instanceManager.activeInstance.flatMap { alertManager.hubInfoByInstance[$0.id] }
+        let stats = selectedSystemID.flatMap { store.latestStats(for: $0)?.stats }
+        return AlertType.allCases.filter { type in
+            // An existing rule stays manageable if its agent is offline or downgraded.
+            type.isConfigurable && (alertStates[type]?.alertRecordId != nil ||
+                type.isAvailable(hubInfo: info, system: system, stats: stats))
+        }
     }
     
     var body: some View {
@@ -167,6 +179,7 @@ struct ConfiguredAlertsView: View {
             debounceTask.removeAll()
             loadExistingAlerts()
         }
+        .onChange(of: alertManager.alerts) { loadExistingAlerts() }
         .onDisappear {
             debounceTask.values.forEach { $0.cancel() }
             debounceTask.removeAll()
@@ -203,7 +216,7 @@ struct ConfiguredAlertsView: View {
         } else {
             ScrollView {
                 LazyVStack(spacing: 12) {
-                    ForEach(AlertType.allCases) { type in
+                    ForEach(availableTypes) { type in
                         alertTypeCard(for: type)
                     }
                 }
@@ -277,17 +290,19 @@ struct ConfiguredAlertsView: View {
             }
         }
         
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text("alerts.form.duration")
-                    .font(.subheadline)
-                Spacer()
-                Text("\(Int(state.duration)) min")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+        if type.supportsDuration {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text("alerts.form.duration")
+                        .font(.subheadline)
+                    Spacer()
+                    Text("\(Int(state.duration)) min")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                Slider(value: durationBinding(for: type), in: 1...60, step: 1)
+                    .tint(.accentColor)
             }
-            Slider(value: durationBinding(for: type), in: 1...60, step: 1)
-                .tint(.accentColor)
         }
     }
     
@@ -327,11 +342,11 @@ struct ConfiguredAlertsView: View {
     
     private func thresholdRange(for type: AlertType) -> ClosedRange<Double> {
         switch type {
-        case .cpu, .memory, .disk, .gpu, .battery: return 1...99
+        case .cpu, .cpuIOWait, .cpuSteal, .memory, .disk, .gpu, .battery: return 1...99
         case .bandwidth: return 1...125
         case .temperature: return 1...100
         case .loadAverage1m, .loadAverage5m, .loadAverage15m: return 1...100
-        case .status: return 0...1
+        case .status, .containerHealth, .systemdFailed, .zfsPool, .other: return 0...1
         }
     }
     
@@ -349,7 +364,7 @@ struct ConfiguredAlertsView: View {
         let existingAlerts = alertManager.alertsForSystem(systemID)
         
         var newStates: [AlertType: AlertTypeState] = [:]
-        for type in AlertType.allCases {
+        for type in AlertType.allCases where type.isConfigurable {
             if let alert = existingAlerts.first(where: { $0.alertType == type }) {
                 newStates[type] = AlertTypeState(
                     isEnabled: true,
@@ -370,7 +385,7 @@ struct ConfiguredAlertsView: View {
         
         let state = alertStates[type] ?? AlertTypeState()
         let thresholdValue: Double = type.needsThreshold ? state.threshold : 0
-        let durationValue: Double = state.duration
+        let durationValue: Double = type.supportsDuration ? state.duration : 0
         
         Task {
             do {
@@ -382,11 +397,13 @@ struct ConfiguredAlertsView: View {
                     instance: instance,
                     instanceManager: instanceManager
                 )
+                guard selectedSystemID == systemID, instanceManager.activeInstance?.id == instance.id else { return }
                 let alerts = alertManager.alertsForSystem(systemID)
                 if let created = alerts.first(where: { $0.alertType == type }) {
                     alertStates[type]?.alertRecordId = created.id
                 }
             } catch {
+                guard selectedSystemID == systemID, instanceManager.activeInstance?.id == instance.id else { return }
                 alertStates[type]?.isEnabled = false
                 alertManager.errorMessage = error.localizedDescription
             }
@@ -394,7 +411,8 @@ struct ConfiguredAlertsView: View {
     }
     
     private func deleteAlert(for type: AlertType) {
-        guard let recordId = alertStates[type]?.alertRecordId,
+        guard let systemID = selectedSystemID,
+              let recordId = alertStates[type]?.alertRecordId,
               let instance = instanceManager.activeInstance else { return }
         
         Task {
@@ -404,8 +422,10 @@ struct ConfiguredAlertsView: View {
                     instance: instance,
                     instanceManager: instanceManager
                 )
+                guard selectedSystemID == systemID, instanceManager.activeInstance?.id == instance.id else { return }
                 alertStates[type]?.alertRecordId = nil
             } catch {
+                guard selectedSystemID == systemID, instanceManager.activeInstance?.id == instance.id else { return }
                 alertStates[type]?.isEnabled = true
                 alertManager.errorMessage = error.localizedDescription
             }
@@ -439,7 +459,7 @@ struct ConfiguredAlertsView: View {
                 system: systemID,
                 name: type.rawValue,
                 value: thresholdValue,
-                min: state.duration,
+                min: type.supportsDuration ? state.duration : 0,
                 instance: instance,
                 instanceManager: instanceManager
             )

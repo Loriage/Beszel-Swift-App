@@ -1,6 +1,908 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+  "alerts.type.name.cpuIOWait": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "CPU I/O Wait"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Attente E/S CPU"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Oczekiwanie CPU na We/Wy"
+        }
+      }
+    }
+  },
+  "alerts.type.name.cpuSteal": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "CPU Steal"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "CPU volé"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Skradziony czas CPU"
+        }
+      }
+    }
+  },
+  "alerts.type.name.containerHealth": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Container Health"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Santé des conteneurs"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Kondycja kontenerów"
+        }
+      }
+    }
+  },
+  "alerts.type.name.systemdFailed": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Failed systemd Services"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Services systemd en échec"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Uszkodzone usługi systemd"
+        }
+      }
+    }
+  },
+  "alerts.type.name.zfsPool": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ZFS Pool Health"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Santé des pools ZFS"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Kondycja pul ZFS"
+        }
+      }
+    }
+  },
+  "alerts.type.name.other": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Other Alerts"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Autres alertes"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Inne alerty"
+        }
+      }
+    }
+  },
+  "alerts.type.description.cpuIOWait": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Alert when CPU I/O wait exceeds a threshold."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Alerter lorsque l’attente E/S du CPU dépasse un seuil."
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Powiadom, gdy czas oczekiwania CPU na We/Wy przekroczy próg."
+        }
+      }
+    }
+  },
+  "alerts.type.description.cpuSteal": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Alert when stolen CPU time exceeds a threshold."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Alerter lorsque le temps CPU volé dépasse un seuil."
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Powiadom, gdy skradziony czas CPU przekroczy próg."
+        }
+      }
+    }
+  },
+  "alerts.type.description.containerHealth": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Alert when a container becomes unhealthy."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Alerter lorsqu’un conteneur devient défaillant."
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Powiadom, gdy kontener zgłosi zły stan."
+        }
+      }
+    }
+  },
+  "alerts.type.description.systemdFailed": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Alert on the first observed failed service. The agent checks systemd every 10 minutes."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Alerter dès qu’un service en échec est détecté. L’agent vérifie systemd toutes les 10 minutes."
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Powiadom po wykryciu uszkodzonej usługi. Agent sprawdza systemd co 10 minut."
+        }
+      }
+    }
+  },
+  "alerts.type.description.zfsPool": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ZFS pool health changed."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "L’état de santé du pool ZFS a changé."
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Zmienił się stan puli ZFS."
+        }
+      }
+    }
+  },
+  "alerts.description.stateDuration %lld": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Duration: %lld min"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Durée : %lld min"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Czas trwania: %lld min"
+        }
+      }
+    }
+  },
+  "chart.disk.cumulativeRead": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Cumulative Read"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Lectures cumulées"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Odczyt łącznie"
+        }
+      }
+    }
+  },
+  "chart.disk.cumulativeWrite": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Cumulative Write"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Écritures cumulées"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Zapis łącznie"
+        }
+      }
+    }
+  },
+  "chart.disk.cumulativeRead.subtitle": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Data read since boot"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Données lues depuis le démarrage"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Dane odczytane od uruchomienia"
+        }
+      }
+    }
+  },
+  "chart.disk.cumulativeWrite.subtitle": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Data written since boot"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Données écrites depuis le démarrage"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Dane zapisane od uruchomienia"
+        }
+      }
+    }
+  },
+  "widget.chart.extraDiskCumulativeRead": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Additional Disks · Cumulative Read"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Disques supplémentaires · Lectures cumulées"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Dodatkowe dyski · Odczyt łącznie"
+        }
+      }
+    }
+  },
+  "widget.chart.extraDiskCumulativeWrite": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Additional Disks · Cumulative Write"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Disques supplémentaires · Écritures cumulées"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Dodatkowe dyski · Zapis łącznie"
+        }
+      }
+    }
+  },
+  "widget.chart.zfsUsage": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ZFS Pool Usage"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Utilisation des pools ZFS"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Wykorzystanie pul ZFS"
+        }
+      }
+    }
+  },
+  "widget.chart.zfsIO": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ZFS Pool I/O"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "E/S des pools ZFS"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "We/Wy pul ZFS"
+        }
+      }
+    }
+  },
+  "widget.category.diskTotals": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Disk Totals"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Totaux des disques"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Łączne dane dysków"
+        }
+      }
+    }
+  },
+  "zfs.title": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ZFS Pools"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Pools ZFS"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Pule ZFS"
+        }
+      }
+    }
+  },
+  "zfs.health": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Health"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Santé"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Kondycja"
+        }
+      }
+    }
+  },
+  "zfs.usage": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Pool Usage"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Utilisation du pool"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Wykorzystanie puli"
+        }
+      }
+    }
+  },
+  "zfs.usage.subtitle": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Allocated pool storage"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Stockage alloué dans le pool"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Przydzielona przestrzeń puli"
+        }
+      }
+    }
+  },
+  "zfs.io": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Pool I/O"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "E/S du pool"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "We/Wy puli"
+        }
+      }
+    }
+  },
+  "zfs.io.subtitle": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Read and write throughput"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Débits de lecture et d’écriture"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Przepustowość odczytu i zapisu"
+        }
+      }
+    }
+  },
+  "zfs.allocated": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Allocated"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Alloué"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Przydzielone"
+        }
+      }
+    }
+  },
+  "zfs.free": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Available"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Disponible"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Dostępne"
+        }
+      }
+    }
+  },
+  "zfs.scrub": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Scrub"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Vérification (scrub)"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Weryfikacja (scrub)"
+        }
+      }
+    }
+  },
+  "zfs.state": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "State"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "État"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Stan"
+        }
+      }
+    }
+  },
+  "zfs.progress": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Progress"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Progression"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Postęp"
+        }
+      }
+    }
+  },
+  "zfs.errors": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Errors"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Erreurs"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Błędy"
+        }
+      }
+    }
+  },
+  "zfs.devices": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Devices"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Périphériques"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Urządzenia"
+        }
+      }
+    }
+  },
+  "zfs.datasets": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Datasets"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Jeux de données"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Zbiory danych"
+        }
+      }
+    }
+  },
+  "zfs.errors.read": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Read errors"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Erreurs de lecture"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Błędy odczytu"
+        }
+      }
+    }
+  },
+  "zfs.errors.write": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Write errors"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Erreurs d’écriture"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Błędy zapisu"
+        }
+      }
+    }
+  },
+  "zfs.errors.checksum": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Checksum errors"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Erreurs de somme de contrôle"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Błędy sumy kontrolnej"
+        }
+      }
+    }
+  },
+  "zfs.details.updated": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Details updated"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Détails mis à jour"
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Aktualizacja szczegółów"
+        }
+      }
+    }
+  },
+  "zfs.details.unavailable": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Pool details could not be refreshed. Pull to refresh the System tab to retry."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Les détails du pool n’ont pas pu être actualisés. Actualisez l’onglet Système pour réessayer."
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Nie udało się odświeżyć szczegółów puli. Odśwież kartę System, aby spróbować ponownie."
+        }
+      }
+    }
+  },
+  "zfs.details.pending": {
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Pool details have not been reported yet."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Les détails du pool n’ont pas encore été reçus."
+        }
+      },
+      "pl": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Szczegóły puli nie zostały jeszcze zgłoszone."
+        }
+      }
+    }
+  },
     "" : {
 
     },

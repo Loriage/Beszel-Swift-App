@@ -28,6 +28,20 @@ struct SystemView: View {
                         .padding(.horizontal)
                 }
 
+                if !store.zfsPoolNames.isEmpty {
+                    ZFSPoolsCard(
+                        names: store.zfsPoolNames,
+                        stats: store.latestSystemStats?.stats.zfsPools ?? [:],
+                        records: store.zfsPools,
+                        dataPoints: store.systemDataPoints,
+                        xAxisFormat: store.xAxisFormat,
+                        detailsUnavailable: store.zfsDetailsUnavailable
+                    )
+                    .environment(\.chartXDomain, store.xDomain)
+                    .environment(\.chartShowXGridLines, settingsManager.showChartGridLines)
+                    .padding(.horizontal)
+                }
+
                 VStack(alignment: .leading, spacing: 16) {
                     SystemCpuSummaryChartView(
                         dataPoints: store.systemDataPoints,
@@ -46,12 +60,14 @@ struct SystemView: View {
                     )
                     DiskIOSummaryChartView(
                         dataPoints: store.systemDataPoints,
-                        systemID: instanceManager.activeSystem?.id
+                        systemID: instanceManager.activeSystem?.id,
+                        diskName: instanceManager.activeSystem?.info?.rdn
                     )
                     if store.hasDiskUsageData {
                         SystemDiskUsageChartView(
                             dataPoints: store.systemDataPoints,
                             xAxisFormat: store.xAxisFormat,
+                            diskName: instanceManager.activeSystem?.info?.rdn,
                             isPinned: store.isPinned(.systemDiskUsage),
                             onPinToggle: { store.togglePin(for: .systemDiskUsage) }
                         )

@@ -90,3 +90,24 @@ actor WidgetContainerCatalog {
         return records
     }
 }
+
+actor WidgetSystemStatsCatalog {
+    private var instanceID: UUID?
+    private var systemID: String?
+    private var cachedRecord: SystemStatsRecord?
+    private var expiresAt = Date.distantPast
+
+    func record(connection: WidgetQueryConnection, systemID: String) async throws -> SystemStatsRecord? {
+        try Task.checkCancellation()
+        if instanceID == connection.instanceID, self.systemID == systemID, expiresAt > .now {
+            return cachedRecord
+        }
+        let record = try await connection.apiService.fetchLatestSystemStats(systemID: systemID)
+        try Task.checkCancellation()
+        instanceID = connection.instanceID
+        self.systemID = systemID
+        cachedRecord = record
+        expiresAt = .now.addingTimeInterval(30)
+        return record
+    }
+}

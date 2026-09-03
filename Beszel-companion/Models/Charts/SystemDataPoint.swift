@@ -1,5 +1,10 @@
 import Foundation
 
+nonisolated struct DiskIOTotals: Equatable, Sendable {
+    let read: Double
+    let write: Double
+}
+
 struct DiskIOStats: Sendable {
     let readTimePct: Double    // read time %
     let writeTimePct: Double   // write time %
@@ -29,6 +34,8 @@ struct SystemDataPoint: Identifiable, Sendable {
     let gpuMetrics: [GPUMetricPoint]
     let networkInterfaces: [NetworkInterfacePoint]
     let extraFilesystems: [ExtraFilesystemPoint]
+    var diskIOTotals: DiskIOTotals? = nil
+    var zfsPools: [String: ZFSPoolStats] = [:]
 
 }
 
@@ -63,6 +70,8 @@ struct ExtraFilesystemPoint: Identifiable, Sendable {
     let diskRead: Double?      // Disk read (bytes/s)
     let diskWrite: Double?     // Disk write (bytes/s)
     let diskIOStats: DiskIOStats?
+    var totalRead: Double? = nil
+    var totalWrite: Double? = nil
 }
 
 extension Array where Element == SystemDataPoint {
@@ -282,7 +291,9 @@ extension Array where Element == SystemDataPoint {
                 percent: data.percent / c,
                 diskRead: ioC > 0 ? data.diskRead / ioC : nil,
                 diskWrite: ioC > 0 ? data.diskWrite / ioC : nil,
-                diskIOStats: avgDios
+                diskIOStats: avgDios,
+                totalRead: points.reversed().compactMap { $0.extraFilesystems.first(where: { $0.name == name })?.totalRead }.first,
+                totalWrite: points.reversed().compactMap { $0.extraFilesystems.first(where: { $0.name == name })?.totalWrite }.first
             )
         }
 
@@ -308,6 +319,22 @@ extension Array where Element == SystemDataPoint {
             avgCpuPerCore = nil
         }
 
+        var zfsPools: [String: ZFSPoolStats] = [:]
+        let poolNames = Set(points.flatMap { $0.zfsPools.keys })
+        for name in poolNames {
+            let samples = points.compactMap { $0.zfsPools[name] }
+            func average(_ values: [Double]) -> Double? {
+                values.isEmpty ? nil : values.reduce(0, +) / Double(values.count)
+            }
+            zfsPools[name] = ZFSPoolStats(
+                d: samples.last?.d,
+                du: average(samples.compactMap(\.du)),
+                rb: average(samples.map { $0.rb ?? 0 }),
+                wb: average(samples.map { $0.wb ?? 0 }),
+                h: samples.last?.h
+            )
+        }
+
         return SystemDataPoint(
             date: firstDate,
             cpu: avgCpu,
@@ -323,7 +350,10 @@ extension Array where Element == SystemDataPoint {
             swap: avgSwap,
             gpuMetrics: avgGpuMetrics,
             networkInterfaces: avgNetInterfaces,
-            extraFilesystems: avgExtraFs
+            extraFilesystems: avgExtraFs,
+            // Counters must keep the latest sample, including decreases after reboot.
+            diskIOTotals: points.reversed().compactMap(\.diskIOTotals).first,
+            zfsPools: zfsPools
         )
     }
 }

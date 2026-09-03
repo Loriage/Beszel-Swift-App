@@ -13,6 +13,10 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
     case systemDiskIOTimes
     case systemDiskAwait
     case systemDiskIOQueueDepth
+    case systemDiskCumulativeRead
+    case systemDiskCumulativeWrite
+    case zfsPoolUsage
+    case zfsPoolIO
     case systemBandwidth
     case systemBandwidthDownload
     case systemBandwidthUpload
@@ -28,6 +32,8 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
     case extraDiskIOTimes
     case extraDiskAwait
     case extraDiskIOQueueDepth
+    case extraDiskCumulativeRead
+    case extraDiskCumulativeWrite
     case containerCPU
     case containerMemory
     case containerNetwork
@@ -41,6 +47,9 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         case .systemMemory, .systemSwap: .memory
         case .systemDiskUsage, .systemDiskIO, .systemDiskIOUtilization, .systemDiskIOTimes,
              .systemDiskAwait, .systemDiskIOQueueDepth: .disk
+        case .systemDiskCumulativeRead, .systemDiskCumulativeWrite,
+             .extraDiskCumulativeRead, .extraDiskCumulativeWrite: .diskTotals
+        case .zfsPoolUsage, .zfsPoolIO: .zfs
         case .extraDiskUsage, .extraDiskIO, .extraDiskIOUtilization, .extraDiskIOTimes,
              .extraDiskAwait, .extraDiskIOQueueDepth: .additionalDisks
         case .systemBandwidth, .systemBandwidthDownload, .systemBandwidthUpload,
@@ -81,6 +90,10 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         case .systemDiskIOTimes: "pinned.item.system.disk.times"
         case .systemDiskAwait: "pinned.item.system.disk.await"
         case .systemDiskIOQueueDepth: "pinned.item.system.disk.queuedepth"
+        case .systemDiskCumulativeRead: "chart.disk.cumulativeRead"
+        case .systemDiskCumulativeWrite: "chart.disk.cumulativeWrite"
+        case .zfsPoolUsage: "widget.chart.zfsUsage"
+        case .zfsPoolIO: "widget.chart.zfsIO"
         case .systemBandwidth: "pinned.item.system.bandwidth"
         case .systemBandwidthDownload: "pinned.item.system.bandwidth.download"
         case .systemBandwidthUpload: "pinned.item.system.bandwidth.upload"
@@ -96,6 +109,8 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         case .extraDiskIOTimes: "widget.chart.extraDiskIOTimes.title"
         case .extraDiskAwait: "widget.chart.extraDiskAwait.title"
         case .extraDiskIOQueueDepth: "widget.chart.extraDiskIOQueueDepth.title"
+        case .extraDiskCumulativeRead: "widget.chart.extraDiskCumulativeRead"
+        case .extraDiskCumulativeWrite: "widget.chart.extraDiskCumulativeWrite"
         case .containerCPU: "pinned.item.stacked.cpu"
         case .containerMemory: "pinned.item.stacked.memory"
         case .containerNetwork: "pinned.item.stacked.network"
@@ -113,14 +128,15 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         case .systemMemory, .systemSwap, .containerMemory: "memorychip"
         case .systemTemperature: "thermometer.medium"
         case .systemDiskUsage, .systemDiskIO, .systemDiskIOUtilization, .systemDiskIOTimes,
-             .systemDiskAwait, .systemDiskIOQueueDepth: "internaldrive"
+             .systemDiskAwait, .systemDiskIOQueueDepth, .systemDiskCumulativeRead, .systemDiskCumulativeWrite: "internaldrive"
+        case .zfsPoolUsage, .zfsPoolIO: "externaldrive.badge.checkmark"
         case .systemBandwidth, .systemNetworkInterfaces, .containerNetwork: "network"
         case .systemBandwidthDownload, .systemBandwidthCumulativeDownload: "arrow.down.circle"
         case .systemBandwidthUpload, .systemBandwidthCumulativeUpload: "arrow.up.circle"
         case .systemLoadAverage: "waveform.path.ecg"
         case .systemGPU: "display"
         case .extraDiskUsage, .extraDiskIO, .extraDiskIOUtilization, .extraDiskIOTimes,
-             .extraDiskAwait, .extraDiskIOQueueDepth: "externaldrive"
+             .extraDiskAwait, .extraDiskIOQueueDepth, .extraDiskCumulativeRead, .extraDiskCumulativeWrite: "externaldrive"
         }
     }
 
@@ -132,6 +148,17 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
             false
         }
     }
+
+    /// Only new 0.19 choices are gated; older widget configurations retain their behavior.
+    nonisolated func isSupported(by stats: SystemStatsDetail?) -> Bool {
+        switch self {
+        case .zfsPoolUsage, .zfsPoolIO: stats?.zfsPools?.isEmpty == false
+        case .systemDiskCumulativeRead, .systemDiskCumulativeWrite: (stats?.diskIOTotals?.count ?? 0) >= 2
+        case .extraDiskCumulativeRead: stats?.extraFilesystems?.values.contains { $0.tr != nil } == true
+        case .extraDiskCumulativeWrite: stats?.extraFilesystems?.values.contains { $0.tw != nil } == true
+        default: true
+        }
+    }
 }
 
 public nonisolated enum WidgetChartCategory: String, CaseIterable, Sendable {
@@ -140,6 +167,8 @@ public nonisolated enum WidgetChartCategory: String, CaseIterable, Sendable {
     case memory
     case disk
     case additionalDisks
+    case zfs
+    case diskTotals
     case network
     case sensors
 
@@ -150,6 +179,8 @@ public nonisolated enum WidgetChartCategory: String, CaseIterable, Sendable {
         case .memory: "widget.category.memory"
         case .disk: "widget.category.disk"
         case .additionalDisks: "widget.category.additionalDisks"
+        case .zfs: "zfs.title"
+        case .diskTotals: "widget.category.diskTotals"
         case .network: "widget.category.network"
         case .sensors: "widget.category.sensors"
         }

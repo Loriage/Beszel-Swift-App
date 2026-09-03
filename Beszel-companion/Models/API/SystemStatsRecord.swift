@@ -52,6 +52,8 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
     let extraFilesystems: [String: ExtraFsStats]?
     let gpu: [String: GPUData]?
     let battery: [Double]?            // [percent, state]
+    var diskIOTotals: [Double]? = nil  // cumulative read/write bytes since boot (0.19+)
+    var zfsPools: [String: ZFSPoolStats]? = nil
 
     enum CodingKeys: String, CodingKey {
         case cpu
@@ -90,6 +92,8 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
         case extraFilesystems = "efs"
         case gpu = "g"
         case battery = "bat"
+        case diskIOTotals = "diot"
+        case zfsPools = "z"
     }
 }
 
@@ -102,9 +106,11 @@ nonisolated struct ExtraFsStats: Codable, Sendable {
     let rb: Double?        // disk read (bytes)
     let wb: Double?        // disk write (bytes)
     let diskIOStats: [Double]?  // [read_time%, write_time%, io_util%, r_await_ms, w_await_ms, weighted_io%]
+    var tr: Double? = nil      // cumulative bytes read (0.19+)
+    var tw: Double? = nil      // cumulative bytes written (0.19+)
 
     enum CodingKeys: String, CodingKey {
-        case d, du, dp, r, w, rb, wb
+        case d, du, dp, r, w, rb, wb, tr, tw
         case diskIOStats = "dios"
     }
 }
@@ -307,7 +313,9 @@ extension Array where Element == SystemStatsRecord {
                     percent: percent,
                     diskRead: diskRead,
                     diskWrite: diskWrite,
-                    diskIOStats: extraDiskIOStats
+                    diskIOStats: extraDiskIOStats,
+                    totalRead: data.tr,
+                    totalWrite: data.tw
                 )
             }
 
@@ -326,7 +334,11 @@ extension Array where Element == SystemStatsRecord {
                 swap: swapTuple,
                 gpuMetrics: gpuMetrics,
                 networkInterfaces: networkInterfaces,
-                extraFilesystems: extraFilesystems
+                extraFilesystems: extraFilesystems,
+                diskIOTotals: stats.diskIOTotals.flatMap { values in
+                    values.count >= 2 ? DiskIOTotals(read: values[0], write: values[1]) : nil
+                },
+                zfsPools: stats.zfsPools ?? [:]
             )
         }.sorted(by: { $0.date < $1.date })
     }

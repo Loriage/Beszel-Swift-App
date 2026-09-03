@@ -5,6 +5,7 @@ struct DiskIOSummaryChartView: View {
     let dataPoints: [SystemDataPoint]
     let systemID: String?
     var systemName: String? = nil
+    var diskName: String? = nil
 
     @Environment(SettingsManager.self) var settingsManager
     @Environment(\.chartXDomain) private var chartXDomain
@@ -23,7 +24,8 @@ struct DiskIOSummaryChartView: View {
             dataPoints: dataPoints,
             xAxisFormat: xAxisFormat,
             systemID: systemID,
-            xDomain: chartXDomain
+            xDomain: chartXDomain,
+            diskName: diskName
         )
         .environment(\.chartShowXGridLines, chartShowXGridLines)
         ) {
@@ -31,6 +33,9 @@ struct DiskIOSummaryChartView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     (Text("chart.diskIO") + Text(" (MB/s)"))
                         .font(.headline)
+                    if let diskName, !diskName.isEmpty {
+                        Text(verbatim: diskName).font(.subheadline)
+                    }
                     if systemName == nil {
                         Text("chart.diskIO.subtitle")
                             .font(.caption2)

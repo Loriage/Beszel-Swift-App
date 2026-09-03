@@ -6,6 +6,7 @@ struct DetailedDiskIOView: View {
     let xAxisFormat: Date.FormatStyle
     let systemID: String?
     var xDomain: ClosedRange<Date>? = nil
+    var diskName: String? = nil
 
     @Environment(DashboardManager.self) var dashboardManager
 
@@ -22,10 +23,14 @@ struct DetailedDiskIOView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
+                if let diskName, !diskName.isEmpty {
+                    Text(verbatim: diskName).font(.title2.bold())
+                }
                 // Throughput (read/write bytes/s)
                 SystemDiskIOChartView(
                     dataPoints: dataPoints,
                     xAxisFormat: xAxisFormat,
+                    diskName: diskName,
                     isPinned: isPinned(.systemDiskIO),
                     onPinToggle: { togglePin(.systemDiskIO) }
                 )
@@ -57,6 +62,11 @@ struct DetailedDiskIOView: View {
                     isPinned: isPinned(.systemDiskIOQueueDepth),
                     onPinToggle: { togglePin(.systemDiskIOQueueDepth) }
                 )
+
+                if dataPoints.contains(where: { $0.diskIOTotals != nil }) {
+                    StorageHistoryChart(metric: .cumulativeRead(disk: nil), dataPoints: dataPoints, xAxisFormat: xAxisFormat)
+                    StorageHistoryChart(metric: .cumulativeWrite(disk: nil), dataPoints: dataPoints, xAxisFormat: xAxisFormat)
+                }
             }
             .groupBoxStyle(CardGroupBoxStyle())
             .padding()

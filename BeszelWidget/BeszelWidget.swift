@@ -554,7 +554,9 @@ private func sampleDataPoints() -> [SystemDataPoint] {
                         rAwait: 1 + secondaryWave * 3,
                         wAwait: 1.8 + wave * 4,
                         weightedIO: 0.2 + wave
-                    )
+                    ),
+                    totalRead: 12_000_000_000 + Double(index) * 400_000_000,
+                    totalWrite: 6_000_000_000 + Double(index) * 200_000_000
                 ),
                 ExtraFilesystemPoint(
                     name: "Backup",
@@ -570,9 +572,20 @@ private func sampleDataPoints() -> [SystemDataPoint] {
                         rAwait: 0.8 + wave * 2,
                         wAwait: 1.2 + secondaryWave * 2.8,
                         weightedIO: 0.1 + secondaryWave * 0.6
-                    )
+                    ),
+                    totalRead: 4_000_000_000 + Double(index) * 80_000_000,
+                    totalWrite: 2_000_000_000 + Double(index) * 60_000_000
                 )
-            ]
+            ],
+            diskIOTotals: DiskIOTotals(
+                read: 24_000_000_000 + Double(index) * 800_000_000,
+                write: 16_000_000_000 + Double(index) * 400_000_000
+            ),
+            zfsPools: ["tank": ZFSPoolStats(
+                d: 1_024, du: 320 + progress * 4,
+                rb: 100_000 + wave * 1_200_000,
+                wb: 80_000 + secondaryWave * 400_000, h: "ONLINE"
+            )]
         )
     }
 }

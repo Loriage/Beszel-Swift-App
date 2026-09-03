@@ -8,6 +8,7 @@ struct SystemDiskUsageChartView: View {
     let xAxisFormat: Date.FormatStyle
 
     var systemName: String? = nil
+    var diskName: String? = nil
 
     var isPinned: Bool = false
     var onPinToggle: () -> Void = {}
@@ -21,6 +22,9 @@ struct SystemDiskUsageChartView: View {
             VStack(alignment: .leading, spacing: 2) {
                 (Text("chart.diskUsage") + Text(" (\(totalDisk >= 1024 ? "TB" : "GB"))"))
                     .font(.headline)
+                if let diskName, !diskName.isEmpty {
+                    Text(verbatim: diskName).font(.subheadline)
+                }
                 if systemName == nil {
                     Text("chart.diskUsage.subtitle")
                         .font(.caption2)

@@ -101,11 +101,11 @@ struct AlertDetail: Identifiable, Hashable, Sendable {
 
 extension AlertDetail {
     var alertType: AlertType {
-        AlertType(rawValue: name) ?? .status
+        AlertType.classify(name)
     }
 
     var displayName: String {
-        alertType.displayName
+        alertType.displayName(for: name)
     }
 
     var triggeredValueDescription: String {

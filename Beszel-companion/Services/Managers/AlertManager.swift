@@ -26,6 +26,7 @@ final class AlertManager {
     var isLoading = false
     var errorMessage: String?
     var pendingAlertDetail: AlertDetail?
+    private(set) var hubInfoByInstance: [UUID: HubInfo] = [:]
 
     /// IDs of active alerts the user has muted from the badge
     private(set) var mutedAlertIDs: Set<String> = [] {
@@ -116,6 +117,7 @@ final class AlertManager {
     func clearCachedApiService() {
         cachedApiService = nil
         cachedInstanceId = nil
+        hubInfoByInstance.removeAll()
     }
     
     init() {
@@ -156,10 +158,21 @@ final class AlertManager {
         let apiService = getApiService(for: instance, instanceManager: instanceManager)
         
         do {
+            // Discovery failure disables only new options, not alerts on older hubs.
+            do {
+                let info = try await apiService.fetchHubInfo()
+                try Task.checkCancellation()
+                hubInfoByInstance[instance.id] = info
+            } catch {
+                guard !Task.isCancelled else { isLoading = false; return }
+                hubInfoByInstance.removeValue(forKey: instance.id)
+            }
             async let alertsTask = apiService.fetchAlerts(filter: nil)
             async let historyTask = apiService.fetchLatestAlertHistory(limit: 100)
             
             let (fetchedAlerts, fetchedHistory) = try await (alertsTask, historyTask)
+            try Task.checkCancellation()
+            guard instanceManager.activeInstance?.id == instance.id else { isLoading = false; return }
             
             var alertsBySystem: [String: [AlertRecord]] = [:]
             for alert in fetchedAlerts {

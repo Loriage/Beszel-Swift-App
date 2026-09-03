@@ -341,7 +341,9 @@ private enum WidgetChartValueFormat {
         case .bytesPerSecond:
             return MetricFormatter.throughput(bytesPerSecond: value)
         case .bytes:
-            return ByteCountFormatter.string(fromByteCount: Int64(value.rounded()), countStyle: .decimal)
+            guard value.isFinite, value >= 0 else { return "—" }
+            let bytes = value >= Double(Int64.max) ? Int64.max : Int64(value.rounded(.down))
+            return ByteCountFormatter.string(fromByteCount: bytes, countStyle: .decimal)
         case .gigabytes:
             if value >= 1_024 {
                 return (value / 1_024).formatted(
@@ -578,6 +580,29 @@ private struct WidgetChartPresentation {
             valueFormat = .percent
             fixedYDomain = 0...100
 
+        case .systemDiskCumulativeRead, .systemDiskCumulativeWrite:
+            let isRead = chartType == .systemDiskCumulativeRead
+            series = Self.systemSeries(name: String(localized: isRead ? "chart.diskIO.read" : "chart.diskIO.write"), dataPoints: dataPoints) {
+                isRead ? $0.diskIOTotals?.read : $0.diskIOTotals?.write
+            }
+            summaryPoints = series.first?.points ?? []
+            valueFormat = .bytes
+
+        case .zfsPoolUsage:
+            series = Self.namedSystemSeries(
+                names: Set(dataPoints.flatMap { $0.zfsPools.keys }), dataPoints: dataPoints
+            ) { point, name in point.zfsPools[name]?.percent }
+            summaryPoints = Self.maxSeriesByDate(series)
+            valueFormat = .percent
+            fixedYDomain = 0...100
+
+        case .zfsPoolIO:
+            series = Self.namedSystemSeries(
+                names: Set(dataPoints.flatMap { $0.zfsPools.keys }), dataPoints: dataPoints
+            ) { point, name in point.zfsPools[name].map { ($0.rb ?? 0) + ($0.wb ?? 0) } }
+            summaryPoints = Self.sumSeriesByDate(series)
+            valueFormat = .bytesPerSecond
+
         case .systemDiskIOTimes:
             series = Self.pairedSystemSeries(
                 firstName: String(localized: "chart.diskIO.readTime"),
@@ -755,6 +780,12 @@ private struct WidgetChartPresentation {
         case .extraDiskIOQueueDepth:
             series = Self.extraDiskSeries(dataPoints: dataPoints) { $0.diskIOStats?.weightedIO }
             summaryPoints = Self.maxSeriesByDate(series)
+
+        case .extraDiskCumulativeRead, .extraDiskCumulativeWrite:
+            let isRead = chartType == .extraDiskCumulativeRead
+            series = Self.extraDiskSeries(dataPoints: dataPoints) { isRead ? $0.totalRead : $0.totalWrite }
+            summaryPoints = Self.sumSeriesByDate(series)
+            valueFormat = .bytes
 
         case .containerCPU:
             series = Self.containerSeries(containerData: containerData, value: \.cpu)

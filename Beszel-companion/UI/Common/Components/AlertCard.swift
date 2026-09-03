@@ -34,9 +34,9 @@ struct AlertCard: View {
     @ViewBuilder
     private var alertTitle: some View {
         if let name = systemName {
-            Text("\(name) ") + Text(LocalizedStringKey(alert.displayNameKey))
+            Text("\(name) \(alert.displayName)")
         } else {
-            Text(LocalizedStringKey(alert.displayNameKey))
+            Text(verbatim: alert.displayName)
         }
     }
 }
@@ -92,9 +92,9 @@ struct ActiveAlertCard: View {
     @ViewBuilder
     private var alertTitle: some View {
         if let name = systemName {
-            Text("\(name) ") + Text(LocalizedStringKey(alert.displayNameKey))
+            Text("\(name) \(alert.displayName)")
         } else {
-            Text(LocalizedStringKey(alert.displayNameKey))
+            Text(verbatim: alert.displayName)
         }
     }
 }
@@ -153,9 +153,9 @@ struct AlertHistoryRow: View {
     @ViewBuilder
     private var alertTitle: some View {
         if let name = systemName {
-            Text("\(name) ") + Text(LocalizedStringKey(alert.displayNameKey))
+            Text("\(name) \(alert.displayName)")
         } else {
-            Text(LocalizedStringKey(alert.displayNameKey))
+            Text(verbatim: alert.displayName)
         }
     }
 }
@@ -165,7 +165,14 @@ struct AlertActiveDescriptionView: View {
 
     var body: some View {
         let formatted = alert.activeDescriptionFormatted
-        if let minutes = alert.activeDescriptionMinutes {
+        if !alert.alertType.needsThreshold {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(LocalizedStringKey(alert.alertType.alertDescriptionKey))
+                if let minutes = alert.activeDescriptionMinutes {
+                    Text("alerts.description.stateDuration \(minutes)")
+                }
+            }
+        } else if let minutes = alert.activeDescriptionMinutes {
             if minutes == 1 {
                 Text("alerts.description.exceedsWithDuration.singular \(formatted)")
             } else {

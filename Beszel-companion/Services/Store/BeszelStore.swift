@@ -19,6 +19,9 @@ final class BeszelStore {
     
     var systemDataPoints: [SystemDataPoint] = []
     var smartDevices: [SmartDeviceRecord] = []
+    var zfsPools: [ZFSPoolRecord] = []
+    private(set) var zfsPoolNames: [String] = []
+    var zfsDetailsUnavailable = false
     var containerData: [ProcessedContainerData] = [] {
         didSet {
             self.sortedContainerData = containerData.sorted { $0.name < $1.name }
@@ -42,6 +45,8 @@ final class BeszelStore {
     private var containerRecordsBySystem: [String: [ContainerRecord]] = [:]
     private var latestStatsBySystem: [String: SystemStatsRecord] = [:]
     private var smartDevicesBySystem: [String: [SmartDeviceRecord]] = [:]
+    private var zfsPoolsBySystem: [String: [ZFSPoolRecord]] = [:]
+    private var unavailableZFSSystems: Set<String> = []
     
     private let instance: Instance
     private let apiService: BeszelAPIService
@@ -110,7 +115,7 @@ final class BeszelStore {
 
     var extraDiskNames: [String] {
         let allNames = systemDataPoints.flatMap { $0.extraFilesystems.map(\.name) }
-        return Array(Set(allNames)).sorted()
+        return Array(Set(allNames)).sorted { $0.localizedStandardCompare($1) == .orderedAscending }
     }
 
     func hasIOData(forDisk name: String) -> Bool {
@@ -126,6 +131,9 @@ final class BeszelStore {
             self.containerRecords = []
             self.latestSystemStats = nil
             self.smartDevices = []
+            self.zfsPools = []
+            self.zfsPoolNames = []
+            self.zfsDetailsUnavailable = false
             self.xDomain = settingsManager.selectedTimeRange.xDomain
             return
         }
@@ -134,6 +142,11 @@ final class BeszelStore {
         self.containerRecords = containerRecordsBySystem[activeSystemID] ?? []
         self.latestSystemStats = latestStatsBySystem[activeSystemID]
         self.smartDevices = smartDevicesBySystem[activeSystemID] ?? []
+        self.zfsPools = zfsPoolsBySystem[activeSystemID] ?? []
+        self.zfsPoolNames = (latestSystemStats?.stats.zfsPools?.keys.map { $0 } ?? []).sorted {
+            $0.localizedStandardCompare($1) == .orderedAscending
+        }
+        self.zfsDetailsUnavailable = unavailableZFSSystems.contains(activeSystemID)
         self.xDomain = dataXDomain()
     }
 
@@ -183,6 +196,11 @@ final class BeszelStore {
         containerRecordsBySystem.removeAll()
         latestStatsBySystem.removeAll()
         smartDevicesBySystem.removeAll()
+        zfsPoolsBySystem.removeAll()
+        unavailableZFSSystems.removeAll()
+        zfsPools = []
+        zfsPoolNames = []
+        zfsDetailsUnavailable = false
         systemDataPoints = []
         containerData = []
         containerRecords = []
@@ -298,6 +316,9 @@ final class BeszelStore {
             
             await fetchContainerRecords(for: systemsToFetch)
             await fetchSmartDevices(for: systemsToFetch)
+            await fetchZFSPools(for: systemsToFetch)
+
+            try Task.checkCancellation()
 
             self.updateDataForActiveSystem()
             
@@ -306,6 +327,30 @@ final class BeszelStore {
         }
     }
     
+    private func fetchZFSPools(for systems: [SystemRecord]) async {
+        for system in systems {
+            guard !Task.isCancelled else { return }
+            guard let pools = latestStatsBySystem[system.id]?.stats.zfsPools, !pools.isEmpty else {
+                zfsPoolsBySystem.removeValue(forKey: system.id)
+                unavailableZFSSystems.remove(system.id)
+                continue
+            }
+            do {
+                let records = try await apiService.fetchZFSPools(systemID: system.id)
+                try Task.checkCancellation()
+                zfsPoolsBySystem[system.id] = records.sorted {
+                    $0.name.localizedStandardCompare($1.name) == .orderedAscending
+                }
+                unavailableZFSSystems.remove(system.id)
+            } catch {
+                guard !Task.isCancelled else { return }
+                unavailableZFSSystems.insert(system.id)
+                // Optional details must never prevent legacy/system charts from loading.
+                logger.warning("ZFS details unavailable")
+            }
+        }
+    }
+
     private func fetchSmartDevices(for systems: [SystemRecord]) async {
         let apiService = self.apiService
         for system in systems {

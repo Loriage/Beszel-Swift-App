@@ -246,6 +246,7 @@ struct HomeView: View {
                 dataPoints: systemData,
                 xAxisFormat: store.xAxisFormat,
                 systemName: systemName,
+                diskName: instanceManager.systems.first { $0.id == resolvedItem.systemID }?.info?.rdn,
                 isPinned: store.isPinned(.systemDiskIO, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemDiskIO, onSystem: resolvedItem.systemID) }
             )
@@ -286,6 +287,7 @@ struct HomeView: View {
                 dataPoints: systemData,
                 xAxisFormat: store.xAxisFormat,
                 systemName: systemName,
+                diskName: instanceManager.systems.first { $0.id == resolvedItem.systemID }?.info?.rdn,
                 isPinned: store.isPinned(.systemDiskUsage, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemDiskUsage, onSystem: resolvedItem.systemID) }
             )

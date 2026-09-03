@@ -54,6 +54,8 @@ nonisolated extension WidgetChartCategory: AppEnum {
         .memory: "widget.category.memory",
         .disk: "widget.category.disk",
         .additionalDisks: "widget.category.additionalDisks",
+        .zfs: "zfs.title",
+        .diskTotals: "widget.category.diskTotals",
         .network: "widget.category.network",
         .sensors: "widget.category.sensors"
     ]
@@ -218,6 +220,9 @@ public struct ChartTypeEntity: AppEntity {
 public struct ChartTypeQuery: EntityStringQuery {
     @IntentParameterDependency<SelectInstanceAndChartIntent>(\.$category)
     private var intent
+    @IntentParameterDependency<SelectInstanceAndChartIntent>(\.$instance, \.$system)
+    private var systemIntent
+    private let statsCatalog = WidgetSystemStatsCatalog()
 
     public init() {}
     public func entities(for identifiers: [String]) async throws -> [ChartTypeEntity] {
@@ -230,21 +235,36 @@ public struct ChartTypeQuery: EntityStringQuery {
     }
 
     public func suggestedEntities() async throws -> IntentItemCollection<ChartTypeEntity> {
-        Self.choices(category: intent?.category)
+        Self.choices(category: intent?.category, stats: try await latestStats())
     }
 
     public func entities(matching string: String) async throws -> IntentItemCollection<ChartTypeEntity> {
-        Self.choices(category: intent?.category, search: string)
+        Self.choices(category: intent?.category, search: string, stats: try await latestStats())
     }
 
-    public static func choices(
-        category: WidgetChartCategory?, search: String = ""
+    private func latestStats() async throws -> SystemStatsDetail? {
+        guard let systemID = systemIntent?.system.id else { return nil }
+        do {
+            let connection = try await WidgetConfigurationData.connection(instanceID: systemIntent?.instance.id)
+            _ = try WidgetConfigurationData.systemFilter(systemID)
+            let record = try await statsCatalog.record(connection: connection, systemID: systemID)
+            try Task.checkCancellation()
+            return record?.stats
+        } catch {
+            try Task.checkCancellation()
+            return nil // Offline/legacy hubs still offer all previous chart choices.
+        }
+    }
+
+    static func choices(
+        category: WidgetChartCategory?, search: String = "", stats: SystemStatsDetail? = nil
     ) -> IntentItemCollection<ChartTypeEntity> {
         let search = search.trimmingCharacters(in: .whitespacesAndNewlines)
         let categories = category.map { [$0] } ?? WidgetChartCategory.allCases
         let sections = categories.compactMap { category -> IntentItemSection<ChartTypeEntity>? in
             let charts = category.chartTypes.filter { chart in
-                search.isEmpty || String(localized: chart.localizedTitle).localizedStandardContains(search)
+                chart.isSupported(by: stats) &&
+                    (search.isEmpty || String(localized: chart.localizedTitle).localizedStandardContains(search))
             }.map { ChartTypeEntity(id: $0.id, title: $0.localizedTitle) }
             guard !charts.isEmpty else { return nil }
             return IntentItemSection(category.title, items: charts)

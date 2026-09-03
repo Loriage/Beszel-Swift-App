@@ -60,6 +60,13 @@ struct DetailedExtraDiskIOView: View {
                     isPinned: isPinned(.extraDiskIOQueueDepth(name: diskName)),
                     onPinToggle: { togglePin(.extraDiskIOQueueDepth(name: diskName)) }
                 )
+
+                if dataPoints.contains(where: { $0.extraFilesystems.contains { $0.name == diskName && $0.totalRead != nil } }) {
+                    StorageHistoryChart(metric: .cumulativeRead(disk: diskName), dataPoints: dataPoints, xAxisFormat: xAxisFormat)
+                }
+                if dataPoints.contains(where: { $0.extraFilesystems.contains { $0.name == diskName && $0.totalWrite != nil } }) {
+                    StorageHistoryChart(metric: .cumulativeWrite(disk: diskName), dataPoints: dataPoints, xAxisFormat: xAxisFormat)
+                }
             }
             .groupBoxStyle(CardGroupBoxStyle())
             .padding()

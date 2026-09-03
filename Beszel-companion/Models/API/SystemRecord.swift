@@ -46,6 +46,7 @@ nonisolated struct SystemInfo: Codable, Hashable, Sendable {
     // Extra data
     let efs: [String: Double]?    // extra filesystem percentages
     let sv: [Int]?                // services [total, failed]
+    var rdn: String? = nil        // custom root disk name (0.19+)
 }
 
 extension SystemInfo {

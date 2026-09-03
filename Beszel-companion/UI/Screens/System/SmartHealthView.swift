@@ -1,5 +1,13 @@
 import SwiftUI
 
+private extension SmartDeviceRecord {
+    var healthColor: Color {
+        if isFailed { return .red }
+        if isWarning { return .orange }
+        return isPassed ? .green : .secondary
+    }
+}
+
 struct SmartHealthView: View {
     @Environment(BeszelStore.self) var store
     let devices: [SmartDeviceRecord]
@@ -35,6 +43,8 @@ struct SmartHealthSummaryCard: View {
         devices.filter { $0.isFailed }.count
     }
 
+    private var warningCount: Int { devices.filter { $0.isWarning }.count }
+
     var body: some View {
         NavigationLink(destination: SmartHealthView(devices: devices, systemID: systemID)
             .environment(store)
@@ -48,9 +58,9 @@ struct SmartHealthSummaryCard: View {
                         .foregroundColor(.secondary)
                 }
                 Spacer()
-                if failedCount > 0 {
+                if failedCount > 0 || warningCount > 0 {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(.red)
+                        .foregroundStyle(failedCount > 0 ? .red : .orange)
                         .font(.subheadline)
                 }
                 Image(systemName: "chevron.right")
@@ -60,8 +70,8 @@ struct SmartHealthSummaryCard: View {
                 VStack(spacing: 8) {
                     ForEach(devices.sorted(by: { $0.name < $1.name })) { device in
                         HStack(spacing: 8) {
-                            Image(systemName: device.isFailed ? "xmark.circle.fill" : "checkmark.circle.fill")
-                                .foregroundColor(device.isFailed ? .red : (device.isPassed ? .green : .secondary))
+                            Image(systemName: device.healthSymbol)
+                                .foregroundStyle(device.healthColor)
                                 .font(.subheadline)
 
                             VStack(alignment: .leading, spacing: 1) {
@@ -82,7 +92,7 @@ struct SmartHealthSummaryCard: View {
                                 if let state = device.state, !state.isEmpty {
                                     Text(state)
                                         .font(.caption2)
-                                        .foregroundColor(device.isFailed ? .red : (device.isPassed ? .green : .secondary))
+                                        .foregroundStyle(device.healthColor)
                                         .bold(device.isFailed)
                                 }
                                 if let temp = device.temp, temp > 0 {
@@ -112,8 +122,8 @@ struct SmartDeviceCard: View {
 
     var body: some View {
         GroupBox(label: HStack(alignment: .center) {
-            Image(systemName: device.isFailed ? "xmark.circle.fill" : "checkmark.circle.fill")
-                .foregroundColor(device.isFailed ? .red : (device.isPassed ? .green : .secondary))
+            Image(systemName: device.healthSymbol)
+                .foregroundStyle(device.healthColor)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(device.name)
@@ -131,10 +141,10 @@ struct SmartDeviceCard: View {
                 Text(state)
                     .font(.caption)
                     .bold()
-                    .foregroundColor(device.isFailed ? .red : (device.isPassed ? .green : .secondary))
+                    .foregroundStyle(device.healthColor)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background((device.isFailed ? Color.red : (device.isPassed ? Color.green : Color.secondary)).opacity(0.15))
+                    .background(device.healthColor.opacity(0.15))
                     .clipShape(Capsule())
             }
 

@@ -17,6 +17,37 @@ nonisolated struct ContainerRecord: Identifiable, Codable, Hashable, Sendable {
     var updatedDate: Date {
         Date(timeIntervalSince1970: Double(updated) / 1000.0)
     }
+
+    var runtimeState: ContainerRuntimeState {
+        ContainerRuntimeState(status: status)
+    }
+}
+
+nonisolated enum ContainerRuntimeState: Equatable, Sendable {
+    case running
+    case stopped
+    case unknown
+
+    init(status: String) {
+        let normalizedStatus = status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+
+        guard let leadingToken = normalizedStatus
+            .split(whereSeparator: { $0.isWhitespace })
+            .first
+        else {
+            self = .unknown
+            return
+        }
+
+        switch String(leadingToken) {
+        case "running", "up":
+            self = .running
+        case "created", "dead", "exited", "stopped":
+            self = .stopped
+        default:
+            self = .unknown
+        }
+    }
 }
 
 nonisolated enum ContainerHealth: Int, Codable, Hashable, Sendable {

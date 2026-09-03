@@ -62,6 +62,8 @@ struct DetailedDiskIOView: View {
             .padding()
         }
         .environment(\.chartXDomain, xDomain)
+        .monitoringScreenBackground()
         .navigationTitle(Text("details.diskIO.title"))
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

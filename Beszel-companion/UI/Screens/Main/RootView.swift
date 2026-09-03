@@ -9,17 +9,27 @@ struct RootView: View {
 
     @State private var isShowingSettings = false
 
+    private var isLoadingStateForcedForUITesting: Bool {
+#if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--ui-testing-loading-systems")
+#else
+        false
+#endif
+    }
+
     var body: some View {
         Group {
-            if instanceManager.instances.isEmpty {
+            if instanceManager.instances.isEmpty && !isLoadingStateForcedForUITesting {
                 OnboardingView { name, url, email, password, advanced in
                     instanceManager.addInstance(name: name, url: url, email: email, password: password, clientCert: advanced.clientCert, caCert: advanced.caCert, customHeaders: advanced.customHeaders)
                 }
             } else if let activeInstance = instanceManager.activeInstance {
-                if instanceManager.isLoadingSystems {
-                    VStack { ProgressView("systems.loading") }
+                if instanceManager.isLoadingSystems || isLoadingStateForcedForUITesting {
+                    RootLoadingView {
+                        isShowingSettings = true
+                    }
                 } else if let error = instanceManager.loadError {
-                    errorView(error: error, instance: activeInstance)
+                    errorView(error: error)
                 } else {
                     MainView(
                         instance: activeInstance,
@@ -32,56 +42,68 @@ struct RootView: View {
                     .id("\(activeInstance.id.uuidString)-\(languageManager.currentLanguageCode)")
                 }
             } else {
-                ProgressView()
+                RootLoadingView {
+                    isShowingSettings = true
+                }
             }
         }
         .environment(\.locale, Locale(identifier: languageManager.currentLanguageCode))
+        .sheet(isPresented: $isShowingSettings) {
+            SettingsView()
+                .environment(dashboardManager)
+                .environment(settingsManager)
+                .environment(languageManager)
+                .environment(instanceManager)
+                .environment(alertManager)
+        }
+        .task(id: instanceManager.systemsLoadRequestID) {
+            guard let instance = instanceManager.activeInstance else { return }
+            await instanceManager.fetchSystemsForInstance(instance)
+        }
         .onChange(of: instanceManager.activeInstanceID) {
             alertManager.pendingAlertDetail = nil
         }
     }
 
     @ViewBuilder
-    private func errorView(error: Error, instance: Instance) -> some View {
+    private func errorView(error: Error) -> some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                Image(systemName: "exclamationmark.triangle")
-                    .font(.system(size: 48))
-                    .foregroundStyle(.secondary)
-
-                Text("common.error.fetchFailed")
-                    .font(.headline)
-
-                Text(error.localizedDescription)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-
-                Button {
-                    instanceManager.clearError()
-                    instanceManager.fetchSystemsForInstance(instance)
-                } label: {
-                    Label("common.retry", systemImage: "arrow.clockwise")
-                }
-                .buttonStyle(.borderedProminent)
+            MonitoringStateView(state: .failure(MonitoringErrorMessage.message(for: error))) {
+                instanceManager.requestSystemsReload()
             }
-            .padding()
+            .monitoringScreenBackground()
+            .navigationTitle("common.error.fetchFailed")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: { isShowingSettings = true }) {
+                    Button {
+                        isShowingSettings = true
+                    } label: {
                         Image(systemName: "gearshape.fill")
                     }
+                    .accessibilityLabel("settings.title")
                 }
             }
-            .sheet(isPresented: $isShowingSettings) {
-                SettingsView()
-                    .environment(dashboardManager)
-                    .environment(settingsManager)
-                    .environment(languageManager)
-                    .environment(instanceManager)
-                    .environment(alertManager)
-            }
+        }
+    }
+}
+
+private struct RootLoadingView: View {
+    let onSettingsTap: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            MonitoringStateView(state: .loading("systems.loading"))
+                .monitoringScreenBackground()
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: onSettingsTap) {
+                            Image(systemName: "gearshape.fill")
+                        }
+                        .accessibilityLabel("settings.title")
+                        .accessibilityIdentifier("root.loading.settings")
+                    }
+                }
         }
     }
 }

@@ -62,28 +62,13 @@ struct AlertHistoryView: View {
                 selectedState: $selectedState
             )
         }
+        .monitoringScreenBackground()
     }
 
     @ViewBuilder
     private var searchBarView: some View {
-        HStack(spacing: 10) {
-            HStack(spacing: 6) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.secondary)
-                TextField("Search alerts", text: $searchText)
-                if !searchText.isEmpty {
-                    Button {
-                        searchText = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.tertiary)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color(.systemGray6), in: Capsule())
+        HStack(spacing: MonitoringSpacing.standard) {
+            MonitoringSearchField(prompt: "alerts.search.placeholder", text: $searchText)
 
             Button {
                 isShowingFilterSheet = true
@@ -91,6 +76,8 @@ struct AlertHistoryView: View {
                 Image(systemName: hasActiveFilters ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
                     .font(.title)
             }
+            .frame(minWidth: 44, minHeight: 44)
+            .accessibilityLabel("dashboard.filtersTitle")
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
@@ -99,10 +86,28 @@ struct AlertHistoryView: View {
     @ViewBuilder
     private var contentView: some View {
         if filteredHistory.isEmpty {
-            ContentUnavailableView {
-                Label("alerts.history.empty.title", systemImage: "bell.slash")
-            } description: {
-                Text("alerts.history.empty.message")
+            if alertManager.isLoading {
+                MonitoringStateView(state: .loading("switcher.loading"))
+            } else if let message = alertManager.errorMessage {
+                MonitoringStateView(state: .failure(message)) {
+                    Task { await refreshAlerts() }
+                }
+            } else if hasActiveFilters || !searchText.isEmpty {
+                MonitoringStateView(
+                    state: .empty(
+                        title: "common.noResults.title",
+                        message: "common.noResults.message",
+                        systemImage: "magnifyingglass"
+                    )
+                )
+            } else {
+                MonitoringStateView(
+                    state: .empty(
+                        title: "alerts.history.empty.title",
+                        message: "alerts.history.empty.message",
+                        systemImage: "bell.slash"
+                    )
+                )
             }
         } else {
             ScrollView {
@@ -158,8 +163,15 @@ struct ConfiguredAlertsView: View {
             loadExistingAlerts()
         }
         .onChange(of: selectedSystemID) {
+            debounceTask.values.forEach { $0.cancel() }
+            debounceTask.removeAll()
             loadExistingAlerts()
         }
+        .onDisappear {
+            debounceTask.values.forEach { $0.cancel() }
+            debounceTask.removeAll()
+        }
+        .monitoringScreenBackground()
     }
     
     @ViewBuilder
@@ -230,7 +242,7 @@ struct ConfiguredAlertsView: View {
                     
                     Toggle("", isOn: toggleBinding(for: type))
                         .labelsHidden()
-                        .tint(.green)
+                        .tint(.accentColor)
                 }
                 
                 if state.isEnabled {
@@ -403,8 +415,12 @@ struct ConfiguredAlertsView: View {
     private func debouncedUpdate(for type: AlertType) {
         debounceTask[type]?.cancel()
         debounceTask[type] = Task {
-            try? await Task.sleep(for: .milliseconds(500))
-            guard !Task.isCancelled else { return }
+            do {
+                try await Task.sleep(for: .milliseconds(500))
+                try Task.checkCancellation()
+            } catch {
+                return
+            }
             await updateAlert(for: type)
         }
     }
@@ -449,6 +465,8 @@ struct FilterChip: View {
                 .foregroundColor(isSelected ? .white : .primary)
                 .clipShape(Capsule())
         }
+        .frame(minHeight: 44)
         .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }

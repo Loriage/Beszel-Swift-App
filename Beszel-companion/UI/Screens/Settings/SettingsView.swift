@@ -21,8 +21,8 @@ struct SettingsView: View {
     @State private var isAuthenticating = false
     
     private var appVersion: String {
-        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
-        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? String(localized: "Unknown")
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? String(localized: "Unknown")
         return "\(version) (\(build))"
     }
     
@@ -150,7 +150,8 @@ struct SettingsView: View {
                             Spacer()
                             if alertManager.notificationsEnabled {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
+                                    .foregroundStyle(.green)
+                                    .accessibilityLabel("status.operational")
                             }
                         }
                     }
@@ -166,8 +167,9 @@ struct SettingsView: View {
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark")
                             .font(.body.weight(.semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
+                    .accessibilityLabel("common.close")
                 }
             }
             .sheet(isPresented: $isAddingInstance) {
@@ -223,19 +225,22 @@ struct SettingsView: View {
     private var instancesSection: some View {
         Section(header: Text("settings.instances.title")) {
             ForEach(instanceManager.instances) { instance in
-                HStack {
-                    Text(instance.name)
-                    Spacer()
-                    if instance.id == instanceManager.activeInstance?.id {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                    }
-                }
-                .contentShape(Rectangle())
-                .onTapGesture {
+                Button {
                     instanceManager.setActiveInstance(instance)
                     WidgetCenter.shared.reloadTimelines(ofKind: "BeszelWidget")
+                } label: {
+                    HStack {
+                        Text(instance.name)
+                        Spacer()
+                        if instance.id == instanceManager.activeInstance?.id {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                                .accessibilityLabel("settings.instances.active")
+                        }
+                    }
                 }
+                .buttonStyle(.plain)
+                .contentShape(Rectangle())
                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                     Button(role: .destructive) {
                         instanceManager.deleteInstance(instance)

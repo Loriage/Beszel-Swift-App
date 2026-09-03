@@ -18,14 +18,16 @@ struct InstanceSwitcherView: View {
                 Text(instanceManager.activeInstance?.name ?? "...")
                     .font(.headline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                 
                 Image(systemName: "chevron.up.chevron.down")
                     .font(.caption.weight(.semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
         }
+        .accessibilityLabel("switcher.instances.title")
+        .accessibilityValue(instanceManager.activeInstance?.name ?? "")
     }
 }

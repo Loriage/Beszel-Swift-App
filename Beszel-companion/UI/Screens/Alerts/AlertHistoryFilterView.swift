@@ -19,9 +19,9 @@ struct AlertHistoryFilterView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("System")) {
-                    Picker("System", selection: $selectedSystemID) {
-                        Text("All Systems").tag(nil as String?)
+                Section(header: Text("alerts.filter.system")) {
+                    Picker("alerts.filter.system", selection: $selectedSystemID) {
+                        Text("alerts.filter.allSystems").tag(nil as String?)
                         ForEach(instanceManager.systems, id: \.id) { system in
                             Text(system.name).tag(system.id as String?)
                         }
@@ -30,16 +30,16 @@ struct AlertHistoryFilterView: View {
                     .labelsHidden()
                 }
 
-                Section(header: Text("Type")) {
-                    Picker("Type", selection: $selectedAlertType) {
-                        Text("All Types").tag(nil as AlertType?)
+                Section(header: Text("alerts.filter.type")) {
+                    Picker("alerts.filter.type", selection: $selectedAlertType) {
+                        Text("alerts.filter.allTypes").tag(nil as AlertType?)
                         ForEach(AlertType.allCases) { type in
                             Label {
                                 Text(LocalizedStringKey(type.displayNameKey))
                             } icon: {
                                 Image(systemName: type.iconName)
                             }
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                                 .tag(type as AlertType?)
                         }
                     }
@@ -47,8 +47,8 @@ struct AlertHistoryFilterView: View {
                     .labelsHidden()
                 }
 
-                Section(header: Text("State")) {
-                    Picker("State", selection: $selectedState) {
+                Section(header: Text("alerts.filter.state")) {
+                    Picker("alerts.filter.state", selection: $selectedState) {
                         ForEach(AlertStateFilter.allCases) { state in
                             Text(LocalizedStringKey(state.rawValue)).tag(state)
                         }
@@ -57,7 +57,7 @@ struct AlertHistoryFilterView: View {
                     .labelsHidden()
                 }
             }
-            .navigationTitle("Filters")
+            .navigationTitle("dashboard.filtersTitle")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

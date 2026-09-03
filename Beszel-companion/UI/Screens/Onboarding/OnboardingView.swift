@@ -8,6 +8,7 @@ struct OnboardingView: View {
     var onComplete: (String, String, String, String, InstanceAdvancedOptions) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var instanceName = ""
     @State private var selectedScheme: ServerScheme = .https
@@ -165,41 +166,45 @@ struct OnboardingView: View {
     }
 
     private var content: some View {
-        VStack(spacing: 20) {
-            Spacer()
+        ScrollView {
+            VStack(spacing: 20) {
+                Spacer(minLength: MonitoringSpacing.screen)
 
-            headerView
+                headerView
 
-            serverInputFields
+                serverInputFields
 
-            clientCertificateSection
+                clientCertificateSection
 
-            if isLoading {
-                ProgressView()
+                if isLoading {
+                    ProgressView()
+                }
+
+                if let errorMessage = errorMessage {
+                    Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.red)
+                        .font(.caption)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+
+                Button(action: fetchAuthMethods) {
+                    Text("onboarding.continueButton")
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .padding(.horizontal)
+                .disabled(isContinueDisabled || isLoading)
+
+                Spacer(minLength: MonitoringSpacing.screen)
             }
-
-            if let errorMessage = errorMessage {
-                Text(LocalizedStringKey(errorMessage))
-                    .foregroundStyle(.red)
-                    .font(.caption)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-
-            Button(action: fetchAuthMethods) {
-                Text("onboarding.continueButton")
-                    .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(isContinueDisabled ? Color.gray : Color.accentColor)
-                    .foregroundStyle(.white)
-                    .cornerRadius(10)
-            }
-            .padding(.horizontal)
-            .disabled(isContinueDisabled || isLoading)
-
-            Spacer()
+            .frame(maxWidth: 640)
+            .frame(maxWidth: .infinity)
         }
+        .scrollDismissesKeyboard(.interactively)
+        .monitoringScreenBackground()
     }
 
     @ViewBuilder
@@ -227,31 +232,46 @@ struct OnboardingView: View {
                 .background(.thinMaterial)
                 .cornerRadius(10)
 
-            HStack(spacing: 10) {
-                Picker("Scheme", selection: $selectedScheme) {
-                    ForEach(ServerScheme.allCases) { scheme in
-                        Text(scheme.rawValue).tag(scheme)
-                    }
-                }
-                .pickerStyle(.menu)
-                .frame(height: 54)
-                .background(.thinMaterial)
-                .cornerRadius(10)
-                .tint(Color.primary)
+            let addressLayout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 10))
+                : AnyLayout(HStackLayout(spacing: 10))
 
-                TextField("onboarding.urlPlaceholder", text: $serverAddress)
-                    .keyboardType(.URL)
-                    .textContentType(.URL)
-                    .autocapitalization(.none)
-                    .padding()
-                    .background(.thinMaterial)
-                    .cornerRadius(10)
-                    .onSubmit {
-                        if !isContinueDisabled { fetchAuthMethods() }
-                    }
+            addressLayout {
+                serverSchemePicker
+                serverAddressField
             }
         }
         .padding(.horizontal)
+    }
+
+    private var serverSchemePicker: some View {
+        Picker("onboarding.serverScheme", selection: $selectedScheme) {
+            ForEach(ServerScheme.allCases) { scheme in
+                Text(scheme.rawValue).tag(scheme)
+            }
+        }
+        .pickerStyle(.menu)
+        .frame(minHeight: 54)
+        .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? .infinity : nil, alignment: .leading)
+        .background(.thinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: MonitoringRadius.control, style: .continuous))
+        .tint(Color.primary)
+        .accessibilityLabel("onboarding.serverScheme")
+        .accessibilityIdentifier("onboarding.scheme.picker")
+    }
+
+    private var serverAddressField: some View {
+        TextField("onboarding.urlPlaceholder", text: $serverAddress)
+            .keyboardType(.URL)
+            .textContentType(.URL)
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
+            .padding()
+            .background(.thinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: MonitoringRadius.control, style: .continuous))
+            .onSubmit {
+                if !isContinueDisabled { fetchAuthMethods() }
+            }
     }
 
     @ViewBuilder
@@ -272,8 +292,16 @@ struct OnboardingView: View {
                         .foregroundStyle(.secondary)
                         .rotationEffect(.degrees(isAdvancedExpanded ? 180 : 0))
                 }
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityValue(
+                isAdvancedExpanded
+                    ? Text("common.expanded")
+                    : Text("common.collapsed")
+            )
+            .accessibilityIdentifier("onboarding.advanced.toggle")
 
             if isAdvancedExpanded {
                 certificateRow(
@@ -287,6 +315,7 @@ struct OnboardingView: View {
                         selectedCertSubject = nil
                     }
                 )
+                .accessibilityIdentifier("onboarding.advanced.clientCertificate")
 
                 if let certError = certImportError {
                     certificateError(certError)
@@ -487,18 +516,34 @@ struct OnboardingView: View {
 }
 
 class WebAuthSessionContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
+    weak var presentationWindow: UIWindow?
+
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        let scenes = UIApplication.shared.connectedScenes
-        let windowScene = scenes.first as? UIWindowScene
+        presentationWindow ?? ASPresentationAnchor()
+    }
+}
 
-        if let keyWindow = windowScene?.windows.first(where: { $0.isKeyWindow }) {
-            return keyWindow
-        }
-        if let anyWindow = windowScene?.windows.first {
-            return anyWindow
-        }
+struct WebAuthenticationAnchorReader: UIViewRepresentable {
+    let onResolve: (UIWindow?) -> Void
 
-        return UIWindow()
+    func makeUIView(context: Context) -> AnchorView {
+        let view = AnchorView()
+        view.onWindowChange = onResolve
+        return view
+    }
+
+    func updateUIView(_ uiView: AnchorView, context: Context) {
+        uiView.onWindowChange = onResolve
+        onResolve(uiView.window)
+    }
+
+    final class AnchorView: UIView {
+        var onWindowChange: ((UIWindow?) -> Void)?
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            onWindowChange?(window)
+        }
     }
 }
 

@@ -26,8 +26,8 @@ struct SystemMetricChartView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     (unit.isEmpty ? Text(title) : Text(title) + Text(" (\(unit))"))
                         .font(.headline)
-                    if systemName == nil {
-                        Text("chart.cpuUsage.subtitle")
+                    if systemName == nil, let subtitle {
+                        Text(subtitle)
                             .font(.caption2)
                             .foregroundColor(.secondary)
                     }
@@ -121,11 +121,22 @@ struct SystemMetricChartView: View {
             }
         }
         .chartXScaleIfNeeded(chartXDomain)
+        .chartPlotStyle { plotArea in
+            plotArea
+                .background(color.opacity(0.025))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        }
         .padding(.top, 5)
-        .drawingGroup()
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(title))
-        .accessibilityValue(latestValue.map { String(format: "%.1f%%", $0) } ?? "")
+        .accessibilityValue(latestValue.map(accessibilityValue) ?? "")
+    }
+
+    private func accessibilityValue(_ value: Double) -> String {
+        if unit == "%" || unit.isEmpty {
+            return MetricFormatter.percent(value)
+        }
+        return "\(adaptiveAxisLabel(value, domainMax: maxDataValue)) \(unit)"
     }
     
     struct PlainGroupBoxStyle: GroupBoxStyle {

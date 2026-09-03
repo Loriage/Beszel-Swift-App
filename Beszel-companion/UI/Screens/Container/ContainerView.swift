@@ -10,11 +10,6 @@ struct ContainerView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                ScreenHeaderView(
-                    title: "container.title",
-                    subtitle: store.isLoading ? "switcher.loading" : "container.subtitle"
-                )
-
                 VStack(alignment: .leading, spacing: 16) {
                     StackedCpuChartView(
                         stackedData: store.stackedCpuData,
@@ -47,32 +42,31 @@ struct ContainerView: View {
             }
             .padding(.bottom, 24)
         }
+        .navigationTitle("container.title")
+        .monitoringNavigationSubtitle("container.subtitle")
+        .navigationBarTitleDisplayMode(.large)
+        .monitoringScreenBackground()
         .groupBoxStyle(CardGroupBoxStyle())
         .refreshable {
             await store.fetchData()
         }
         .overlay {
             if store.isLoading && !hasContainers {
-                ProgressView()
+                MonitoringStateView(state: .loading("switcher.loading"))
             } else if let errorMessage = store.errorMessage, !hasContainers {
-                ContentUnavailableView {
-                    Label("common.error", systemImage: "exclamationmark.triangle")
-                } description: {
-                    Text(errorMessage)
-                } actions: {
-                    Button("common.retry") {
-                        store.clearAuthenticationError()
-                        Task {
-                            await store.fetchData()
-                        }
+                MonitoringStateView(state: .failure(errorMessage)) {
+                    store.clearAuthenticationError()
+                    Task {
+                        await store.fetchData()
                     }
-                    .buttonStyle(.bordered)
                 }
             } else if !hasContainers {
-                ContentUnavailableView(
-                    "common.noData",
-                    systemImage: "chart.bar.xaxis",
-                    description: Text("widget.noData")
+                MonitoringStateView(
+                    state: .empty(
+                        title: "common.noData",
+                        message: "widget.noData",
+                        systemImage: "shippingbox"
+                    )
                 )
             }
         }
@@ -101,9 +95,15 @@ struct ContainerView: View {
                     }
                 }
             }
-            .padding(.vertical, 8)
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .padding(.vertical, MonitoringSpacing.compact)
+            .background(
+                Color(uiColor: .secondarySystemGroupedBackground),
+                in: RoundedRectangle(cornerRadius: MonitoringRadius.card, style: .continuous)
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: MonitoringRadius.card, style: .continuous)
+                    .stroke(Color(uiColor: .separator).opacity(0.35), lineWidth: 0.5)
+            }
         }
     }
 }
@@ -146,9 +146,10 @@ struct ContainerRowView: View {
                     HealthBadge(health: health)
                 }
                 
-                Text(container.status)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                ContainerRuntimeBadge(
+                    status: container.status,
+                    state: container.runtimeState
+                )
             }
             
             Image(systemName: "chevron.right")
@@ -157,36 +158,40 @@ struct ContainerRowView: View {
         }
         .padding(.vertical, 10)
         .padding(.horizontal)
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
     }
     
     private func formatCPU(_ value: Double) -> String {
-        String(format: "%.1f%%", value)
+        MetricFormatter.percent(value)
     }
     
     private func formatMemory(_ mb: Double) -> String {
-        if mb >= 1024 {
-            return String(format: "%.1f GB", mb / 1024)
-        }
-        return String(format: "%.0f MB", mb)
+        MetricFormatter.memory(megabytes: mb)
     }
     
     private func formatNetwork(_ bytesPerSecond: Double) -> String {
-        if bytesPerSecond < 1024 {
-            return String(format: "%.1f B/s", bytesPerSecond)
+        MetricFormatter.throughput(bytesPerSecond: bytesPerSecond)
+    }
+}
+
+private struct ContainerRuntimeBadge: View {
+    let status: String
+    let state: ContainerRuntimeState
+
+    var body: some View {
+        Group {
+            switch state {
+            case .running:
+                Text("container.status.running")
+            case .stopped:
+                Label("container.status.stopped", systemImage: "stop.circle.fill")
+            case .unknown:
+                Label(status, systemImage: "questionmark.circle")
+            }
         }
-        
-        let kbs = bytesPerSecond / 1024
-        if kbs < 1024 {
-            return String(format: "%.1f KB/s", kbs)
-        }
-        
-        let mbs = kbs / 1024
-        if mbs < 1024 {
-            return String(format: "%.1f MB/s", mbs)
-        }
-        
-        let gbs = mbs / 1024
-        return String(format: "%.1f GB/s", gbs)
+        .font(.caption2.weight(.semibold))
+        .foregroundStyle(state == .running ? Color.green : Color.secondary)
     }
 }
 
@@ -203,6 +208,7 @@ struct HealthBadge: View {
                 .background(backgroundColor)
                 .foregroundColor(foregroundColor)
                 .clipShape(Capsule())
+                .accessibilityLabel(Text(LocalizedStringKey(health.displayTextKey)))
         }
     }
 

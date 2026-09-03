@@ -50,9 +50,9 @@ struct LockScreenSystemInfoView: View {
             if let stats {
                 VStack(spacing: 1) {
                     VStack(spacing: 2) {
-                        LockScreenMetricGaugeRow(label: "CPU", value: stats.cpu)
-                        LockScreenMetricGaugeRow(label: "MEM", value: stats.memoryPercent)
-                        LockScreenMetricGaugeRow(label: "DSK", value: stats.diskPercent)
+                        LockScreenMetricGaugeRow(label: "metric.cpu.short", value: stats.cpu)
+                        LockScreenMetricGaugeRow(label: "metric.memory.short", value: stats.memoryPercent)
+                        LockScreenMetricGaugeRow(label: "metric.disk.short", value: stats.diskPercent)
                     }
                     HStack(spacing: 6) {
                         Text(systemName)
@@ -73,7 +73,7 @@ struct LockScreenSystemInfoView: View {
             if let stats {
                 let metricValue = metric.value(from: stats)
                 HStack(spacing: 4) {
-                    statusDot
+                    statusIndicator
                     Text("\(systemName) \(metric.shortLabel) \(formatPercent(metricValue))")
                         .lineLimit(1)
                 }
@@ -87,25 +87,15 @@ struct LockScreenSystemInfoView: View {
         }
     }
 
-    private var statusDot: some View {
-        Circle()
-            .fill(statusColor)
-            .frame(width: 6, height: 6)
+    private var statusIndicator: some View {
+        let semanticStatus = MonitoringStatus(status)
+        return Image(systemName: semanticStatus.iconName)
+            .foregroundStyle(statusColor)
+            .accessibilityLabel(Text(semanticStatus.title))
     }
 
     private var statusColor: Color {
-        switch status {
-        case "up":
-            return .green
-        case "down":
-            return .red
-        case "paused":
-            return .yellow
-        case "pending":
-            return .orange
-        default:
-            return .gray
-        }
+        MonitoringStatus(status).color
     }
 
     private func formatPercent(_ value: Double) -> String {
@@ -128,7 +118,7 @@ struct LockScreenNoDataView: View {
 }
 
 struct LockScreenMetricGaugeRow: View {
-    let label: String
+    let label: LocalizedStringResource
     let value: Double
 
     var body: some View {
@@ -137,7 +127,7 @@ struct LockScreenMetricGaugeRow: View {
                 .font(.caption)
                 .fontWeight(.bold)
                 .monospaced()
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .frame(width: 30, alignment: .leading)
 
             GeometryReader { geometry in
@@ -158,10 +148,13 @@ struct LockScreenMetricGaugeRow: View {
                 .font(.caption)
                 .fontWeight(.bold)
                 .monospacedDigit()
-                .foregroundColor(.primary)
+                .foregroundStyle(.primary)
                 .frame(width: 30, alignment: .trailing)
         }
         .frame(height: 14)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(label))
+        .accessibilityValue(MetricFormatter.percent(value, fractionDigits: 0))
     }
 
     private func colorForValue(_ value: Double) -> Color {

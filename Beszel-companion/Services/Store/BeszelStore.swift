@@ -164,7 +164,7 @@ final class BeszelStore {
         
         for systemID in systemDataPointsBySystem.keys where !validSystemIDs.contains(systemID) {
             systemDataPointsBySystem.removeValue(forKey: systemID)
-            logger.debug("Cleaned up stale data for system: \(systemID)")
+            logger.debug("Cleaned up stale system data")
         }
         for systemID in containerDataBySystem.keys where !validSystemIDs.contains(systemID) {
             containerDataBySystem.removeValue(forKey: systemID)
@@ -313,7 +313,7 @@ final class BeszelStore {
                 let devices = try await apiService.fetchSmartDevices(systemID: system.id)
                 self.smartDevicesBySystem[system.id] = devices
             } catch {
-                logger.warning("Failed to fetch SMART devices for \(system.id): \(error.localizedDescription)")
+                logger.warning("Failed to fetch SMART devices: \(error.localizedDescription)")
             }
         }
     }

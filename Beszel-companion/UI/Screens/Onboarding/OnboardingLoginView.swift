@@ -41,8 +41,9 @@ struct OnboardingLoginView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
-            Spacer()
+        ScrollView {
+            VStack(spacing: 20) {
+                Spacer(minLength: MonitoringSpacing.screen)
 
             if let icon = appIcon {
                 Image(uiImage: icon)
@@ -80,11 +81,9 @@ struct OnboardingLoginView: View {
                     Text("onboarding.loginButton")
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(isPasswordLoginDisabled ? Color.gray : Color.accentColor)
-                        .foregroundStyle(.white)
-                        .cornerRadius(10)
                 }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
                 .padding(.horizontal)
                 .disabled(isPasswordLoginDisabled || isLoading)
             }
@@ -112,16 +111,28 @@ struct OnboardingLoginView: View {
             }
 
             if let errorMessage = errorMessage {
-                Text(LocalizedStringKey(errorMessage))
+                Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
                     .foregroundStyle(.red)
                     .font(.caption)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
 
-            Spacer()
+                Spacer(minLength: MonitoringSpacing.screen)
+            }
+            .frame(maxWidth: 640)
+            .frame(maxWidth: .infinity)
         }
+        .scrollDismissesKeyboard(.interactively)
+        .monitoringScreenBackground()
         .navigationBarTitleDisplayMode(.inline)
+        .background {
+            WebAuthenticationAnchorReader { window in
+                contextProvider.presentationWindow = window
+            }
+            .frame(width: 0, height: 0)
+            .accessibilityHidden(true)
+        }
         .onAppear {
             email = initialEmail
         }

@@ -95,7 +95,7 @@ struct Provider: AppIntentTimelineProvider {
             systemInfo: nil,
             systemDetails: nil,
             latestStats: nil,
-            systemName: "System",
+            systemName: String(localized: "System"),
             status: nil,
             timeRange: .last24Hours,
             lockScreenMetric: .cpu
@@ -112,7 +112,7 @@ struct Provider: AppIntentTimelineProvider {
             systemInfo: .sample(),
             systemDetails: nil,
             latestStats: .sample(),
-            systemName: "My Server",
+            systemName: String(localized: "widget.sample.system"),
             status: "up",
             timeRange: .last24Hours,
             lockScreenMetric: .cpu
@@ -142,7 +142,7 @@ struct CircularLockScreenProvider: AppIntentTimelineProvider {
             systemInfo: nil,
             systemDetails: nil,
             latestStats: nil,
-            systemName: "System",
+            systemName: String(localized: "System"),
             status: nil,
             timeRange: .last24Hours,
             lockScreenMetric: .cpu
@@ -159,7 +159,7 @@ struct CircularLockScreenProvider: AppIntentTimelineProvider {
             systemInfo: .sample(),
             systemDetails: nil,
             latestStats: .sample(),
-            systemName: "My Server",
+            systemName: String(localized: "widget.sample.system"),
             status: "up",
             timeRange: .last24Hours,
             lockScreenMetric: lockScreenMetric
@@ -189,7 +189,7 @@ struct RectangularLockScreenProvider: AppIntentTimelineProvider {
             systemInfo: nil,
             systemDetails: nil,
             latestStats: nil,
-            systemName: "System",
+            systemName: String(localized: "System"),
             status: nil,
             timeRange: .last24Hours,
             lockScreenMetric: .cpu
@@ -204,7 +204,7 @@ struct RectangularLockScreenProvider: AppIntentTimelineProvider {
             systemInfo: .sample(),
             systemDetails: nil,
             latestStats: .sample(),
-            systemName: "My Server",
+            systemName: String(localized: "widget.sample.system"),
             status: "up",
             timeRange: .last24Hours,
             lockScreenMetric: .cpu
@@ -245,25 +245,22 @@ private func buildTimeline(
         widgetLogger.info("Widget timeline: instances loaded = \(instanceCount)")
         
         let resolvedInstanceID = configurationInstanceID ?? activeInstanceID
-        widgetLogger.info("Widget timeline: configInstanceID=\(configurationInstanceID ?? "nil", privacy: .public), activeInstanceID=\(activeInstanceID ?? "nil", privacy: .public), resolved=\(resolvedInstanceID ?? "nil", privacy: .public)")
-        
         guard let instanceIDString = resolvedInstanceID else {
             widgetLogger.warning("Widget timeline: No instance ID available")
             return (nil, nil, nil, .last24Hours, nil, "widget.error.noInstance")
         }
         
         guard let instanceID = UUID(uuidString: instanceIDString) else {
-            widgetLogger.error("Widget timeline: Invalid UUID format: \(instanceIDString, privacy: .public)")
+            widgetLogger.error("Widget timeline: Invalid instance identifier")
             return (nil, nil, nil, .last24Hours, nil, "widget.error.noInstance")
         }
         
         guard let foundInstance = InstanceManager.shared.instances.first(where: { $0.id == instanceID }) else {
-            let availableIDs = InstanceManager.shared.instances.map { $0.id.uuidString }.joined(separator: ", ")
-            widgetLogger.error("Widget timeline: Instance not found. Looking for: \(instanceIDString, privacy: .public), available: \(availableIDs, privacy: .public)")
+            widgetLogger.error("Widget timeline: Configured instance not found")
             return (nil, nil, nil, .last24Hours, nil, "widget.error.noInstance")
         }
         
-        widgetLogger.info("Widget timeline: Found instance '\(foundInstance.name, privacy: .public)'")
+        widgetLogger.debug("Widget timeline: Resolved configured instance")
         
         let range: TimeRangeOption = isLockScreen ? .lastHour : settingsManager.selectedTimeRange
         let service = BeszelAPIService(instance: foundInstance, instanceManager: InstanceManager.shared)
@@ -278,7 +275,7 @@ private func buildTimeline(
         } else {
             "widget.error.noInstance"
         }
-        let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: "Unknown", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: errorMessage)
+        let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: String(localized: "Unknown"), status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: errorMessage)
         return Timeline(entries: [entry], policy: .atEnd)
     }
     
@@ -297,12 +294,12 @@ private func buildTimeline(
         }
         
         if resolvedSystemName == nil, let resolvedID = resolvedSystemID {
-            resolvedSystemName = systems.first(where: { $0.id == resolvedID })?.name ?? "System"
+            resolvedSystemName = systems.first(where: { $0.id == resolvedID })?.name ?? String(localized: "System")
         }
         
         guard let finalSystemID = resolvedSystemID else {
             widgetLogger.error("Widget timeline: No system found")
-            let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: "Unknown", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.error.noSystem")
+            let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: String(localized: "Unknown"), status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.error.noSystem")
             return Timeline(entries: [entry], policy: .atEnd)
         }
         
@@ -339,7 +336,7 @@ private func buildTimeline(
             latestStats: latestStats,
             systemInfo: fetchedInfo,
             systemDetails: fetchedDetails,
-            systemName: resolvedSystemName ?? "System",
+            systemName: resolvedSystemName ?? String(localized: "System"),
             status: status,
             instanceID: resolvedInstanceID,
             systemID: finalSystemID
@@ -352,7 +349,7 @@ private func buildTimeline(
             systemInfo: fetchedInfo,
             systemDetails: fetchedDetails,
             latestStats: latestStats,
-            systemName: resolvedSystemName ?? "System",
+            systemName: resolvedSystemName ?? String(localized: "System"),
             status: status,
             timeRange: timeRange,
             lockScreenMetric: lockScreenMetric
@@ -384,7 +381,7 @@ private func buildTimeline(
             return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60)))
         }
         
-        let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: systemName ?? "System", status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.error.networkError")
+        let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: systemName ?? String(localized: "System"), status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.error.networkError")
         return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60)))
     }
 }

@@ -10,9 +10,9 @@ enum AppTheme: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var userInterfaceStyle: UIUserInterfaceStyle {
+    var colorScheme: ColorScheme? {
         switch self {
-        case .system: .unspecified
+        case .system: nil
         case .light: .light
         case .dark: .dark
         }

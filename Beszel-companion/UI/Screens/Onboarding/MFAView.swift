@@ -30,8 +30,9 @@ struct MFAView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
-            Spacer()
+        ScrollView {
+            VStack(spacing: 20) {
+                Spacer(minLength: MonitoringSpacing.screen)
 
             Image(systemName: "lock.shield")
                 .font(.system(size: 60))
@@ -69,11 +70,9 @@ struct MFAView: View {
                                 .fontWeight(.semibold)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(isRequestDisabled ? Color.gray : Color.accentColor)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
                     }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
                     .disabled(isRequestDisabled || isLoading)
                 } else {
                     Text(String(format: String(localized: "onboarding.mfa.codeSentTo"), displayEmail))
@@ -97,11 +96,9 @@ struct MFAView: View {
                                 .fontWeight(.semibold)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(isVerifyDisabled ? Color.gray : Color.accentColor)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
                     }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
                     .disabled(isVerifyDisabled || isLoading)
 
                     Button(action: resendCode) {
@@ -115,20 +112,25 @@ struct MFAView: View {
             .padding(.horizontal)
 
             if let errorMessage = errorMessage {
-                Text(LocalizedStringKey(errorMessage))
-                    .foregroundColor(.red)
+                Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.red)
                     .font(.caption)
                     .padding(.horizontal)
             }
 
-            Spacer()
+                Spacer(minLength: MonitoringSpacing.screen)
 
             Button(action: onCancel) {
                 Text("common.cancel")
                     .foregroundColor(.secondary)
             }
             .padding(.bottom)
+            }
+            .frame(maxWidth: 640)
+            .frame(maxWidth: .infinity)
         }
+        .scrollDismissesKeyboard(.interactively)
+        .monitoringScreenBackground()
         .onAppear {
             if let existingOtpId = otpId {
                 currentOtpId = existingOtpId

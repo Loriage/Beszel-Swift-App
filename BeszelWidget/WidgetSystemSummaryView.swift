@@ -23,6 +23,13 @@ struct WidgetSystemSummaryView: View {
         return systemInfo?.c
     }
 
+    private var networkBytesPerSecond: Double {
+        if let bandwidth = stats.bandwidth, bandwidth.count >= 2 {
+            return bandwidth[0] + bandwidth[1]
+        }
+        return ((stats.networkReceived ?? 0) + (stats.networkSent ?? 0)) * 1_048_576
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
@@ -45,20 +52,21 @@ struct WidgetSystemSummaryView: View {
             Divider()
 
             VStack(spacing: 6) {
-                WidgetMetricRow(label: "CPU", value: stats.cpu / 100, displayValue: String(format: "%.1f%%", stats.cpu))
-                WidgetMetricRow(label: "MEM", value: stats.memoryPercent / 100, displayValue: String(format: "%.1f%%", stats.memoryPercent))
-                WidgetMetricRow(label: "DSK", value: stats.diskPercent / 100, displayValue: String(format: "%.1f%%", stats.diskPercent))
+                WidgetMetricRow(label: "metric.cpu.short", value: stats.cpu / 100, displayValue: MetricFormatter.percent(stats.cpu))
+                WidgetMetricRow(label: "metric.memory.short", value: stats.memoryPercent / 100, displayValue: MetricFormatter.percent(stats.memoryPercent))
+                WidgetMetricRow(label: "metric.disk.short", value: stats.diskPercent / 100, displayValue: MetricFormatter.percent(stats.diskPercent))
                 
                 HStack {
                     if let load = stats.load, let oneMin = load.first {
                          HStack(spacing: 8) {
-                            Text("SYS")
+                            Text("metric.systemLoad.short")
                                 .font(.caption2)
                                 .fontWeight(.bold)
-                                .foregroundColor(.secondary)
-                            Circle()
-                                .fill(colorForLoad(oneMin))
-                                .frame(width: 6, height: 6)
+                                .foregroundStyle(.secondary)
+                            Image(systemName: loadIcon(oneMin))
+                                .font(.caption2)
+                                .foregroundStyle(colorForLoad(oneMin))
+                                .accessibilityHidden(true)
                              Text(load.map { String(format: "%.2f", $0) }.joined(separator: " "))
                                 .font(.caption2)
                                 .monospacedDigit()
@@ -67,13 +75,12 @@ struct WidgetSystemSummaryView: View {
                     
                     Spacer()
 
-                    let netUsageMB = (stats.networkReceived ?? 0) + (stats.networkSent ?? 0)
                     HStack(spacing: 6) {
-                        Text("NET")
+                        Text("metric.network.short")
                             .font(.caption2)
                             .fontWeight(.bold)
-                            .foregroundColor(.secondary)
-                        Text("\(String(format: "%.2f", netUsageMB)) MB/s")
+                            .foregroundStyle(.secondary)
+                        Text(MetricFormatter.throughput(bytesPerSecond: networkBytesPerSecond))
                             .font(.caption2)
                             .monospacedDigit()
                     }
@@ -89,36 +96,45 @@ struct WidgetSystemSummaryView: View {
         else if val >= limit { return .orange }
         else { return .green }
     }
+
+    private func loadIcon(_ value: Double) -> String {
+        guard let cores = cpuCores, cores > 0 else { return "questionmark.circle.fill" }
+        let limit = Double(cores)
+        if value >= limit * 1.5 { return "exclamationmark.triangle.fill" }
+        if value >= limit { return "exclamationmark.circle.fill" }
+        return "checkmark.circle.fill"
+    }
 }
 
 struct StatusBadge: View {
     let status: String?
     let uptime: Double?
+
+    private var semanticStatus: MonitoringStatus {
+        MonitoringStatus(status)
+    }
     
     var body: some View {
-        if let currentStatus = status {
-            switch currentStatus {
-            case "up":
-                if let u = uptime {
-                    Text(formatUptime(u))
-                        .font(.caption2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.green)
+        if status != nil {
+            HStack(spacing: 4) {
+                Image(systemName: semanticStatus.iconName)
+                    .accessibilityHidden(true)
+                if semanticStatus == .operational, let uptime {
+                    Text(formatUptime(uptime))
+                        .monospacedDigit()
                 } else {
-                    Image(systemName: "circle.fill")
-                        .foregroundColor(.green)
-                        .font(.caption2)
+                    Text(semanticStatus.title)
                 }
-            case "down":
-                Text("DOWN")
-                    .font(.caption2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.red)
-            default:
-                Image(systemName: "circle.fill")
-                    .foregroundColor(.gray)
-                    .font(.caption2)
             }
+            .font(.caption2.weight(.bold))
+            .foregroundStyle(semanticStatus.color)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(semanticStatus.title))
+            .accessibilityValue(
+                semanticStatus == .operational
+                    ? uptime.map(formatUptime) ?? ""
+                    : ""
+            )
         }
     }
     
@@ -131,7 +147,7 @@ struct StatusBadge: View {
 }
 
 struct WidgetMetricRow: View {
-    let label: String
+    let label: LocalizedStringResource
     let value: Double
     let displayValue: String
     
@@ -141,7 +157,7 @@ struct WidgetMetricRow: View {
                 .font(.caption2)
                 .fontWeight(.bold)
                 .monospaced()
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .frame(width: 25, alignment: .leading)
             
             GeometryReader { geometry in
@@ -161,10 +177,13 @@ struct WidgetMetricRow: View {
             Text(displayValue)
                 .font(.caption2)
                 .monospacedDigit()
-                .foregroundColor(.primary)
+                .foregroundStyle(.primary)
                 .frame(width: 40, alignment: .trailing)
         }
         .frame(height: 12)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(label))
+        .accessibilityValue(displayValue)
     }
     
     private func colorForValue(_ val: Double) -> Color {

@@ -6,6 +6,31 @@ import Security
 
 private let logger = Logger(subsystem: "com.nohitdev.Beszel", category: "InstanceManager")
 
+nonisolated enum SystemsFetchRetryPolicy {
+    static let retryDelays: [Duration] = [
+        .milliseconds(350),
+        .seconds(1)
+    ]
+
+    static func shouldRetry(_ error: Error) -> Bool {
+        guard let urlError = error as? URLError else { return false }
+
+        switch urlError.code {
+        case .timedOut,
+             .cannotFindHost,
+             .cannotConnectToHost,
+             .networkConnectionLost,
+             .dnsLookupFailed,
+             .notConnectedToInternet,
+             .cannotLoadFromNetwork,
+             .backgroundSessionWasDisconnected:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
 @Observable
 @MainActor
 final class InstanceManager {
@@ -22,6 +47,7 @@ final class InstanceManager {
     var activeSystem: SystemRecord?
     var isLoadingSystems = false
     var loadError: Error?
+    private(set) var systemsLoadRequestID = UUID()
     
     /// System details keyed by system ID (for Beszel agent 0.18.0+)
     var systemDetails: [String: SystemDetailsRecord] = [:]
@@ -38,10 +64,7 @@ final class InstanceManager {
             systemDetails = [:]
 
             updateActiveInstance()
-
-            if let instance = activeInstance {
-                fetchSystemsForInstance(instance)
-            }
+            requestSystemsReload()
         }
     }
 
@@ -58,6 +81,7 @@ final class InstanceManager {
         if let data = userDefaultsStore.data(forKey: "instances") {
             do {
                 self.instances = try JSONDecoder().decode([Instance].self, from: data)
+                restoreNotificationSecrets()
             } catch {
                 logger.error("Failed to decode instances on init: \(error.localizedDescription)")
             }
@@ -70,42 +94,82 @@ final class InstanceManager {
         
         if self.activeInstance == nil, let firstInstance = self.instances.first {
             setActiveInstance(firstInstance)
-        } else if let instance = self.activeInstance {
-            fetchSystemsForInstance(instance)
         }
+
+        self.isLoadingSystems = self.activeInstance != nil
     }
     
-    func fetchSystemsForInstance(_ instance: Instance) {
-        Task { @MainActor in
-            self.isLoadingSystems = true
-            self.loadError = nil
-            
-            let apiService = BeszelAPIService(instance: instance, instanceManager: self)
-            
+    func requestSystemsReload() {
+        loadError = nil
+        isLoadingSystems = activeInstance != nil
+        systemsLoadRequestID = UUID()
+    }
+
+    func fetchSystemsForInstance(_ instance: Instance) async {
+        isLoadingSystems = true
+        loadError = nil
+
+        defer {
+            if activeInstance?.id == instance.id {
+                isLoadingSystems = false
+            }
+        }
+
+        let apiService = BeszelAPIService(instance: instance, instanceManager: self)
+
+        do {
+            let (fetchedSystems, fetchedDetails) = try await fetchSystemsWithRetry(using: apiService)
+            try Task.checkCancellation()
+            guard activeInstance?.id == instance.id else { return }
+
+            systems = fetchedSystems.sorted(by: { $0.name < $1.name })
+            systemDetails = Dictionary(
+                uniqueKeysWithValues: fetchedDetails.map { ($0.system, $0) }
+            )
+
+            updateActiveSystem()
+            DashboardManager.shared.refreshPins()
+        } catch is CancellationError {
+            return
+        } catch let error as URLError where error.code == .cancelled {
+            return
+        } catch {
+            guard activeInstance?.id == instance.id else { return }
+            logger.error("Error fetching systems: \(error.localizedDescription)")
+            loadError = error
+            systems = []
+            systemDetails = [:]
+            activeSystem = nil
+            DashboardManager.shared.refreshPins()
+        }
+    }
+
+    private func fetchSystemsWithRetry(
+        using apiService: BeszelAPIService
+    ) async throws -> ([SystemRecord], [SystemDetailsRecord]) {
+        var retryIndex = 0
+
+        while true {
             do {
                 async let systemsTask = apiService.fetchSystems()
                 async let detailsTask = apiService.fetchSystemDetails()
-                
-                let fetchedSystems = try await systemsTask
-                let fetchedDetails = try await detailsTask
-                
-                self.systems = fetchedSystems.sorted(by: { $0.name < $1.name })
-                
-                self.systemDetails = Dictionary(
-                    uniqueKeysWithValues: fetchedDetails.map { ($0.system, $0) }
-                )
-                
-                self.updateActiveSystem()
-                self.isLoadingSystems = false
-                DashboardManager.shared.refreshPins()
+                return try await (systemsTask, detailsTask)
             } catch {
-                logger.error("Error fetching systems: \(error.localizedDescription)")
-                self.loadError = error
-                self.systems = []
-                self.systemDetails = [:]
-                self.activeSystem = nil
-                self.isLoadingSystems = false
-                DashboardManager.shared.refreshPins()
+                try Task.checkCancellation()
+
+                guard SystemsFetchRetryPolicy.shouldRetry(error),
+                      retryIndex < SystemsFetchRetryPolicy.retryDelays.count else {
+                    throw error
+                }
+
+                let delay = SystemsFetchRetryPolicy.retryDelays[retryIndex]
+                retryIndex += 1
+
+                if let urlError = error as? URLError {
+                    logger.notice("Transient systems request failed with code \(urlError.errorCode); retrying")
+                }
+
+                try await Task.sleep(for: delay)
             }
         }
     }
@@ -181,6 +245,7 @@ final class InstanceManager {
         do {
             let decoded = try JSONDecoder().decode([Instance].self, from: data)
             self.instances = decoded
+            restoreNotificationSecrets()
             logger.info("Reloaded \(decoded.count) instances from store")
         } catch {
             logger.error("Failed to decode instances: \(error.localizedDescription)")
@@ -189,10 +254,6 @@ final class InstanceManager {
     
     func refreshActiveSystem() {
         updateActiveSystem()
-    }
-    
-    func clearError() {
-        loadError = nil
     }
     
     func addInstance(name: String, url: String, email: String, password: String, clientCert: ClientCertificatePayload? = nil, caCert: ServerCACertificatePayload? = nil, customHeaders: [String: String] = [:]) {
@@ -232,19 +293,25 @@ final class InstanceManager {
         updateActiveInstance()
 
         if activeInstance?.id == instance.id {
-            fetchSystemsForInstance(updatedInstance)
+            requestSystemsReload()
         }
     }
 
     func updateInstanceNotificationSettings(_ instance: Instance, workerURL: String, webhookSecret: String) {
         guard let index = instances.firstIndex(where: { $0.id == instance.id }) else { return }
+        let normalizedSecret = webhookSecret.isEmpty ? nil : webhookSecret
+        if let normalizedSecret {
+            _ = NotificationSecretManager.store(normalizedSecret, for: instance.id)
+        } else {
+            NotificationSecretManager.delete(for: instance.id)
+        }
         let updatedInstance = Instance(
             id: instance.id,
             name: instance.name,
             url: instance.url,
             email: instance.email,
             notifyWorkerURL: workerURL.isEmpty ? nil : workerURL,
-            notifyWebhookSecret: webhookSecret.isEmpty ? nil : webhookSecret
+            notifyWebhookSecret: normalizedSecret
         )
         instances[index] = updatedInstance
         saveInstances()
@@ -252,10 +319,7 @@ final class InstanceManager {
     }
 
     func deleteInstance(_ instance: Instance) {
-        deleteCredential(for: instance)
-        ClientCertificateManager.delete(for: instance.id)
-        ServerCACertificateManager.delete(for: instance.id)
-        CustomHeadersManager.delete(for: instance.id)
+        deleteSensitiveData(for: instance)
         instances.removeAll { $0.id == instance.id }
         saveInstances()
 
@@ -285,7 +349,7 @@ final class InstanceManager {
     
     func logoutAll() {
         for instance in instances {
-            deleteCredential(for: instance)
+            deleteSensitiveData(for: instance)
         }
         instances.removeAll()
         saveInstances()
@@ -323,6 +387,32 @@ final class InstanceManager {
         } catch {
             logger.error("Failed to encode instances: \(error.localizedDescription)")
         }
+    }
+
+    private func restoreNotificationSecrets() {
+        var migratedLegacySecret = false
+
+        for index in instances.indices {
+            let instanceID = instances[index].id
+            if let legacySecret = instances[index].notifyWebhookSecret, !legacySecret.isEmpty {
+                _ = NotificationSecretManager.store(legacySecret, for: instanceID)
+                migratedLegacySecret = true
+            }
+            instances[index].notifyWebhookSecret = NotificationSecretManager.load(for: instanceID)
+        }
+
+        if migratedLegacySecret {
+            saveInstances()
+        }
+    }
+
+    private func deleteSensitiveData(for instance: Instance) {
+        deleteCredential(for: instance)
+        BeszelAPIService.clearCachedAuthentication(for: instance.id)
+        NotificationSecretManager.delete(for: instance.id)
+        ClientCertificateManager.delete(for: instance.id)
+        ServerCACertificateManager.delete(for: instance.id)
+        CustomHeadersManager.delete(for: instance.id)
     }
     
     private func saveCredential(credential: String, for instance: Instance) {

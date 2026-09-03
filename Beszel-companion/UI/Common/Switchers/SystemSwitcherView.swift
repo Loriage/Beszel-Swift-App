@@ -8,7 +8,7 @@ struct SystemSwitcherView: View {
         
         Menu {
             Section(header: Text(manager.activeInstance?.name ?? String(localized: "switcher.instance.header"))) {
-                Picker("Systèmes", selection: $manager.activeSystemID) {
+                Picker("switcher.system.picker", selection: $manager.activeSystemID) {
                     ForEach(manager.systems) { system in
                         Text(system.name)
                             .tag(system.id as String?)
@@ -24,15 +24,15 @@ struct SystemSwitcherView: View {
                     ProgressView()
                         .controlSize(.mini)
                 } else {
-                    Text("No system found")
+                    Text("switcher.system.empty")
                 }
                 
                 Image(systemName: "chevron.up.chevron.down")
                     .font(.caption.weight(.semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
             .font(.headline.weight(.semibold))
-            .foregroundColor(.primary)
+            .foregroundStyle(.primary)
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
         }

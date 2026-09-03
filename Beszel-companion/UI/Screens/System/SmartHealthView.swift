@@ -21,6 +21,8 @@ struct SmartHealthView: View {
             .padding(.bottom, 24)
         }
         .navigationTitle(Text("smart.title"))
+        .navigationBarTitleDisplayMode(.inline)
+        .monitoringScreenBackground()
     }
 }
 

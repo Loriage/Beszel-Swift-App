@@ -22,6 +22,13 @@ struct DetailedBandwidthView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
+                SystemBandwidthChartView(
+                    dataPoints: dataPoints,
+                    xAxisFormat: xAxisFormat,
+                    isPinned: isPinned(.systemBandwidth),
+                    onPinToggle: { togglePin(.systemBandwidth) }
+                )
+
                 BandwidthDownloadChartView(
                     dataPoints: dataPoints,
                     xAxisFormat: xAxisFormat,
@@ -51,6 +58,8 @@ struct DetailedBandwidthView: View {
             .padding()
         }
         .environment(\.chartXDomain, xDomain)
+        .monitoringScreenBackground()
         .navigationTitle(Text("details.bandwidth.title"))
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

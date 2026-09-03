@@ -236,12 +236,14 @@ struct SystemDiskAwaitChartView: View {
                             LineMark(
                                 x: .value("Date", point.date),
                                 y: .value("rAwait", stats.rAwait),
+                                series: .value("Period", "Read")
                             )
                             .foregroundStyle(.blue)
                             AreaMark(
                                 x: .value("Date", point.date),
                                 yStart: .value("", 0),
                                 yEnd: .value("rAwait", stats.rAwait),
+                                series: .value("Period", "Read")
                             )
                             .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                         }
@@ -249,12 +251,14 @@ struct SystemDiskAwaitChartView: View {
                             LineMark(
                                 x: .value("Date", point.date),
                                 y: .value("wAwait", stats.wAwait),
+                                series: .value("Period", "Write")
                             )
                             .foregroundStyle(.orange)
                             AreaMark(
                                 x: .value("Date", point.date),
                                 yStart: .value("", 0),
                                 yEnd: .value("wAwait", stats.wAwait),
+                                series: .value("Period", "Write")
                             )
                             .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                         }

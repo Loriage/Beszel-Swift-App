@@ -181,7 +181,7 @@ final class AlertManager {
             logger.info("Fetched \(fetchedAlerts.count) alerts and \(fetchedHistory.count) history records")
         } catch let error as BeszelAPIService.BeszelAPIError {
             logger.error("Failed to fetch alerts: \(error.localizedDescription)")
-            if case .httpError(let statusCode, _) = error, statusCode == 404 {
+            if case .httpError(let statusCode) = error, statusCode == 404 {
                 errorMessage = String(localized: "alerts.error.notAvailable")
             } else {
                 errorMessage = error.localizedDescription

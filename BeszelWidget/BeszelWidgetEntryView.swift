@@ -32,6 +32,14 @@ struct BeszelWidgetEntryView : View {
         }
         .containerBackground(.fill.tertiary, for: .widget)
         .environment(\.locale, Locale(identifier: languageManager.currentLanguageCode))
+        .overlay(alignment: .topTrailing) {
+            if entry.isFromCache {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel("widget.cached")
+            }
+        }
     }
     
     @ViewBuilder
@@ -47,7 +55,7 @@ struct BeszelWidgetEntryView : View {
                     status: entry.status
                 )
             } else {
-                NoDataPlaceholderView(metricName: "System Info")
+                NoDataPlaceholderView(metricName: "widget.systemInfo")
             }
         case .systemCPU:
             SystemMetricChartView(
@@ -84,9 +92,9 @@ struct ErrorView: View {
             Spacer()
             HStack {
                 Spacer()
-                Text(message)
+                Label(message, systemImage: "exclamationmark.triangle.fill")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                 Spacer()
             }

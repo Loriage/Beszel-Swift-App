@@ -13,7 +13,7 @@ actor PushNotificationService {
 
     func setDeviceToken(_ token: String) {
         self.deviceToken = token
-        Self.logger.info("Device token set: \(token.prefix(8))...")
+        Self.logger.info("Device token stored in memory")
     }
 
     func registerDevice(for instance: Instance) async {
@@ -24,12 +24,12 @@ actor PushNotificationService {
 
         guard let workerURL = instance.notifyWorkerURL?.trimmingCharacters(in: CharacterSet(charactersIn: "/")),
               !workerURL.isEmpty else {
-            Self.logger.info("No worker URL configured for instance \(instance.name)")
+            Self.logger.info("No notification worker URL configured")
             return
         }
 
         guard let secret = instance.notifyWebhookSecret, !secret.isEmpty else {
-            Self.logger.warning("No webhook secret configured for instance \(instance.name)")
+            Self.logger.warning("No notification webhook secret configured")
             return
         }
 
@@ -46,7 +46,7 @@ actor PushNotificationService {
         ]
 
         guard let url = URL(string: "\(workerURL)/register") else {
-            Self.logger.error("Invalid worker URL: \(workerURL)")
+            Self.logger.error("Invalid notification worker URL")
             return
         }
 
@@ -60,7 +60,7 @@ actor PushNotificationService {
 
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode == 200 {
-                    Self.logger.info("Device registered successfully with worker for instance \(instance.name)")
+                    Self.logger.info("Device registered successfully with notification worker")
                 } else {
                     Self.logger.error("Failed to register device: HTTP \(httpResponse.statusCode)")
                 }

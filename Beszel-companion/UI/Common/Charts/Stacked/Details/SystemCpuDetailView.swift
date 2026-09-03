@@ -71,7 +71,9 @@ struct SystemCpuDetailView: View {
             .padding()
         }
         .environment(\.chartXDomain, xDomain)
+        .monitoringScreenBackground()
         .navigationTitle(Text("chart.cpuUsage"))
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     private func singleCoreChart(index: Int, name: String) -> some View {

@@ -1,4 +1,5 @@
 import SwiftUI
+import Security
 
 struct NotificationSettingsView: View {
     @Environment(InstanceManager.self) var instanceManager
@@ -10,6 +11,7 @@ struct NotificationSettingsView: View {
     @State private var webhookSecret: String = ""
     @State private var showCopiedToast = false
     @State private var isRegistering = false
+    @State private var isShowingSecretGenerationError = false
 
     private var currentInstance: Instance? {
         instanceManager.activeInstance
@@ -113,6 +115,11 @@ struct NotificationSettingsView: View {
             }
         }
         .animation(.easeInOut, value: showCopiedToast)
+        .alert("common.error", isPresented: $isShowingSecretGenerationError) {
+            Button("common.close", role: .cancel) {}
+        } message: {
+            Text("settings.notifications.secretGenerationError")
+        }
     }
 
     private func loadConfiguration() {
@@ -133,9 +140,13 @@ struct NotificationSettingsView: View {
 
     private func generateWebhook() {
         guard let instance = currentInstance else { return }
+        guard let generatedSecret = generateRandomSecret() else {
+            isShowingSecretGenerationError = true
+            return
+        }
 
         isRegistering = true
-        webhookSecret = generateRandomSecret()
+        webhookSecret = generatedSecret
 
         instanceManager.updateInstanceNotificationSettings(
             instance,
@@ -159,9 +170,16 @@ struct NotificationSettingsView: View {
         }
     }
 
-    private func generateRandomSecret() -> String {
-        let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        return String((0..<32).map { _ in letters.randomElement()! })
+    private func generateRandomSecret() -> String? {
+        var bytes = [UInt8](repeating: 0, count: 32)
+        guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else {
+            return nil
+        }
+        return Data(bytes)
+            .base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
     }
 }
 
@@ -171,6 +189,7 @@ struct WebhookURLView: View {
     let instanceId: UUID
     @State private var webhookURL: String?
     @State private var showCopiedToast = false
+    @State private var copiedToastTask: Task<Void, Never>?
 
     var body: some View {
         HStack {
@@ -185,8 +204,14 @@ struct WebhookURLView: View {
                 Button {
                     UIPasteboard.general.string = url
                     showCopiedToast = true
-                    Task {
-                        try? await Task.sleep(for: .seconds(2))
+                    copiedToastTask?.cancel()
+                    copiedToastTask = Task {
+                        do {
+                            try await Task.sleep(for: .seconds(2))
+                            try Task.checkCancellation()
+                        } catch {
+                            return
+                        }
                         showCopiedToast = false
                     }
                 } label: {
@@ -206,6 +231,10 @@ struct WebhookURLView: View {
             }
         }
         .animation(.easeInOut, value: showCopiedToast)
+        .onDisappear {
+            copiedToastTask?.cancel()
+            copiedToastTask = nil
+        }
         .task(id: "\(workerURL)\(webhookSecret)") {
             let instance = Instance(
                 id: instanceId,

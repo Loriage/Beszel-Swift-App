@@ -100,7 +100,9 @@ struct DetailedNetworkChartView: View {
             .padding()
         }
         .environment(\.chartXDomain, xDomain)
+        .monitoringScreenBackground()
         .navigationTitle(Text("details.network.title \(networkUnit)"))
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -151,8 +153,7 @@ struct NetworkDetailedValuesSectionView: View {
             }
         }
         .padding(.vertical, 8)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .monitoringCardSurface()
     }
 }
 

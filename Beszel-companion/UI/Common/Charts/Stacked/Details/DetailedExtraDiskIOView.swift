@@ -65,6 +65,8 @@ struct DetailedExtraDiskIOView: View {
             .padding()
         }
         .environment(\.chartXDomain, xDomain)
+        .monitoringScreenBackground()
         .navigationTitle(Text("\(diskName) \(LocalizedStringResource("details.extraDiskIO.title"))"))
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

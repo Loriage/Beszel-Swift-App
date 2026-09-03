@@ -7,8 +7,6 @@ struct AlertsTabView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                ScreenHeaderView(title: "alerts.title", subtitle: "alerts.subtitle")
-
                 // Navigation rows
                 VStack(spacing: 0) {
                     NavigationLink {
@@ -19,12 +17,15 @@ struct AlertsTabView: View {
                             .navigationBarTitleDisplayMode(.inline)
                     } label: {
                         HStack(spacing: 16) {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .foregroundStyle(.tint)
+                                .accessibilityHidden(true)
                             Text("alerts.history.title")
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.footnote.weight(.semibold))
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                         }
                         .padding(.vertical, 16)
                         .padding(.horizontal)
@@ -41,20 +42,29 @@ struct AlertsTabView: View {
                             .navigationBarTitleDisplayMode(.inline)
                     } label: {
                         HStack(spacing: 16) {
+                            Image(systemName: "bell.badge")
+                                .foregroundStyle(.tint)
+                                .accessibilityHidden(true)
                             Text("alerts.configured.title")
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.footnote.weight(.semibold))
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                         }
                         .padding(.vertical, 14)
                         .padding(.horizontal)
                     }
                 }
                 .padding(.vertical, 4)
-                .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .background(
+                    Color(uiColor: .secondarySystemGroupedBackground),
+                    in: RoundedRectangle(cornerRadius: MonitoringRadius.card, style: .continuous)
+                )
+                .overlay {
+                    RoundedRectangle(cornerRadius: MonitoringRadius.card, style: .continuous)
+                        .stroke(Color(uiColor: .separator).opacity(0.35), lineWidth: 0.5)
+                }
                 .padding(.horizontal)
 
                 // Active Alerts
@@ -62,6 +72,10 @@ struct AlertsTabView: View {
             }
             .padding(.bottom, 24)
         }
+        .navigationTitle("alerts.title")
+        .monitoringNavigationSubtitle("alerts.subtitle")
+        .navigationBarTitleDisplayMode(.large)
+        .monitoringScreenBackground()
         .groupBoxStyle(CardGroupBoxStyle())
         .refreshable {
             await refreshAlerts()
@@ -88,7 +102,7 @@ struct AlertsTabView: View {
 
                             Image(systemName: "checkmark")
                                 .font(.body.weight(.semibold))
-                                .foregroundColor(.green)
+                                .foregroundStyle(.green)
                         }
 
                         VStack(alignment: .leading, spacing: 2) {

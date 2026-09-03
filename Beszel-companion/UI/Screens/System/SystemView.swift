@@ -9,11 +9,6 @@ struct SystemView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                ScreenHeaderView(
-                    title: "system.title",
-                    subtitle: store.isLoading ? "switcher.loading" : "system.subtitle"
-                )
-
                 if let latestStats = store.latestSystemStats, let system = instanceManager.activeSystem {
                     SystemSummaryCard(
                         system: system,
@@ -121,32 +116,31 @@ struct SystemView: View {
             }
             .padding(.bottom, 24)
         }
+        .navigationTitle("system.title")
+        .monitoringNavigationSubtitle("system.subtitle")
+        .navigationBarTitleDisplayMode(.large)
+        .monitoringScreenBackground()
         .groupBoxStyle(CardGroupBoxStyle())
         .refreshable {
             await store.fetchData()
         }
         .overlay {
             if store.isLoading && store.systemDataPoints.isEmpty {
-                ProgressView()
+                MonitoringStateView(state: .loading("switcher.loading"))
             } else if let errorMessage = store.errorMessage, store.systemDataPoints.isEmpty {
-                ContentUnavailableView {
-                    Label("common.error", systemImage: "exclamationmark.triangle")
-                } description: {
-                    Text(errorMessage)
-                } actions: {
-                    Button("common.retry") {
-                        store.clearAuthenticationError()
-                        Task {
-                            await store.fetchData()
-                        }
+                MonitoringStateView(state: .failure(errorMessage)) {
+                    store.clearAuthenticationError()
+                    Task {
+                        await store.fetchData()
                     }
-                    .buttonStyle(.bordered)
                 }
             } else if store.systemDataPoints.isEmpty {
-                ContentUnavailableView(
-                    "common.noData",
-                    systemImage: "chart.bar.xaxis",
-                    description: Text("widget.noData")
+                MonitoringStateView(
+                    state: .empty(
+                        title: "common.noData",
+                        message: "widget.noData",
+                        systemImage: "chart.bar.xaxis"
+                    )
                 )
             }
         }

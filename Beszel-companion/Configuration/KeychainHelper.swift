@@ -43,9 +43,9 @@ struct KeychainHelper {
         let status = SecItemAdd(query as CFDictionary, nil)
         
         if status != errSecSuccess {
-            logger.error("Keychain save failed: \(status) for service: \(service, privacy: .public)")
+            logger.error("Keychain save failed with status: \(status)")
         } else {
-            logger.info("Keychain save succeeded for account: \(account, privacy: .public)")
+            logger.debug("Keychain save succeeded")
         }
         
         return status == errSecSuccess
@@ -76,10 +76,10 @@ struct KeychainHelper {
             logger.warning("Keychain access was cancelled by user")
             return nil
         case errSecAuthFailed:
-            logger.error("Keychain authentication failed for service: \(service, privacy: .public)")
+            logger.error("Keychain authentication failed")
             return nil
         default:
-            logger.error("Keychain load failed: \(status) for service: \(service, privacy: .public)")
+            logger.error("Keychain load failed with status: \(status)")
             return nil
         }
     }
@@ -97,7 +97,7 @@ struct KeychainHelper {
         
         let status = SecItemDelete(query as CFDictionary)
         if status != errSecSuccess && status != errSecItemNotFound {
-            logger.warning("Keychain delete failed: \(status) for service: \(service, privacy: .public)")
+            logger.warning("Keychain delete failed with status: \(status)")
         }
     }
 }

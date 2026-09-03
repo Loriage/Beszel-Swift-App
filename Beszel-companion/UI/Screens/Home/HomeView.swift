@@ -102,29 +102,8 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                ScreenHeaderView(
-                    title: "home.title",
-                    subtitle: store.isLoading ? "switcher.loading" : "home.subtitle"
-                )
-                
-                HStack(spacing: 10) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundStyle(.secondary)
-                        TextField("dashboard.searchPlaceholder", text: $searchText)
-                        if !searchText.isEmpty {
-                            Button {
-                                searchText = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.tertiary)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(Color(.systemGray6), in: Capsule())
+                HStack(spacing: MonitoringSpacing.standard) {
+                    MonitoringSearchField(prompt: "dashboard.searchPlaceholder", text: $searchText)
 
                     Button {
                         isShowingFilterSheet = true
@@ -132,6 +111,8 @@ struct HomeView: View {
                         Image(systemName: "line.3.horizontal.decrease.circle")
                             .font(.title)
                     }
+                    .frame(minWidth: 44, minHeight: 44)
+                    .accessibilityLabel("dashboard.filtersTitle")
                 }
                 .padding(.horizontal)
                 
@@ -146,30 +127,37 @@ struct HomeView: View {
             }
             .padding(.bottom, 24)
         }
+        .navigationTitle("home.title")
+        .monitoringNavigationSubtitle("home.subtitle")
+        .navigationBarTitleDisplayMode(.large)
+        .monitoringScreenBackground()
         .groupBoxStyle(CardGroupBoxStyle())
         .overlay {
             if store.isLoading && dashboardManager.allPinsForActiveInstance.isEmpty {
-                ProgressView()
+                MonitoringStateView(state: .loading("switcher.loading"))
             } else if let errorMessage = store.errorMessage, dashboardManager.allPinsForActiveInstance.isEmpty {
-                ContentUnavailableView {
-                    Label("common.error", systemImage: "exclamationmark.triangle")
-                } description: {
-                    Text(errorMessage)
-                } actions: {
-                    Button("common.retry") {
-                        store.clearAuthenticationError()
-                        Task {
-                            await store.fetchData()
-                        }
+                MonitoringStateView(state: .failure(errorMessage)) {
+                    store.clearAuthenticationError()
+                    Task {
+                        await store.fetchData()
                     }
-                    .buttonStyle(.bordered)
                 }
             } else if dashboardManager.allPinsForActiveInstance.isEmpty {
-                ContentUnavailableView {
-                    Label("home.empty.title", systemImage: "pin.slash")
-                } description: {
-                    Text("home.empty.message")
-                }
+                MonitoringStateView(
+                    state: .empty(
+                        title: "home.empty.title",
+                        message: "home.empty.message",
+                        systemImage: "pin.slash"
+                    )
+                )
+            } else if filteredAndSortedPins.isEmpty {
+                MonitoringStateView(
+                    state: .empty(
+                        title: "common.noResults.title",
+                        message: "common.noResults.message",
+                        systemImage: "magnifyingglass"
+                    )
+                )
             }
         }
         .refreshable {

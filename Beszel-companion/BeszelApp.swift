@@ -12,7 +12,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
-        logger.info("Received APNs device token: \(token.prefix(8))...")
+        logger.info("Received APNs device token")
 
         Task { @MainActor in
             await PushNotificationService.shared.setDeviceToken(token)
@@ -63,13 +63,6 @@ struct BeszelApp: App {
     @State private var isUnlocked = true
     @Environment(\.scenePhase) private var scenePhase
 
-    private func applyTheme(_ theme: AppTheme) {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
-        for window in windowScene.windows {
-            window.overrideUserInterfaceStyle = theme.userInterfaceStyle
-        }
-    }
-
     var body: some Scene {
         WindowGroup {
             ZStack {
@@ -86,7 +79,6 @@ struct BeszelApp: App {
                 .environment(instanceManager)
                 .environment(alertManager)
                 .onAppear {
-                    applyTheme(settingsManager.selectedTheme)
                     if settingsManager.appLockEnabled {
                         isUnlocked = false
                     }
@@ -96,16 +88,14 @@ struct BeszelApp: App {
                         }
                     }
                 }
-                .onChange(of: settingsManager.selectedTheme) { _, newTheme in
-                    applyTheme(newTheme)
-                }
-
                 if settingsManager.appLockEnabled && !isUnlocked {
                     AppLockView(settingsManager: settingsManager) {
                         isUnlocked = true
                     }
                 }
             }
+            .preferredColorScheme(settingsManager.selectedTheme.colorScheme)
+            .environment(\.locale, Locale(identifier: languageManager.currentLanguageCode))
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .background {
                     isUnlocked = false
@@ -138,10 +128,16 @@ private struct AppLockView: View {
                         .background(.ultraThinMaterial, in: Capsule())
                 }
             } else {
-                Text("settings.security.appLock.required")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+                VStack(spacing: MonitoringSpacing.standard) {
+                    Image(systemName: "lock.shield.fill")
+                        .font(.largeTitle)
+                        .foregroundStyle(.tint)
+                        .accessibilityHidden(true)
+                    Text("settings.security.appLock.required")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
             }
         }
         .onAppear {

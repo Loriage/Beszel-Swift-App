@@ -39,14 +39,19 @@ struct SystemSummaryCard: View {
     
     var body: some View {
         GroupBox {
-            VStack(alignment: .leading, spacing: 12) {
-                VStack(spacing: 2) {
+            VStack(alignment: .leading, spacing: MonitoringSpacing.standard) {
+                VStack(spacing: 4) {
                     HStack(spacing: 8) {
                         Text(systemName)
                             .font(.headline)
-                            .foregroundColor(.primary)
-                        
-                        Spacer()
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+                            .accessibilityAddTraits(.isHeader)
+
+                        statusView
+                            .fixedSize(horizontal: true, vertical: false)
+
+                        Spacer(minLength: 0)
                         PinButtonView(isPinned: isPinned, action: onPinToggle)
                     }
 
@@ -54,70 +59,73 @@ struct SystemSummaryCard: View {
                         if let model = cpuModel {
                             Text(model)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                                 .lineLimit(1)
                             Spacer()
                         }
-
-                        statusView
                     }
                 }
                 
                 Divider()
                 
-                VStack(spacing: 8) {
-                    MetricRow(label: "CPU:", value: stats.cpu / 100, displayValue: String(format: "%.1f%%", stats.cpu))
-                    MetricRow(label: "MEM:", value: stats.memoryPercent / 100, displayValue: String(format: "%.1f%%", stats.memoryPercent))
-                    MetricRow(label: "DSK:", value: stats.diskPercent / 100, displayValue: String(format: "%.1f%%", stats.diskPercent))
+                VStack(spacing: MonitoringSpacing.standard) {
+                    MonitoringMetricRow(
+                        label: "chart.cpuUsage",
+                        fraction: stats.cpu / 100,
+                        displayValue: MetricFormatter.percent(stats.cpu)
+                    )
+                    MonitoringMetricRow(
+                        label: "chart.memoryUsage",
+                        fraction: stats.memoryPercent / 100,
+                        displayValue: MetricFormatter.percent(stats.memoryPercent)
+                    )
+                    MonitoringMetricRow(
+                        label: "chart.diskUsage",
+                        fraction: stats.diskPercent / 100,
+                        displayValue: MetricFormatter.percent(stats.diskPercent)
+                    )
                     
                     let netUsageMB = netMBps
 
                     if let load = stats.load, let oneMinLoad = load.first {
                         HStack(spacing: 8) {
-                            Text("SYS:")
+                            Text("chart.loadAverage")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                            Image(systemName: loadIcon(oneMinLoad))
                                 .font(.caption)
-                                .fontWeight(.bold)
-                                .monospaced()
-                                .foregroundColor(.secondary)
-                                .frame(width: 35, alignment: .leading)
-                            Circle()
-                                .fill(colorForLoad(oneMinLoad))
-                                .frame(width: 8, height: 8)
-                                .accessibilityLabel(Text("accessibility.loadIndicator"))
-                                .accessibilityValue(Text(loadStatusDescription(oneMinLoad)))
+                                .foregroundStyle(colorForLoad(oneMinLoad))
+                                .accessibilityHidden(true)
                             Text(load.map { String(format: "%.2f", $0) }.joined(separator: " "))
                                 .font(.caption)
                                 .monospacedDigit()
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                             Spacer()
 
                             HStack(spacing: 8) {
-                                Text("NET:")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .monospaced()
-                                    .foregroundColor(.secondary)
-                                    .frame(width: 35, alignment: .leading)
+                                Text("metric.network")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.secondary)
 
-                                Text("\(String(format: "%.2f", netUsageMB)) MB/s")
+                                Text(MetricFormatter.throughput(bytesPerSecond: netUsageMB * 1_048_576))
                                     .font(.caption)
                                     .monospacedDigit()
-                                    .foregroundColor(.primary)
+                                    .foregroundStyle(.primary)
                             }
                         }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("accessibility.loadIndicator")
+                        .accessibilityValue("\(load.map { String(format: "%.2f", $0) }.joined(separator: " ")), \(loadStatusDescription(oneMinLoad))")
                     } else if netUsageMB > 0 {
                         HStack(spacing: 8) {
-                            Text("NET:")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .monospaced()
-                                .foregroundColor(.secondary)
-                                .frame(width: 35, alignment: .leading)
+                            Text("metric.network")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
 
-                            Text("\(String(format: "%.2f", netUsageMB)) MB/s")
+                            Text(MetricFormatter.throughput(bytesPerSecond: netUsageMB * 1_048_576))
                                 .font(.caption)
                                 .monospacedDigit()
-                                .foregroundColor(.primary)
+                                .foregroundStyle(.primary)
                             Spacer()
                         }
                     }
@@ -128,38 +136,10 @@ struct SystemSummaryCard: View {
     
     @ViewBuilder
     private var statusView: some View {
-        if let currentStatus = status {
-            switch currentStatus {
-            case "up":
-                if let uptime = systemInfo?.u {
-                    Label("UP: \(formatUptime(uptime))", systemImage: "clock")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(.green)
-                } else {
-                    Text("UP")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(.green)
-                }
-            case "down":
-                Label("DOWN", systemImage: "exclamationmark.circle.fill")
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .foregroundColor(.red)
-            case "paused":
-                Label("PAUSED", systemImage: "pause.circle.fill")
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .foregroundColor(.yellow)
-            case "pending":
-                Label("PENDING", systemImage: "hourglass")
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .foregroundColor(.orange)
-            default:
-                EmptyView()
-            }
+        if status != nil {
+            let semanticStatus = MonitoringStatus(status)
+            let uptime = semanticStatus == .operational ? systemInfo?.u.map(formatUptime) : nil
+            MonitoringStatusBadge(status: semanticStatus, detail: uptime)
         }
     }
     
@@ -183,6 +163,14 @@ struct SystemSummaryCard: View {
         }
     }
 
+    private func loadIcon(_ value: Double) -> String {
+        guard let cores = cpuCores, cores > 0 else { return "questionmark.circle.fill" }
+        let limit = Double(cores)
+        if value >= limit * 1.5 { return "exclamationmark.triangle.fill" }
+        if value >= limit { return "exclamationmark.circle.fill" }
+        return "checkmark.circle.fill"
+    }
+
     private func loadStatusDescription(_ val: Double) -> String {
         guard let cores = cpuCores, cores > 0 else {
             return String(localized: "accessibility.loadStatus.unknown")
@@ -195,48 +183,5 @@ struct SystemSummaryCard: View {
         } else {
             return String(localized: "accessibility.loadStatus.normal")
         }
-    }
-}
-
-struct MetricRow: View {
-    let label: String
-    let value: Double
-    let displayValue: String
-    
-    var body: some View {
-        HStack(spacing: 8) {
-            Text(label)
-                .font(.caption)
-                .fontWeight(.bold)
-                .monospaced()
-                .foregroundColor(.secondary)
-                .frame(width: 35, alignment: .leading)
-            
-            Text(displayValue)
-                .font(.caption)
-                .monospacedDigit()
-                .foregroundColor(.primary)
-                .frame(width: 45, alignment: .leading)
-            
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(Color.secondary.opacity(0.2))
-                        .frame(height: 6)
-                    
-                    Capsule()
-                        .fill(colorForValue(value))
-                        .frame(width: max(0, min(geometry.size.width * CGFloat(value), geometry.size.width)), height: 6)
-                }
-                .frame(height: 6)
-                .frame(maxHeight: .infinity, alignment: .center)
-            }
-        }
-    }
-    
-    private func colorForValue(_ val: Double) -> Color {
-        if val < 0.65 { return .green }
-        if val < 0.90 { return .orange }
-        return .red
     }
 }

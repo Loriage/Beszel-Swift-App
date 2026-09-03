@@ -54,7 +54,7 @@ struct ContainerDetailView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Picker("Tab", selection: $selectedTab) {
+            Picker("container.detail.tabPicker", selection: $selectedTab) {
                 ForEach(DetailTab.allCases, id: \.self) { tab in
                     Label(tab.title, systemImage: tab.icon)
                         .tag(tab)
@@ -72,6 +72,7 @@ struct ContainerDetailView: View {
                 detailsTabContent
             }
         }
+        .monitoringScreenBackground()
         .navigationTitle(container.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -90,11 +91,11 @@ struct ContainerDetailView: View {
                 }
             }
         }
-        .onChange(of: selectedTab) { _, newTab in
-            if newTab == .logs, case .empty = logsState {
-                Task { await fetchLogs() }
-            } else if newTab == .details, case .empty = detailsState {
-                Task { await fetchInfo() }
+        .task(id: selectedTab) {
+            if selectedTab == .logs, case .empty = logsState {
+                await fetchLogs()
+            } else if selectedTab == .details, case .empty = detailsState {
+                await fetchInfo()
             }
         }
         .onChange(of: logsState) { _, _ in
@@ -143,28 +144,29 @@ struct ContainerDetailView: View {
         .groupBoxStyle(CardGroupBoxStyle())
         .environment(\.chartXDomain, store.xDomain)
         .environment(\.chartShowXGridLines, settingsManager.showChartGridLines)
+        .monitoringScreenBackground()
     }
 
     @ViewBuilder
     private var logsTabContent: some View {
         switch logsState {
         case .loading:
-            centeredView { ProgressView() }
+            centeredView { MonitoringStateView(state: .loading("switcher.loading")) }
         case .error(let message):
             centeredView {
-                ContentUnavailableView {
-                    Label("common.error", systemImage: "exclamationmark.triangle")
-                } description: {
-                    Text(message)
+                MonitoringStateView(state: .failure(message)) {
+                    Task { await fetchLogs() }
                 }
             }
         case .empty:
             centeredView {
-                ContentUnavailableView {
-                    Label("container.logs.empty", systemImage: "doc.text")
-                } description: {
-                    Text("container.logs.empty.description")
-                }
+                MonitoringStateView(
+                    state: .empty(
+                        title: "container.logs.empty",
+                        message: "container.logs.empty.description",
+                        systemImage: "doc.text"
+                    )
+                )
             }
         case .loaded(let logs):
             GeometryReader { geometry in
@@ -174,8 +176,10 @@ struct ContainerDetailView: View {
                         .frame(minHeight: geometry.size.height, alignment: .top)
                 }
             }
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(
+                Color(uiColor: .secondarySystemGroupedBackground),
+                in: RoundedRectangle(cornerRadius: MonitoringRadius.card, style: .continuous)
+            )
             .padding()
         }
     }
@@ -184,22 +188,22 @@ struct ContainerDetailView: View {
     private var detailsTabContent: some View {
         switch detailsState {
         case .loading:
-            centeredView { ProgressView() }
+            centeredView { MonitoringStateView(state: .loading("switcher.loading")) }
         case .error(let message):
             centeredView {
-                ContentUnavailableView {
-                    Label("common.error", systemImage: "exclamationmark.triangle")
-                } description: {
-                    Text(message)
+                MonitoringStateView(state: .failure(message)) {
+                    Task { await fetchInfo() }
                 }
             }
         case .empty:
             centeredView {
-                ContentUnavailableView {
-                    Label("container.details.empty", systemImage: "info.circle")
-                } description: {
-                    Text("container.details.empty.description")
-                }
+                MonitoringStateView(
+                    state: .empty(
+                        title: "container.details.empty",
+                        message: "container.details.empty.description",
+                        systemImage: "info.circle"
+                    )
+                )
             }
         case .loaded(let info):
             GeometryReader { geometry in
@@ -209,8 +213,10 @@ struct ContainerDetailView: View {
                         .frame(minHeight: geometry.size.height, alignment: .top)
                 }
             }
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(
+                Color(uiColor: .secondarySystemGroupedBackground),
+                in: RoundedRectangle(cornerRadius: MonitoringRadius.card, style: .continuous)
+            )
             .padding()
         }
     }
@@ -238,6 +244,7 @@ struct ContainerDetailView: View {
             Image(systemName: "arrow.clockwise")
         }
         .disabled(selectedTab == .logs ? logsState.isLoading : detailsState.isLoading)
+        .accessibilityLabel("common.refresh")
     }
 
     private func prettyPrintJSON(_ raw: String) -> String {

@@ -45,15 +45,17 @@ func insetTickDates(for domain: ClosedRange<Date>?, count: Int = 4, marginFracti
 }
 
 func generateColors(for domainCount: Int) -> [Color] {
-    if domainCount == 0 {
-        return []
-    }
-    if domainCount == 1 {
+    guard domainCount > 0 else { return [] }
+    guard domainCount > 1 else {
         return [Color(hue: 0.6, saturation: 0.8, brightness: 0.95)]
     }
-    return (0..<domainCount).map { i in
-        let progress = Double(i) / Double(domainCount - 1)
-        let hue = 0.8 * (1.0 - progress)
+
+    // Stacked charts can contain far more series than a fixed palette. Spreading
+    // hues across the domain keeps every container distinct without repeating or
+    // making later series progressively more transparent.
+    return (0..<domainCount).map { index in
+        let progress = Double(index) / Double(domainCount - 1)
+        let hue = 0.8 * (1 - progress)
         return Color(hue: hue, saturation: 0.8, brightness: 0.95)
     }
 }
@@ -68,7 +70,7 @@ func color(for containerName: String, in domain: [String]) -> Color {
 }
 
 func gradientForColor(_ color: Color) -> LinearGradient {
-    return LinearGradient(
+    LinearGradient(
         colors: [color.opacity(0.6), color.opacity(0.6)],
         startPoint: .top,
         endPoint: .bottom
@@ -133,6 +135,7 @@ func formatMemory(value: Double, fromUnit unit: String) -> String {
 
 private struct CommonChartCustomization: ViewModifier {
     @Environment(\.chartShowXGridLines) private var chartShowXGridLines
+    @ScaledMetric(relativeTo: .body) private var scaledChartHeight: CGFloat = 250
     let xAxisFormat: Date.FormatStyle
     let xDomain: ClosedRange<Date>?
 
@@ -150,7 +153,12 @@ private struct CommonChartCustomization: ViewModifier {
             }
             .chartLegend(.hidden)
             .chartXScaleIfNeeded(xDomain)
-            .frame(height: 250)
+            .chartPlotStyle { plotArea in
+                plotArea
+                    .background(Color.accentColor.opacity(0.025))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            }
+            .frame(height: min(scaledChartHeight, 340))
     }
 }
 

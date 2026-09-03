@@ -95,7 +95,9 @@ struct DetailedMemoryChartView: View {
             .padding()
         }
         .environment(\.chartXDomain, xDomain)
+        .monitoringScreenBackground()
         .navigationTitle(Text("details.memory.title \(memoryUnit)"))
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -139,8 +141,7 @@ struct MemoryDetailedValuesSectionView: View {
             }
         }
         .padding(.vertical, 8)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .monitoringCardSurface()
     }
 }
 

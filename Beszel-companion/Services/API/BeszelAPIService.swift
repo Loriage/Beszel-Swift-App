@@ -12,7 +12,8 @@ actor BeszelAPIService {
     
     private var refreshTask: Task<String, Error>?
     
-    private static let tokenCache = UserDefaults.sharedSuite
+    private static let tokenTimestampCache = UserDefaults.sharedSuite
+    private static let tokenCacheService = "com.nohitdev.Beszel.auth-token"
     private static let tokenCacheValiditySeconds: TimeInterval = 600
     
     private nonisolated static let dateFormatter: DateFormatter = {
@@ -70,28 +71,79 @@ actor BeszelAPIService {
     }
     
     private nonisolated func cacheKey() -> String {
-        "cachedToken_\(instance.id.uuidString)"
+        Self.tokenAccount(for: instance.id)
     }
     
     private nonisolated func cacheTimestampKey() -> String {
         "cachedTokenTime_\(instance.id.uuidString)"
     }
+
+    private nonisolated static func tokenAccount(for instanceID: UUID) -> String {
+        "cachedToken_\(instanceID.uuidString)"
+    }
+
+    nonisolated static func clearCachedAuthentication(for instanceID: UUID) {
+        let account = tokenAccount(for: instanceID)
+        KeychainHelper.delete(
+            service: tokenCacheService,
+            account: account,
+            useSharedKeychain: true
+        )
+        tokenTimestampCache.removeObject(forKey: account)
+        tokenTimestampCache.removeObject(forKey: "cachedTokenTime_\(instanceID.uuidString)")
+    }
     
     private nonisolated func getCachedToken() -> String? {
-        guard let token = Self.tokenCache.string(forKey: cacheKey()),
-              let timestamp = Self.tokenCache.object(forKey: cacheTimestampKey()) as? Date else {
+        let legacyToken = Self.tokenTimestampCache.string(forKey: cacheKey())
+        if legacyToken != nil {
+            Self.tokenTimestampCache.removeObject(forKey: cacheKey())
+        }
+
+        guard let timestamp = Self.tokenTimestampCache.object(forKey: cacheTimestampKey()) as? Date else {
             return nil
         }
-        
-        if Date().timeIntervalSince(timestamp) < Self.tokenCacheValiditySeconds {
+
+        guard Date().timeIntervalSince(timestamp) < Self.tokenCacheValiditySeconds else {
+            clearCachedToken()
+            return nil
+        }
+
+        if let data = KeychainHelper.load(
+            service: Self.tokenCacheService,
+            account: cacheKey(),
+            useSharedKeychain: true
+        ), let token = String(data: data, encoding: .utf8) {
             return token
+        }
+
+        if let legacyToken {
+            setCachedToken(legacyToken)
+            return legacyToken
         }
         return nil
     }
     
     private nonisolated func setCachedToken(_ token: String) {
-        Self.tokenCache.set(token, forKey: cacheKey())
-        Self.tokenCache.set(Date(), forKey: cacheTimestampKey())
+        guard let data = token.data(using: .utf8),
+              KeychainHelper.save(
+                data: data,
+                service: Self.tokenCacheService,
+                account: cacheKey(),
+                useSharedKeychain: true
+              ) else {
+            return
+        }
+        Self.tokenTimestampCache.set(Date(), forKey: cacheTimestampKey())
+    }
+
+    private nonisolated func clearCachedToken() {
+        KeychainHelper.delete(
+            service: Self.tokenCacheService,
+            account: cacheKey(),
+            useSharedKeychain: true
+        )
+        Self.tokenTimestampCache.removeObject(forKey: cacheKey())
+        Self.tokenTimestampCache.removeObject(forKey: cacheTimestampKey())
     }
     
     private func getValidToken() async throws -> String {
@@ -214,6 +266,7 @@ actor BeszelAPIService {
         
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
             self.authToken = nil
+            clearCachedToken()
             
             let newToken = try await getValidToken()
             
@@ -233,7 +286,7 @@ actor BeszelAPIService {
             if httpResponse.statusCode == 200 {
                 return try Self.jsonDecoder.decode(T.self, from: data)
             } else {
-                throw BeszelAPIError.httpError(statusCode: httpResponse.statusCode, url: url.absoluteString)
+                throw BeszelAPIError.httpError(statusCode: httpResponse.statusCode)
             }
         } else {
             throw URLError(.badServerResponse)
@@ -241,25 +294,25 @@ actor BeszelAPIService {
     }
     
     enum BeszelAPIError: LocalizedError {
-        case httpError(statusCode: Int, url: String)
+        case httpError(statusCode: Int)
         case apiError(statusCode: Int, message: String)
 
         var errorDescription: String? {
             switch self {
-            case .httpError(let statusCode, let url):
-                return "HTTP \(statusCode) error for \(url)"
+            case .httpError(let statusCode):
+                return "HTTP \(statusCode)"
             case .apiError(let statusCode, let message):
                 return "HTTP \(statusCode): \(message)"
             }
         }
     }
 
-    private func parseAPIError(data: Data, statusCode: Int, url: URL) -> BeszelAPIError {
+    private func parseAPIError(data: Data, statusCode: Int) -> BeszelAPIError {
         if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
            let message = json["message"] as? String {
             return .apiError(statusCode: statusCode, message: message)
         }
-        return .httpError(statusCode: statusCode, url: url.absoluteString)
+        return .httpError(statusCode: statusCode)
     }
     
     func fetchSystems() async throws -> [SystemRecord] {
@@ -272,7 +325,7 @@ actor BeszelAPIService {
         do {
             return try await fetchAllPages(path: "/api/collections/system_details/records", filter: nil)
         } catch let error as BeszelAPIError {
-            if case .httpError(let statusCode, _) = error, statusCode == 404 {
+            if case .httpError(let statusCode) = error, statusCode == 404 {
                 return []
             }
             throw error
@@ -338,6 +391,7 @@ actor BeszelAPIService {
 
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
             self.authToken = nil
+            clearCachedToken()
             let newToken = try await getValidToken()
 
             var retryRequest = request
@@ -356,7 +410,7 @@ actor BeszelAPIService {
             if (200...299).contains(httpResponse.statusCode) {
                 return data
             } else {
-                throw parseAPIError(data: data, statusCode: httpResponse.statusCode, url: url)
+                throw parseAPIError(data: data, statusCode: httpResponse.statusCode)
             }
         }
         throw URLError(.badServerResponse)
@@ -454,7 +508,7 @@ actor BeszelAPIService {
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
             return String(data: data, encoding: .utf8) ?? ""
         } else if let httpResponse = response as? HTTPURLResponse {
-            throw BeszelAPIError.httpError(statusCode: httpResponse.statusCode, url: url.absoluteString)
+            throw BeszelAPIError.httpError(statusCode: httpResponse.statusCode)
         }
         throw URLError(.badServerResponse)
     }
@@ -483,7 +537,7 @@ actor BeszelAPIService {
             }
             return String(data: data, encoding: .utf8) ?? ""
         } else if let httpResponse = response as? HTTPURLResponse {
-            throw BeszelAPIError.httpError(statusCode: httpResponse.statusCode, url: url.absoluteString)
+            throw BeszelAPIError.httpError(statusCode: httpResponse.statusCode)
         }
         throw URLError(.badServerResponse)
     }

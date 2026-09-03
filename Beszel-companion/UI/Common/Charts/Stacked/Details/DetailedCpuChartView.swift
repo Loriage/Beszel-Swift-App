@@ -95,7 +95,9 @@ struct DetailedCpuChartView: View {
             .padding()
         }
         .environment(\.chartXDomain, xDomain)
+        .monitoringScreenBackground()
         .navigationTitle(Text("details.cpu.title"))
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -140,8 +142,7 @@ struct CpuDetailedValuesSectionView: View {
             }
         }
         .padding(.vertical, 8)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .monitoringCardSurface()
     }
 }
 

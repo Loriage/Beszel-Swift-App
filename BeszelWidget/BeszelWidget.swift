@@ -105,7 +105,7 @@ struct Provider: AppIntentTimelineProvider {
     }
 
     func snapshot(for configuration: SelectInstanceAndChartIntent, in context: Context) async -> SimpleEntry {
-        let chartType = WidgetChartType(rawValue: configuration.chart?.id ?? "") ?? defaultChartType
+        let chartType = configuration.snapshotChartType(isPreview: context.isPreview, family: context.family)
 
         return SimpleEntry(
             date: Date(),
@@ -118,7 +118,8 @@ struct Provider: AppIntentTimelineProvider {
             systemName: String(localized: "widget.sample.system"),
             status: "up",
             timeRange: .last24Hours,
-            lockScreenMetric: .cpu
+            lockScreenMetric: .cpu,
+            errorMessage: chartType.isAvailableInWidget ? nil : "widget.error.unsupportedChart"
         )
     }
 
@@ -240,6 +241,25 @@ private func buildTimeline(
 ) async -> Timeline<SimpleEntry> {
     let isLockScreen = context.family.isLockScreen
     let resolvedChartType: WidgetChartType = isLockScreen ? .systemInfo : chartType
+
+    guard resolvedChartType.isAvailableInWidget else {
+        let entry = SimpleEntry(
+            date: .now,
+            chartType: resolvedChartType,
+            dataPoints: [],
+            containerData: [],
+            systemInfo: nil,
+            systemDetails: nil,
+            latestStats: nil,
+            systemName: configurationSystemName ?? String(localized: "System"),
+            status: nil,
+            timeRange: .last24Hours,
+            lockScreenMetric: lockScreenMetric,
+            errorMessage: "widget.error.unsupportedChart"
+        )
+        return Timeline(entries: [entry], policy: .never)
+    }
+
     let userDefaults = UserDefaults.sharedSuite
     let activeInstanceID = userDefaults.string(forKey: "activeInstanceID")
     let activeSystemID = userDefaults.string(forKey: "activeSystemID")
@@ -625,6 +645,7 @@ struct BeszelRectangularWidget: Widget {
 struct BeszelWidgetBundle: WidgetBundle {
     var body: some Widget {
         BeszelWidget()
+        BeszelDockerWidget()
         BeszelCircularWidget()
         BeszelRectangularWidget()
     }

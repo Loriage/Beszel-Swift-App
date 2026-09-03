@@ -70,6 +70,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				AppIntent.swift,
+				WidgetConfigurationData.swift,
 			);
 			target = 87EB26742E05AAAE002A98E2 /* Beszel */;
 		};
@@ -104,6 +105,7 @@
 				Models/Charts/StatPoint.swift,
 				Models/Charts/SystemDataPoint.swift,
 				Models/Charts/WidgetChartType.swift,
+				Models/Charts/WidgetContainerSelection.swift,
 				Models/Domain/DownsampleMethod.swift,
 				Models/Domain/Instance.swift,
 				Models/Domain/Language.swift,

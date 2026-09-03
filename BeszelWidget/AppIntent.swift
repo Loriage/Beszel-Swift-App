@@ -1,7 +1,6 @@
 import WidgetKit
 import AppIntents
 import SwiftUI
-import os
 
 public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
     public static let title: LocalizedStringResource = "widget.configuration.title"
@@ -13,8 +12,20 @@ public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
     @Parameter(title: "chart.configuration.system.title")
     public var system: SystemEntity?
 
+    @Parameter(title: "widget.configuration.category.title")
+    public var category: WidgetChartCategory?
+
     @Parameter(title: "chart.configuration.chartType.title")
     public var chart: ChartTypeEntity?
+
+    public static var parameterSummary: some ParameterSummary {
+        Summary {
+            \.$instance
+            \.$system
+            \.$category
+            \.$chart
+        }
+    }
 
     public init() {}
 
@@ -23,6 +34,62 @@ public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
         self.system = system
         self.chart = chart
     }
+
+    func snapshotChartType(isPreview: Bool, family: WidgetFamily) -> WidgetChartType {
+        // Showcase a chart in the large gallery card without changing saved selections.
+        if isPreview && family == .systemLarge {
+            return .systemCPU
+        }
+        return WidgetChartType(rawValue: chart?.id ?? "") ?? .systemInfo
+    }
+}
+
+extension WidgetChartCategory: AppEnum {
+    public static let typeDisplayRepresentation: TypeDisplayRepresentation = "widget.configuration.category.title"
+    public static let caseDisplayRepresentations: [Self: DisplayRepresentation] = [
+        .overview: "widget.category.overview",
+        .processor: "widget.category.processor",
+        .memory: "widget.category.memory",
+        .disk: "widget.category.disk",
+        .additionalDisks: "widget.category.additionalDisks",
+        .network: "widget.category.network",
+        .sensors: "widget.category.sensors"
+    ]
+}
+
+extension DockerWidgetMetric: AppEnum {
+    public static let typeDisplayRepresentation: TypeDisplayRepresentation = "widget.configuration.metric.title"
+    public static let caseDisplayRepresentations: [Self: DisplayRepresentation] = [
+        .cpu: "CPU", .memory: "Memory", .network: "widget.docker.network"
+    ]
+}
+
+public struct SelectDockerContainerIntent: WidgetConfigurationIntent {
+    public static let title: LocalizedStringResource = "widget.docker.displayName"
+    public static let description: IntentDescription = "widget.docker.description"
+
+    @Parameter(title: "chart.configuration.instance.title")
+    public var instance: InstanceEntity?
+
+    @Parameter(title: "chart.configuration.system.title")
+    public var system: SystemEntity?
+
+    @Parameter(title: "widget.configuration.container.title")
+    public var container: DockerContainerEntity?
+
+    @Parameter(title: "widget.configuration.metric.title", default: .cpu)
+    public var metric: DockerWidgetMetric
+
+    public static var parameterSummary: some ParameterSummary {
+        Summary {
+            \.$instance
+            \.$system
+            \.$container
+            \.$metric
+        }
+    }
+
+    public init() {}
 }
 
 public struct SelectInstanceAndMetricIntent: WidgetConfigurationIntent {
@@ -110,79 +177,25 @@ public struct SystemEntity: AppEntity {
 }
 
 public struct SystemQuery: EntityQuery {
-    private static let logger = Logger(subsystem: "com.nohitdev.Beszel.widget", category: "SystemQuery")
-    private static let userDefaults = UserDefaults.sharedSuite
-    private static let cacheKey = "cachedSystemEntities"
+    @IntentParameterDependency<SelectInstanceAndChartIntent>(\.$instance)
+    private var chartIntent
+    @IntentParameterDependency<SelectInstanceAndMetricIntent>(\.$instance)
+    private var metricIntent
+    @IntentParameterDependency<SelectInstanceIntent>(\.$instance)
+    private var instanceIntent
+    @IntentParameterDependency<SelectDockerContainerIntent>(\.$instance)
+    private var dockerIntent
 
     public init() {}
 
     public func entities(for identifiers: [String]) async throws -> [SystemEntity] {
-        // First try to get from API
-        let allSystems = await allSystemsForSelectedInstance()
-        let found = allSystems.filter { identifiers.contains($0.id) }
-
-        // If we found all requested entities, return them
-        if found.count == identifiers.count {
-            return found
-        }
-
-        // If some entities are missing, try to get them from cache
-        // This prevents iOS from seeing the entity as nil when API fails
-        let cachedSystems = Self.loadCachedSystems()
-        let missingIds = Set(identifiers).subtracting(found.map { $0.id })
-        let fromCache = cachedSystems.filter { missingIds.contains($0.id) }
-
-        return found + fromCache
+        try await suggestedEntities().filter { identifiers.contains($0.id) }
     }
 
     public func suggestedEntities() async throws -> [SystemEntity] {
-        return await allSystemsForSelectedInstance()
-    }
-
-    private func allSystemsForSelectedInstance() async -> [SystemEntity] {
-        let apiService = await MainActor.run { () -> BeszelAPIService? in
-            let manager = InstanceManager.shared
-            let idString = Self.userDefaults.string(forKey: "activeInstanceID")
-
-            guard let activeIDString = idString,
-                  let _ = UUID(uuidString: activeIDString),
-                  let foundInstance = manager.instances.first(where: { $0.id.uuidString == idString }) else {
-                return nil
-            }
-
-            return BeszelAPIService(instance: foundInstance, instanceManager: manager)
-        }
-
-        guard let apiService = apiService else {
-            return Self.loadCachedSystems()
-        }
-
-        do {
-            let systems = try await apiService.fetchSystems()
-            let entities = systems.map { SystemEntity(id: $0.id, name: $0.name) }
-            // Cache the systems for future use when API fails
-            Self.saveCachedSystems(entities)
-            return entities
-        } catch {
-            Self.logger.error("Failed to fetch systems for widget: \(error.localizedDescription)")
-            // Return cached systems when API fails
-            return Self.loadCachedSystems()
-        }
-    }
-
-    private static func saveCachedSystems(_ systems: [SystemEntity]) {
-        let data = systems.map { ["id": $0.id, "name": $0.name] }
-        userDefaults.set(data, forKey: cacheKey)
-    }
-
-    private static func loadCachedSystems() -> [SystemEntity] {
-        guard let data = userDefaults.array(forKey: cacheKey) as? [[String: String]] else {
-            return []
-        }
-        return data.compactMap { dict in
-            guard let id = dict["id"], let name = dict["name"] else { return nil }
-            return SystemEntity(id: id, name: name)
-        }
+        let instanceID = chartIntent?.instance.id ?? metricIntent?.instance.id
+            ?? instanceIntent?.instance.id ?? dockerIntent?.instance.id
+        return try await WidgetConfigurationData.systems(instanceID: instanceID)
     }
 }
 
@@ -200,17 +213,90 @@ public struct ChartTypeEntity: AppEntity {
     public static let defaultQuery = ChartTypeQuery()
 }
 
-public struct ChartTypeQuery: EntityQuery {
+public struct ChartTypeQuery: EntityStringQuery {
+    @IntentParameterDependency<SelectInstanceAndChartIntent>(\.$category)
+    private var intent
+
     public init() {}
     public func entities(for identifiers: [String]) async throws -> [ChartTypeEntity] {
-        let all = try await suggestedEntities()
-        return all.filter { identifiers.contains($0.id) }
+        // Retired choices still resolve so existing widgets can ask the user
+        // to reconfigure instead of silently switching to a different metric.
+        identifiers.compactMap { identifier in
+            guard let chartType = WidgetChartType(rawValue: identifier) else { return nil }
+            return ChartTypeEntity(id: chartType.id, title: chartType.localizedTitle)
+        }
     }
 
-    public func suggestedEntities() async throws -> [ChartTypeEntity] {
-        WidgetChartType.allCases.map { chartType in
-            ChartTypeEntity(id: chartType.id, title: chartType.localizedTitle)
+    public func suggestedEntities() async throws -> IntentItemCollection<ChartTypeEntity> {
+        Self.choices(category: intent?.category)
+    }
+
+    public func entities(matching string: String) async throws -> IntentItemCollection<ChartTypeEntity> {
+        Self.choices(category: intent?.category, search: string)
+    }
+
+    public static func choices(
+        category: WidgetChartCategory?, search: String = ""
+    ) -> IntentItemCollection<ChartTypeEntity> {
+        let search = search.trimmingCharacters(in: .whitespacesAndNewlines)
+        let categories = category.map { [$0] } ?? WidgetChartCategory.allCases
+        let sections = categories.compactMap { category -> IntentItemSection<ChartTypeEntity>? in
+            let charts = category.chartTypes.filter { chart in
+                search.isEmpty || String(localized: chart.localizedTitle).localizedStandardContains(search)
+            }.map { ChartTypeEntity(id: $0.id, title: $0.localizedTitle) }
+            guard !charts.isEmpty else { return nil }
+            return IntentItemSection(category.title, items: charts)
         }
+        return IntentItemCollection(sections: sections)
+    }
+}
+
+public struct DockerContainerEntity: AppEntity {
+    public let id: String
+    public let name: String
+
+    public static let typeDisplayRepresentation: TypeDisplayRepresentation = "widget.configuration.container.title"
+    public static let defaultQuery = DockerContainerQuery()
+
+    public var displayRepresentation: DisplayRepresentation {
+        DisplayRepresentation(title: "\(name)", image: .init(systemName: "shippingbox"))
+    }
+
+    init(selection: WidgetContainerSelection) {
+        id = selection.id
+        name = selection.name
+    }
+}
+
+public struct DockerContainerQuery: EntityStringQuery {
+    @IntentParameterDependency<SelectDockerContainerIntent>(\.$instance, \.$system)
+    private var intent
+
+    private let catalog = WidgetContainerCatalog()
+
+    public init() {}
+
+    public func entities(for identifiers: [String]) async throws -> [DockerContainerEntity] {
+        // Resolving an existing selection must not depend on the hub being online
+        // or the container still running. Its scope is checked by the timeline.
+        identifiers.compactMap { WidgetContainerSelection(id: $0) }.map(DockerContainerEntity.init)
+    }
+
+    public func suggestedEntities() async throws -> [DockerContainerEntity] {
+        try await containers(matching: "")
+    }
+
+    public func entities(matching string: String) async throws -> [DockerContainerEntity] {
+        try await containers(matching: string)
+    }
+
+    private func containers(matching search: String) async throws -> [DockerContainerEntity] {
+        guard let systemID = intent?.system.id else { return [] }
+        let connection = try await WidgetConfigurationData.connection(instanceID: intent?.instance.id)
+        let records = try await catalog.records(connection: connection, systemID: systemID)
+        return WidgetContainerSelection.runningSelections(
+            in: records, instanceID: connection.instanceID, systemID: systemID, search: search
+        ).map(DockerContainerEntity.init)
     }
 }
 

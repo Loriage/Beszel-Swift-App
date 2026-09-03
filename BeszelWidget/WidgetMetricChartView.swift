@@ -7,13 +7,29 @@ struct WidgetMetricChartView: View {
     @Environment(\.widgetFamily) private var widgetFamily
 
     let entry: SimpleEntry
+    var containerMetric: DockerWidgetMetric? = nil
+    var containerName: String? = nil
 
     private var presentation: WidgetChartPresentation {
-        WidgetChartPresentation(
+        if let containerMetric {
+            return WidgetChartPresentation(
+                containerMetric: containerMetric,
+                points: entry.containerData.first?.statPoints ?? []
+            )
+        }
+        return WidgetChartPresentation(
             chartType: entry.chartType,
             dataPoints: entry.dataPoints,
             containerData: entry.containerData
         )
+    }
+
+    private var title: Text {
+        if let containerName {
+            Text(verbatim: containerName)
+        } else {
+            Text(LocalizedStringKey(entry.chartType.titleKey))
+        }
     }
 
     private var isLarge: Bool {
@@ -27,7 +43,7 @@ struct WidgetMetricChartView: View {
             header(for: presentation)
 
             if presentation.series.isEmpty {
-                NoDataPlaceholderView(metricName: entry.chartType.localizedTitle)
+                NoDataPlaceholderView(metricName: containerMetric?.title ?? entry.chartType.localizedTitle)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 if presentation.series.count > 1 {
@@ -46,7 +62,7 @@ struct WidgetMetricChartView: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(LocalizedStringKey(entry.chartType.titleKey)))
+        .accessibilityLabel(title)
         .accessibilityValue(accessibilityValue(for: presentation))
     }
 
@@ -61,7 +77,7 @@ struct WidgetMetricChartView: View {
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(LocalizedStringKey(entry.chartType.titleKey))
+                title
                     .font(isLarge ? .headline : .subheadline.weight(.semibold))
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
@@ -73,7 +89,7 @@ struct WidgetMetricChartView: View {
                     Text("•")
                         .accessibilityHidden(true)
 
-                    Text(LocalizedStringKey(entry.timeRange.rawValue))
+                    Text(containerMetric?.title ?? LocalizedStringResource(stringLiteral: entry.timeRange.rawValue))
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
 
@@ -237,7 +253,8 @@ struct WidgetMetricChartView: View {
             return String(localized: "widget.noData")
         }
 
-        return "\(entry.systemName), \(presentation.valueFormat.format(currentValue, locale: locale))"
+        let metric = containerMetric.map { String(localized: $0.title) + ", " } ?? ""
+        return "\(entry.systemName), \(metric)\(presentation.valueFormat.format(currentValue, locale: locale))"
     }
 }
 
@@ -407,6 +424,41 @@ private struct WidgetChartPresentation {
     var gridValues: [Double] {
         let span = yDomain.upperBound - yDomain.lowerBound
         return [0.25, 0.5, 0.75].map { yDomain.lowerBound + span * $0 }
+    }
+
+    init(containerMetric: DockerWidgetMetric, points: [StatPoint]) {
+        let points = points.sorted { $0.date < $1.date }
+        switch containerMetric {
+        case .cpu, .memory:
+            let values = points.map {
+                WidgetChartPoint(date: $0.date, value: containerMetric == .cpu ? $0.cpu : $0.memory)
+            }
+            series = values.isEmpty ? [] : [WidgetChartSeries(
+                id: containerMetric.rawValue, name: String(localized: containerMetric.title),
+                colorIndex: 0, points: values
+            )]
+            summaryPoints = values
+            valueFormat = containerMetric == .cpu ? .percent : .megabytes
+        case .network:
+            let download = points.map { WidgetChartPoint(date: $0.date, value: $0.netReceived) }
+            let upload = points.map { WidgetChartPoint(date: $0.date, value: $0.netSent) }
+            series = points.isEmpty ? [] : [
+                WidgetChartSeries(
+                    id: "download", name: String(localized: "chart.bandwidth.download"),
+                    colorIndex: 0, points: download
+                ),
+                WidgetChartSeries(
+                    id: "upload", name: String(localized: "chart.bandwidth.upload"),
+                    colorIndex: 1, points: upload
+                )
+            ]
+            summaryPoints = points.map {
+                WidgetChartPoint(date: $0.date, value: $0.netReceived + $0.netSent)
+            }
+            valueFormat = .bytesPerSecond
+        }
+        fixedYDomain = nil
+        referenceValue = nil
     }
 
     init(

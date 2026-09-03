@@ -142,14 +142,18 @@ struct ContainerRowView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 4) {
-                if let health = container.health {
+                switch ContainerRowStatusPresentation(
+                    health: container.health,
+                    runtimeState: container.runtimeState
+                ) {
+                case .health(let health):
                     HealthBadge(health: health)
+                case .runtime(let state):
+                    ContainerRuntimeBadge(
+                        status: container.status,
+                        state: state
+                    )
                 }
-                
-                ContainerRuntimeBadge(
-                    status: container.status,
-                    state: container.runtimeState
-                )
             }
             
             Image(systemName: "chevron.right")
@@ -172,6 +176,19 @@ struct ContainerRowView: View {
     
     private func formatNetwork(_ bytesPerSecond: Double) -> String {
         MetricFormatter.throughput(bytesPerSecond: bytesPerSecond)
+    }
+}
+
+nonisolated enum ContainerRowStatusPresentation: Equatable, Sendable {
+    case health(ContainerHealth)
+    case runtime(ContainerRuntimeState)
+
+    init(health: ContainerHealth?, runtimeState: ContainerRuntimeState) {
+        if let health, health != .none {
+            self = .health(health)
+        } else {
+            self = .runtime(runtimeState)
+        }
     }
 }
 

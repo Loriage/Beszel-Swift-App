@@ -32,9 +32,9 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
     case containerMemory
     case containerNetwork
 
-    public var id: String { rawValue }
+    public nonisolated var id: String { rawValue }
 
-    public var titleKey: String {
+    public nonisolated var titleKey: String {
         switch self {
         case .systemInfo: "pinned.item.system.info"
         case .systemCPU: "pinned.item.system.cpu"
@@ -69,11 +69,11 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         }
     }
 
-    public var localizedTitle: LocalizedStringResource {
+    public nonisolated var localizedTitle: LocalizedStringResource {
         LocalizedStringResource(stringLiteral: titleKey)
     }
 
-    public var systemImage: String {
+    public nonisolated var systemImage: String {
         switch self {
         case .systemInfo: "info.circle"
         case .systemCPU, .systemCPUTimeBreakdown, .systemCPUCores, .containerCPU: "cpu"
@@ -91,7 +91,7 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         }
     }
 
-    public var requiresContainerData: Bool {
+    public nonisolated var requiresContainerData: Bool {
         switch self {
         case .containerCPU, .containerMemory, .containerNetwork:
             true

@@ -337,7 +337,9 @@ private func buildTimeline(
         }
         
         let filter = "(\(timeRange.apiFilterString) && system = '\(finalSystemID)')"
-        async let statsTask = apiService.fetchSystemStats(filter: filter)
+        async let statsTask: [SystemStatsRecord] = resolvedChartType.requiresContainerData
+            ? []
+            : apiService.fetchSystemStats(filter: filter)
         async let detailsTask: [SystemDetailsRecord] = (resolvedChartType == .systemInfo) ? apiService.fetchSystemDetails() : []
         async let containerRecordsTask: [ContainerStatsRecord] = resolvedChartType.requiresContainerData
             ? apiService.fetchMonitors(filter: filter)
@@ -440,24 +442,143 @@ private func buildTimeline(
 }
 
 private func sampleDataPoints() -> [SystemDataPoint] {
-    (0..<10).map { i in
-        SystemDataPoint(
-            date: Date().addingTimeInterval(TimeInterval(i * 3600)),
-            cpu: Double.random(in: 20...80),
-            cpuBreakdown: nil,
-            cpuPerCore: nil,
-            memoryPercent: Double.random(in: 30...60),
-            temperatures: [],
-            bandwidth: nil,
-            diskIO: nil,
-            diskIOStats: nil,
-            diskUsage: nil,
-            loadAverage: nil,
-            swap: nil,
-            gpuMetrics: [],
-            networkInterfaces: [],
-            extraFilesystems: []
+    let pointCount = 24
+    let endDate = Date.now
+
+    return (0..<pointCount).map { index in
+        let progress = Double(index) / Double(pointCount - 1)
+        let wave = (sin(Double(index) * 0.62) + 1) / 2
+        let secondaryWave = (cos(Double(index) * 0.38) + 1) / 2
+        let cpu = min(92, 22 + wave * 18 + (index == 16 ? 42 : 0))
+        let userCPU = cpu * 0.62
+        let systemCPU = cpu * 0.25
+        let ioWait = cpu * 0.09
+        let steal = cpu * 0.04
+
+        return SystemDataPoint(
+            date: endDate.addingTimeInterval(TimeInterval(index - pointCount + 1) * 3_600),
+            cpu: cpu,
+            cpuBreakdown: [userCPU, systemCPU, ioWait, steal, max(0, 100 - cpu)],
+            cpuPerCore: [
+                min(100, cpu * 0.82),
+                min(100, cpu * 1.12),
+                min(100, cpu * 0.68 + secondaryWave * 8),
+                min(100, cpu * 1.28)
+            ],
+            memoryPercent: 43 + progress * 7 + wave * 3,
+            temperatures: [
+                (name: "CPU", value: 47 + wave * 14),
+                (name: "NVMe", value: 38 + secondaryWave * 8)
+            ],
+            bandwidth: (
+                upload: 160_000 + wave * 840_000,
+                download: 420_000 + secondaryWave * 2_800_000
+            ),
+            diskIO: (
+                read: 180_000 + secondaryWave * 2_200_000,
+                write: 90_000 + wave * 1_100_000
+            ),
+            diskIOStats: DiskIOStats(
+                readTimePct: 5 + secondaryWave * 18,
+                writeTimePct: 3 + wave * 12,
+                utilPct: 12 + wave * 38,
+                rAwait: 1.4 + secondaryWave * 4,
+                wAwait: 2.1 + wave * 6,
+                weightedIO: 0.3 + wave * 1.8
+            ),
+            diskUsage: (used: 318 + progress * 4, total: 512),
+            loadAverage: (
+                l1: 1.2 + wave * 2.2,
+                l5: 1.1 + secondaryWave * 1.4,
+                l15: 1.0 + progress * 0.8
+            ),
+            swap: (used: 1.4 + wave * 0.7, total: 8),
+            gpuMetrics: [
+                GPUMetricPoint(
+                    name: "GPU 0",
+                    usage: 18 + wave * 45,
+                    memoryUsed: 2.8,
+                    memoryTotal: 8,
+                    power: 42,
+                    temperature: 55 + wave * 9
+                )
+            ],
+            networkInterfaces: [
+                NetworkInterfacePoint(
+                    name: "en0",
+                    sent: 120_000 + wave * 540_000,
+                    received: 360_000 + secondaryWave * 2_100_000,
+                    totalSent: 8_200_000_000 + Double(index) * 24_000_000,
+                    totalReceived: 42_000_000_000 + Double(index) * 86_000_000
+                ),
+                NetworkInterfacePoint(
+                    name: "tailscale0",
+                    sent: 40_000 + secondaryWave * 120_000,
+                    received: 55_000 + wave * 210_000,
+                    totalSent: 1_100_000_000 + Double(index) * 7_000_000,
+                    totalReceived: 2_600_000_000 + Double(index) * 11_000_000
+                )
+            ],
+            extraFilesystems: [
+                ExtraFilesystemPoint(
+                    name: "Data",
+                    used: 742 + progress * 6,
+                    total: 1_024,
+                    percent: 72.5 + progress * 0.6,
+                    diskRead: 90_000 + wave * 780_000,
+                    diskWrite: 55_000 + secondaryWave * 420_000,
+                    diskIOStats: DiskIOStats(
+                        readTimePct: 4 + wave * 10,
+                        writeTimePct: 3 + secondaryWave * 8,
+                        utilPct: 9 + wave * 24,
+                        rAwait: 1 + secondaryWave * 3,
+                        wAwait: 1.8 + wave * 4,
+                        weightedIO: 0.2 + wave
+                    )
+                ),
+                ExtraFilesystemPoint(
+                    name: "Backup",
+                    used: 1_260 + progress * 3,
+                    total: 2_048,
+                    percent: 61.5 + progress * 0.2,
+                    diskRead: 35_000 + secondaryWave * 220_000,
+                    diskWrite: 25_000 + wave * 150_000,
+                    diskIOStats: DiskIOStats(
+                        readTimePct: 2 + secondaryWave * 6,
+                        writeTimePct: 2 + wave * 5,
+                        utilPct: 5 + secondaryWave * 13,
+                        rAwait: 0.8 + wave * 2,
+                        wAwait: 1.2 + secondaryWave * 2.8,
+                        weightedIO: 0.1 + secondaryWave * 0.6
+                    )
+                )
+            ]
         )
+    }
+}
+
+private func sampleContainerData() -> [ProcessedContainerData] {
+    let pointCount = 24
+    let endDate = Date.now
+    let containers = [
+        (name: "api", cpu: 18.0, memory: 420.0, network: 520_000.0),
+        (name: "database", cpu: 12.0, memory: 860.0, network: 240_000.0),
+        (name: "proxy", cpu: 5.0, memory: 145.0, network: 1_100_000.0),
+        (name: "worker", cpu: 9.0, memory: 310.0, network: 180_000.0)
+    ]
+
+    return containers.enumerated().map { containerIndex, container in
+        let points = (0..<pointCount).map { index in
+            let wave = (sin(Double(index + containerIndex * 2) * 0.55) + 1) / 2
+            return StatPoint(
+                date: endDate.addingTimeInterval(TimeInterval(index - pointCount + 1) * 3_600),
+                cpu: container.cpu * (0.65 + wave * 0.7),
+                memory: container.memory * (0.94 + wave * 0.1),
+                netSent: container.network * wave * 0.42,
+                netReceived: container.network * (0.35 + wave * 0.65)
+            )
+        }
+        return ProcessedContainerData(id: container.name, statPoints: points)
     }
 }
 

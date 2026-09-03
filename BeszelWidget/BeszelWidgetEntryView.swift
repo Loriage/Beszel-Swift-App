@@ -6,10 +6,6 @@ struct BeszelWidgetEntryView : View {
     @Environment(\.widgetFamily) private var widgetFamily
     var entry: SimpleEntry
     
-    private var widgetXAxisFormat: Date.FormatStyle {
-        return entry.timeRange.xAxisFormat
-    }
-    
     var body: some View {
         VStack(alignment: .leading) {
             if let errorMessage = entry.errorMessage {
@@ -23,9 +19,6 @@ struct BeszelWidgetEntryView : View {
                     metric: entry.lockScreenMetric
                 )
             }
-            else if entry.chartType != .systemInfo && entry.dataPoints.isEmpty {
-                NoDataPlaceholderView()
-            }
             else {
                 contentView
             }
@@ -33,7 +26,7 @@ struct BeszelWidgetEntryView : View {
         .containerBackground(.fill.tertiary, for: .widget)
         .environment(\.locale, Locale(identifier: languageManager.currentLanguageCode))
         .overlay(alignment: .topTrailing) {
-            if entry.isFromCache {
+            if entry.isFromCache && (entry.chartType == .systemInfo || widgetFamily.isLockScreen) {
                 Image(systemName: "clock.arrow.circlepath")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -57,30 +50,8 @@ struct BeszelWidgetEntryView : View {
             } else {
                 NoDataPlaceholderView(metricName: "widget.systemInfo")
             }
-        case .systemCPU:
-            SystemMetricChartView(
-                title: "widget.chart.systemCPU.title",
-                xAxisFormat: widgetXAxisFormat,
-                dataPoints: entry.dataPoints,
-                valueKeyPath: \.cpu,
-                color: .blue,
-                isForWidget: true
-            )
-        case .systemMemory:
-            SystemMetricChartView(
-                title: "widget.chart.systemMemory.title",
-                xAxisFormat: widgetXAxisFormat,
-                dataPoints: entry.dataPoints,
-                valueKeyPath: \.memoryPercent,
-                color: .green,
-                isForWidget: true
-            )
-        case .systemTemperature:
-            if entry.dataPoints.contains(where: { !$0.temperatures.isEmpty }) {
-                SystemTemperatureChartView(xAxisFormat: widgetXAxisFormat, dataPoints: entry.dataPoints, isForWidget: true)
-            } else {
-                NoDataPlaceholderView(metricName: "widget.temperatures")
-            }
+        default:
+            WidgetMetricChartView(entry: entry)
         }
     }
 }

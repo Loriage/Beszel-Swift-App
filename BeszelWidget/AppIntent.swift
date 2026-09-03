@@ -44,7 +44,9 @@ public struct SelectInstanceAndChartIntent: WidgetConfigurationIntent {
     }
 }
 
-extension WidgetChartCategory: AppEnum {
+// This file also belongs to the MainActor-default app target. Keep App Intents
+// metadata nonisolated explicitly, including with the Xcode 26 compiler.
+nonisolated extension WidgetChartCategory: AppEnum {
     public static let typeDisplayRepresentation: TypeDisplayRepresentation = "widget.configuration.category.title"
     public static let caseDisplayRepresentations: [Self: DisplayRepresentation] = [
         .overview: "widget.category.overview",
@@ -57,7 +59,7 @@ extension WidgetChartCategory: AppEnum {
     ]
 }
 
-extension DockerWidgetMetric: AppEnum {
+nonisolated extension DockerWidgetMetric: AppEnum {
     public static let typeDisplayRepresentation: TypeDisplayRepresentation = "widget.configuration.metric.title"
     public static let caseDisplayRepresentations: [Self: DisplayRepresentation] = [
         .cpu: "CPU", .memory: "Memory", .network: "widget.docker.network"

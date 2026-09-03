@@ -103,6 +103,7 @@
 				Models/API/SystemRecord.swift,
 				Models/API/SystemStatsRecord.swift,
 				Models/API/ZFSPoolRecord.swift,
+				Models/Charts/SensorChartData.swift,
 				Models/Charts/StackedChartData.swift,
 				Models/Charts/StatPoint.swift,
 				Models/Charts/SystemDataPoint.swift,

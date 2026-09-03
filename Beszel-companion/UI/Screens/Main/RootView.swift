@@ -9,6 +9,14 @@ struct RootView: View {
 
     @State private var isShowingSettings = false
 
+    private var isSensorUITesting: Bool {
+#if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--ui-testing-battery-fans")
+#else
+        false
+#endif
+    }
+
     private var isCompatibilityUITesting: Bool {
 #if DEBUG
         ProcessInfo.processInfo.arguments.contains("--ui-testing-beszel019")
@@ -27,7 +35,11 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if isCompatibilityUITesting {
+            if isSensorUITesting {
+#if DEBUG
+                BatteryFanUITestView()
+#endif
+            } else if isCompatibilityUITesting {
 #if DEBUG
                 Beszel019UITestView(legacy: ProcessInfo.processInfo.arguments.contains("--legacy-hub"))
 #endif
@@ -69,7 +81,7 @@ struct RootView: View {
                 .environment(alertManager)
         }
         .task(id: instanceManager.systemsLoadRequestID) {
-            guard !isCompatibilityUITesting else { return }
+            guard !isCompatibilityUITesting, !isSensorUITesting else { return }
             guard let instance = instanceManager.activeInstance else { return }
             await instanceManager.fetchSystemsForInstance(instance)
         }

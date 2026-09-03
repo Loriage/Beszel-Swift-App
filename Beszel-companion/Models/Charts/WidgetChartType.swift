@@ -7,6 +7,8 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
     case systemCPUCores
     case systemMemory
     case systemTemperature
+    case systemBattery
+    case systemFans
     case systemDiskUsage
     case systemDiskIO
     case systemDiskIOUtilization
@@ -55,7 +57,7 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         case .systemBandwidth, .systemBandwidthDownload, .systemBandwidthUpload,
              .systemBandwidthCumulativeDownload, .systemBandwidthCumulativeUpload,
              .systemNetworkInterfaces: .network
-        case .systemTemperature, .systemGPU: .sensors
+        case .systemTemperature, .systemGPU, .systemBattery, .systemFans: .sensors
         case .containerCPU, .containerMemory, .containerNetwork: .overview
         }
     }
@@ -84,6 +86,8 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         case .systemCPUCores: "pinned.item.system.cpu.cores"
         case .systemMemory: "pinned.item.system.memory"
         case .systemTemperature: "pinned.item.system.temperature"
+        case .systemBattery: "chart.battery.title"
+        case .systemFans: "chart.fans.title"
         case .systemDiskUsage: "pinned.item.system.diskusage"
         case .systemDiskIO: "pinned.item.system.disk"
         case .systemDiskIOUtilization: "pinned.item.system.disk.utilization"
@@ -127,6 +131,8 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         case .systemCPU, .systemCPUTimeBreakdown, .systemCPUCores, .containerCPU: "cpu"
         case .systemMemory, .systemSwap, .containerMemory: "memorychip"
         case .systemTemperature: "thermometer.medium"
+        case .systemBattery: "battery.75percent"
+        case .systemFans: "fan"
         case .systemDiskUsage, .systemDiskIO, .systemDiskIOUtilization, .systemDiskIOTimes,
              .systemDiskAwait, .systemDiskIOQueueDepth, .systemDiskCumulativeRead, .systemDiskCumulativeWrite: "internaldrive"
         case .zfsPoolUsage, .zfsPoolIO: "externaldrive.badge.checkmark"
@@ -149,9 +155,11 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         }
     }
 
-    /// Only new 0.19 choices are gated; older widget configurations retain their behavior.
+    /// Optional hardware metrics are gated; older widget configurations retain their behavior.
     nonisolated func isSupported(by stats: SystemStatsDetail?) -> Bool {
         switch self {
+        case .systemBattery: stats?.batteryPercent != nil || stats?.batteryReadings.isEmpty == false
+        case .systemFans: stats?.fanReadings.isEmpty == false
         case .zfsPoolUsage, .zfsPoolIO: stats?.zfsPools?.isEmpty == false
         case .systemDiskCumulativeRead, .systemDiskCumulativeWrite: (stats?.diskIOTotals?.count ?? 0) >= 2
         case .extraDiskCumulativeRead: stats?.extraFilesystems?.values.contains { $0.tr != nil } == true

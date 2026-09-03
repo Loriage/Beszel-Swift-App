@@ -241,6 +241,16 @@ struct HomeView: View {
                 isPinned: store.isPinned(.systemTemperature, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemTemperature, onSystem: resolvedItem.systemID) }
             )
+        case .systemBattery, .systemFans:
+            SensorHistoryChart(
+                history: resolvedItem.item == .systemBattery
+                    ? store.sensorCharts(forSystemID: resolvedItem.systemID).battery
+                    : store.sensorCharts(forSystemID: resolvedItem.systemID).fans,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(resolvedItem.item, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: resolvedItem.item, onSystem: resolvedItem.systemID) }
+            )
         case .systemDiskIO:
             SystemDiskIOChartView(
                 dataPoints: systemData,

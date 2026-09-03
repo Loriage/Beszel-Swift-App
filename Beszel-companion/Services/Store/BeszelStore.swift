@@ -18,6 +18,7 @@ final class BeszelStore {
     var networkDomain: [String] = []
     
     var systemDataPoints: [SystemDataPoint] = []
+    private(set) var sensorCharts = SystemSensorCharts.empty
     var smartDevices: [SmartDeviceRecord] = []
     var zfsPools: [ZFSPoolRecord] = []
     private(set) var zfsPoolNames: [String] = []
@@ -40,7 +41,12 @@ final class BeszelStore {
     var isLoading = true
     var errorMessage: String?
     
-    private var systemDataPointsBySystem: [String: [SystemDataPoint]] = [:]
+    private var systemDataPointsBySystem: [String: [SystemDataPoint]] = [:] {
+        didSet {
+            sensorChartsBySystem = systemDataPointsBySystem.mapValues { SystemSensorCharts(dataPoints: $0) }
+        }
+    }
+    private var sensorChartsBySystem: [String: SystemSensorCharts] = [:]
     private var containerDataBySystem: [String: [ProcessedContainerData]] = [:]
     private var containerRecordsBySystem: [String: [ContainerRecord]] = [:]
     private var latestStatsBySystem: [String: SystemStatsRecord] = [:]
@@ -127,6 +133,7 @@ final class BeszelStore {
     func updateDataForActiveSystem() {
         guard let activeSystemID = instanceManager.activeSystem?.id else {
             self.systemDataPoints = []
+            self.sensorCharts = .empty
             self.containerData = []
             self.containerRecords = []
             self.latestSystemStats = nil
@@ -138,6 +145,7 @@ final class BeszelStore {
             return
         }
         self.systemDataPoints = systemDataPointsBySystem[activeSystemID] ?? []
+        self.sensorCharts = sensorChartsBySystem[activeSystemID] ?? .empty
         self.containerData = containerDataBySystem[activeSystemID] ?? []
         self.containerRecords = containerRecordsBySystem[activeSystemID] ?? []
         self.latestSystemStats = latestStatsBySystem[activeSystemID]
@@ -202,6 +210,7 @@ final class BeszelStore {
         zfsPoolNames = []
         zfsDetailsUnavailable = false
         systemDataPoints = []
+        sensorCharts = .empty
         containerData = []
         containerRecords = []
         latestSystemStats = nil
@@ -475,6 +484,10 @@ final class BeszelStore {
     
     func systemData(forSystemID systemID: String) -> [SystemDataPoint] {
         systemDataPointsBySystem[systemID] ?? []
+    }
+
+    func sensorCharts(forSystemID systemID: String) -> SystemSensorCharts {
+        sensorChartsBySystem[systemID] ?? .empty
     }
     
     func containerData(forSystemID systemID: String) -> [ProcessedContainerData] {

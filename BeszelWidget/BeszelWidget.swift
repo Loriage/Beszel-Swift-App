@@ -585,7 +585,10 @@ private func sampleDataPoints() -> [SystemDataPoint] {
                 d: 1_024, du: 320 + progress * 4,
                 rb: 100_000 + wave * 1_200_000,
                 wb: 80_000 + secondaryWave * 400_000, h: "ONLINE"
-            )]
+            )],
+            batteryPercent: 92 - progress * 18,
+            batteries: ["BAT0": 92 - progress * 18, "BAT1": 85 - progress * 12],
+            fans: ["CPU": 1_200 + wave * 1_600, "Case": 800 + secondaryWave * 500]
         )
     }
 }

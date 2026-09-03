@@ -36,6 +36,9 @@ struct SystemDataPoint: Identifiable, Sendable {
     let extraFilesystems: [ExtraFilesystemPoint]
     var diskIOTotals: DiskIOTotals? = nil
     var zfsPools: [String: ZFSPoolStats] = [:]
+    var batteryPercent: Double? = nil
+    var batteries: [String: Double] = [:]
+    var fans: [String: Double] = [:]
 
 }
 
@@ -120,6 +123,12 @@ extension Array where Element == SystemDataPoint {
             }
         }
         let avgTemps = tempSums.map { (name: $0.key, value: $0.value.sum / Double($0.value.count)) }
+
+        // Average only reported readings; an absent sensor is not a zero reading.
+        let batteryValues = points.compactMap { $0.batteryPercent.flatMap(SensorHistoryMetric.battery.validValue) }
+        let avgBattery = batteryValues.isEmpty ? nil : batteryValues.reduce(0, +) / Double(batteryValues.count)
+        let avgBatteries = SensorHistoryMetric.battery.averageReadings(points.map(\.batteries))
+        let avgFans = SensorHistoryMetric.fans.averageReadings(points.map(\.fans))
 
         let bandwidthPoints = points.compactMap { $0.bandwidth }
         let avgBandwidth: (upload: Double, download: Double)?
@@ -353,7 +362,10 @@ extension Array where Element == SystemDataPoint {
             extraFilesystems: avgExtraFs,
             // Counters must keep the latest sample, including decreases after reboot.
             diskIOTotals: points.reversed().compactMap(\.diskIOTotals).first,
-            zfsPools: zfsPools
+            zfsPools: zfsPools,
+            batteryPercent: avgBattery,
+            batteries: avgBatteries,
+            fans: avgFans
         )
     }
 }

@@ -118,6 +118,11 @@ struct WidgetMetricChartView: View {
                         .foregroundStyle(.secondary)
                         .monospacedDigit()
                 }
+                if let sensorHistory = presentation.sensorHistory, sensorHistory.series.count > 1 {
+                    Text(sensorHistory.metric == .battery ? "chart.battery.lowest" : "chart.fans.fastest")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
             }
             .layoutPriority(1)
         }
@@ -168,7 +173,8 @@ struct WidgetMetricChartView: View {
                         AreaMark(
                             x: .value("Date", point.date),
                             yStart: .value("Baseline", presentation.yDomain.lowerBound),
-                            yEnd: .value("Value", point.value)
+                            yEnd: .value("Value", point.value),
+                            series: .value("Series", "\(series.id)-\(point.segment)")
                         )
                         .foregroundStyle(
                             LinearGradient(
@@ -177,7 +183,7 @@ struct WidgetMetricChartView: View {
                                 endPoint: .bottom
                             )
                         )
-                        .interpolationMethod(.monotone)
+                        .interpolationMethod(presentation.sensorHistory == nil ? .monotone : .linear)
                     }
                 }
 
@@ -185,11 +191,11 @@ struct WidgetMetricChartView: View {
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Value", point.value),
-                        series: .value("Series", series.id)
+                        series: .value("Series", "\(series.id)-\(point.segment)")
                     )
                     .foregroundStyle(series.color)
                     .lineStyle(series.strokeStyle)
-                    .interpolationMethod(.monotone)
+                    .interpolationMethod(presentation.sensorHistory == nil ? .monotone : .linear)
                 }
 
                 if let latest = series.points.last {
@@ -290,6 +296,7 @@ private struct WidgetChartPoint: Identifiable {
 
     let date: Date
     let value: Double
+    var segment = 0
 }
 
 private struct WidgetChartSeries: Identifiable {
@@ -323,6 +330,7 @@ private struct WidgetChartSeries: Identifiable {
 private enum WidgetChartValueFormat {
     case percent
     case temperature
+    case rpm
     case bytesPerSecond
     case bytes
     case gigabytes
@@ -334,6 +342,8 @@ private enum WidgetChartValueFormat {
         switch self {
         case .percent:
             return MetricFormatter.percent(value, locale: locale)
+        case .rpm:
+            return SensorHistoryMetric.fans.formatted(value, locale: locale)
         case .temperature:
             return value.formatted(
                 .number.locale(locale).precision(.fractionLength(0...1))
@@ -373,13 +383,15 @@ private struct WidgetChartPresentation {
     let valueFormat: WidgetChartValueFormat
     let fixedYDomain: ClosedRange<Double>?
     let referenceValue: Double?
+    var sensorHistory: SensorChartData? = nil
 
     var primaryColor: Color {
         series.first?.color ?? .accentColor
     }
 
     var currentValue: Double? {
-        summaryPoints.last?.value
+        if let sensorHistory { return sensorHistory.currentValue }
+        return summaryPoints.last?.value
     }
 
     var averageValue: Double? {
@@ -550,6 +562,16 @@ private struct WidgetChartPresentation {
                 point.temperatures.map(\.value).max()
             }
             valueFormat = .temperature
+
+        case .systemBattery, .systemFans:
+            let history = SensorChartData(
+                metric: chartType == .systemBattery ? .battery : .fans, dataPoints: dataPoints
+            )
+            sensorHistory = history
+            series = Self.sensorSeries(history)
+            summaryPoints = history.summary.map { WidgetChartPoint(date: $0.date, value: $0.value, segment: $0.segment) }
+            valueFormat = chartType == .systemBattery ? .percent : .rpm
+            fixedYDomain = history.yDomain
 
         case .systemDiskUsage:
             series = Self.systemSeries(name: String(localized: "chart.disk.used"), dataPoints: dataPoints) {
@@ -810,6 +832,23 @@ private struct WidgetChartPresentation {
         self.valueFormat = valueFormat
         self.fixedYDomain = fixedYDomain
         self.referenceValue = referenceValue
+    }
+
+    private static func sensorSeries(_ history: SensorChartData) -> [WidgetChartSeries] {
+        // Keep the most relevant sensors in a small widget: lowest batteries / fastest fans.
+        let selected = history.series.sorted { lhs, rhs in
+            let left = history.metric == .battery ? lhs.samples.map(\.value).min() : lhs.samples.map(\.value).max()
+            let right = history.metric == .battery ? rhs.samples.map(\.value).min() : rhs.samples.map(\.value).max()
+            guard let left, let right, left != right else { return lhs.id < rhs.id }
+            return history.metric == .battery ? left < right : left > right
+        }.prefix(5).sorted { $0.id < $1.id }
+        return selected.map { series in
+            WidgetChartSeries(
+                id: series.id, name: series.name ?? String(localized: "chart.battery.charge"),
+                colorIndex: series.styleIndex,
+                points: series.samples.map { WidgetChartPoint(date: $0.date, value: $0.value, segment: $0.segment) }
+            )
+        }
     }
 
     private static func systemSeries(

@@ -90,6 +90,20 @@ struct SystemView: View {
                             onPinToggle: { store.togglePin(for: .systemTemperature) }
                         )
                     }
+                    if !store.sensorCharts.battery.series.isEmpty {
+                        SensorHistoryChart(
+                            history: store.sensorCharts.battery, xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.systemBattery),
+                            onPinToggle: { store.togglePin(for: .systemBattery) }
+                        )
+                    }
+                    if !store.sensorCharts.fans.series.isEmpty {
+                        SensorHistoryChart(
+                            history: store.sensorCharts.fans, xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.systemFans),
+                            onPinToggle: { store.togglePin(for: .systemFans) }
+                        )
+                    }
                     if store.hasSwapData {
                         SystemSwapChartView(
                             dataPoints: store.systemDataPoints,

@@ -54,6 +54,8 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
     let battery: [Double]?            // [percent, state]
     var diskIOTotals: [Double]? = nil  // cumulative read/write bytes since boot (0.19+)
     var zfsPools: [String: ZFSPoolStats]? = nil
+    var batteries: [String: Double]? = nil // named battery charge percentages
+    var fans: [String: Double]? = nil      // named fan speeds (RPM)
 
     enum CodingKeys: String, CodingKey {
         case cpu
@@ -94,6 +96,8 @@ nonisolated struct SystemStatsDetail: Codable, Sendable {
         case battery = "bat"
         case diskIOTotals = "diot"
         case zfsPools = "z"
+        case batteries = "bats"
+        case fans = "f"
     }
 }
 
@@ -126,6 +130,18 @@ nonisolated struct GPUData: Codable, Sendable {
 }
 
 extension SystemStatsDetail {
+    nonisolated var batteryPercent: Double? {
+        battery?.first.flatMap { SensorHistoryMetric.battery.validValue($0) }
+    }
+
+    nonisolated var batteryReadings: [String: Double] {
+        (batteries ?? [:]).filter { SensorHistoryMetric.battery.validValue($0.value) != nil }
+    }
+
+    nonisolated var fanReadings: [String: Double] {
+        (fans ?? [:]).filter { SensorHistoryMetric.fans.validValue($0.value) != nil }
+    }
+
     static func sample() -> SystemStatsDetail {
         SystemStatsDetail(
             cpu: 45.0,
@@ -338,7 +354,10 @@ extension Array where Element == SystemStatsRecord {
                 diskIOTotals: stats.diskIOTotals.flatMap { values in
                     values.count >= 2 ? DiskIOTotals(read: values[0], write: values[1]) : nil
                 },
-                zfsPools: stats.zfsPools ?? [:]
+                zfsPools: stats.zfsPools ?? [:],
+                batteryPercent: stats.batteryPercent,
+                batteries: stats.batteryReadings,
+                fans: stats.fanReadings
             )
         }.sorted(by: { $0.date < $1.date })
     }

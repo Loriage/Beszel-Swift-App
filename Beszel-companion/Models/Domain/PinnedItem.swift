@@ -7,6 +7,8 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
     case systemCPUCores
     case systemMemory
     case systemTemperature
+    case systemBattery
+    case systemFans
     case systemDiskIO
     case systemDiskIOUtilization
     case systemDiskIOTimes
@@ -43,6 +45,8 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
         case .systemCPUCores: return "system_cpu_cores"
         case .systemMemory: return "system_memory"
         case .systemTemperature: return "system_temperature"
+        case .systemBattery: return "system_battery"
+        case .systemFans: return "system_fans"
         case .systemDiskIO: return "system_disk_io"
         case .systemDiskIOUtilization: return "system_disk_io_utilization"
         case .systemDiskIOTimes: return "system_disk_io_times"
@@ -87,6 +91,10 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
             return NSLocalizedString("pinned.item.system.memory", bundle: bundle, comment: "")
         case .systemTemperature:
             return NSLocalizedString("pinned.item.system.temperature", bundle: bundle, comment: "")
+        case .systemBattery:
+            return String(localized: "chart.battery.title", bundle: bundle)
+        case .systemFans:
+            return String(localized: "chart.fans.title", bundle: bundle)
         case .systemDiskIO:
             return NSLocalizedString("pinned.item.system.disk", bundle: bundle, comment: "")
         case .systemDiskIOUtilization:
@@ -153,6 +161,8 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
         case .systemMemory, .containerMemory, .stackedContainerMemory: return "Memory"
         case .stackedContainerNetwork: return "Network I/O"
         case .systemTemperature: return "Temperature"
+        case .systemBattery: return "Battery"
+        case .systemFans: return "Fan Speed"
         case .systemDiskIO: return "Disk I/O"
         case .systemDiskIOUtilization: return "Disk I/O Utilization"
         case .systemDiskIOTimes: return "Disk I/O Times"

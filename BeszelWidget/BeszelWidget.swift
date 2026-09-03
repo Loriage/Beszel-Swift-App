@@ -8,6 +8,7 @@ struct SimpleEntry: TimelineEntry {
     let date: Date
     let chartType: WidgetChartType
     let dataPoints: [SystemDataPoint]
+    let containerData: [ProcessedContainerData]
     let systemInfo: SystemInfo?
     let systemDetails: SystemDetailsRecord?  // For Beszel agent 0.18.0+
     let latestStats: SystemStatsDetail?
@@ -92,6 +93,7 @@ struct Provider: AppIntentTimelineProvider {
             date: Date(),
             chartType: defaultChartType,
             dataPoints: [],
+            containerData: [],
             systemInfo: nil,
             systemDetails: nil,
             latestStats: nil,
@@ -109,6 +111,7 @@ struct Provider: AppIntentTimelineProvider {
             date: Date(),
             chartType: chartType,
             dataPoints: sampleDataPoints(),
+            containerData: sampleContainerData(),
             systemInfo: .sample(),
             systemDetails: nil,
             latestStats: .sample(),
@@ -139,6 +142,7 @@ struct CircularLockScreenProvider: AppIntentTimelineProvider {
             date: Date(),
             chartType: WidgetChartType.systemInfo,
             dataPoints: [],
+            containerData: [],
             systemInfo: nil,
             systemDetails: nil,
             latestStats: nil,
@@ -156,6 +160,7 @@ struct CircularLockScreenProvider: AppIntentTimelineProvider {
             date: Date(),
             chartType: WidgetChartType.systemInfo,
             dataPoints: [],
+            containerData: [],
             systemInfo: .sample(),
             systemDetails: nil,
             latestStats: .sample(),
@@ -186,6 +191,7 @@ struct RectangularLockScreenProvider: AppIntentTimelineProvider {
             date: Date(),
             chartType: WidgetChartType.systemInfo,
             dataPoints: [],
+            containerData: [],
             systemInfo: nil,
             systemDetails: nil,
             latestStats: nil,
@@ -201,6 +207,7 @@ struct RectangularLockScreenProvider: AppIntentTimelineProvider {
             date: Date(),
             chartType: WidgetChartType.systemInfo,
             dataPoints: [],
+            containerData: [],
             systemInfo: .sample(),
             systemDetails: nil,
             latestStats: .sample(),
@@ -275,7 +282,20 @@ private func buildTimeline(
         } else {
             "widget.error.noInstance"
         }
-        let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: String(localized: "Unknown"), status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: errorMessage)
+        let entry = SimpleEntry(
+            date: .now,
+            chartType: resolvedChartType,
+            dataPoints: [],
+            containerData: [],
+            systemInfo: nil,
+            systemDetails: nil,
+            latestStats: nil,
+            systemName: String(localized: "Unknown"),
+            status: nil,
+            timeRange: .last24Hours,
+            lockScreenMetric: lockScreenMetric,
+            errorMessage: errorMessage
+        )
         return Timeline(entries: [entry], policy: .atEnd)
     }
     
@@ -299,18 +319,36 @@ private func buildTimeline(
         
         guard let finalSystemID = resolvedSystemID else {
             widgetLogger.error("Widget timeline: No system found")
-            let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: String(localized: "Unknown"), status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.error.noSystem")
+            let entry = SimpleEntry(
+                date: .now,
+                chartType: resolvedChartType,
+                dataPoints: [],
+                containerData: [],
+                systemInfo: nil,
+                systemDetails: nil,
+                latestStats: nil,
+                systemName: String(localized: "Unknown"),
+                status: nil,
+                timeRange: .last24Hours,
+                lockScreenMetric: lockScreenMetric,
+                errorMessage: "widget.error.noSystem"
+            )
             return Timeline(entries: [entry], policy: .atEnd)
         }
         
         let filter = "(\(timeRange.apiFilterString) && system = '\(finalSystemID)')"
         async let statsTask = apiService.fetchSystemStats(filter: filter)
         async let detailsTask: [SystemDetailsRecord] = (resolvedChartType == .systemInfo) ? apiService.fetchSystemDetails() : []
+        async let containerRecordsTask: [ContainerStatsRecord] = resolvedChartType.requiresContainerData
+            ? apiService.fetchMonitors(filter: filter)
+            : []
         
         let records = try await statsTask
         let details = try await detailsTask
+        let containerRecords = try await containerRecordsTask
         
         let dataPoints = records.asDataPoints()
+        let containerData = containerRecords.asProcessedData()
         
         var fetchedInfo: SystemInfo? = nil
         var fetchedDetails: SystemDetailsRecord? = nil
@@ -346,6 +384,7 @@ private func buildTimeline(
             date: .now,
             chartType: resolvedChartType,
             dataPoints: dataPoints,
+            containerData: containerData,
             systemInfo: fetchedInfo,
             systemDetails: fetchedDetails,
             latestStats: latestStats,
@@ -369,6 +408,7 @@ private func buildTimeline(
                 date: .now,
                 chartType: resolvedChartType,
                 dataPoints: [],
+                containerData: [],
                 systemInfo: cached.systemInfo,
                 systemDetails: cached.systemDetails,
                 latestStats: cached.latestStats,
@@ -381,7 +421,20 @@ private func buildTimeline(
             return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60)))
         }
         
-        let entry = SimpleEntry(date: .now, chartType: resolvedChartType, dataPoints: [], systemInfo: nil, systemDetails: nil, latestStats: nil, systemName: systemName ?? String(localized: "System"), status: nil, timeRange: .last24Hours, lockScreenMetric: lockScreenMetric, errorMessage: "widget.error.networkError")
+        let entry = SimpleEntry(
+            date: .now,
+            chartType: resolvedChartType,
+            dataPoints: [],
+            containerData: [],
+            systemInfo: nil,
+            systemDetails: nil,
+            latestStats: nil,
+            systemName: systemName ?? String(localized: "System"),
+            status: nil,
+            timeRange: .last24Hours,
+            lockScreenMetric: lockScreenMetric,
+            errorMessage: "widget.error.networkError"
+        )
         return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60)))
     }
 }

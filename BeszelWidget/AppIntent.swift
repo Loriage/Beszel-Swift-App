@@ -206,13 +206,11 @@ public struct ChartTypeQuery: EntityQuery {
         let all = try await suggestedEntities()
         return all.filter { identifiers.contains($0.id) }
     }
+
     public func suggestedEntities() async throws -> [ChartTypeEntity] {
-        return [
-            ChartTypeEntity(id: "systemInfo", title: "System Info"),
-            ChartTypeEntity(id: "systemCPU", title: "widget.chart.systemCPU.title"),
-            ChartTypeEntity(id: "systemMemory", title: "widget.chart.systemMemory.title"),
-            ChartTypeEntity(id: "systemTemperature", title: "widget.chart.systemTemperature.title")
-        ]
+        WidgetChartType.allCases.map { chartType in
+            ChartTypeEntity(id: chartType.id, title: chartType.localizedTitle)
+        }
     }
 }
 

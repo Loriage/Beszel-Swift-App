@@ -1,30 +1,23 @@
 import SwiftUI
 
-enum SortOption: String, CaseIterable, Identifiable {
-    case bySystem = "filter.bySystem"
-    case byMetric = "filter.byMetric"
-    case byService = "filter.byService"
-
-    var id: String { self.rawValue }
-}
-
 struct FilterView: View {
-    @Binding var sortOption: SortOption
-    @Binding var sortDescending: Bool
+    @Binding var layout: DashboardLayout
     
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("dashboard.descending")) {
-                    Toggle("dashboard.sortByOrder", isOn: $sortDescending)
+                if layout.sortOption != .custom {
+                    Section(header: Text("dashboard.descending")) {
+                        Toggle("dashboard.sortByOrder", isOn: $layout.sortDescending)
+                    }
                 }
                 
                 Section(header: Text("dashboard.sortBy")) {
-                    Picker("dashboard.sortBy", selection: $sortOption) {
+                    Picker("dashboard.sortBy", selection: $layout.sortOption) {
                         ForEach(SortOption.allCases) { option in
-                            Text(LocalizedStringKey(option.rawValue)).tag(option)
+                            Text(option.title).tag(option)
                         }
                     }
                     .pickerStyle(.inline)

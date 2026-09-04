@@ -9,6 +9,14 @@ struct RootView: View {
 
     @State private var isShowingSettings = false
 
+    private var isPinOrderUITesting: Bool {
+#if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--ui-testing-pin-order")
+#else
+        false
+#endif
+    }
+
     private var isSensorUITesting: Bool {
 #if DEBUG
         ProcessInfo.processInfo.arguments.contains("--ui-testing-battery-fans")
@@ -35,7 +43,11 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if isSensorUITesting {
+            if isPinOrderUITesting {
+#if DEBUG
+                PinnedChartsUITestView()
+#endif
+            } else if isSensorUITesting {
 #if DEBUG
                 BatteryFanUITestView()
 #endif
@@ -81,7 +93,7 @@ struct RootView: View {
                 .environment(alertManager)
         }
         .task(id: instanceManager.systemsLoadRequestID) {
-            guard !isCompatibilityUITesting, !isSensorUITesting else { return }
+            guard !isCompatibilityUITesting, !isSensorUITesting, !isPinOrderUITesting else { return }
             guard let instance = instanceManager.activeInstance else { return }
             await instanceManager.fetchSystemsForInstance(instance)
         }

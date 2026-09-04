@@ -20,10 +20,9 @@ struct MainView: View {
                 TabView(selection: $selectedTab) {
                     Tab(value: .home) {
                         NavigationStack {
-                            HomeView()
-                                .withMainToolbar(instanceManager: instanceManager, showsSystemSwitcher: false) {
-                                    isShowingSettings = true
-                                }
+                            HomeView {
+                                isShowingSettings = true
+                            }
                         }
                     } label: {
                         Label("home.title", systemImage: "house.fill")
@@ -152,6 +151,8 @@ extension View {
     func withMainToolbar(
         instanceManager: InstanceManager,
         showsSystemSwitcher: Bool,
+        canReorder: Bool = false,
+        onReorderTap: (() -> Void)? = nil,
         onSettingsTap: @escaping () -> Void
     ) -> some View {
         self.toolbar {
@@ -160,12 +161,11 @@ extension View {
                     SystemSwitcherView(instanceManager: instanceManager)
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: onSettingsTap) {
-                    Image(systemName: "gearshape.fill")
-                }
-                .accessibilityLabel("settings.title")
-            }
+            MainToolbarActions(
+                canReorder: canReorder,
+                onReorderTap: onReorderTap,
+                onSettingsTap: onSettingsTap
+            )
         }
     }
 }

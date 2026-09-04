@@ -7,117 +7,52 @@ struct HomeView: View {
     @Environment(SettingsManager.self) var settingsManager
     @Environment(LanguageManager.self) var languageManager
     @Environment(InstanceManager.self) var instanceManager
+
+    let onSettingsTap: () -> Void
     
-    @State private var isShowingFilterSheet = false
+    @State private var presentedSheet: HomeSheet?
     @State private var searchText = ""
-    @State private var sortOption: SortOption = .bySystem
-    @State private var sortDescending = false
-    
-    private struct SortablePin {
-        let resolvedItem: ResolvedPinnedItem
-        let systemName: String
-        let displayName: String
-        let metricName: String
-        let serviceName: String
 
-        var isSystemInfo: Bool {
-            resolvedItem.item == .systemInfo
-        }
+    private var activeInstanceID: String? {
+        instanceManager.activeInstance?.id.uuidString
     }
 
-    /// Returns comparison result for systemInfo priority (systemInfo items always come first)
-    private func compareSystemInfoPriority(_ lhs: SortablePin, _ rhs: SortablePin) -> ComparisonResult? {
-        if lhs.isSystemInfo && !rhs.isSystemInfo { return .orderedAscending }
-        if !lhs.isSystemInfo && rhs.isSystemInfo { return .orderedDescending }
-        return nil
+    private var systemNames: [String: String] {
+        instanceManager.systems.reduce(into: [:]) { $0[$1.id] = $1.name }
     }
 
-    private var filteredAndSortedPins: [ResolvedPinnedItem] {
-        let bundle = languageManager.currentBundle
-        let pins = dashboardManager.allPinsForActiveInstance
-
-        let filteredPins: [ResolvedPinnedItem]
-        if searchText.isEmpty {
-            filteredPins = pins
-        } else {
-            filteredPins = pins.filter { resolvedItem in
-                let systemName = store.systemName(forSystemID: resolvedItem.systemID) ?? ""
-                let itemName = resolvedItem.item.localizedDisplayName(for: bundle)
-                return systemName.localizedCaseInsensitiveContains(searchText) ||
-                itemName.localizedCaseInsensitiveContains(searchText)
-            }
-        }
-
-        let sortableItems = filteredPins.map { pin -> SortablePin in
-            let sysName = store.systemName(forSystemID: pin.systemID) ?? ""
-            let dispName = pin.item.localizedDisplayName(for: bundle)
-
-            return SortablePin(
-                resolvedItem: pin,
-                systemName: sysName,
-                displayName: dispName,
-                metricName: pin.item.metricName,
-                serviceName: pin.item.serviceName
-            )
-        }
-
-        let sortedItems: [SortablePin]
-        switch sortOption {
-        case .bySystem:
-            sortedItems = sortableItems.sorted { (lhs, rhs) in
-                if let priority = compareSystemInfoPriority(lhs, rhs) {
-                    return priority == .orderedAscending
-                }
-                if lhs.systemName != rhs.systemName {
-                    return lhs.systemName < rhs.systemName
-                }
-                return lhs.displayName < rhs.displayName
-            }
-        case .byMetric:
-            sortedItems = sortableItems.sorted { (lhs, rhs) in
-                if let priority = compareSystemInfoPriority(lhs, rhs) {
-                    return priority == .orderedAscending
-                }
-                if lhs.metricName != rhs.metricName {
-                    return lhs.metricName < rhs.metricName
-                }
-                return lhs.displayName < rhs.displayName
-            }
-        case .byService:
-            sortedItems = sortableItems.sorted { (lhs, rhs) in
-                if let priority = compareSystemInfoPriority(lhs, rhs) {
-                    return priority == .orderedAscending
-                }
-                if lhs.serviceName != rhs.serviceName {
-                    return lhs.serviceName < rhs.serviceName
-                }
-                return lhs.displayName < rhs.displayName
-            }
-        }
-
-        let result = sortedItems.map { $0.resolvedItem }
-        return sortDescending ? result.reversed() : result
+    private var sortedPins: [ResolvedPinnedItem] {
+        guard let instanceID = activeInstanceID else { return [] }
+        return dashboardManager[layoutFor: instanceID].sortedPins(
+            dashboardManager.pins(forInstanceID: instanceID),
+            systemNames: systemNames,
+            bundle: languageManager.currentBundle
+        )
     }
     
     var body: some View {
+        @Bindable var dashboardManager = dashboardManager
+        let pins = sortedPins
+        let names = systemNames
+        let bundle = languageManager.currentBundle
+        let visiblePins = pins.filter { pin in
+            searchText.isEmpty ||
+            (names[pin.systemID] ?? "").localizedCaseInsensitiveContains(searchText) ||
+            pin.item.localizedDisplayName(for: bundle).localizedCaseInsensitiveContains(searchText)
+        }
+
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                HStack(spacing: MonitoringSpacing.standard) {
-                    MonitoringSearchField(prompt: "dashboard.searchPlaceholder", text: $searchText)
-
-                    Button {
-                        isShowingFilterSheet = true
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                            .font(.title)
+                HomePinnedChartControls(
+                    searchText: $searchText,
+                    onFilter: {
+                        if let instanceID = activeInstanceID { presentedSheet = .filters(instanceID) }
                     }
-                    .frame(minWidth: 44, minHeight: 44)
-                    .accessibilityLabel("dashboard.filtersTitle")
-                }
+                )
                 .padding(.horizontal)
                 
                 LazyVGrid(columns: [GridItem(.flexible())], spacing: 16) {
-                    ForEach(filteredAndSortedPins) { resolvedItem in
+                    ForEach(visiblePins) { resolvedItem in
                         pinnedItemView(for: resolvedItem)
                     }
                 }
@@ -130,19 +65,26 @@ struct HomeView: View {
         .navigationTitle("home.title")
         .monitoringNavigationSubtitle("home.subtitle")
         .navigationBarTitleDisplayMode(.large)
+        .withMainToolbar(
+            instanceManager: instanceManager,
+            showsSystemSwitcher: false,
+            canReorder: pins.count > 1,
+            onReorderTap: beginReordering,
+            onSettingsTap: onSettingsTap
+        )
         .monitoringScreenBackground()
         .groupBoxStyle(CardGroupBoxStyle())
         .overlay {
-            if store.isLoading && dashboardManager.allPinsForActiveInstance.isEmpty {
+            if store.isLoading && pins.isEmpty {
                 MonitoringStateView(state: .loading("switcher.loading"))
-            } else if let errorMessage = store.errorMessage, dashboardManager.allPinsForActiveInstance.isEmpty {
+            } else if let errorMessage = store.errorMessage, pins.isEmpty {
                 MonitoringStateView(state: .failure(errorMessage)) {
                     store.clearAuthenticationError()
                     Task {
                         await store.fetchData()
                     }
                 }
-            } else if dashboardManager.allPinsForActiveInstance.isEmpty {
+            } else if pins.isEmpty {
                 MonitoringStateView(
                     state: .empty(
                         title: "home.empty.title",
@@ -150,7 +92,7 @@ struct HomeView: View {
                         systemImage: "pin.slash"
                     )
                 )
-            } else if filteredAndSortedPins.isEmpty {
+            } else if visiblePins.isEmpty {
                 MonitoringStateView(
                     state: .empty(
                         title: "common.noResults.title",
@@ -163,11 +105,32 @@ struct HomeView: View {
         .refreshable {
             await store.fetchData()
         }
-        .sheet(isPresented: $isShowingFilterSheet) {
-            FilterView(
-                sortOption: $sortOption,
-                sortDescending: $sortDescending
-            )
+        .sheet(item: $presentedSheet) { sheet in
+            switch sheet {
+            case .filters(let instanceID):
+                FilterView(layout: $dashboardManager[layoutFor: instanceID])
+            case .reorder(let instanceID):
+                PinnedChartsOrderView(instanceID: instanceID, systemNames: names)
+            }
+        }
+    }
+
+    private func beginReordering() {
+        guard let instanceID = activeInstanceID else { return }
+        // Start from the full displayed order, never the search-filtered subset.
+        dashboardManager.setPinOrder(sortedPins, forInstanceID: instanceID)
+        presentedSheet = .reorder(instanceID)
+    }
+
+    private enum HomeSheet: Identifiable {
+        case filters(String)
+        case reorder(String)
+
+        var id: String {
+            switch self {
+            case .filters(let instanceID): "filters-\(instanceID)"
+            case .reorder(let instanceID): "reorder-\(instanceID)"
+            }
         }
     }
     

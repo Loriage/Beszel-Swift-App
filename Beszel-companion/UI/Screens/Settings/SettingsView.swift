@@ -335,6 +335,8 @@ struct SettingsView: View {
         suite.removeObject(forKey: "selectedTimeRange")
         suite.removeObject(forKey: "selectedLanguage")
         suite.removeObject(forKey: "pinnedItemsByInstance")
+        suite.removeObject(forKey: DashboardManager.layoutsDefaultsKey)
+        dashboardManager.refreshPins()
         suite.removeObject(forKey: "appLockEnabled")
         suite.removeObject(forKey: "showChartGridLines")
 

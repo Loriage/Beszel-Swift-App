@@ -109,6 +109,7 @@
 				Models/Charts/SystemDataPoint.swift,
 				Models/Charts/WidgetChartType.swift,
 				Models/Charts/WidgetContainerSelection.swift,
+				Models/Domain/DashboardLayout.swift,
 				Models/Domain/DownsampleMethod.swift,
 				Models/Domain/Instance.swift,
 				Models/Domain/Language.swift,

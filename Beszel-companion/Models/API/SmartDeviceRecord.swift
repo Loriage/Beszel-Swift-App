@@ -45,17 +45,30 @@ nonisolated struct SmartDeviceRecord: Identifiable, Codable, Sendable {
 }
 
 nonisolated struct SmartAttribute: Codable, Identifiable, Sendable {
-    let id: Int?
+    enum ID: Hashable, Sendable {
+        case number(Int)
+        case name(String)
+    }
+
+    let number: Int?
     let name: String          // json: "n"
     let value: Int?           // json: "v" – normalized value
     let worst: Int?           // json: "w"
     let threshold: Int?       // json: "t"
-    let rawValue: Int?        // json: "rv"
+    let rawValue: UInt64?     // json: "rv"
     let rawString: String?    // json: "rs"
     let whenFailed: String?   // json: "wf"
 
+    /// ATA attributes have numeric identifiers, while NVMe attributes are
+    /// name-based and legitimately omit them. Both forms need stable, unique
+    /// identity when rendered in SwiftUI collections.
+    var id: ID {
+        if let number { return .number(number) }
+        return .name(name)
+    }
+
     enum CodingKeys: String, CodingKey {
-        case id
+        case number = "id"
         case name = "n"
         case value = "v"
         case worst = "w"

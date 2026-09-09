@@ -226,7 +226,7 @@ struct SmartDeviceCard: View {
 
                     if showAttributes {
                         VStack(spacing: 0) {
-                            ForEach(Array(attributes.sorted(by: { ($0.id ?? 0) < ($1.id ?? 0) }).enumerated()), id: \.element.id) { index, attr in
+                            ForEach(Array(attributes.sorted(by: { ($0.number ?? 0) < ($1.number ?? 0) }).enumerated()), id: \.element.id) { index, attr in
                                 SmartAttributeRow(attribute: attr, highlight: attr.isFailing)
                                 if index < attributes.count - 1 {
                                     Divider().padding(.horizontal)
@@ -264,7 +264,7 @@ private struct SmartAttributeRow: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            if let id = attribute.id {
+            if let id = attribute.number {
                 Text(String(format: "%3d", id))
                     .font(.caption2.monospaced())
                     .foregroundColor(.secondary)

@@ -42,15 +42,18 @@ struct SystemDataPoint: Identifiable, Sendable {
 
 }
 
-struct GPUMetricPoint: Identifiable, Sendable {
-    var id: String { name }
+nonisolated struct GPUMetricPoint: Identifiable, Sendable {
+    var id: String { deviceID ?? name }
 
     let name: String
-    let usage: Double          // GPU utilization %
-    let memoryUsed: Double?    // Memory used (bytes or GB)
-    let memoryTotal: Double?   // Memory total
+    let usage: Double?         // GPU utilization %
+    let memoryUsed: Double?    // Memory used (MiB)
+    let memoryTotal: Double?   // Memory total (MiB)
     let power: Double?         // Power watts
     let temperature: Double?   // Temperature
+    var deviceID: String? = nil
+    var packagePower: Double? = nil
+    var engines: [String: Double] = [:]
 }
 
 struct NetworkInterfacePoint: Identifiable, Sendable {
@@ -207,29 +210,28 @@ extension Array where Element == SystemDataPoint {
             avgSwap = nil
         }
 
-        var gpuSums: [String: (usage: Double, memUsed: Double, memTotal: Double, power: Double, temp: Double, count: Int)] = [:]
-        for point in points {
-            for gpu in point.gpuMetrics {
-                let existing = gpuSums[gpu.name] ?? (0, 0, 0, 0, 0, 0)
-                gpuSums[gpu.name] = (
-                    usage: existing.usage + gpu.usage,
-                    memUsed: existing.memUsed + (gpu.memoryUsed ?? 0),
-                    memTotal: existing.memTotal + (gpu.memoryTotal ?? 0),
-                    power: existing.power + (gpu.power ?? 0),
-                    temp: existing.temp + (gpu.temperature ?? 0),
-                    count: existing.count + 1
-                )
+        // Keep physical device identities and average only reported values, including zero.
+        let gpuGroups = Dictionary(grouping: points.flatMap(\.gpuMetrics), by: \.id)
+        let avgGpuMetrics = gpuGroups.keys.sorted().compactMap { id -> GPUMetricPoint? in
+            guard let samples = gpuGroups[id], let latest = samples.last else { return nil }
+            func average(_ values: [Double]) -> Double? {
+                let valid = values.filter { $0.isFinite && $0 >= 0 }
+                return valid.isEmpty ? nil : valid.reduce(0, +) / Double(valid.count)
             }
-        }
-        let avgGpuMetrics = gpuSums.map { (name, data) -> GPUMetricPoint in
-            let c = Double(data.count)
+            let engineNames = Set(samples.flatMap { $0.engines.keys })
+            let engines = engineNames.reduce(into: [String: Double]()) { result, name in
+                result[name] = average(samples.compactMap { $0.engines[name] })
+            }
             return GPUMetricPoint(
-                name: name,
-                usage: data.usage / c,
-                memoryUsed: data.memUsed > 0 ? data.memUsed / c : nil,
-                memoryTotal: data.memTotal > 0 ? data.memTotal / c : nil,
-                power: data.power > 0 ? data.power / c : nil,
-                temperature: data.temp > 0 ? data.temp / c : nil
+                name: latest.name,
+                usage: average(samples.compactMap(\.usage)),
+                memoryUsed: average(samples.compactMap(\.memoryUsed)),
+                memoryTotal: samples.compactMap(\.memoryTotal).filter { $0.isFinite && $0 > 0 }.last,
+                power: average(samples.compactMap(\.power)),
+                temperature: average(samples.compactMap(\.temperature)),
+                deviceID: id,
+                packagePower: average(samples.compactMap(\.packagePower)),
+                engines: engines
             )
         }
 

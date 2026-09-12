@@ -19,6 +19,7 @@ final class BeszelStore {
     
     var systemDataPoints: [SystemDataPoint] = []
     private(set) var sensorCharts = SystemSensorCharts.empty
+    private(set) var gpuCharts = SystemGPUCharts.empty
     var smartDevices: [SmartDeviceRecord] = []
     var zfsPools: [ZFSPoolRecord] = []
     private(set) var zfsPoolNames: [String] = []
@@ -44,8 +45,10 @@ final class BeszelStore {
     private var systemDataPointsBySystem: [String: [SystemDataPoint]] = [:] {
         didSet {
             sensorChartsBySystem = systemDataPointsBySystem.mapValues { SystemSensorCharts(dataPoints: $0) }
+            gpuChartsBySystem = systemDataPointsBySystem.mapValues { SystemGPUCharts(dataPoints: $0) }
         }
     }
+    private var gpuChartsBySystem: [String: SystemGPUCharts] = [:]
     private var sensorChartsBySystem: [String: SystemSensorCharts] = [:]
     private var containerDataBySystem: [String: [ProcessedContainerData]] = [:]
     private var containerRecordsBySystem: [String: [ContainerRecord]] = [:]
@@ -134,6 +137,7 @@ final class BeszelStore {
         guard let activeSystemID = instanceManager.activeSystem?.id else {
             self.systemDataPoints = []
             self.sensorCharts = .empty
+            self.gpuCharts = .empty
             self.containerData = []
             self.containerRecords = []
             self.latestSystemStats = nil
@@ -146,6 +150,7 @@ final class BeszelStore {
         }
         self.systemDataPoints = systemDataPointsBySystem[activeSystemID] ?? []
         self.sensorCharts = sensorChartsBySystem[activeSystemID] ?? .empty
+        self.gpuCharts = gpuChartsBySystem[activeSystemID] ?? .empty
         self.containerData = containerDataBySystem[activeSystemID] ?? []
         self.containerRecords = containerRecordsBySystem[activeSystemID] ?? []
         self.latestSystemStats = latestStatsBySystem[activeSystemID]
@@ -211,6 +216,7 @@ final class BeszelStore {
         zfsDetailsUnavailable = false
         systemDataPoints = []
         sensorCharts = .empty
+        gpuCharts = .empty
         containerData = []
         containerRecords = []
         latestSystemStats = nil
@@ -484,6 +490,10 @@ final class BeszelStore {
     
     func systemData(forSystemID systemID: String) -> [SystemDataPoint] {
         systemDataPointsBySystem[systemID] ?? []
+    }
+
+    func gpuCharts(forSystemID systemID: String) -> SystemGPUCharts {
+        gpuChartsBySystem[systemID] ?? .empty
     }
 
     func sensorCharts(forSystemID systemID: String) -> SystemSensorCharts {

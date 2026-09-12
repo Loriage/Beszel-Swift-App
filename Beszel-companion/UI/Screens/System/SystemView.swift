@@ -113,11 +113,11 @@ struct SystemView: View {
                         )
                     }
                     if store.hasGPUData {
-                        SystemGPUChartView(
-                            dataPoints: store.systemDataPoints,
+                        SystemGPUSummaryChartView(
+                            charts: store.gpuCharts,
                             xAxisFormat: store.xAxisFormat,
-                            isPinned: store.isPinned(.systemGPU),
-                            onPinToggle: { store.togglePin(for: .systemGPU) }
+                            systemID: instanceManager.activeSystem?.id,
+                            instanceID: instanceManager.activeInstance?.id.uuidString
                         )
                     }
                     if store.hasExtraFilesystemsData {

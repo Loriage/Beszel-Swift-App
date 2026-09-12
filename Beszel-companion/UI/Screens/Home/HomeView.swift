@@ -320,13 +320,26 @@ struct HomeView: View {
                 isPinned: store.isPinned(.systemSwap, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemSwap, onSystem: resolvedItem.systemID) }
             )
-        case .systemGPU:
+        case .systemGPU, .systemGPUPower, .gpuMemory, .gpuEngines:
+            let charts = store.gpuCharts(forSystemID: resolvedItem.systemID)
+            let history: GPUChartData = {
+                switch resolvedItem.item {
+                case .systemGPUPower: return charts.power
+                case .gpuMemory(let id):
+                    return charts.memory.first { $0.device?.id == id }
+                        ?? GPUChartData(metric: .memory, dataPoints: [], deviceID: id)
+                case .gpuEngines(let id):
+                    return charts.engines.first { $0.device?.id == id }
+                        ?? GPUChartData(metric: .engines, dataPoints: [], deviceID: id)
+                default: return charts.usage
+                }
+            }()
             SystemGPUChartView(
-                dataPoints: systemData,
+                history: history,
                 xAxisFormat: store.xAxisFormat,
                 systemName: systemName,
-                isPinned: store.isPinned(.systemGPU, onSystem: resolvedItem.systemID),
-                onPinToggle: { store.togglePin(for: .systemGPU, onSystem: resolvedItem.systemID) }
+                isPinned: store.isPinned(resolvedItem.item, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: resolvedItem.item, onSystem: resolvedItem.systemID) }
             )
         case .systemNetworkInterfaces:
             SystemNetworkInterfacesChartView(

@@ -57,7 +57,8 @@ nonisolated extension WidgetChartCategory: AppEnum {
         .zfs: "zfs.title",
         .diskTotals: "widget.category.diskTotals",
         .network: "widget.category.network",
-        .sensors: "widget.category.sensors"
+        .sensors: "widget.category.sensors",
+        .gpu: "GPU"
     ]
 }
 

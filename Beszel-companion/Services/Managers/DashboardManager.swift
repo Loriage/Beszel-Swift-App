@@ -108,6 +108,10 @@ final class DashboardManager {
         guard let instanceID = InstanceManager.shared.activeInstance?.id.uuidString else {
             return false
         }
+        return isPinned(item, onSystem: systemID, inInstance: instanceID)
+    }
+
+    func isPinned(_ item: PinnedItem, onSystem systemID: String, inInstance instanceID: String) -> Bool {
         let key = compositeKey(for: instanceID, systemID: systemID)
         return allPins[key]?.contains(item) ?? false
     }

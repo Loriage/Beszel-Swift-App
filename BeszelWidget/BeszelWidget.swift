@@ -517,10 +517,13 @@ private func sampleDataPoints() -> [SystemDataPoint] {
                 GPUMetricPoint(
                     name: "GPU 0",
                     usage: 18 + wave * 45,
-                    memoryUsed: 2.8,
-                    memoryTotal: 8,
+                    memoryUsed: 2_867.2,
+                    memoryTotal: 8_192,
                     power: 42,
-                    temperature: 55 + wave * 9
+                    temperature: 55 + wave * 9,
+                    deviceID: "0",
+                    packagePower: 80 + wave * 20,
+                    engines: ["Render/3D": 20 + wave * 40, "Video": 5 + secondaryWave * 10]
                 )
             ],
             networkInterfaces: [

@@ -2,123 +2,227 @@ import SwiftUI
 import Charts
 
 struct SystemGPUChartView: View {
-    @Environment(\.chartXDomain) private var chartXDomain
-    @Environment(\.chartShowXGridLines) private var chartShowXGridLines
-    let dataPoints: [SystemDataPoint]
+    let history: GPUChartData
     let xAxisFormat: Date.FormatStyle
-
     var systemName: String? = nil
-
-    var isPinned: Bool = false
+    var isPinned = false
     var onPinToggle: () -> Void = {}
 
-    private var gpuNames: [String] {
-        let allNames = dataPoints.flatMap { $0.gpuMetrics.map(\.name) }
-        return Array(Set(allNames)).sorted()
+    var body: some View {
+        GroupBox {
+            GPUChartContent(history: history, xAxisFormat: xAxisFormat)
+        } label: {
+            HStack(alignment: .top) {
+                GPUChartHeading(history: history, systemName: systemName)
+                Spacer(minLength: 8)
+                Button(action: onPinToggle) {
+                    Image(systemName: isPinned ? "pin.fill" : "pin")
+                        .frame(minWidth: 44, minHeight: 44)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.tint)
+                .accessibilityLabel(isPinned ? Text("chart.sensor.unpin") : Text("chart.sensor.pin"))
+                .accessibilityValue(isPinned ? Text("chart.sensor.pinned") : Text("chart.sensor.notPinned"))
+                .accessibilityIdentifier("pin-\(history.metric.pinnedItem(deviceID: history.device?.id).id)")
+            }
+        }
     }
+}
 
-    private var hasGPUData: Bool {
-        dataPoints.contains { !$0.gpuMetrics.isEmpty }
-    }
+struct SystemGPUSummaryChartView: View {
+    let charts: SystemGPUCharts
+    let xAxisFormat: Date.FormatStyle
+    let systemID: String?
+    let instanceID: String?
+    var systemName: String? = nil
+    @Environment(\.chartXDomain) private var xDomain
+    @Environment(\.chartShowXGridLines) private var showGrid
 
     var body: some View {
-        GroupBox(label: HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                (Text("chart.gpuUsage") + Text(" (%)"))
-                    .font(.headline)
-                if systemName == nil {
-                    Text("chart.gpuUsage.subtitle")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                }
-                if let systemName = systemName {
-                    Text(systemName)
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
+        NavigationLink {
+            SystemGPUDetailView(charts: charts, xAxisFormat: xAxisFormat, systemID: systemID, instanceID: instanceID)
+                .environment(\.chartXDomain, xDomain)
+                .environment(\.chartShowXGridLines, showGrid)
+        } label: {
+            GroupBox {
+                GPUChartContent(history: charts.usage, xAxisFormat: xAxisFormat)
+            } label: {
+                HStack {
+                    GPUChartHeading(history: charts.usage, systemName: systemName)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
                 }
             }
-            Spacer()
-            PinButtonView(isPinned: isPinned, action: onPinToggle)
-        }) {
-            VStack(spacing: 8) {
-                chartBody
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("gpu-details")
+    }
+}
 
-                if !gpuNames.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            ForEach(gpuNames, id: \.self) { name in
-                                HStack(spacing: 4) {
-                                    Circle()
-                                        .fill(color(for: name, in: gpuNames))
-                                        .frame(width: 8, height: 8)
-                                    Text(name)
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 2)
-                    }
-                    .frame(height: 20)
+struct SystemGPUDetailView: View {
+    let charts: SystemGPUCharts
+    let xAxisFormat: Date.FormatStyle
+    let systemID: String?
+    let instanceID: String?
+    @Environment(DashboardManager.self) private var dashboardManager
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                if charts.usage.hasReadings { chart(charts.usage) }
+                if charts.power.hasReadings { chart(charts.power) }
+                ForEach(charts.memory, id: \.device?.id) { chart($0) }
+                ForEach(charts.engines, id: \.device?.id) { chart($0) }
+            }
+            .padding()
+        }
+        .groupBoxStyle(CardGroupBoxStyle())
+        .monitoringScreenBackground()
+        .navigationTitle("chart.gpu.details")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func chart(_ history: GPUChartData) -> some View {
+        let item = history.metric.pinnedItem(deviceID: history.device?.id)
+        return SystemGPUChartView(
+            history: history, xAxisFormat: xAxisFormat,
+            isPinned: {
+                guard let systemID, let instanceID else { return false }
+                return dashboardManager.isPinned(item, onSystem: systemID, inInstance: instanceID)
+            }(),
+            onPinToggle: {
+                if let systemID, let instanceID {
+                    dashboardManager.togglePin(for: item, onSystem: systemID, inInstance: instanceID)
                 }
             }
-            .frame(height: 220)
+        )
+    }
+}
+
+private struct GPUChartHeading: View {
+    let history: GPUChartData
+    let systemName: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            (Text(history.metric.title) + Text(" (\(history.metric.unit))"))
+                .font(.headline)
+            if let device = history.device {
+                Text(verbatim: device.name).font(.caption2).foregroundStyle(.secondary)
+            }
+            if let systemName {
+                Text(verbatim: systemName).font(.caption2).foregroundStyle(.secondary)
+            } else {
+                Text(history.metric.subtitle).font(.caption2).foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+
+private struct GPUChartContent: View {
+    let history: GPUChartData
+    let xAxisFormat: Date.FormatStyle
+    @Environment(\.chartXDomain) private var xDomain
+    @Environment(\.chartShowXGridLines) private var showGrid
+    @Environment(\.locale) private var locale
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    var body: some View {
+        VStack(spacing: 8) {
+            if !history.hasReadings {
+                Text("widget.noData").foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, minHeight: 190)
+            } else {
+                plot.frame(height: 190)
+                if dynamicTypeSize.isAccessibilitySize, let xDomain {
+                    ViewThatFits(in: .horizontal) {
+                        HStack {
+                            Text(xDomain.lowerBound, format: xAxisFormat).fixedSize()
+                            Spacer()
+                            Text(xDomain.upperBound, format: xAxisFormat).fixedSize()
+                        }
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(xDomain.lowerBound, format: xAxisFormat)
+                            Text(xDomain.upperBound, format: xAxisFormat)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                }
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(history.series) { series in
+                            HStack(spacing: 4) {
+                                if series.isReference {
+                                    Image(systemName: "line.diagonal").foregroundStyle(seriesColor(series))
+                                } else {
+                                    Circle().fill(seriesColor(series)).frame(width: 8, height: 8)
+                                }
+                                Text(verbatim: series.name).foregroundStyle(.secondary)
+                            }
+                            .font(.caption2)
+                            .accessibilityElement(children: .combine)
+                            .accessibilityValue(series.currentValue.map { history.metric.formatted($0, locale: locale) } ?? "—")
+                        }
+                    }
+                    .padding(.horizontal, 2)
+                }
+                .frame(minHeight: 20)
+            }
         }
     }
 
-    private var chartBody: some View {
-        Chart(dataPoints) { point in
-            ForEach(point.gpuMetrics) { gpu in
-                LineMark(
-                x: .value("Date", point.date),
-                y: .value("Usage", gpu.usage),
-            )
-                .foregroundStyle(by: .value("GPU", gpu.name))
-
-                AreaMark(
-                x: .value("Date", point.date),
-                y: .value("Usage", gpu.usage),
-            )
-                .foregroundStyle(by: .value("GPU", gpu.name))
-                .opacity(0.2)
+    private var plot: some View {
+        Chart {
+            ForEach(history.series) { series in
+                ForEach(series.samples) { sample in
+                    LineMark(
+                        x: .value("Date", sample.date), y: .value("Value", sample.value),
+                        series: .value("GPU", "\(series.id)-\(sample.segment)")
+                    )
+                    .foregroundStyle(seriesColor(series))
+                    .lineStyle(StrokeStyle(lineWidth: 2, dash: series.isReference ? [5, 3] : []))
+                    .interpolationMethod(.linear)
+                }
+                if series.samples.count == 1, let sample = series.samples.first {
+                    PointMark(x: .value("Date", sample.date), y: .value("Value", sample.value))
+                        .foregroundStyle(seriesColor(series))
+                }
             }
         }
-        .chartForegroundStyleScale { name in
-            color(for: name, in: gpuNames)
-        }
+        .chartYScale(domain: history.yDomain)
+        .chartXScaleIfNeeded(xDomain)
+        .chartLegend(.hidden)
         .chartXAxis {
-            AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
-                    if chartShowXGridLines {
-                        AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
-                        AxisTick()
-                    }
-                    AxisValueLabel(format: xAxisFormat, collisionResolution: .disabled)
-                        .font(.caption2)
+            AxisMarks(values: insetTickDates(for: xDomain, count: dynamicTypeSize.isAccessibilitySize ? 2 : 4)) { _ in
+                if showGrid {
+                    AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                    AxisTick()
                 }
+                if !dynamicTypeSize.isAccessibilitySize {
+                    AxisValueLabel(format: xAxisFormat).font(.caption2)
+                }
+            }
         }
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
                 AxisGridLine()
                 AxisValueLabel {
-                    if let percent = value.as(Double.self) {
-                        Text(String(format: "%.0f", percent)).font(.caption2).padding(.trailing, 6)
+                    if let number = value.as(Double.self) {
+                        Text(number, format: .number.notation(.compactName).precision(.fractionLength(0...1)))
+                            .font(.caption2).padding(.trailing, 6)
                     }
                 }
             }
         }
-        .chartLegend(.hidden)
-        .chartXScaleIfNeeded(chartXDomain)
         .padding(.top, 5)
-        .drawingGroup()
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text("chart.gpuUsage"))
-        .accessibilityValue(accessibilityDescription)
+        .accessibilityHidden(true)
     }
 
-    private var accessibilityDescription: String {
-        guard let latest = dataPoints.last, !latest.gpuMetrics.isEmpty else { return "" }
-        let descriptions = latest.gpuMetrics.map { "\($0.name): \(String(format: "%.0f", $0.usage))%" }
-        return descriptions.joined(separator: ", ")
+    private func seriesColor(_ series: GPUChartSeries) -> Color {
+        let palette: [Color] = [.blue, .green, .orange, .purple, .pink, .teal]
+        return palette[series.styleIndex % palette.count].opacity(series.isReference ? 0.65 : 1)
     }
 }

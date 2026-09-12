@@ -23,6 +23,9 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
     case systemLoadAverage
     case systemSwap
     case systemGPU
+    case systemGPUPower
+    case gpuMemory(id: String)
+    case gpuEngines(id: String)
     case systemNetworkInterfaces
     case extraDiskUsage(name: String)
     case extraDiskIO(name: String)
@@ -60,6 +63,9 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
         case .systemBandwidthCumulativeUpload: return "system_bandwidth_cumulative_upload"
         case .systemLoadAverage: return "system_loadaverage"
         case .systemSwap: return "system_swap"
+        case .systemGPUPower: return "system_gpu_power"
+        case .gpuMemory(let id): return "gpu_memory_\(id)"
+        case .gpuEngines(let id): return "gpu_engines_\(id)"
         case .systemGPU: return "system_gpu"
         case .systemNetworkInterfaces: return "system_network_interfaces"
         case .extraDiskUsage(let name): return "extra_disk_usage_\(name)"
@@ -121,6 +127,12 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
             return NSLocalizedString("pinned.item.system.loadaverage", bundle: bundle, comment: "")
         case .systemSwap:
             return NSLocalizedString("pinned.item.system.swap", bundle: bundle, comment: "")
+        case .systemGPUPower:
+            return String(localized: "chart.gpu.power", bundle: bundle)
+        case .gpuMemory(let id):
+            return String(localized: "chart.gpu.memory", bundle: bundle) + " (\(id))"
+        case .gpuEngines(let id):
+            return String(localized: "chart.gpu.engines", bundle: bundle) + " (\(id))"
         case .systemGPU:
             return NSLocalizedString("pinned.item.system.gpu", bundle: bundle, comment: "")
         case .systemNetworkInterfaces:
@@ -176,6 +188,9 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
         case .systemBandwidthCumulativeUpload: return "Cumulative Upload"
         case .systemLoadAverage: return "Load Average"
         case .systemSwap: return "Swap"
+        case .systemGPUPower: return "GPU Power"
+        case .gpuMemory: return "GPU VRAM"
+        case .gpuEngines: return "GPU Engines"
         case .systemGPU: return "GPU"
         case .systemNetworkInterfaces: return "Network Interfaces"
         case .extraDiskUsage(let name): return "\(name) Usage"

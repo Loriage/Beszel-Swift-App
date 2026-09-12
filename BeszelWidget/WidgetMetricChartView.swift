@@ -161,7 +161,7 @@ struct WidgetMetricChartView: View {
                     .lineStyle(StrokeStyle(lineWidth: 0.5))
             }
 
-            if let referenceValue = presentation.referenceValue {
+            if let referenceValue = presentation.referenceValue, presentation.gpuHistory == nil {
                 RuleMark(y: .value("Capacity", referenceValue))
                     .foregroundStyle(Color.secondary.opacity(0.45))
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 3]))
@@ -183,7 +183,7 @@ struct WidgetMetricChartView: View {
                                 endPoint: .bottom
                             )
                         )
-                        .interpolationMethod(presentation.sensorHistory == nil ? .monotone : .linear)
+                        .interpolationMethod(presentation.sensorHistory == nil && presentation.gpuHistory == nil ? .monotone : .linear)
                     }
                 }
 
@@ -195,7 +195,7 @@ struct WidgetMetricChartView: View {
                     )
                     .foregroundStyle(series.color)
                     .lineStyle(series.strokeStyle)
-                    .interpolationMethod(presentation.sensorHistory == nil ? .monotone : .linear)
+                    .interpolationMethod(presentation.sensorHistory == nil && presentation.gpuHistory == nil ? .monotone : .linear)
                 }
 
                 if let latest = series.points.last {
@@ -304,12 +304,14 @@ private struct WidgetChartSeries: Identifiable {
     let name: String
     let colorIndex: Int
     let points: [WidgetChartPoint]
+    var isReference = false
 
     var color: Color {
         Self.palette[colorIndex % Self.palette.count]
     }
 
     var strokeStyle: StrokeStyle {
+        if isReference { return StrokeStyle(lineWidth: 1.5, dash: [5, 3]) }
         switch colorIndex % 4 {
         case 1:
             return StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round, dash: [6, 3])
@@ -331,6 +333,8 @@ private enum WidgetChartValueFormat {
     case percent
     case temperature
     case rpm
+    case watts
+    case mebibytes
     case bytesPerSecond
     case bytes
     case gigabytes
@@ -342,6 +346,10 @@ private enum WidgetChartValueFormat {
         switch self {
         case .percent:
             return MetricFormatter.percent(value, locale: locale)
+        case .watts:
+            return GPUChartMetric.power.formatted(value, locale: locale)
+        case .mebibytes:
+            return GPUChartMetric.memory.formatted(value, locale: locale)
         case .rpm:
             return SensorHistoryMetric.fans.formatted(value, locale: locale)
         case .temperature:
@@ -384,6 +392,7 @@ private struct WidgetChartPresentation {
     let fixedYDomain: ClosedRange<Double>?
     let referenceValue: Double?
     var sensorHistory: SensorChartData? = nil
+    var gpuHistory: GPUChartData? = nil
 
     var primaryColor: Color {
         series.first?.color ?? .accentColor
@@ -391,6 +400,9 @@ private struct WidgetChartPresentation {
 
     var currentValue: Double? {
         if let sensorHistory { return sensorHistory.currentValue }
+        if let gpuHistory {
+            return summaryPoints.last.flatMap { $0.date == gpuHistory.latestDate ? $0.value : nil }
+        }
         return summaryPoints.last?.value
     }
 
@@ -715,16 +727,38 @@ private struct WidgetChartPresentation {
             valueFormat = .gigabytes
             referenceValue = dataPoints.compactMap { $0.swap?.total }.max()
 
-        case .systemGPU:
-            series = Self.namedSystemSeries(
-                names: Set(dataPoints.flatMap { $0.gpuMetrics.map(\.name) }),
-                dataPoints: dataPoints
-            ) { point, name in
-                point.gpuMetrics.first(where: { $0.name == name })?.usage
+        case .systemGPU, .systemGPUPower, .systemGPUMemory, .systemGPUEngines:
+            let metric: GPUChartMetric
+            switch chartType {
+            case .systemGPUPower: metric = .power
+            case .systemGPUMemory: metric = .memory
+            case .systemGPUEngines: metric = .engines
+            default: metric = .usage
             }
-            summaryPoints = Self.maxSeriesByDate(series)
-            valueFormat = .percent
-            fixedYDomain = 0...100
+            let history = GPUChartData(metric: metric, dataPoints: dataPoints)
+            gpuHistory = history
+            series = history.series.map { item in
+                WidgetChartSeries(
+                    id: item.id, name: item.name, colorIndex: item.styleIndex,
+                    points: item.samples.map { WidgetChartPoint(date: $0.date, value: $0.value, segment: $0.segment) },
+                    isReference: item.isReference
+                )
+            }
+            // Package power includes CPU consumption; never add it to GPU watts.
+            let measuredIDs = Set(history.series.filter { !$0.isReference }.map(\.id))
+            let measured = series.filter { measuredIDs.contains($0.id) }
+            summaryPoints = (metric == .power || metric == .memory)
+                ? Self.sumSeriesByDate(measured) : Self.maxSeriesByDate(measured)
+            switch metric {
+            case .usage, .engines: valueFormat = .percent
+            case .power: valueFormat = .watts
+            case .memory: valueFormat = .mebibytes
+            }
+            fixedYDomain = history.yDomain
+            if metric == .memory {
+                let totals = history.series.filter(\.isReference).compactMap(\.currentValue)
+                referenceValue = totals.isEmpty ? nil : totals.reduce(0, +)
+            }
 
         case .systemNetworkInterfaces:
             series = Self.namedSystemSeries(

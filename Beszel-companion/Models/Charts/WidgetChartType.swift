@@ -27,6 +27,9 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
     case systemLoadAverage
     case systemSwap
     case systemGPU
+    case systemGPUPower
+    case systemGPUMemory
+    case systemGPUEngines
     case systemNetworkInterfaces
     case extraDiskUsage
     case extraDiskIO
@@ -57,7 +60,8 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         case .systemBandwidth, .systemBandwidthDownload, .systemBandwidthUpload,
              .systemBandwidthCumulativeDownload, .systemBandwidthCumulativeUpload,
              .systemNetworkInterfaces: .network
-        case .systemTemperature, .systemGPU, .systemBattery, .systemFans: .sensors
+        case .systemTemperature, .systemBattery, .systemFans: .sensors
+        case .systemGPU, .systemGPUPower, .systemGPUMemory, .systemGPUEngines: .gpu
         case .containerCPU, .containerMemory, .containerNetwork: .overview
         }
     }
@@ -106,6 +110,9 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         case .systemLoadAverage: "pinned.item.system.loadaverage"
         case .systemSwap: "pinned.item.system.swap"
         case .systemGPU: "pinned.item.system.gpu"
+        case .systemGPUPower: "chart.gpu.power"
+        case .systemGPUMemory: "chart.gpu.memory"
+        case .systemGPUEngines: "chart.gpu.engines"
         case .systemNetworkInterfaces: "pinned.item.system.networkinterfaces"
         case .extraDiskUsage: "widget.chart.extraDiskUsage.title"
         case .extraDiskIO: "widget.chart.extraDiskIO.title"
@@ -140,7 +147,9 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         case .systemBandwidthDownload, .systemBandwidthCumulativeDownload: "arrow.down.circle"
         case .systemBandwidthUpload, .systemBandwidthCumulativeUpload: "arrow.up.circle"
         case .systemLoadAverage: "waveform.path.ecg"
-        case .systemGPU: "display"
+        case .systemGPU, .systemGPUEngines: "display"
+        case .systemGPUPower: "bolt"
+        case .systemGPUMemory: "memorychip"
         case .extraDiskUsage, .extraDiskIO, .extraDiskIOUtilization, .extraDiskIOTimes,
              .extraDiskAwait, .extraDiskIOQueueDepth, .extraDiskCumulativeRead, .extraDiskCumulativeWrite: "externaldrive"
         }
@@ -158,6 +167,12 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
     /// Optional hardware metrics are gated; older widget configurations retain their behavior.
     nonisolated func isSupported(by stats: SystemStatsDetail?) -> Bool {
         switch self {
+        case .systemGPUPower:
+            stats?.gpu?.values.contains { GPUChartMetric.valid($0.p) != nil || (GPUChartMetric.valid($0.pp) ?? 0) > 0 } == true
+        case .systemGPUMemory:
+            stats?.gpu?.values.contains { GPUChartMetric.valid($0.mu) != nil } == true
+        case .systemGPUEngines:
+            stats?.gpu?.values.contains { $0.e?.values.contains { GPUChartMetric.valid($0) != nil } == true } == true
         case .systemBattery: stats?.batteryPercent != nil || stats?.batteryReadings.isEmpty == false
         case .systemFans: stats?.fanReadings.isEmpty == false
         case .zfsPoolUsage, .zfsPoolIO: stats?.zfsPools?.isEmpty == false
@@ -179,6 +194,7 @@ public nonisolated enum WidgetChartCategory: String, CaseIterable, Sendable {
     case diskTotals
     case network
     case sensors
+    case gpu
 
     public var title: LocalizedStringResource {
         switch self {
@@ -191,6 +207,7 @@ public nonisolated enum WidgetChartCategory: String, CaseIterable, Sendable {
         case .diskTotals: "widget.category.diskTotals"
         case .network: "widget.category.network"
         case .sensors: "widget.category.sensors"
+        case .gpu: "GPU"
         }
     }
 

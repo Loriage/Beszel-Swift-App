@@ -122,11 +122,12 @@ nonisolated struct ExtraFsStats: Codable, Sendable {
 nonisolated struct GPUData: Codable, Sendable {
     let n: String?           // name
     let mu: Double?          // memory used
-    let m: Double?           // memory total
+    let mt: Double?          // memory total (MiB)
     let u: Double?           // usage percent
     let p: Double?           // power watts
     let t: Double?           // temperature
     let e: [String: Double]? // engine utilization
+    var pp: Double? = nil    // CPU package power (W), distinct from GPU power
 }
 
 extension SystemStatsDetail {
@@ -263,17 +264,19 @@ extension Array where Element == SystemStatsRecord {
                 swapTuple = nil
             }
 
-            let gpuMetrics: [GPUMetricPoint] = (stats.gpu ?? [:]).compactMap { (name, data) in
-                guard let usage = data.u else { return nil }
+            let gpuMetrics: [GPUMetricPoint] = (stats.gpu ?? [:]).map { (id, data) in
                 return GPUMetricPoint(
-                    name: data.n ?? name,
-                    usage: usage,
+                    name: data.n ?? id,
+                    usage: data.u,
                     memoryUsed: data.mu,
-                    memoryTotal: data.m,
+                    memoryTotal: data.mt,
                     power: data.p,
-                    temperature: data.t
+                    temperature: data.t,
+                    deviceID: id,
+                    packagePower: data.pp,
+                    engines: data.e ?? [:]
                 )
-            }
+            }.sorted { $0.id < $1.id }
 
             let networkInterfaces: [NetworkInterfacePoint] = (stats.networkInterfaces ?? [:]).compactMap { (name, values) in
                 guard values.count >= 2 else { return nil }

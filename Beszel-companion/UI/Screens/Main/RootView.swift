@@ -17,6 +17,14 @@ struct RootView: View {
 #endif
     }
 
+    private var isGPUUITesting: Bool {
+#if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--ui-testing-gpu")
+#else
+        false
+#endif
+    }
+
     private var isSensorUITesting: Bool {
 #if DEBUG
         ProcessInfo.processInfo.arguments.contains("--ui-testing-battery-fans")
@@ -46,6 +54,10 @@ struct RootView: View {
             if isPinOrderUITesting {
 #if DEBUG
                 PinnedChartsUITestView()
+#endif
+            } else if isGPUUITesting {
+#if DEBUG
+                GPUChartsUITestView()
 #endif
             } else if isSensorUITesting {
 #if DEBUG
@@ -93,7 +105,7 @@ struct RootView: View {
                 .environment(alertManager)
         }
         .task(id: instanceManager.systemsLoadRequestID) {
-            guard !isCompatibilityUITesting, !isSensorUITesting, !isPinOrderUITesting else { return }
+            guard !isGPUUITesting, !isCompatibilityUITesting, !isSensorUITesting, !isPinOrderUITesting else { return }
             guard let instance = instanceManager.activeInstance else { return }
             await instanceManager.fetchSystemsForInstance(instance)
         }

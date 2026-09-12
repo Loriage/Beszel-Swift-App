@@ -529,35 +529,6 @@
         }
       }
     },
-    "%lld" : {
-      "comment" : "A numeric value.",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%lld"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%lld"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%lld"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%lld"
-          }
-        }
-      }
-    },
     "%lld min" : {
       "comment" : "A label displaying the duration of an alert in minutes. The argument is the duration of the alert in minutes.",
       "localizations" : {
@@ -612,6 +583,34 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%lld°C"
+          }
+        }
+      }
+    },
+    "%llu" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%llu"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%llu"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%llu"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%llu"
           }
         }
       }
@@ -18183,6 +18182,7 @@
       }
     },
     "Usage" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

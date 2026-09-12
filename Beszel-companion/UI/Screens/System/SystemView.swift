@@ -120,6 +120,31 @@ struct SystemView: View {
                             onPinToggle: { store.togglePin(for: .systemGPU) }
                         )
                     }
+                    if store.hasGPUPowerData {
+                        SystemGPUPowerChartView(
+                            dataPoints: store.systemDataPoints,
+                            xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.systemGPUPower),
+                            onPinToggle: { store.togglePin(for: .systemGPUPower) }
+                        )
+                    }
+                    if store.hasGPUEnginesData {
+                        SystemGPUEnginesChartView(
+                            dataPoints: store.systemDataPoints,
+                            xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.systemGPUEngines),
+                            onPinToggle: { store.togglePin(for: .systemGPUEngines) }
+                        )
+                    }
+                    ForEach(store.gpuMemoryNames, id: \.self) { gpuName in
+                        SystemGPUMemoryChartView(
+                            gpuName: gpuName,
+                            dataPoints: store.systemDataPoints,
+                            xAxisFormat: store.xAxisFormat,
+                            isPinned: store.isPinned(.gpuMemory(name: gpuName)),
+                            onPinToggle: { store.togglePin(for: .gpuMemory(name: gpuName)) }
+                        )
+                    }
                     if store.hasExtraFilesystemsData {
                         ForEach(store.extraDiskNames, id: \.self) { diskName in
                             ExtraDiskUsageChartView(

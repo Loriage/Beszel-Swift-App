@@ -519,8 +519,10 @@ private func sampleDataPoints() -> [SystemDataPoint] {
                     usage: 18 + wave * 45,
                     memoryUsed: 2.8,
                     memoryTotal: 8,
-                    power: 42,
-                    temperature: 55 + wave * 9
+                    power: 42 + wave * 30,
+                    temperature: 55 + wave * 9,
+                    packagePower: 48 + wave * 30,
+                    engines: ["Render/3D": 12 + wave * 40, "Video": 4 + secondaryWave * 20]
                 )
             ],
             networkInterfaces: [

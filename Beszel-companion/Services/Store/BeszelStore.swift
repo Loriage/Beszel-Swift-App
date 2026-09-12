@@ -88,7 +88,20 @@ final class BeszelStore {
     var hasGPUData: Bool {
         systemDataPoints.contains { !$0.gpuMetrics.isEmpty }
     }
-    
+
+    var hasGPUPowerData: Bool {
+        systemDataPoints.contains { $0.gpuMetrics.contains { $0.power != nil || $0.packagePower != nil } }
+    }
+
+    var hasGPUEnginesData: Bool {
+        systemDataPoints.contains { $0.gpuMetrics.contains { !$0.engines.isEmpty } }
+    }
+
+    /// GPUs that report a memory total, in stable display order.
+    var gpuMemoryNames: [String] {
+        Set(systemDataPoints.flatMap { $0.gpuMetrics.filter { ($0.memoryTotal ?? 0) > 0 }.map(\.name) }).sorted()
+    }
+
     var hasNetworkInterfacesData: Bool {
         systemDataPoints.contains { !$0.networkInterfaces.isEmpty }
     }

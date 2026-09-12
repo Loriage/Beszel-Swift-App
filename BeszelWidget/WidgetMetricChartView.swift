@@ -336,12 +336,17 @@ private enum WidgetChartValueFormat {
     case gigabytes
     case megabytes
     case milliseconds
+    case watts
     case decimal
 
     func format(_ value: Double, locale: Locale) -> String {
         switch self {
         case .percent:
             return MetricFormatter.percent(value, locale: locale)
+        case .watts:
+            return value.formatted(
+                .number.locale(locale).precision(.fractionLength(0...1))
+            ) + " W"
         case .rpm:
             return SensorHistoryMetric.fans.formatted(value, locale: locale)
         case .temperature:
@@ -721,6 +726,38 @@ private struct WidgetChartPresentation {
                 dataPoints: dataPoints
             ) { point, name in
                 point.gpuMetrics.first(where: { $0.name == name })?.usage
+            }
+            summaryPoints = Self.maxSeriesByDate(series)
+            valueFormat = .percent
+            fixedYDomain = 0...100
+
+        case .systemGPUPower:
+            series = Self.namedSystemSeries(
+                names: Set(dataPoints.flatMap { $0.gpuMetrics.filter { $0.power != nil }.map(\.name) }),
+                dataPoints: dataPoints
+            ) { point, name in
+                point.gpuMetrics.first(where: { $0.name == name })?.power
+            }
+            summaryPoints = Self.sumSeriesByDate(series)
+            valueFormat = .watts
+
+        case .systemGPUMemory:
+            series = Self.namedSystemSeries(
+                names: Set(dataPoints.flatMap { $0.gpuMetrics.filter { ($0.memoryTotal ?? 0) > 0 }.map(\.name) }),
+                dataPoints: dataPoints
+            ) { point, name in
+                point.gpuMetrics.first(where: { $0.name == name })?.memoryUsed
+            }
+            summaryPoints = Self.sumSeriesByDate(series)
+            valueFormat = .megabytes
+            referenceValue = dataPoints.flatMap { $0.gpuMetrics.compactMap(\.memoryTotal) }.max()
+
+        case .systemGPUEngines:
+            series = Self.namedSystemSeries(
+                names: Set(dataPoints.flatMap { $0.gpuMetrics.flatMap { $0.engines.keys } }),
+                dataPoints: dataPoints
+            ) { point, name in
+                point.gpuMetrics.compactMap { $0.engines[name] }.max()
             }
             summaryPoints = Self.maxSeriesByDate(series)
             valueFormat = .percent

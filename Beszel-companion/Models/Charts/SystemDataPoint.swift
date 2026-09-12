@@ -47,10 +47,12 @@ struct GPUMetricPoint: Identifiable, Sendable {
 
     let name: String
     let usage: Double          // GPU utilization %
-    let memoryUsed: Double?    // Memory used (bytes or GB)
-    let memoryTotal: Double?   // Memory total
+    let memoryUsed: Double?    // Memory used (MB)
+    let memoryTotal: Double?   // Memory total (MB)
     let power: Double?         // Power watts
     let temperature: Double?   // Temperature
+    var packagePower: Double? = nil        // Package power watts (Intel)
+    var engines: [String: Double] = [:]    // Per-engine utilization % (Intel)
 }
 
 struct NetworkInterfacePoint: Identifiable, Sendable {
@@ -207,18 +209,30 @@ extension Array where Element == SystemDataPoint {
             avgSwap = nil
         }
 
-        var gpuSums: [String: (usage: Double, memUsed: Double, memTotal: Double, power: Double, temp: Double, count: Int)] = [:]
+        typealias GpuSums = (usage: Double, memUsed: Double, memTotal: Double, power: Double, powerCount: Int, packagePower: Double, packagePowerCount: Int, temp: Double, engines: [String: (sum: Double, count: Int)], count: Int)
+        var gpuSums: [String: GpuSums] = [:]
         for point in points {
             for gpu in point.gpuMetrics {
-                let existing = gpuSums[gpu.name] ?? (0, 0, 0, 0, 0, 0)
-                gpuSums[gpu.name] = (
-                    usage: existing.usage + gpu.usage,
-                    memUsed: existing.memUsed + (gpu.memoryUsed ?? 0),
-                    memTotal: existing.memTotal + (gpu.memoryTotal ?? 0),
-                    power: existing.power + (gpu.power ?? 0),
-                    temp: existing.temp + (gpu.temperature ?? 0),
-                    count: existing.count + 1
-                )
+                var existing: GpuSums = gpuSums[gpu.name] ?? (0, 0, 0, 0, 0, 0, 0, 0, [:], 0)
+                existing.usage += gpu.usage
+                existing.memUsed += gpu.memoryUsed ?? 0
+                existing.memTotal = Swift.max(existing.memTotal, gpu.memoryTotal ?? 0)
+                // Power is averaged over reported samples only; an idle 0 W reading is still a reading.
+                if let power = gpu.power {
+                    existing.power += power
+                    existing.powerCount += 1
+                }
+                if let packagePower = gpu.packagePower {
+                    existing.packagePower += packagePower
+                    existing.packagePowerCount += 1
+                }
+                existing.temp += gpu.temperature ?? 0
+                for (engine, value) in gpu.engines {
+                    let previous = existing.engines[engine] ?? (0, 0)
+                    existing.engines[engine] = (previous.sum + value, previous.count + 1)
+                }
+                existing.count += 1
+                gpuSums[gpu.name] = existing
             }
         }
         let avgGpuMetrics = gpuSums.map { (name, data) -> GPUMetricPoint in
@@ -227,11 +241,13 @@ extension Array where Element == SystemDataPoint {
                 name: name,
                 usage: data.usage / c,
                 memoryUsed: data.memUsed > 0 ? data.memUsed / c : nil,
-                memoryTotal: data.memTotal > 0 ? data.memTotal / c : nil,
-                power: data.power > 0 ? data.power / c : nil,
-                temperature: data.temp > 0 ? data.temp / c : nil
+                memoryTotal: data.memTotal > 0 ? data.memTotal : nil,
+                power: data.powerCount > 0 ? data.power / Double(data.powerCount) : nil,
+                temperature: data.temp > 0 ? data.temp / c : nil,
+                packagePower: data.packagePowerCount > 0 ? data.packagePower / Double(data.packagePowerCount) : nil,
+                engines: data.engines.mapValues { $0.sum / Double($0.count) }
             )
-        }
+        }.sorted { $0.name < $1.name }
 
         var netSums: [String: (sent: Double, received: Double, maxTotalSent: Double?, maxTotalReceived: Double?, count: Int)] = [:]
         for point in points {

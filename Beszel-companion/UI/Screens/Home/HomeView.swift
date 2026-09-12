@@ -328,6 +328,31 @@ struct HomeView: View {
                 isPinned: store.isPinned(.systemGPU, onSystem: resolvedItem.systemID),
                 onPinToggle: { store.togglePin(for: .systemGPU, onSystem: resolvedItem.systemID) }
             )
+        case .systemGPUPower:
+            SystemGPUPowerChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.systemGPUPower, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemGPUPower, onSystem: resolvedItem.systemID) }
+            )
+        case .systemGPUEngines:
+            SystemGPUEnginesChartView(
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.systemGPUEngines, onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .systemGPUEngines, onSystem: resolvedItem.systemID) }
+            )
+        case .gpuMemory(let name):
+            SystemGPUMemoryChartView(
+                gpuName: name,
+                dataPoints: systemData,
+                xAxisFormat: store.xAxisFormat,
+                systemName: systemName,
+                isPinned: store.isPinned(.gpuMemory(name: name), onSystem: resolvedItem.systemID),
+                onPinToggle: { store.togglePin(for: .gpuMemory(name: name), onSystem: resolvedItem.systemID) }
+            )
         case .systemNetworkInterfaces:
             SystemNetworkInterfacesChartView(
                 dataPoints: systemData,

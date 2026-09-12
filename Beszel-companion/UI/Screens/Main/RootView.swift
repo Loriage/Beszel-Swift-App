@@ -33,6 +33,14 @@ struct RootView: View {
 #endif
     }
 
+    private var isGPUUITesting: Bool {
+#if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--ui-testing-gpu")
+#else
+        false
+#endif
+    }
+
     private var isLoadingStateForcedForUITesting: Bool {
 #if DEBUG
         ProcessInfo.processInfo.arguments.contains("--ui-testing-loading-systems")
@@ -54,6 +62,10 @@ struct RootView: View {
             } else if isCompatibilityUITesting {
 #if DEBUG
                 Beszel019UITestView(legacy: ProcessInfo.processInfo.arguments.contains("--legacy-hub"))
+#endif
+            } else if isGPUUITesting {
+#if DEBUG
+                GPUChartsUITestView()
 #endif
             } else if instanceManager.instances.isEmpty && !isLoadingStateForcedForUITesting {
                 OnboardingView { name, url, email, password, advanced in
@@ -93,7 +105,7 @@ struct RootView: View {
                 .environment(alertManager)
         }
         .task(id: instanceManager.systemsLoadRequestID) {
-            guard !isCompatibilityUITesting, !isSensorUITesting, !isPinOrderUITesting else { return }
+            guard !isCompatibilityUITesting, !isSensorUITesting, !isPinOrderUITesting, !isGPUUITesting else { return }
             guard let instance = instanceManager.activeInstance else { return }
             await instanceManager.fetchSystemsForInstance(instance)
         }

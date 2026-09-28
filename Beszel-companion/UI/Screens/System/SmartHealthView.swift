@@ -278,7 +278,9 @@ private struct SmartAttributeRow: View {
 
             Spacer()
 
-            if let rs = attribute.rawString, !rs.isEmpty {
+            if let formatted = attribute.formattedDataUnits {
+                Text(formatted).font(.caption2.monospaced()).foregroundStyle(highlight ? .red : .secondary)
+            } else if let rs = attribute.rawString, !rs.isEmpty {
                 Text(rs)
                     .font(.caption2.monospaced())
                     .foregroundColor(highlight ? .red : .secondary)

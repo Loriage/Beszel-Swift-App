@@ -333,7 +333,8 @@ extension Array where Element == SystemDataPoint {
         var zfsPools: [String: ZFSPoolStats] = [:]
         let poolNames = Set(points.flatMap { $0.zfsPools.keys })
         for name in poolNames {
-            let samples = points.compactMap { $0.zfsPools[name] }
+            let allSamples = points.compactMap { $0.zfsPools[name] }
+            let samples = allSamples.filter { ($0.raw ?? false) == (allSamples.last?.raw ?? false) }
             func average(_ values: [Double]) -> Double? {
                 values.isEmpty ? nil : values.reduce(0, +) / Double(values.count)
             }
@@ -342,7 +343,7 @@ extension Array where Element == SystemDataPoint {
                 du: average(samples.compactMap(\.du)),
                 rb: average(samples.map { $0.rb ?? 0 }),
                 wb: average(samples.map { $0.wb ?? 0 }),
-                h: samples.last?.h
+                h: samples.last?.h, n: samples.last?.n, raw: samples.last?.raw, hu: samples.last?.hu, hi: samples.last?.hi
             )
         }
 

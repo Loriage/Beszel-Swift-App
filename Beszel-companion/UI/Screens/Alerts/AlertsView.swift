@@ -343,6 +343,7 @@ struct ConfiguredAlertsView: View {
     private func thresholdRange(for type: AlertType) -> ClosedRange<Double> {
         switch type {
         case .cpu, .cpuIOWait, .cpuSteal, .memory, .disk, .gpu, .battery: return 1...99
+        case .networkMonitorLoss: return 0...99
         case .bandwidth: return 1...125
         case .temperature: return 1...100
         case .loadAverage1m, .loadAverage5m, .loadAverage15m: return 1...100

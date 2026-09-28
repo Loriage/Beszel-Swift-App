@@ -21,7 +21,7 @@ struct ZFSPoolsCard: View {
                         )
                         .environment(\.chartXDomain, chartXDomain)
                     } label: {
-                        ZFSPoolRow(name: name, stats: stats[name])
+                        ZFSPoolRow(name: records.first { $0.name == name }?.label ?? stats[name]?.n ?? name, stats: stats[name])
                     }
                     .buttonStyle(.plain)
                     if name != names.last { Divider() }
@@ -44,6 +44,7 @@ private struct ZFSPoolRow: View {
                     Text("\(StorageValueFormatter.bytes(used * 1_073_741_824)) / \(StorageValueFormatter.bytes(total * 1_073_741_824))")
                         .font(.caption).foregroundStyle(.secondary)
                 }
+                if stats?.raw == true { Text("storage.raw").font(.caption).foregroundStyle(.secondary) }
                 if dynamicTypeSize.isAccessibilitySize {
                     ZFSHealthLabel(health: stats?.h)
                 }
@@ -89,12 +90,19 @@ struct ZFSPoolDetailView: View {
                     }
                     if let record {
                         LabeledContent("zfs.allocated", value: StorageValueFormatter.bytes(record.alloc))
-                        LabeledContent("zfs.free", value: StorageValueFormatter.bytes(record.free))
+                        if record.raw != true { LabeledContent("zfs.free", value: StorageValueFormatter.bytes(record.free)) }
                     }
                 }
 
-                StorageHistoryChart(metric: .poolUsage(name), dataPoints: dataPoints, xAxisFormat: xAxisFormat)
-                StorageHistoryChart(metric: .poolIO(name), dataPoints: dataPoints, xAxisFormat: xAxisFormat)
+                if stats?.raw == true || record?.raw == true {
+                    Text("storage.raw.description").font(.callout).foregroundStyle(.secondary)
+                }
+                if stats?.hu != true {
+                    StorageHistoryChart(metric: .poolUsage(name), dataPoints: dataPoints.filter { ($0.zfsPools[name]?.raw ?? false) == (stats?.raw ?? false) }, xAxisFormat: xAxisFormat)
+                }
+                if stats?.hi != true {
+                    StorageHistoryChart(metric: .poolIO(name), dataPoints: dataPoints, xAxisFormat: xAxisFormat)
+                }
 
                 if let record {
                     ZFSPoolDetailsContent(record: record)
@@ -108,7 +116,7 @@ struct ZFSPoolDetailView: View {
             }
             .padding()
         }
-        .navigationTitle(name)
+        .navigationTitle(record?.label ?? stats?.n ?? name)
         .navigationBarTitleDisplayMode(.inline)
         .monitoringScreenBackground()
         .groupBoxStyle(CardGroupBoxStyle())
@@ -196,7 +204,7 @@ struct ZFSHealthLabel: View {
         switch health {
         case "ONLINE": .green
         case "DEGRADED": .orange
-        case "FAULTED", "OFFLINE", "UNAVAIL", "REMOVED", "SUSPENDED": .red
+        case "FAULTED", "OFFLINE", "UNAVAIL", "REMOVED", "SUSPENDED", "MISSING": .red
         default: .secondary
         }
     }

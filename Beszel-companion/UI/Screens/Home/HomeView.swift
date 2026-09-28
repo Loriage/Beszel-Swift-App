@@ -39,6 +39,7 @@ struct HomeView: View {
             searchText.isEmpty ||
             (names[pin.systemID] ?? "").localizedCaseInsensitiveContains(searchText) ||
             pin.item.localizedDisplayName(for: bundle).localizedCaseInsensitiveContains(searchText)
+            || (store.networkMonitoring.target(for: pin.item, systemID: pin.systemID)?.localizedCaseInsensitiveContains(searchText) ?? false)
         }
 
         ScrollView {
@@ -110,7 +111,11 @@ struct HomeView: View {
             case .filters(let instanceID):
                 FilterView(layout: $dashboardManager[layoutFor: instanceID])
             case .reorder(let instanceID):
-                PinnedChartsOrderView(instanceID: instanceID, systemNames: names)
+                PinnedChartsOrderView(instanceID: instanceID, systemNames: names,
+                    monitorTargets: Dictionary(uniqueKeysWithValues: sortedPins.compactMap { pin in
+                        store.networkMonitoring.target(for: pin.item, systemID: pin.systemID).map { (pin.id, $0) }
+                    })
+                )
             }
         }
     }
@@ -141,6 +146,17 @@ struct HomeView: View {
         let systemName = store.systemName(forSystemID: resolvedItem.systemID)
         
         switch resolvedItem.item {
+        case .networkMonitorLatency(let id), .networkMonitorLoss(let id):
+            if let history = store.networkMonitoring.charts[id], history.monitor.system == resolvedItem.systemID {
+                NetworkMonitorChartView(
+                    history: history,
+                    metric: resolvedItem.item == .networkMonitorLatency(id: id) ? .latency : .loss,
+                    xAxisFormat: store.xAxisFormat, systemName: systemName,
+                    isPinned: store.isPinned(resolvedItem.item, onSystem: resolvedItem.systemID),
+                    onPinToggle: { store.togglePin(for: resolvedItem.item, onSystem: resolvedItem.systemID) }
+                )
+            }
+
         case .systemInfo:
             if let system = instanceManager.systems.first(where: { $0.id == resolvedItem.systemID }),
                let stats = store.latestStats(for: resolvedItem.systemID)?.stats {

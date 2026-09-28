@@ -28,6 +28,12 @@ struct SystemView: View {
                         .padding(.horizontal)
                 }
 
+                if let system = instanceManager.activeSystem,
+                   store.networkMonitoring.isSupported || HubInfo(v: system.info?.v).supports020 {
+                    NetworkMonitorsCard(system: system, monitoring: store.networkMonitoring)
+                        .padding(.horizontal)
+                }
+
                 if !store.zfsPoolNames.isEmpty {
                     ZFSPoolsCard(
                         names: store.zfsPoolNames,

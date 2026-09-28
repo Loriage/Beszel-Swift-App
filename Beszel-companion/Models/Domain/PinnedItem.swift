@@ -27,6 +27,8 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
     case gpuMemory(id: String)
     case gpuEngines(id: String)
     case systemNetworkInterfaces
+    case networkMonitorLatency(id: String)
+    case networkMonitorLoss(id: String)
     case extraDiskUsage(name: String)
     case extraDiskIO(name: String)
     case extraDiskIOUtilization(name: String)
@@ -42,6 +44,8 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
 
     var id: String {
         switch self {
+        case .networkMonitorLatency(let id): return "network_monitor_latency_\(id)"
+        case .networkMonitorLoss(let id): return "network_monitor_loss_\(id)"
         case .systemInfo: return "system_info"
         case .systemCPU: return "system_cpu"
         case .systemCPUTimeBreakdown: return "system_cpu_time_breakdown"
@@ -85,6 +89,10 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
 
     func localizedDisplayName(for bundle: Bundle) -> String {
         switch self {
+        case .networkMonitorLatency:
+            return String(localized: "monitor.latency", bundle: bundle)
+        case .networkMonitorLoss:
+            return String(localized: "monitor.loss", bundle: bundle)
         case .systemInfo:
             return NSLocalizedString("pinned.item.system.info", bundle: bundle, comment: "")
         case .systemCPU:
@@ -168,6 +176,8 @@ enum PinnedItem: Codable, Hashable, Identifiable, Sendable {
 
     var metricName: String {
         switch self {
+        case .networkMonitorLatency: return "Response time"
+        case .networkMonitorLoss: return "Packet loss"
         case .systemInfo: return "Info"
         case .systemCPU, .systemCPUTimeBreakdown, .systemCPUCores, .containerCPU, .stackedContainerCPU: return "CPU"
         case .systemMemory, .containerMemory, .stackedContainerMemory: return "Memory"

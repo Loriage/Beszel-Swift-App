@@ -18,6 +18,7 @@ struct SimpleEntry: TimelineEntry {
     let lockScreenMetric: LockScreenMetric
     var errorMessage: LocalizedStringKey? = nil
     var isFromCache: Bool = false
+    var networkMonitorCharts: [NetworkMonitorChartData] = []
 }
 
 private struct WidgetCache: Codable {
@@ -357,7 +358,7 @@ private func buildTimeline(
         }
         
         let filter = "(\(timeRange.apiFilterString) && system = '\(finalSystemID)')"
-        async let statsTask: [SystemStatsRecord] = resolvedChartType.requiresContainerData
+        async let statsTask: [SystemStatsRecord] = resolvedChartType.requiresContainerData || resolvedChartType.requiresNetworkMonitorData
             ? []
             : apiService.fetchSystemStats(filter: filter)
         async let detailsTask: [SystemDetailsRecord] = (resolvedChartType == .systemInfo) ? apiService.fetchSystemDetails() : []
@@ -365,6 +366,16 @@ private func buildTimeline(
             ? apiService.fetchMonitors(filter: filter)
             : []
         
+        async let networkMonitors: [NetworkMonitorRecord] = resolvedChartType.requiresNetworkMonitorData
+            ? apiService.fetchNetworkMonitors(systemID: finalSystemID) : []
+        async let networkStats: [NetworkMonitorStatsRecord] = resolvedChartType.requiresNetworkMonitorData
+            ? apiService.fetchNetworkMonitorStats(range: timeRange, systemID: finalSystemID) : []
+        let monitors = try await networkMonitors
+        let monitorStats = try await networkStats
+        let grouped = Dictionary(grouping: monitorStats, by: \.monitor)
+        let monitorCharts = monitors.sorted { $0.targetLabel < $1.targetLabel }.map {
+            NetworkMonitorChartData(monitor: $0, records: grouped[$0.id] ?? [], expectedInterval: timeRange.expectedInterval)
+        }
         let records = try await statsTask
         let details = try await detailsTask
         let containerRecords = try await containerRecordsTask
@@ -413,7 +424,8 @@ private func buildTimeline(
             systemName: resolvedSystemName ?? String(localized: "System"),
             status: status,
             timeRange: timeRange,
-            lockScreenMetric: lockScreenMetric
+            lockScreenMetric: lockScreenMetric,
+            networkMonitorCharts: monitorCharts
         )
         
         let nextUpdate = Date().addingTimeInterval(15 * 60)

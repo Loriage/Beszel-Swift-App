@@ -20,7 +20,8 @@ struct WidgetMetricChartView: View {
         return WidgetChartPresentation(
             chartType: entry.chartType,
             dataPoints: entry.dataPoints,
-            containerData: entry.containerData
+            containerData: entry.containerData,
+            networkMonitors: entry.networkMonitorCharts
         )
     }
 
@@ -168,7 +169,7 @@ struct WidgetMetricChartView: View {
             }
 
             ForEach(presentation.series) { series in
-                if presentation.series.count == 1 {
+                if presentation.series.count == 1 && !entry.chartType.requiresNetworkMonitorData {
                     ForEach(series.points) { point in
                         AreaMark(
                             x: .value("Date", point.date),
@@ -183,7 +184,7 @@ struct WidgetMetricChartView: View {
                                 endPoint: .bottom
                             )
                         )
-                        .interpolationMethod(presentation.sensorHistory == nil && presentation.gpuHistory == nil ? .monotone : .linear)
+                        .interpolationMethod(presentation.sensorHistory == nil && presentation.gpuHistory == nil && !entry.chartType.requiresNetworkMonitorData ? .monotone : .linear)
                     }
                 }
 
@@ -195,9 +196,15 @@ struct WidgetMetricChartView: View {
                     )
                     .foregroundStyle(series.color)
                     .lineStyle(series.strokeStyle)
-                    .interpolationMethod(presentation.sensorHistory == nil && presentation.gpuHistory == nil ? .monotone : .linear)
+                    .interpolationMethod(presentation.sensorHistory == nil && presentation.gpuHistory == nil && !entry.chartType.requiresNetworkMonitorData ? .monotone : .linear)
                 }
 
+                if entry.chartType.requiresNetworkMonitorData {
+                    ForEach(series.points) { point in
+                        PointMark(x: .value("Date", point.date), y: .value("Value", point.value))
+                            .foregroundStyle(series.color).symbolSize(5)
+                    }
+                }
                 if let latest = series.points.last {
                     PointMark(
                         x: .value("Latest date", latest.date),
@@ -490,7 +497,8 @@ private struct WidgetChartPresentation {
     init(
         chartType: WidgetChartType,
         dataPoints: [SystemDataPoint],
-        containerData: [ProcessedContainerData]
+        containerData: [ProcessedContainerData],
+        networkMonitors: [NetworkMonitorChartData] = []
     ) {
         let dataPoints = dataPoints.sorted { $0.date < $1.date }
         var series: [WidgetChartSeries] = []
@@ -500,6 +508,22 @@ private struct WidgetChartPresentation {
         var referenceValue: Double?
 
         switch chartType {
+        case .networkMonitorLatency, .networkMonitorLoss:
+            let latency = chartType == .networkMonitorLatency
+            series = networkMonitors.enumerated().map { index, history in
+                WidgetChartSeries(
+                    id: history.monitor.id, name: history.monitor.targetLabel, colorIndex: index,
+                    points: history.samples.compactMap { sample in
+                        guard let value = latency ? sample.average : sample.loss else { return nil }
+                        return WidgetChartPoint(date: sample.date, value: value, segment: latency ? sample.segment : sample.lossSegment)
+                    }
+                )
+            }
+            summaryPoints = Self.maxSeriesByDate(series)
+            series = Self.limitSeries(series)
+            valueFormat = latency ? .milliseconds : .percent
+            if !latency { fixedYDomain = 0...100 }
+
         case .systemInfo:
             break
 
@@ -623,16 +647,23 @@ private struct WidgetChartPresentation {
             valueFormat = .bytes
 
         case .zfsPoolUsage:
+            let pools = dataPoints.last?.zfsPools ?? [:]
+            let labels = pools.mapValues { $0.n ?? "" }
             series = Self.namedSystemSeries(
-                names: Set(dataPoints.flatMap { $0.zfsPools.keys }), dataPoints: dataPoints
-            ) { point, name in point.zfsPools[name]?.percent }
+                names: Set(pools.filter { $0.value.hu != true }.keys), dataPoints: dataPoints, labels: labels
+            ) { point, name in
+                guard let pool = point.zfsPools[name], (pool.raw ?? false) == (pools[name]?.raw ?? false) else { return nil }
+                return pool.percent
+            }
             summaryPoints = Self.maxSeriesByDate(series)
             valueFormat = .percent
             fixedYDomain = 0...100
 
         case .zfsPoolIO:
+            let pools = dataPoints.last?.zfsPools ?? [:]
             series = Self.namedSystemSeries(
-                names: Set(dataPoints.flatMap { $0.zfsPools.keys }), dataPoints: dataPoints
+                names: Set(pools.filter { $0.value.hi != true }.keys), dataPoints: dataPoints,
+                labels: pools.mapValues { $0.n ?? "" }
             ) { point, name in point.zfsPools[name].map { ($0.rb ?? 0) + ($0.wb ?? 0) } }
             summaryPoints = Self.sumSeriesByDate(series)
             valueFormat = .bytesPerSecond
@@ -919,12 +950,14 @@ private struct WidgetChartPresentation {
     private static func namedSystemSeries(
         names: Set<String>,
         dataPoints: [SystemDataPoint],
+        labels: [String: String] = [:],
         value: (SystemDataPoint, String) -> Double?
     ) -> [WidgetChartSeries] {
         let allSeries = names.sorted().enumerated().compactMap { colorIndex, name in
-            systemSeries(name: name, colorIndex: colorIndex, dataPoints: dataPoints) {
-                value($0, name)
-            }.first
+            let points = systemPoints(dataPoints) { value($0, name) }
+            guard !points.isEmpty else { return nil as WidgetChartSeries? }
+            return WidgetChartSeries(id: name, name: labels[name].flatMap { $0.isEmpty ? nil : $0 } ?? name,
+                                     colorIndex: colorIndex, points: points)
         }
         return limitSeries(allSeries)
     }

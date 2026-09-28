@@ -8,6 +8,7 @@ nonisolated struct AlertHistoryRecord: Codable, Identifiable, Hashable, Sendable
     let value: Double?
     let resolved: String?  // Keep as String to avoid date parsing issues
     let created: Date
+    var monitorName: String? = nil
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -16,6 +17,7 @@ nonisolated struct AlertHistoryRecord: Codable, Identifiable, Hashable, Sendable
         case name
         case value
         case resolved
+        case monitorName = "monitor_name"
         case created
     }
 }
@@ -26,7 +28,8 @@ extension AlertHistoryRecord {
     }
 
     var displayName: String {
-        alertType.displayName(for: name)
+        if let monitorName, !monitorName.isEmpty { return alertType.displayName(for: name) + " · " + monitorName }
+        return alertType.displayName(for: name)
     }
 
     var displayNameKey: String {

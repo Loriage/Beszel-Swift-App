@@ -61,6 +61,17 @@ actor BeszelAPIService {
         }
     }
     
+    #if DEBUG
+    init(instance: Instance, instanceManager: InstanceManager, testToken: String, send: @escaping HubConnection.Send) {
+        self.instance = instance
+        self.instanceManager = instanceManager
+        self.baseURL = instance.url
+        self.email = instance.email
+        self.authToken = testToken
+        self.connection = HubConnection(baseURL: instance.url, send: send)
+    }
+    #endif
+
     private func getStoredCredential() -> String {
         if let cred = credential { return cred }
         let loaded = instanceManager.loadCredential(for: instance) ?? ""
@@ -315,6 +326,57 @@ actor BeszelAPIService {
     
     func fetchSystems() async throws -> [SystemRecord] {
         try await fetchAllPages(path: "/api/collections/systems/records", filter: nil)
+    }
+
+    func fetchNetworkMonitors(systemID: String? = nil) async throws -> [NetworkMonitorRecord] {
+        let filter = try systemID.map { "system = '\(try validatedRecordID($0))'" }
+        return try await fetchAllPages(path: "/api/collections/network_monitors/records", filter: filter)
+    }
+
+    func fetchNetworkMonitorStats(range: TimeRangeOption, systemID: String? = nil) async throws -> [NetworkMonitorStatsRecord] {
+        var filter = range.networkMonitorFilter()
+        if let systemID { filter += " && system = '\(try validatedRecordID(systemID))'" }
+        return try await fetchAllPages(path: "/api/collections/network_monitor_stats/records", filter: filter)
+    }
+
+    func canManageNetworkMonitors() async throws -> Bool {
+        struct UserRole: Decodable, Sendable { let role: String? }
+        let token = try await getValidToken()
+        guard let id = userIDFromToken(token),
+              let url = URL(string: "\(baseURL)/api/collections/users/records/\(try validatedRecordID(id))") else {
+            return false
+        }
+        let user: UserRole = try await performRequest(with: url)
+        return user.role != "readonly"
+    }
+
+    func saveNetworkMonitor(_ config: NetworkMonitorConfiguration, id: String? = nil) async throws {
+        let suffix = try id.map { "/" + (try validatedRecordID($0)) } ?? ""
+        guard let url = URL(string: "\(baseURL)/api/collections/network_monitors/records\(suffix)") else { throw URLError(.badURL) }
+        // A changed target/protocol/port causes the hub to replace the record with a new ID.
+        // Refetch the list instead of decoding the update response as the saved monitor.
+        _ = try await performMutatingRequest(url: url, method: id == nil ? "POST" : "PATCH", body: [
+            "system": try validatedRecordID(config.system), "target": config.target,
+            "protocol": config.protocol.rawValue, "port": config.port,
+            "interval": config.interval, "enabled": config.enabled
+        ])
+    }
+
+    func setNetworkMonitorEnabled(id: String, enabled: Bool) async throws {
+        guard let url = URL(string: "\(baseURL)/api/collections/network_monitors/records/\(try validatedRecordID(id))") else { throw URLError(.badURL) }
+        _ = try await performMutatingRequest(url: url, method: "PATCH", body: ["enabled": enabled])
+    }
+
+    func deleteNetworkMonitor(id: String) async throws {
+        guard let url = URL(string: "\(baseURL)/api/collections/network_monitors/records/\(try validatedRecordID(id))") else { throw URLError(.badURL) }
+        _ = try await performMutatingRequest(url: url, method: "DELETE")
+    }
+
+    private func validatedRecordID(_ id: String) throws -> String {
+        guard !id.isEmpty, id.utf8.allSatisfy({ (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0) }) else {
+            throw URLError(.badURL)
+        }
+        return id
     }
 
     func fetchHubInfo() async throws -> HubInfo? {

@@ -7,6 +7,7 @@ struct PinnedChartsOrderView: View {
 
     let instanceID: String
     let systemNames: [String: String]
+    var monitorTargets: [String: String] = [:]
 
     var body: some View {
         let pins = dashboardManager[layoutFor: instanceID].sortedPins(
@@ -19,7 +20,7 @@ struct PinnedChartsOrderView: View {
                 Section {
                     ForEach(pins) { pin in
                         PinnedChartOrderRow(
-                            title: pin.item.localizedDisplayName(for: languageManager.currentBundle),
+                            title: pin.item.localizedDisplayName(for: languageManager.currentBundle) + (monitorTargets[pin.id].map { " · " + $0 } ?? ""),
                             systemName: systemNames[pin.systemID] ?? pin.systemID
                         )
                         .accessibilityIdentifier("pinned-order-\(pin.id)")

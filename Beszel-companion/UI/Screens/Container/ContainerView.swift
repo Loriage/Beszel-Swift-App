@@ -130,6 +130,11 @@ struct ContainerRowView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
 
+                if container.updatable == true {
+                    Label("container.imageUpdate", systemImage: "arrow.up.circle")
+                        .font(.caption).foregroundStyle(.green)
+                }
+
                 if let image = container.image {
                     Label(image, systemImage: "shippingbox")
                         .font(.caption2)

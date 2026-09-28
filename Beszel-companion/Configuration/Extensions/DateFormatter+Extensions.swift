@@ -1,7 +1,7 @@
 import Foundation
 
 extension DateFormatter {
-    static var pocketBase: DateFormatter {
+    nonisolated static var pocketBase: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS'Z'"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)

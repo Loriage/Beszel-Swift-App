@@ -78,6 +78,14 @@ nonisolated struct SmartAttribute: Codable, Identifiable, Sendable {
         case whenFailed = "wf"
     }
 
+    var formattedDataUnits: String? {
+        guard name == "DataUnitsWritten" || name == "DataUnitsRead", let rawValue else { return nil }
+        let gigabytes = Double(rawValue) * 512_000 / 1_000_000_000
+        return gigabytes >= 1000
+            ? (gigabytes / 1000).formatted(.number.precision(.fractionLength(2))) + " TB"
+            : gigabytes.formatted(.number.precision(.fractionLength(2))) + " GB"
+    }
+
     var isFailing: Bool {
         let wf = whenFailed ?? ""
         return !wf.isEmpty && wf != "-"

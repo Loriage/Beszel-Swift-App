@@ -6,6 +6,7 @@ struct AlertDetail: Identifiable, Hashable, Sendable {
         static let systemId = "alertSystemId"
         static let systemName = "alertSystemName"
         static let name = "alertName"
+        static let monitorName = "alertMonitorName"
         static let value = "alertValue"
         static let created = "alertCreated"
         static let resolved = "alertResolved"
@@ -18,6 +19,7 @@ struct AlertDetail: Identifiable, Hashable, Sendable {
     let value: Double?
     let resolved: String?
     let created: Date
+    var monitorName: String? = nil
 
     init(alert: AlertHistoryRecord, systemName: String?) {
         self.id = alert.id
@@ -27,6 +29,7 @@ struct AlertDetail: Identifiable, Hashable, Sendable {
         self.value = alert.value
         self.resolved = alert.resolved
         self.created = alert.created
+        self.monitorName = alert.monitorName
     }
 
     init?(userInfo: [AnyHashable: Any]) {
@@ -53,6 +56,7 @@ struct AlertDetail: Identifiable, Hashable, Sendable {
         self.value = valueNumber?.doubleValue
         self.resolved = cleanedResolved
         self.created = Date(timeIntervalSince1970: createdInterval)
+        self.monitorName = userInfo[UserInfoKey.monitorName] as? String
     }
 
     func userInfoPayload() -> [AnyHashable: Any] {
@@ -63,6 +67,7 @@ struct AlertDetail: Identifiable, Hashable, Sendable {
             UserInfoKey.created: created.timeIntervalSince1970
         ]
 
+        if let monitorName { userInfo[UserInfoKey.monitorName] = monitorName }
         if let systemName {
             userInfo[UserInfoKey.systemName] = systemName
         }
@@ -84,11 +89,11 @@ struct AlertDetail: Identifiable, Hashable, Sendable {
             name: name,
             value: value,
             resolved: resolved,
-            created: created
+            created: created, monitorName: monitorName
         )
     }
 
-    private init(id: String, systemId: String, systemName: String?, name: String, value: Double?, resolved: String?, created: Date) {
+    private init(id: String, systemId: String, systemName: String?, name: String, value: Double?, resolved: String?, created: Date, monitorName: String? = nil) {
         self.id = id
         self.systemId = systemId
         self.systemName = systemName
@@ -96,6 +101,7 @@ struct AlertDetail: Identifiable, Hashable, Sendable {
         self.value = value
         self.resolved = resolved
         self.created = created
+        self.monitorName = monitorName
     }
 }
 
@@ -105,7 +111,8 @@ extension AlertDetail {
     }
 
     var displayName: String {
-        alertType.displayName(for: name)
+        if let monitorName, !monitorName.isEmpty { return alertType.displayName(for: name) + " · " + monitorName }
+        return alertType.displayName(for: name)
     }
 
     var triggeredValueDescription: String {

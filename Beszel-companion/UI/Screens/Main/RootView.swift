@@ -9,6 +9,14 @@ struct RootView: View {
 
     @State private var isShowingSettings = false
 
+    private var isNetworkMonitorUITesting: Bool {
+#if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--ui-testing-network-monitors")
+#else
+        false
+#endif
+    }
+
     private var isPinOrderUITesting: Bool {
 #if DEBUG
         ProcessInfo.processInfo.arguments.contains("--ui-testing-pin-order")
@@ -51,7 +59,11 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if isPinOrderUITesting {
+            if isNetworkMonitorUITesting {
+#if DEBUG
+                NetworkMonitorsUITestView()
+#endif
+            } else if isPinOrderUITesting {
 #if DEBUG
                 PinnedChartsUITestView()
 #endif

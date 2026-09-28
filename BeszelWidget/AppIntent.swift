@@ -57,6 +57,7 @@ nonisolated extension WidgetChartCategory: AppEnum {
         .zfs: "zfs.title",
         .diskTotals: "widget.category.diskTotals",
         .network: "widget.category.network",
+        .networkMonitors: "monitor.title",
         .sensors: "widget.category.sensors",
         .gpu: "GPU"
     ]
@@ -236,11 +237,19 @@ public struct ChartTypeQuery: EntityStringQuery {
     }
 
     public func suggestedEntities() async throws -> IntentItemCollection<ChartTypeEntity> {
-        Self.choices(category: intent?.category, stats: try await latestStats())
+        Self.choices(category: intent?.category, stats: try await latestStats(), hasNetworkMonitors: await hasNetworkMonitors())
     }
 
     public func entities(matching string: String) async throws -> IntentItemCollection<ChartTypeEntity> {
-        Self.choices(category: intent?.category, search: string, stats: try await latestStats())
+        Self.choices(category: intent?.category, search: string, stats: try await latestStats(), hasNetworkMonitors: await hasNetworkMonitors())
+    }
+
+    private func hasNetworkMonitors() async -> Bool {
+        guard let systemID = systemIntent?.system.id else { return false }
+        do {
+            let connection = try await WidgetConfigurationData.connection(instanceID: systemIntent?.instance.id)
+            return try await !connection.apiService.fetchNetworkMonitors(systemID: systemID).isEmpty
+        } catch { return false }
     }
 
     private func latestStats() async throws -> SystemStatsDetail? {
@@ -258,13 +267,13 @@ public struct ChartTypeQuery: EntityStringQuery {
     }
 
     static func choices(
-        category: WidgetChartCategory?, search: String = "", stats: SystemStatsDetail? = nil
+        category: WidgetChartCategory?, search: String = "", stats: SystemStatsDetail? = nil, hasNetworkMonitors: Bool = false
     ) -> IntentItemCollection<ChartTypeEntity> {
         let search = search.trimmingCharacters(in: .whitespacesAndNewlines)
         let categories = category.map { [$0] } ?? WidgetChartCategory.allCases
         let sections = categories.compactMap { category -> IntentItemSection<ChartTypeEntity>? in
             let charts = category.chartTypes.filter { chart in
-                chart.isSupported(by: stats) &&
+                (!chart.requiresNetworkMonitorData || hasNetworkMonitors) && chart.isSupported(by: stats) &&
                     (search.isEmpty || String(localized: chart.localizedTitle).localizedStandardContains(search))
             }.map { ChartTypeEntity(id: $0.id, title: $0.localizedTitle) }
             guard !charts.isEmpty else { return nil }

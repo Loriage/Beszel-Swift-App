@@ -8,6 +8,8 @@ private let logger = Logger(subsystem: "com.nohitdev.Beszel", category: "BeszelS
 @Observable
 @MainActor
 final class BeszelStore {
+    let networkMonitoring: NetworkMonitorStore
+
     var stackedCpuData: [StackedCpuData] = []
     var cpuDomain: [String] = []
     
@@ -67,7 +69,9 @@ final class BeszelStore {
 
     init(instance: Instance, settingsManager: SettingsManager, dashboardManager: DashboardManager, instanceManager: InstanceManager) {
         self.instance = instance
-        self.apiService = BeszelAPIService(instance: instance, instanceManager: instanceManager)
+        let api = BeszelAPIService(instance: instance, instanceManager: instanceManager)
+        self.apiService = api
+        self.networkMonitoring = NetworkMonitorStore(api: api)
         self.settingsManager = settingsManager
         self.dashboardManager = dashboardManager
         self.instanceManager = instanceManager
@@ -204,6 +208,7 @@ final class BeszelStore {
     }
     
     func clearAllCachedData() {
+        networkMonitoring.clear()
         systemDataPointsBySystem.removeAll()
         containerDataBySystem.removeAll()
         containerRecordsBySystem.removeAll()
@@ -332,6 +337,7 @@ final class BeszelStore {
             await fetchContainerRecords(for: systemsToFetch)
             await fetchSmartDevices(for: systemsToFetch)
             await fetchZFSPools(for: systemsToFetch)
+            await networkMonitoring.refresh(range: currentTimeRange)
 
             try Task.checkCancellation()
 
@@ -427,6 +433,7 @@ final class BeszelStore {
                 }
             }
             
+            await networkMonitoring.refresh(range: settingsManager.selectedTimeRange, includeHistory: false)
             self.authenticationFailed = false
         } catch {
             if let urlError = error as? URLError, urlError.code == .userAuthenticationRequired {

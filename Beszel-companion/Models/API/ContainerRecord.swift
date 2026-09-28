@@ -12,6 +12,7 @@ nonisolated struct ContainerRecord: Identifiable, Codable, Hashable, Sendable {
     let status: String
     let image: String?
     let system: String
+    var updatable: Bool? = nil
     let updated: Int64
 
     var updatedDate: Date {

@@ -4,7 +4,10 @@ import Foundation
 nonisolated struct HubInfo: Decodable, Sendable {
     let v: String?
 
-    var supports019: Bool {
+    var supports019: Bool { supports(minimum: [0, 19, 0]) }
+    var supports020: Bool { supports(minimum: [0, 20, 0]) }
+
+    private func supports(minimum: [Int]) -> Bool {
         guard var version = v else { return false }
         if version.hasPrefix("v") { version.removeFirst() }
         guard let release = version.split(separator: "+", maxSplits: 1).first else { return false }
@@ -14,7 +17,6 @@ nonisolated struct HubInfo: Decodable, Sendable {
         guard components.count == 3 else { return false }
         let numbers = components.compactMap { Int($0) }
         guard numbers.count == 3, numbers.allSatisfy({ $0 >= 0 }) else { return false }
-        let minimum = [0, 19, 0]
         if numbers == minimum { return parts.count == 1 }
         return minimum.lexicographicallyPrecedes(numbers)
     }

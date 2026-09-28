@@ -55,6 +55,7 @@ enum AlertType: String, CaseIterable, Identifiable, Sendable {
     case memory = "Memory"
     case disk = "Disk"
     case bandwidth = "Bandwidth"
+    case networkMonitorLoss = "NetworkMonitorLoss"
     case gpu = "GPU"
     case temperature = "Temperature"
     case loadAverage1m = "LoadAvg1"
@@ -83,6 +84,7 @@ enum AlertType: String, CaseIterable, Identifiable, Sendable {
 
     func isAvailable(hubInfo: HubInfo?, system: SystemRecord?, stats: SystemStatsDetail?) -> Bool {
         guard isConfigurable else { return false }
+        if self == .networkMonitorLoss { return hubInfo?.supports020 == true && HubInfo(v: system?.info?.v).supports020 }
         guard requires019 else { return true }
         guard hubInfo?.supports019 == true else { return false }
         switch self {
@@ -104,6 +106,7 @@ enum AlertType: String, CaseIterable, Identifiable, Sendable {
         case .other: return "alerts.type.name.other"
         case .memory: return "alerts.type.name.memory"
         case .disk: return "alerts.type.name.disk"
+        case .networkMonitorLoss: return "monitor.loss"
         case .bandwidth: return "alerts.type.name.bandwidth"
         case .temperature: return "alerts.type.name.temperature"
         case .loadAverage1m: return "alerts.type.name.loadAverage1m"
@@ -130,6 +133,7 @@ enum AlertType: String, CaseIterable, Identifiable, Sendable {
         case .other: return "alerts.type.name.other"
         case .memory: return "alerts.type.description.memory"
         case .disk: return "alerts.type.description.disk"
+        case .networkMonitorLoss: return "monitor.alert.description"
         case .bandwidth: return "alerts.type.description.bandwidth"
         case .temperature: return "alerts.type.description.temperature"
         case .loadAverage1m: return "alerts.type.description.loadAverage1m"
@@ -144,7 +148,7 @@ enum AlertType: String, CaseIterable, Identifiable, Sendable {
         isConfigurable && ![.status, .containerHealth, .systemdFailed].contains(self)
     }
 
-    var supportsDuration: Bool { isConfigurable && self != .systemdFailed }
+    var supportsDuration: Bool { isConfigurable && self != .systemdFailed && self != .networkMonitorLoss }
 
     var iconName: String {
         switch self {
@@ -155,7 +159,7 @@ enum AlertType: String, CaseIterable, Identifiable, Sendable {
         case .other: return "exclamationmark.triangle"
         case .memory: return "memorychip"
         case .disk: return "externaldrive"
-        case .bandwidth: return "network"
+        case .bandwidth, .networkMonitorLoss: return "network"
         case .temperature: return "thermometer.medium"
         case .loadAverage1m, .loadAverage5m, .loadAverage15m: return "hourglass"
         case .status: return "power"
@@ -166,7 +170,7 @@ enum AlertType: String, CaseIterable, Identifiable, Sendable {
 
     func formatValue(_ value: Double) -> String {
         switch self {
-        case .cpu, .cpuIOWait, .cpuSteal, .memory, .disk, .gpu, .battery:
+        case .cpu, .cpuIOWait, .cpuSteal, .memory, .disk, .gpu, .battery, .networkMonitorLoss:
             return String(format: "%.0f%%", value)
         case .bandwidth:
             return String(format: "%.0f MB/s", value)

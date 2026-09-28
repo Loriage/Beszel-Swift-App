@@ -1,6 +1,6 @@
 import Foundation
 
-enum TimeRangeOption: String, CaseIterable, Identifiable, Sendable {
+nonisolated enum TimeRangeOption: String, CaseIterable, Identifiable, Sendable {
     case lastHour = "timeRange.lastHour"
     case last12Hours = "timeRange.last12Hours"
     case last24Hours = "timeRange.last24Hours"
@@ -10,7 +10,7 @@ enum TimeRangeOption: String, CaseIterable, Identifiable, Sendable {
     var id: String { self.rawValue }
 }
 
-extension TimeRangeOption {
+nonisolated extension TimeRangeOption {
     var xAxisFormat: Date.FormatStyle {
         switch self {
         case .lastHour, .last12Hours:

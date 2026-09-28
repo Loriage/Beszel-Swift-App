@@ -31,6 +31,8 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
     case systemGPUMemory
     case systemGPUEngines
     case systemNetworkInterfaces
+    case networkMonitorLatency
+    case networkMonitorLoss
     case extraDiskUsage
     case extraDiskIO
     case extraDiskIOUtilization
@@ -47,6 +49,7 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
 
     public nonisolated var category: WidgetChartCategory {
         switch self {
+        case .networkMonitorLatency, .networkMonitorLoss: .networkMonitors
         case .systemInfo: .overview
         case .systemCPU, .systemCPUTimeBreakdown, .systemCPUCores, .systemLoadAverage: .processor
         case .systemMemory, .systemSwap: .memory
@@ -84,6 +87,8 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
 
     public nonisolated var titleKey: String {
         switch self {
+        case .networkMonitorLatency: "monitor.latency"
+        case .networkMonitorLoss: "monitor.loss"
         case .systemInfo: "pinned.item.system.info"
         case .systemCPU: "pinned.item.system.cpu"
         case .systemCPUTimeBreakdown: "pinned.item.system.cpu.breakdown"
@@ -134,6 +139,7 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
 
     public nonisolated var systemImage: String {
         switch self {
+        case .networkMonitorLatency, .networkMonitorLoss: "network"
         case .systemInfo: "info.circle"
         case .systemCPU, .systemCPUTimeBreakdown, .systemCPUCores, .containerCPU: "cpu"
         case .systemMemory, .systemSwap, .containerMemory: "memorychip"
@@ -153,6 +159,10 @@ public enum WidgetChartType: String, Sendable, CaseIterable {
         case .extraDiskUsage, .extraDiskIO, .extraDiskIOUtilization, .extraDiskIOTimes,
              .extraDiskAwait, .extraDiskIOQueueDepth, .extraDiskCumulativeRead, .extraDiskCumulativeWrite: "externaldrive"
         }
+    }
+
+    public nonisolated var requiresNetworkMonitorData: Bool {
+        self == .networkMonitorLatency || self == .networkMonitorLoss
     }
 
     public nonisolated var requiresContainerData: Bool {
@@ -193,6 +203,7 @@ public nonisolated enum WidgetChartCategory: String, CaseIterable, Sendable {
     case zfs
     case diskTotals
     case network
+    case networkMonitors
     case sensors
     case gpu
 
@@ -206,6 +217,7 @@ public nonisolated enum WidgetChartCategory: String, CaseIterable, Sendable {
         case .zfs: "zfs.title"
         case .diskTotals: "widget.category.diskTotals"
         case .network: "widget.category.network"
+        case .networkMonitors: "monitor.title"
         case .sensors: "widget.category.sensors"
         case .gpu: "GPU"
         }

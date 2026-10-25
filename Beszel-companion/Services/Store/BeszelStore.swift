@@ -44,6 +44,8 @@ final class BeszelStore {
     var isLoading = true
     var errorMessage: String?
     
+    /// History for the selected range only; `systemDataPointsBySystem` adds the newest record on top.
+    private var rangeDataPointsBySystem: [String: [SystemDataPoint]] = [:]
     private var systemDataPointsBySystem: [String: [SystemDataPoint]] = [:] {
         didSet {
             sensorChartsBySystem = systemDataPointsBySystem.mapValues { SystemSensorCharts(dataPoints: $0) }
@@ -152,9 +154,7 @@ final class BeszelStore {
             self.xDomain = settingsManager.selectedTimeRange.xDomain
             return
         }
-        self.systemDataPoints = systemDataPointsBySystem[activeSystemID] ?? []
-        self.sensorCharts = sensorChartsBySystem[activeSystemID] ?? .empty
-        self.gpuCharts = gpuChartsBySystem[activeSystemID] ?? .empty
+        applySystemDataPoints(for: activeSystemID)
         self.containerData = containerDataBySystem[activeSystemID] ?? []
         self.containerRecords = containerRecordsBySystem[activeSystemID] ?? []
         self.latestSystemStats = latestStatsBySystem[activeSystemID]
@@ -165,6 +165,27 @@ final class BeszelStore {
         }
         self.zfsDetailsUnavailable = unavailableZFSSystems.contains(activeSystemID)
         self.xDomain = dataXDomain()
+    }
+
+    private func applySystemDataPoints(for systemID: String) {
+        self.systemDataPoints = systemDataPointsBySystem[systemID] ?? []
+        self.sensorCharts = sensorChartsBySystem[systemID] ?? .empty
+        self.gpuCharts = gpuChartsBySystem[systemID] ?? .empty
+    }
+
+    private func rebuildSystemDataPoints() {
+        systemDataPointsBySystem = rangeDataPointsBySystem.reduce(into: [:]) { result, entry in
+            result[entry.key] = Self.appendingLiveRecord(latestStatsBySystem[entry.key], to: entry.value)
+        }
+    }
+
+    /// Range history only gets records of one type (e.g. `20m` for 24h), so a metric the agent just
+    /// started reporting would stay hidden until such a record exists. Appending the newest record
+    /// makes new sections appear right away, showing the current value. (#102)
+    nonisolated static func appendingLiveRecord(_ record: SystemStatsRecord?, to points: [SystemDataPoint]) -> [SystemDataPoint] {
+        guard let record, let live = [record].asDataPoints().first,
+              live.date > (points.last?.date ?? .distantPast) else { return points }
+        return points + [live]
     }
 
     private func dataXDomain() -> ClosedRange<Date> {
@@ -193,6 +214,7 @@ final class BeszelStore {
         let validSystemIDs = Set(instanceManager.systems.map { $0.id })
         
         for systemID in systemDataPointsBySystem.keys where !validSystemIDs.contains(systemID) {
+            rangeDataPointsBySystem.removeValue(forKey: systemID)
             systemDataPointsBySystem.removeValue(forKey: systemID)
             logger.debug("Cleaned up stale system data")
         }
@@ -209,6 +231,7 @@ final class BeszelStore {
     
     func clearAllCachedData() {
         networkMonitoring.clear()
+        rangeDataPointsBySystem.removeAll()
         systemDataPointsBySystem.removeAll()
         containerDataBySystem.removeAll()
         containerRecordsBySystem.removeAll()
@@ -288,15 +311,18 @@ final class BeszelStore {
                         
                         async let containerRecords = apiService.fetchMonitors(filter: finalFilter)
                         async let systemRecords = apiService.fetchSystemStats(filter: finalFilter)
-                        
+                        async let newestRecord = apiService.fetchLatestSystemStats(systemID: system.id)
+
                         let fetchedContainers = try await containerRecords
                         let fetchedSystem = try await systemRecords
-                        
+
                         let rawSystemData = fetchedSystem.asDataPoints()
                         let downsampledSystem = BeszelStore.downsampleSystemDataPoints(rawSystemData, selectedSpan: selectedSpan)
                         let rawContainers = fetchedContainers.asProcessedData()
 
-                        let latestRecord = fetchedSystem.max(by: { $0.created < $1.created })
+                        // The range only holds one record type; the newest record of any type is fresher.
+                        let latestRecord = (fetchedSystem + [try? await newestRecord].compactMap { $0 })
+                            .max(by: { $0.created < $1.created })
 
                         var processedContainers: [ProcessedContainerData] = []
                         for container in rawContainers {
@@ -324,15 +350,16 @@ final class BeszelStore {
                 return (systemDataResult, containerDataResult, latestStatsResult)
             }
             
-            self.systemDataPointsBySystem = finalSystemData
+            self.rangeDataPointsBySystem = finalSystemData
             self.containerDataBySystem = finalContainerData
-            
+
             for (id, stat) in finalLatestStats {
                 if let existing = self.latestStatsBySystem[id], existing.created > stat.created {
                     continue
                 }
                 self.latestStatsBySystem[id] = stat
             }
+            rebuildSystemDataPoints()
             
             await fetchContainerRecords(for: systemsToFetch)
             await fetchSmartDevices(for: systemsToFetch)
@@ -427,9 +454,13 @@ final class BeszelStore {
             instanceManager.refreshActiveSystem()
             
             if let activeSystemID = instanceManager.activeSystem?.id {
-                if let latest = try await apiService.fetchLatestSystemStats(systemID: activeSystemID) {
+                if let latest = try await apiService.fetchLatestSystemStats(systemID: activeSystemID),
+                   latest.created != latestStatsBySystem[activeSystemID]?.created {
                     self.latestStatsBySystem[activeSystemID] = latest
                     self.latestSystemStats = latest
+                    rebuildSystemDataPoints()
+                    applySystemDataPoints(for: activeSystemID)
+                    self.xDomain = dataXDomain()
                 }
             }
             

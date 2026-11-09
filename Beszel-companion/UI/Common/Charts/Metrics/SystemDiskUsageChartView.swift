@@ -18,6 +18,7 @@ struct SystemDiskUsageChartView: View {
     }
 
     var body: some View {
+        let showSingleSample = dataPoints.filter { $0.diskUsage != nil }.count == 1
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
                 (Text("chart.diskUsage") + Text(" (\(totalDisk >= 1024 ? "TB" : "GB"))"))
@@ -48,6 +49,7 @@ struct SystemDiskUsageChartView: View {
                                 x: .value("Date", point.date),
                                 y: .value("Used", disk.used),
                             )
+                            .singleSampleSymbol(showSingleSample)
                             .foregroundStyle(.purple)
 
                             AreaMark(
@@ -81,7 +83,7 @@ struct SystemDiskUsageChartView: View {
                         }
                     }
                 }
-                .chartYScale(domain: 0...Swift.max(totalDisk, 1))
+                .chartYScale(domain: capacityDomain(total: totalDisk))
                 .chartLegend(.hidden)
                 .chartXScaleIfNeeded(chartXDomain)
                 .padding(.top, 5)

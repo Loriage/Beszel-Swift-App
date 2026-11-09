@@ -69,9 +69,9 @@ final class BeszelStore {
     
     private(set) var xDomain: ClosedRange<Date>
 
-    init(instance: Instance, settingsManager: SettingsManager, dashboardManager: DashboardManager, instanceManager: InstanceManager) {
+    init(instance: Instance, settingsManager: SettingsManager, dashboardManager: DashboardManager, instanceManager: InstanceManager, apiService: BeszelAPIService? = nil) {
         self.instance = instance
-        let api = BeszelAPIService(instance: instance, instanceManager: instanceManager)
+        let api = apiService ?? BeszelAPIService(instance: instance, instanceManager: instanceManager)
         self.apiService = api
         self.networkMonitoring = NetworkMonitorStore(api: api)
         self.settingsManager = settingsManager
@@ -174,8 +174,9 @@ final class BeszelStore {
     }
 
     private func rebuildSystemDataPoints() {
-        systemDataPointsBySystem = rangeDataPointsBySystem.reduce(into: [:]) { result, entry in
-            result[entry.key] = Self.appendingLiveRecord(latestStatsBySystem[entry.key], to: entry.value)
+        let systemIDs = Set(rangeDataPointsBySystem.keys).union(latestStatsBySystem.keys)
+        systemDataPointsBySystem = systemIDs.reduce(into: [:]) { result, systemID in
+            result[systemID] = Self.appendingLiveRecord(latestStatsBySystem[systemID], to: rangeDataPointsBySystem[systemID] ?? [])
         }
     }
 
@@ -197,6 +198,11 @@ final class BeszelStore {
         }
 
         for point in systemDataPoints { consider(point.date) }
+        // Home shares this domain across the active system and its other pinned systems.
+        let pinnedSystemIDs = Set(dashboardManager.pins(forInstanceID: instance.id.uuidString).map(\.systemID))
+        for systemID in pinnedSystemIDs {
+            for point in systemDataPointsBySystem[systemID] ?? [] { consider(point.date) }
+        }
         for container in containerData {
             for point in container.statPoints { consider(point.date) }
         }
@@ -453,15 +459,37 @@ final class BeszelStore {
             )
             instanceManager.refreshActiveSystem()
             
+            let validSystemIDs = Set(fetchedSystems.map(\.id))
+            var systemIDs = Set(dashboardManager.pins(forInstanceID: instance.id.uuidString).map(\.systemID))
             if let activeSystemID = instanceManager.activeSystem?.id {
-                if let latest = try await apiService.fetchLatestSystemStats(systemID: activeSystemID),
-                   latest.created != latestStatsBySystem[activeSystemID]?.created {
-                    self.latestStatsBySystem[activeSystemID] = latest
-                    self.latestSystemStats = latest
-                    rebuildSystemDataPoints()
-                    applySystemDataPoints(for: activeSystemID)
-                    self.xDomain = dataXDomain()
+                systemIDs.insert(activeSystemID)
+            }
+            systemIDs.formIntersection(validSystemIDs)
+
+            let latestRecords = try await withThrowingTaskGroup(of: (String, SystemStatsRecord?).self) { group in
+                for systemID in systemIDs {
+                    group.addTask {
+                        (systemID, try await apiService.fetchLatestSystemStats(systemID: systemID))
+                    }
                 }
+                var records: [String: SystemStatsRecord] = [:]
+                for try await (systemID, record) in group {
+                    records[systemID] = record
+                }
+                return records
+            }
+            try Task.checkCancellation()
+
+            var hasNewRecords = false
+            for (systemID, latest) in latestRecords {
+                guard latest.created > (latestStatsBySystem[systemID]?.created ?? .distantPast) else { continue }
+                latestStatsBySystem[systemID] = latest
+                hasNewRecords = true
+            }
+            if hasNewRecords {
+                rebuildSystemDataPoints()
+                // The selection may have changed while the requests were in flight.
+                updateDataForActiveSystem()
             }
             
             await networkMonitoring.refresh(range: settingsManager.selectedTimeRange, includeHistory: false)

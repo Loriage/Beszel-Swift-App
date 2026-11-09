@@ -59,6 +59,20 @@ struct RootView: View {
 
     var body: some View {
         Group {
+#if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--ui-testing-live-metrics") {
+                LiveMetricsUITestView()
+            } else {
+                content
+            }
+#else
+            content
+#endif
+        }
+    }
+
+    private var content: some View {
+        Group {
             if isNetworkMonitorUITesting {
 #if DEBUG
                 NetworkMonitorsUITestView()

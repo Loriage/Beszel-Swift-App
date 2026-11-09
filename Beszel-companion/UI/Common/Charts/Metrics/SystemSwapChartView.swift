@@ -21,6 +21,7 @@ struct SystemSwapChartView: View {
     }
 
     var body: some View {
+        let showSingleSample = dataPoints.filter { $0.swap != nil }.count == 1
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
                 (Text("chart.swapUsage") + Text(" (GB)"))
@@ -48,6 +49,7 @@ struct SystemSwapChartView: View {
                             x: .value("Date", point.date),
                             y: .value("Used", swap.used),
                         )
+                        .singleSampleSymbol(showSingleSample)
                         .foregroundStyle(.orange)
 
                         AreaMark(

@@ -271,6 +271,7 @@ struct MonitoringStateView: View {
     }
 
     let state: State
+    var retryTitle: LocalizedStringResource = "common.retry"
     var retry: (() -> Void)?
 
     var body: some View {
@@ -293,8 +294,9 @@ struct MonitoringStateView: View {
             }
         } actions: {
             if let retry {
-                Button("common.retry", action: retry)
+                Button(action: retry) { Text(retryTitle) }
                     .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("monitoring.retry")
             }
         }
         .padding(MonitoringSpacing.screen)

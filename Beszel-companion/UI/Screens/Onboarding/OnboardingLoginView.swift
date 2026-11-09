@@ -34,7 +34,7 @@ struct OnboardingLoginView: View {
     }
 
     private var apiService: OnboardingAPIService {
-        OnboardingAPIService(baseURL: url, fallbackURL: advanced.fallbackURL, clientIdentity: advanced.clientCert?.identity, caCertificate: advanced.caCert?.certificate, customHeaders: advanced.customHeaders)
+        OnboardingAPIService(baseURL: url, fallbackURL: advanced.fallbackURL, clientIdentity: advanced.clientIdentity, caCertificate: advanced.caCertificate, customHeaders: advanced.customHeaders)
     }
     private let contextProvider = WebAuthSessionContextProvider()
 
@@ -65,6 +65,7 @@ struct OnboardingLoginView: View {
             if authMethods.password.enabled {
                 VStack {
                     TextField("onboarding.input.email", text: $email)
+                        .accessibilityIdentifier("onboarding.email")
                         .keyboardType(.emailAddress)
                         .autocapitalization(.none)
                         .padding()
@@ -72,6 +73,7 @@ struct OnboardingLoginView: View {
                         .cornerRadius(10)
 
                     SecureField("onboarding.input.password", text: $password)
+                        .accessibilityIdentifier("onboarding.password")
                         .textContentType(.password)
                         .padding()
                         .background(.thinMaterial)
@@ -88,6 +90,7 @@ struct OnboardingLoginView: View {
                 .controlSize(.large)
                 .padding(.horizontal)
                 .disabled(isPasswordLoginDisabled || isLoading)
+                .accessibilityIdentifier("onboarding.passwordSignIn")
             }
 
             if authMethods.oauth2.enabled && !authMethods.oauth2.providers.isEmpty {
@@ -105,6 +108,8 @@ struct OnboardingLoginView: View {
                     Button(.init(String(format: String(localized: "onboarding.connect_with_provider"), provider.displayName))) {
                         startWebLogin(provider: provider)
                     }
+                    .disabled(isLoading)
+                    .accessibilityIdentifier("onboarding.provider.\(provider.id)")
                 }
             }
 
@@ -144,8 +149,8 @@ struct OnboardingLoginView: View {
                 mfaId: state.mfaId,
                 otpId: state.otpId,
                 email: state.email,
-                clientIdentity: advanced.clientCert?.identity,
-                caCertificate: advanced.caCert?.certificate,
+                clientIdentity: advanced.clientIdentity,
+                caCertificate: advanced.caCertificate,
                 customHeaders: advanced.customHeaders,
                 fallbackURL: advanced.fallbackURL,
                 onComplete: { token in

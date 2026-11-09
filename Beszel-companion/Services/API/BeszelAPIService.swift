@@ -62,12 +62,13 @@ actor BeszelAPIService {
     }
     
     #if DEBUG
-    init(instance: Instance, instanceManager: InstanceManager, testToken: String, send: @escaping HubConnection.Send) {
+    init(instance: Instance, instanceManager: InstanceManager, testToken: String, testCredential: String? = nil, send: @escaping HubConnection.Send) {
         self.instance = instance
         self.instanceManager = instanceManager
         self.baseURL = instance.url
         self.email = instance.email
         self.authToken = testToken
+        self.credential = testCredential
         self.connection = HubConnection(baseURL: instance.url, send: send)
     }
     #endif
@@ -229,9 +230,7 @@ actor BeszelAPIService {
         
         let (data, response) = try await connection.data(for: request)
         
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.userAuthenticationRequired)
-        }
+        try validateAuthenticationResponse(response)
         
         let authResponse = try Self.jsonDecoder.decode(AuthResponse.self, from: data)
         return authResponse.token
@@ -248,9 +247,7 @@ actor BeszelAPIService {
         
         let (data, response) = try await connection.data(for: request)
         
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.userAuthenticationRequired)
-        }
+        try validateAuthenticationResponse(response)
         
         let authResponse = try Self.jsonDecoder.decode(AuthResponse.self, from: data)
         let newToken = authResponse.token
@@ -284,11 +281,18 @@ actor BeszelAPIService {
             
             let (retryData, retryResponse) = try await connection.data(for: retryRequest)
             
-            if let retryHttpResponse = retryResponse as? HTTPURLResponse, retryHttpResponse.statusCode == 200 {
-                return try Self.jsonDecoder.decode(T.self, from: retryData)
-            } else {
+            guard let retryHttpResponse = retryResponse as? HTTPURLResponse else {
+                throw URLError(.badServerResponse)
+            }
+            if retryHttpResponse.statusCode == 401 {
+                authToken = nil
+                clearCachedToken()
                 throw URLError(.userAuthenticationRequired)
             }
+            guard retryHttpResponse.statusCode == 200 else {
+                throw BeszelAPIError.httpError(statusCode: retryHttpResponse.statusCode)
+            }
+            return try Self.jsonDecoder.decode(T.self, from: retryData)
         }
         
         if let httpResponse = response as? HTTPURLResponse {
@@ -302,6 +306,12 @@ actor BeszelAPIService {
         }
     }
     
+    private func validateAuthenticationResponse(_ response: URLResponse) throws {
+        guard let http = response as? HTTPURLResponse else { throw URLError(.badServerResponse) }
+        if [400, 401, 403].contains(http.statusCode) { throw URLError(.userAuthenticationRequired) }
+        guard http.statusCode == 200 else { throw BeszelAPIError.httpError(statusCode: http.statusCode) }
+    }
+
     enum BeszelAPIError: LocalizedError {
         case httpError(statusCode: Int)
         case apiError(statusCode: Int, message: String)

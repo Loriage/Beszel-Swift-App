@@ -58,9 +58,6 @@ struct SystemDiskUsageChartView: View {
                             .foregroundStyle(LinearGradient(colors: [.purple.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
                         }
                     }
-                    RuleMark(y: .value("Total", totalDisk))
-                        .foregroundStyle(.gray.opacity(0.5))
-                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
                 }
                 .chartXAxis {
                     AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
@@ -73,19 +70,18 @@ struct SystemDiskUsageChartView: View {
                 }
                 }
                 .chartYAxis {
-                    AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
+                    AxisMarks(position: .leading, values: capacityTicks(total: totalDisk)) { value in
                         AxisGridLine()
                         AxisValueLabel {
                             if let gb = value.as(Double.self) {
-                                let s = gb == 0 ? "0"
-                                    : gb >= 1024
-                                        ? String(format: "%.0f", gb / 1024)
-                                        : String(format: "%.0f", gb)
+                                let divisor = totalDisk >= 1024 ? 1024.0 : 1
+                                let s = gb == 0 ? "0" : adaptiveAxisLabel(gb / divisor, domainMax: totalDisk / divisor)
                                 Text(s).font(.caption2).padding(.trailing, 6)
                             }
                         }
                     }
                 }
+                .chartYScale(domain: 0...Swift.max(totalDisk, 1))
                 .chartLegend(.hidden)
                 .chartXScaleIfNeeded(chartXDomain)
                 .padding(.top, 5)
@@ -95,17 +91,9 @@ struct SystemDiskUsageChartView: View {
                 .accessibilityLabel(Text("chart.diskUsage"))
                 .accessibilityValue(accessibilityDescription)
 
-                HStack(spacing: 12) {
-                    HStack(spacing: 4) {
-                        Circle().fill(.purple).frame(width: 8, height: 8)
-                        Text("chart.disk.used").font(.caption2).foregroundStyle(.secondary)
-                    }
-                    HStack(spacing: 4) {
-                        Rectangle()
-                            .fill(.gray.opacity(0.5))
-                            .frame(width: 12, height: 1.5)
-                        Text("chart.disk.total").font(.caption2).foregroundStyle(.secondary)
-                    }
+                HStack(spacing: 4) {
+                    Circle().fill(.purple).frame(width: 8, height: 8)
+                    Text("chart.disk.used").font(.caption2).foregroundStyle(.secondary)
                 }
             }
             .frame(height: 200)

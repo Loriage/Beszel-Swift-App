@@ -115,12 +115,15 @@ struct SystemTemperatureChartView: View {
     }
     
     private var chartBody: some View {
-        Chart(dataPoints) { point in
+        let sampleCounts = dataPoints.flatMap { $0.temperatures.map(\.name) }
+            .reduce(into: [String: Int]()) { $0[$1, default: 0] += 1 }
+        return Chart(dataPoints) { point in
             ForEach(point.temperatures, id: \.name) { temp in
                 LineMark(
                 x: .value("Date", point.date),
                 y: .value("Temp", temp.value),
             )
+            .singleSampleSymbol(sampleCounts[temp.name] == 1)
                 .foregroundStyle(by: .value("Source", temp.name))
             }
         }

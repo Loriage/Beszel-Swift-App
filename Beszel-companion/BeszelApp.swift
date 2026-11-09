@@ -94,12 +94,24 @@ struct BeszelApp: App {
                     }
                 }
             }
-            .preferredColorScheme(settingsManager.selectedTheme.colorScheme)
             .environment(\.locale, Locale(identifier: languageManager.currentLanguageCode))
+            .onChange(of: settingsManager.selectedTheme, initial: true) { _, theme in
+                applyTheme(theme)
+            }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .background {
                     isUnlocked = false
+                } else if newPhase == .active {
+                    applyTheme(settingsManager.selectedTheme)
                 }
+            }
+        }
+    }
+
+    private func applyTheme(_ theme: AppTheme) {
+        for case let scene as UIWindowScene in UIApplication.shared.connectedScenes {
+            for window in scene.windows {
+                window.overrideUserInterfaceStyle = theme.interfaceStyle
             }
         }
     }

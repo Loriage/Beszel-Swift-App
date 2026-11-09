@@ -17,6 +17,7 @@ struct SystemDiskIOUtilizationChartView: View {
     }
 
     var body: some View {
+        let showSingleSample = dataPoints.filter { $0.diskIOStats != nil }.count == 1
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
                 (Text("chart.disk.prefix") + Text(" ") + Text("chart.diskIO.utilization") + Text(" (%)"))
@@ -36,12 +37,13 @@ struct SystemDiskIOUtilizationChartView: View {
             Spacer()
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {
-            Chart(dataPoints) { point in
+            Chart(dataPoints.filter { $0.diskIOStats != nil }) { point in
                 if let stats = point.diskIOStats {
                     LineMark(
                 x: .value("Date", point.date),
                 y: .value("Util", stats.utilPct),
             )
+            .singleSampleSymbol(showSingleSample)
                     .foregroundStyle(.purple)
                     AreaMark(
                         x: .value("Date", point.date),
@@ -97,6 +99,7 @@ struct SystemDiskIOTimesChartView: View {
     }
 
     var body: some View {
+        let showSingleSample = dataPoints.filter { $0.diskIOStats != nil }.count == 1
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
                 (Text("chart.disk.prefix") + Text(" ") + Text("chart.diskIO.times") + Text(" (%)"))
@@ -117,7 +120,7 @@ struct SystemDiskIOTimesChartView: View {
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {
             VStack(spacing: 4) {
-                Chart(dataPoints) { point in
+                Chart(dataPoints.filter { $0.diskIOStats != nil }) { point in
                     if let stats = point.diskIOStats {
                         Plot {
                             LineMark(
@@ -125,6 +128,7 @@ struct SystemDiskIOTimesChartView: View {
                                 y: .value("Read", stats.readTimePct),
                             series: .value("Period", "Read")
                             )
+                            .singleSampleSymbol(showSingleSample)
                             .foregroundStyle(.blue)
                             AreaMark(
                                 x: .value("Date", point.date),
@@ -140,6 +144,7 @@ struct SystemDiskIOTimesChartView: View {
                                 y: .value("Write", stats.writeTimePct),
                             series: .value("Period", "Write")
                             )
+                            .singleSampleSymbol(showSingleSample)
                             .foregroundStyle(.orange)
                             AreaMark(
                                 x: .value("Date", point.date),
@@ -210,6 +215,7 @@ struct SystemDiskAwaitChartView: View {
     }
 
     var body: some View {
+        let showSingleSample = dataPoints.filter { $0.diskIOStats != nil }.count == 1
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
                 (Text("chart.disk.prefix") + Text(" ") + Text("chart.diskIO.await") + Text(" (ms)"))
@@ -230,7 +236,7 @@ struct SystemDiskAwaitChartView: View {
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {
             VStack(spacing: 4) {
-                Chart(dataPoints) { point in
+                Chart(dataPoints.filter { $0.diskIOStats != nil }) { point in
                     if let stats = point.diskIOStats {
                         Plot {
                             LineMark(
@@ -238,6 +244,7 @@ struct SystemDiskAwaitChartView: View {
                                 y: .value("rAwait", stats.rAwait),
                                 series: .value("Period", "Read")
                             )
+                            .singleSampleSymbol(showSingleSample)
                             .foregroundStyle(.blue)
                             AreaMark(
                                 x: .value("Date", point.date),
@@ -253,6 +260,7 @@ struct SystemDiskAwaitChartView: View {
                                 y: .value("wAwait", stats.wAwait),
                                 series: .value("Period", "Write")
                             )
+                            .singleSampleSymbol(showSingleSample)
                             .foregroundStyle(.orange)
                             AreaMark(
                                 x: .value("Date", point.date),
@@ -323,6 +331,7 @@ struct SystemDiskIOQueueDepthChartView: View {
     }
 
     var body: some View {
+        let showSingleSample = dataPoints.filter { $0.diskIOStats != nil }.count == 1
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
                 (Text("chart.disk.prefix") + Text(" ") + Text("chart.diskIO.queueDepth"))
@@ -342,12 +351,13 @@ struct SystemDiskIOQueueDepthChartView: View {
             Spacer()
             PinButtonView(isPinned: isPinned, action: onPinToggle)
         }) {
-            Chart(dataPoints) { point in
+            Chart(dataPoints.filter { $0.diskIOStats != nil }) { point in
                 let depth = point.diskIOStats?.weightedIO ?? 0
                 LineMark(
                 x: .value("Date", point.date),
                 y: .value("Depth", depth),
             )
+            .singleSampleSymbol(showSingleSample)
                     .foregroundStyle(.teal)
                 AreaMark(x: .value("Date", point.date), yStart: .value("", 0), yEnd: .value("Depth", depth))
                     .foregroundStyle(LinearGradient(colors: [.teal.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))

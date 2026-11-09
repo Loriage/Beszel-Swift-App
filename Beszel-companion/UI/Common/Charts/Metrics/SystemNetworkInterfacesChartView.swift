@@ -68,13 +68,16 @@ struct SystemNetworkInterfacesChartView: View {
     }
 
     private var chartBody: some View {
-        Chart(dataPoints) { point in
+        let sampleCounts = dataPoints.flatMap { $0.networkInterfaces.map(\.name) }
+            .reduce(into: [String: Int]()) { $0[$1, default: 0] += 1 }
+        return Chart(dataPoints) { point in
             ForEach(point.networkInterfaces) { iface in
                 let total = iface.sent + iface.received
                 LineMark(
                 x: .value("Date", point.date),
                 y: .value("Bandwidth", total),
             )
+            .singleSampleSymbol(sampleCounts[iface.name] == 1)
                 .foregroundStyle(by: .value("Interface", iface.name))
             }
         }

@@ -100,6 +100,21 @@ func adaptiveAxisLabel(_ v: Double, domainMax: Double) -> String {
     }
 }
 
+func capacityTicks(total: Double, count: Int = 4) -> [Double] {
+    guard total.isFinite, total > 0, count >= 2 else { return [] }
+    return (0..<count).map { Double($0) / Double(count - 1) * total }
+}
+
+func capacityDomain(total: Double) -> ClosedRange<Double> {
+    0...(total.isFinite && total > 0 ? total : 1)
+}
+
+extension ChartContent {
+    func singleSampleSymbol(_ isSingleSample: Bool) -> some ChartContent {
+        symbol(.circle).symbolSize(isSingleSample ? 30 : 0)
+    }
+}
+
 /// Computes a nice domain max and step size so that `.automatic` axis marks naturally include the top value.
 func niceYDomain(maxVal: Double, desiredCount: Int = 4) -> (max: Double, step: Double) {
     guard maxVal > 0 else { return (100, 25) }

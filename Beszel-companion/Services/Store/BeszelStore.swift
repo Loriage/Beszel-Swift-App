@@ -44,6 +44,7 @@ final class BeszelStore {
     var isLoading = true
     var errorMessage: String?
     
+    private var rangeDataPointsBySystem: [String: [SystemDataPoint]] = [:]
     private var systemDataPointsBySystem: [String: [SystemDataPoint]] = [:] {
         didSet {
             sensorChartsBySystem = systemDataPointsBySystem.mapValues { SystemSensorCharts(dataPoints: $0) }
@@ -67,9 +68,9 @@ final class BeszelStore {
     
     private(set) var xDomain: ClosedRange<Date>
 
-    init(instance: Instance, settingsManager: SettingsManager, dashboardManager: DashboardManager, instanceManager: InstanceManager) {
+    init(instance: Instance, settingsManager: SettingsManager, dashboardManager: DashboardManager, instanceManager: InstanceManager, apiService: BeszelAPIService? = nil) {
         self.instance = instance
-        let api = BeszelAPIService(instance: instance, instanceManager: instanceManager)
+        let api = apiService ?? BeszelAPIService(instance: instance, instanceManager: instanceManager)
         self.apiService = api
         self.networkMonitoring = NetworkMonitorStore(api: api)
         self.settingsManager = settingsManager
@@ -152,9 +153,7 @@ final class BeszelStore {
             self.xDomain = settingsManager.selectedTimeRange.xDomain
             return
         }
-        self.systemDataPoints = systemDataPointsBySystem[activeSystemID] ?? []
-        self.sensorCharts = sensorChartsBySystem[activeSystemID] ?? .empty
-        self.gpuCharts = gpuChartsBySystem[activeSystemID] ?? .empty
+        applySystemDataPoints(for: activeSystemID)
         self.containerData = containerDataBySystem[activeSystemID] ?? []
         self.containerRecords = containerRecordsBySystem[activeSystemID] ?? []
         self.latestSystemStats = latestStatsBySystem[activeSystemID]
@@ -167,6 +166,25 @@ final class BeszelStore {
         self.xDomain = dataXDomain()
     }
 
+    private func applySystemDataPoints(for systemID: String) {
+        self.systemDataPoints = systemDataPointsBySystem[systemID] ?? []
+        self.sensorCharts = sensorChartsBySystem[systemID] ?? .empty
+        self.gpuCharts = gpuChartsBySystem[systemID] ?? .empty
+    }
+
+    private func rebuildSystemDataPoints() {
+        let systemIDs = Set(rangeDataPointsBySystem.keys).union(latestStatsBySystem.keys)
+        systemDataPointsBySystem = systemIDs.reduce(into: [:]) { result, systemID in
+            result[systemID] = Self.appendingLiveRecord(latestStatsBySystem[systemID], to: rangeDataPointsBySystem[systemID] ?? [])
+        }
+    }
+
+    nonisolated static func appendingLiveRecord(_ record: SystemStatsRecord?, to points: [SystemDataPoint]) -> [SystemDataPoint] {
+        guard let record, let live = [record].asDataPoints().first,
+              live.date > (points.last?.date ?? .distantPast) else { return points }
+        return points + [live]
+    }
+
     private func dataXDomain() -> ClosedRange<Date> {
         var earliest: Date?
         var latest: Date?
@@ -176,6 +194,10 @@ final class BeszelStore {
         }
 
         for point in systemDataPoints { consider(point.date) }
+        let pinnedSystemIDs = Set(dashboardManager.pins(forInstanceID: instance.id.uuidString).map(\.systemID))
+        for systemID in pinnedSystemIDs {
+            for point in systemDataPointsBySystem[systemID] ?? [] { consider(point.date) }
+        }
         for container in containerData {
             for point in container.statPoints { consider(point.date) }
         }
@@ -193,6 +215,7 @@ final class BeszelStore {
         let validSystemIDs = Set(instanceManager.systems.map { $0.id })
         
         for systemID in systemDataPointsBySystem.keys where !validSystemIDs.contains(systemID) {
+            rangeDataPointsBySystem.removeValue(forKey: systemID)
             systemDataPointsBySystem.removeValue(forKey: systemID)
             logger.debug("Cleaned up stale system data")
         }
@@ -209,6 +232,7 @@ final class BeszelStore {
     
     func clearAllCachedData() {
         networkMonitoring.clear()
+        rangeDataPointsBySystem.removeAll()
         systemDataPointsBySystem.removeAll()
         containerDataBySystem.removeAll()
         containerRecordsBySystem.removeAll()
@@ -288,15 +312,17 @@ final class BeszelStore {
                         
                         async let containerRecords = apiService.fetchMonitors(filter: finalFilter)
                         async let systemRecords = apiService.fetchSystemStats(filter: finalFilter)
-                        
+                        async let newestRecord = apiService.fetchLatestSystemStats(systemID: system.id)
+
                         let fetchedContainers = try await containerRecords
                         let fetchedSystem = try await systemRecords
-                        
+
                         let rawSystemData = fetchedSystem.asDataPoints()
                         let downsampledSystem = BeszelStore.downsampleSystemDataPoints(rawSystemData, selectedSpan: selectedSpan)
                         let rawContainers = fetchedContainers.asProcessedData()
 
-                        let latestRecord = fetchedSystem.max(by: { $0.created < $1.created })
+                        let latestRecord = (fetchedSystem + [try? await newestRecord].compactMap { $0 })
+                            .max(by: { $0.created < $1.created })
 
                         var processedContainers: [ProcessedContainerData] = []
                         for container in rawContainers {
@@ -324,15 +350,16 @@ final class BeszelStore {
                 return (systemDataResult, containerDataResult, latestStatsResult)
             }
             
-            self.systemDataPointsBySystem = finalSystemData
+            self.rangeDataPointsBySystem = finalSystemData
             self.containerDataBySystem = finalContainerData
-            
+
             for (id, stat) in finalLatestStats {
                 if let existing = self.latestStatsBySystem[id], existing.created > stat.created {
                     continue
                 }
                 self.latestStatsBySystem[id] = stat
             }
+            rebuildSystemDataPoints()
             
             await fetchContainerRecords(for: systemsToFetch)
             await fetchSmartDevices(for: systemsToFetch)
@@ -426,11 +453,36 @@ final class BeszelStore {
             )
             instanceManager.refreshActiveSystem()
             
+            let validSystemIDs = Set(fetchedSystems.map(\.id))
+            var systemIDs = Set(dashboardManager.pins(forInstanceID: instance.id.uuidString).map(\.systemID))
             if let activeSystemID = instanceManager.activeSystem?.id {
-                if let latest = try await apiService.fetchLatestSystemStats(systemID: activeSystemID) {
-                    self.latestStatsBySystem[activeSystemID] = latest
-                    self.latestSystemStats = latest
+                systemIDs.insert(activeSystemID)
+            }
+            systemIDs.formIntersection(validSystemIDs)
+
+            let latestRecords = try await withThrowingTaskGroup(of: (String, SystemStatsRecord?).self) { group in
+                for systemID in systemIDs {
+                    group.addTask {
+                        (systemID, try await apiService.fetchLatestSystemStats(systemID: systemID))
+                    }
                 }
+                var records: [String: SystemStatsRecord] = [:]
+                for try await (systemID, record) in group {
+                    records[systemID] = record
+                }
+                return records
+            }
+            try Task.checkCancellation()
+
+            var hasNewRecords = false
+            for (systemID, latest) in latestRecords {
+                guard latest.created > (latestStatsBySystem[systemID]?.created ?? .distantPast) else { continue }
+                latestStatsBySystem[systemID] = latest
+                hasNewRecords = true
+            }
+            if hasNewRecords {
+                rebuildSystemDataPoints()
+                updateDataForActiveSystem()
             }
             
             await networkMonitoring.refresh(range: settingsManager.selectedTimeRange, includeHistory: false)

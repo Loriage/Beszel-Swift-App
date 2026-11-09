@@ -1,7 +1,6 @@
 #if DEBUG
 import SwiftUI
 
-/// Network-free coverage for a metric's first reading and sub-GB root disks.
 struct LiveMetricsUITestView: View {
     private static let end = Date(timeIntervalSince1970: 1_800_000_000)
     private static let points: [SystemDataPoint] = {

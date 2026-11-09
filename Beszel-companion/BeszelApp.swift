@@ -108,8 +108,6 @@ struct BeszelApp: App {
         }
     }
 
-    /// `.preferredColorScheme` at the root doesn't reliably update while a sheet (Settings) is presented,
-    /// so set the style on the windows, which every presentation inherits.
     private func applyTheme(_ theme: AppTheme) {
         for case let scene as UIWindowScene in UIApplication.shared.connectedScenes {
             for window in scene.windows {

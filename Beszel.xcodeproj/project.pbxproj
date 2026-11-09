@@ -632,7 +632,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 26.9.4;
+				MARKETING_VERSION = 26.11.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nohitdev.Beszel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -674,7 +674,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 26.9.4;
+				MARKETING_VERSION = 26.11.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nohitdev.Beszel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -747,7 +747,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 26.9.4;
+				MARKETING_VERSION = 26.11.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nohitdev.Beszel.BeszelWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -782,7 +782,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 26.9.4;
+				MARKETING_VERSION = 26.11.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nohitdev.Beszel.BeszelWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

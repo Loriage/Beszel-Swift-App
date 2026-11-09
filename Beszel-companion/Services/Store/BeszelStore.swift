@@ -44,7 +44,6 @@ final class BeszelStore {
     var isLoading = true
     var errorMessage: String?
     
-    /// History for the selected range only; `systemDataPointsBySystem` adds the newest record on top.
     private var rangeDataPointsBySystem: [String: [SystemDataPoint]] = [:]
     private var systemDataPointsBySystem: [String: [SystemDataPoint]] = [:] {
         didSet {
@@ -180,9 +179,6 @@ final class BeszelStore {
         }
     }
 
-    /// Range history only gets records of one type (e.g. `20m` for 24h), so a metric the agent just
-    /// started reporting would stay hidden until such a record exists. Appending the newest record
-    /// makes new sections appear right away, showing the current value. (#102)
     nonisolated static func appendingLiveRecord(_ record: SystemStatsRecord?, to points: [SystemDataPoint]) -> [SystemDataPoint] {
         guard let record, let live = [record].asDataPoints().first,
               live.date > (points.last?.date ?? .distantPast) else { return points }
@@ -198,7 +194,6 @@ final class BeszelStore {
         }
 
         for point in systemDataPoints { consider(point.date) }
-        // Home shares this domain across the active system and its other pinned systems.
         let pinnedSystemIDs = Set(dashboardManager.pins(forInstanceID: instance.id.uuidString).map(\.systemID))
         for systemID in pinnedSystemIDs {
             for point in systemDataPointsBySystem[systemID] ?? [] { consider(point.date) }
@@ -326,7 +321,6 @@ final class BeszelStore {
                         let downsampledSystem = BeszelStore.downsampleSystemDataPoints(rawSystemData, selectedSpan: selectedSpan)
                         let rawContainers = fetchedContainers.asProcessedData()
 
-                        // The range only holds one record type; the newest record of any type is fresher.
                         let latestRecord = (fetchedSystem + [try? await newestRecord].compactMap { $0 })
                             .max(by: { $0.created < $1.created })
 
@@ -488,7 +482,6 @@ final class BeszelStore {
             }
             if hasNewRecords {
                 rebuildSystemDataPoints()
-                // The selection may have changed while the requests were in flight.
                 updateDataForActiveSystem()
             }
             

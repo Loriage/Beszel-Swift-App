@@ -101,7 +101,6 @@ struct ExtraDiskUsageChartView: View {
         return "MB"
     }
 
-    /// Converts GB values to the unit shown in the title.
     private var unitScale: Double {
         if totalDisk >= 1024 { return 1.0 / 1024 }
         if totalDisk >= 1    { return 1 }

@@ -55,9 +55,6 @@ struct ExtraDiskUsageChartView: View {
                         .foregroundStyle(LinearGradient(colors: [.purple.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
                     }
                 }
-                RuleMark(y: .value("Total", totalDisk))
-                    .foregroundStyle(.gray.opacity(0.5))
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
             }
             .chartXAxis {
                 AxisMarks(values: insetTickDates(for: chartXDomain)) { _ in
@@ -70,33 +67,26 @@ struct ExtraDiskUsageChartView: View {
                 }
             }
             .chartYAxis {
-                AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
+                AxisMarks(position: .leading, values: capacityTicks(total: totalDisk)) { value in
                     AxisGridLine()
                     AxisValueLabel {
                         if let gb = value.as(Double.self) {
-                            let s = formatDiskSize(gb)
+                            let s = gb == 0 ? "0" : adaptiveAxisLabel(gb * unitScale, domainMax: totalDisk * unitScale)
                             Text(s).font(.caption2).padding(.trailing, 6)
                         }
                     }
                 }
             }
+            .chartYScale(domain: 0...Swift.max(totalDisk, 0.001))
             .chartLegend(.hidden)
             .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)
             .frame(height: 185)
             .drawingGroup()
 
-            HStack(spacing: 12) {
-                HStack(spacing: 4) {
-                    Circle().fill(.purple).frame(width: 8, height: 8)
-                    Text("chart.disk.used").font(.caption2).foregroundStyle(.secondary)
-                }
-                HStack(spacing: 4) {
-                    Rectangle()
-                        .fill(.gray.opacity(0.5))
-                        .frame(width: 12, height: 1.5)
-                    Text("chart.disk.total").font(.caption2).foregroundStyle(.secondary)
-                }
+            HStack(spacing: 4) {
+                Circle().fill(.purple).frame(width: 8, height: 8)
+                Text("chart.disk.used").font(.caption2).foregroundStyle(.secondary)
             }
             }
             .frame(height: 200)
@@ -109,15 +99,11 @@ struct ExtraDiskUsageChartView: View {
         return "MB"
     }
 
-    private func formatDiskSize(_ gb: Double) -> String {
-        func fmt(_ v: Double) -> String {
-            v.truncatingRemainder(dividingBy: 1) == 0
-                ? String(format: "%.0f", v) : String(format: "%.1f", v)
-        }
-        if gb == 0 { return "0" }
-        if gb >= 1024 { return fmt(gb / 1024) }
-        if gb >= 1    { return fmt(gb) }
-        return fmt(gb * 1024)
+    /// Converts GB values to the unit shown in the title.
+    private var unitScale: Double {
+        if totalDisk >= 1024 { return 1.0 / 1024 }
+        if totalDisk >= 1    { return 1 }
+        return 1024
     }
 }
 

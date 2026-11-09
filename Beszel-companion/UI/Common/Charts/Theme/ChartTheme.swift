@@ -100,6 +100,13 @@ func adaptiveAxisLabel(_ v: Double, domainMax: Double) -> String {
     }
 }
 
+/// Evenly-spaced ticks from 0 to `total`, so the top label is the exact capacity (like the web dashboard).
+func capacityTicks(total: Double, count: Int = 4) -> [Double] {
+    guard total > 0, count >= 2 else { return [] }
+    // Fraction first so the last tick is exactly `total` (total * 3 / 3 can round past the domain).
+    return (0..<count).map { Double($0) / Double(count - 1) * total }
+}
+
 /// Computes a nice domain max and step size so that `.automatic` axis marks naturally include the top value.
 func niceYDomain(maxVal: Double, desiredCount: Int = 4) -> (max: Double, step: Double) {
     guard maxVal > 0 else { return (100, 25) }

@@ -57,7 +57,14 @@ struct BeszelApp: App {
     @State private var settingsManager = SettingsManager()
     private let dashboardManager = DashboardManager.shared
     @State private var languageManager = LanguageManager()
-    private let instanceManager = InstanceManager.shared
+    private let instanceManager: InstanceManager = {
+#if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing-authentication") {
+            return AuthenticationUITestFixture.makeManager()
+        }
+#endif
+        return InstanceManager.shared
+    }()
     private let alertManager = AlertManager.shared
 
     @State private var isUnlocked = true

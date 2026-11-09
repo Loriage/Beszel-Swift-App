@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 struct RootView: View {
     let languageManager: LanguageManager
@@ -8,6 +9,7 @@ struct RootView: View {
     let alertManager: AlertManager
 
     @State private var isShowingSettings = false
+    @State private var reauthenticatingInstance: Instance?
 
     private var isNetworkMonitorUITesting: Bool {
 #if DEBUG
@@ -137,14 +139,29 @@ struct RootView: View {
         }
         .onChange(of: instanceManager.activeInstanceID) {
             alertManager.pendingAlertDetail = nil
+            reauthenticatingInstance = nil
+        }
+        .sheet(item: $reauthenticatingInstance) { instance in
+            ReauthenticationView(instance: instance) { email, credential in
+                if instanceManager.completeReauthentication(for: instance, email: email, credential: credential) {
+                    WidgetCenter.shared.reloadAllTimelines()
+                }
+                reauthenticatingInstance = nil
+            }
         }
     }
 
     @ViewBuilder
     private func errorView(error: Error) -> some View {
+        let needsSignIn = (error as? URLError)?.code == .userAuthenticationRequired
         NavigationStack {
-            MonitoringStateView(state: .failure(MonitoringErrorMessage.message(for: error))) {
-                instanceManager.requestSystemsReload()
+            MonitoringStateView(state: .failure(MonitoringErrorMessage.message(for: error)),
+                                retryTitle: needsSignIn ? "authentication.signInAgain" : "common.retry") {
+                if needsSignIn {
+                    reauthenticatingInstance = instanceManager.activeInstance
+                } else {
+                    instanceManager.requestSystemsReload()
+                }
             }
             .monitoringScreenBackground()
             .navigationTitle("common.error.fetchFailed")

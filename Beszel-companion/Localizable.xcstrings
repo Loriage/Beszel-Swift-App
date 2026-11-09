@@ -1,6 +1,18 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "authentication.loading" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading sign-in options…" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Chargement des options de connexion…" } }
+      }
+    },
+    "authentication.signInAgain" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign in again" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se reconnecter" } }
+      }
+    },
     "" : {
       "shouldTranslate" : false
     },

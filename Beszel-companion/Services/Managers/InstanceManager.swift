@@ -37,9 +37,7 @@ final class InstanceManager {
     static let shared = InstanceManager()
     private let keychainService = Constants.keychainService
     
-    private var userDefaultsStore: UserDefaults {
-        return .sharedSuite
-    }
+    private let userDefaultsStore: UserDefaults
     
     var instances: [Instance] = []
     var activeInstance: Instance?
@@ -77,7 +75,8 @@ final class InstanceManager {
         }
     }
     
-    init() {
+    init(userDefaults: UserDefaults = .sharedSuite) {
+        self.userDefaultsStore = userDefaults
         if let data = userDefaultsStore.data(forKey: "instances") {
             do {
                 self.instances = try JSONDecoder().decode([Instance].self, from: data)
@@ -276,6 +275,22 @@ final class InstanceManager {
     
     func updateCredential(for instance: Instance, newCredential: String) {
         saveCredential(credential: newCredential, for: instance)
+    }
+
+    func completeReauthentication(for instance: Instance, email: String, credential: String) -> Bool {
+        guard !credential.isEmpty, activeInstance?.id == instance.id,
+              let current = instances.first(where: { $0.id == instance.id }),
+              current.url == instance.url else { return false }
+        BeszelAPIService.clearCachedAuthentication(for: current.id)
+        updateInstance(current, name: current.name, url: current.url, email: email,
+                       password: credential, fallbackURL: current.fallbackURL)
+        return true
+    }
+
+    func requireReauthentication(for instanceID: UUID) {
+        guard activeInstance?.id == instanceID else { return }
+        loadError = URLError(.userAuthenticationRequired)
+        isLoadingSystems = false
     }
     
     func updateInstance(_ instance: Instance, name: String, url: String, email: String, password: String, fallbackURL: String?) {

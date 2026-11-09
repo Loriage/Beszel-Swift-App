@@ -489,8 +489,7 @@ final class BeszelStore {
             self.authenticationFailed = false
         } catch {
             if let urlError = error as? URLError, urlError.code == .userAuthenticationRequired {
-                logger.warning("Authentication failed during refresh")
-                self.authenticationFailed = true
+                handleError(error)
             } else {
                 logger.error("Error during quick refresh: \(error.localizedDescription)")
             }
@@ -504,6 +503,7 @@ final class BeszelStore {
             logger.warning("Authentication failed")
             self.authenticationFailed = true
             self.errorMessage = String(localized: "common.error.authFailed")
+            instanceManager.requireReauthentication(for: instance.id)
         } else if let decodingError = error as? DecodingError {
             let details: String
             switch decodingError {

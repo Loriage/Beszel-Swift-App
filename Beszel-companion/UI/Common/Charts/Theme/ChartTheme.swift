@@ -102,9 +102,20 @@ func adaptiveAxisLabel(_ v: Double, domainMax: Double) -> String {
 
 /// Evenly-spaced ticks from 0 to `total`, so the top label is the exact capacity (like the web dashboard).
 func capacityTicks(total: Double, count: Int = 4) -> [Double] {
-    guard total > 0, count >= 2 else { return [] }
+    guard total.isFinite, total > 0, count >= 2 else { return [] }
     // Fraction first so the last tick is exactly `total` (total * 3 / 3 can round past the domain).
     return (0..<count).map { Double($0) / Double(count - 1) * total }
+}
+
+func capacityDomain(total: Double) -> ClosedRange<Double> {
+    0...(total.isFinite && total > 0 ? total : 1)
+}
+
+extension ChartContent {
+    /// A line needs a symbol to make a metric's first reading visible.
+    func singleSampleSymbol(_ isSingleSample: Bool) -> some ChartContent {
+        symbol(.circle).symbolSize(isSingleSample ? 30 : 0)
+    }
 }
 
 /// Computes a nice domain max and step size so that `.automatic` axis marks naturally include the top value.

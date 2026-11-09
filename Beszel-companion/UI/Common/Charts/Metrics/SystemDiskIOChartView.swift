@@ -14,6 +14,7 @@ struct SystemDiskIOChartView: View {
     var onPinToggle: () -> Void = {}
     
     var body: some View {
+        let showSingleSample = dataPoints.filter { $0.diskIO != nil }.count == 1
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
                 (Text("chart.diskIO") + Text(" (MB/s)"))
@@ -45,6 +46,7 @@ struct SystemDiskIOChartView: View {
                             y: .value("Read", io.read),
                             series: .value("Period", "Read")
                         )
+                        .singleSampleSymbol(showSingleSample)
                         .foregroundStyle(.blue)
                         
                         AreaMark(
@@ -62,6 +64,7 @@ struct SystemDiskIOChartView: View {
                             y: .value("Write", io.write),
                             series: .value("Period", "Write")
                         )
+                        .singleSampleSymbol(showSingleSample)
                         .foregroundStyle(.orange)
                         
                         AreaMark(

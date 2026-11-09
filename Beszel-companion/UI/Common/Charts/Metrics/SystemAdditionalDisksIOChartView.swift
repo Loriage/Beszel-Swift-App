@@ -18,6 +18,7 @@ struct ExtraDiskUsageChartView: View {
     }
 
     var body: some View {
+        let showSingleSample = dataPoints.filter { $0.extraFilesystems.contains { $0.name == diskName } }.count == 1
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
                 (Text("chart.extraDisk.usage.title \(diskName)") + Text(" (\(diskSizeUnit))"))
@@ -45,6 +46,7 @@ struct ExtraDiskUsageChartView: View {
                             x: .value("Date", point.date),
                             y: .value("Used", fs.used),
                         )
+                        .singleSampleSymbol(showSingleSample)
                         .foregroundStyle(.purple)
 
                         AreaMark(
@@ -77,7 +79,7 @@ struct ExtraDiskUsageChartView: View {
                     }
                 }
             }
-            .chartYScale(domain: 0...Swift.max(totalDisk, 0.001))
+            .chartYScale(domain: capacityDomain(total: totalDisk))
             .chartLegend(.hidden)
             .chartXScaleIfNeeded(chartXDomain)
             .padding(.top, 5)
@@ -133,6 +135,9 @@ struct ExtraDiskIOChartView: View {
     }
 
     var body: some View {
+        let showSingleSample = dataPoints.filter { point in
+            point.extraFilesystems.contains { $0.name == diskName && $0.diskRead != nil && $0.diskWrite != nil }
+        }.count == 1
         GroupBox(label: HStack {
             VStack(alignment: .leading, spacing: 2) {
                 (Text("chart.extraDisk.io.title \(diskName)") + Text(" (\(unitLabel))"))
@@ -162,6 +167,7 @@ struct ExtraDiskIOChartView: View {
                             y: .value("Read", read),
                             series: .value("Period", "Read")
                         )
+                        .singleSampleSymbol(showSingleSample)
                         .foregroundStyle(.blue)
 
                         AreaMark(
@@ -179,6 +185,7 @@ struct ExtraDiskIOChartView: View {
                             y: .value("Write", write),
                             series: .value("Period", "Write")
                         )
+                        .singleSampleSymbol(showSingleSample)
                         .foregroundStyle(.orange)
 
                         AreaMark(

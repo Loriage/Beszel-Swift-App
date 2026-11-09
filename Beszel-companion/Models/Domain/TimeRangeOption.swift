@@ -73,7 +73,10 @@ nonisolated extension TimeRangeOption {
     }
 
     var apiFilterString: String {
-        let now = Date()
+        apiFilterString(relativeTo: Date())
+    }
+
+    func apiFilterString(relativeTo now: Date) -> String {
         let windowStart: Date
 
         switch self {
@@ -93,6 +96,7 @@ nonisolated extension TimeRangeOption {
         let startDate = windowStart.addingTimeInterval(-fetchBuffer)
 
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
         let dateString = formatter.string(from: startDate)

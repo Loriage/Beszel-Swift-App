@@ -18,9 +18,9 @@ actor BeszelAPIService {
     
     private nonisolated static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS'Z'"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
         return formatter
     }()
 
@@ -551,11 +551,7 @@ actor BeszelAPIService {
     }
     
     func fetchAlertHistorySince(date: Date) async throws -> [AlertHistoryRecord] {
-        // PocketBase expects dates in format: "2022-01-01 10:00:00.000Z"
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS'Z'"
-        formatter.timeZone = TimeZone(identifier: "UTC")
-        let dateString = formatter.string(from: date)
+        let dateString = Self.dateFormatter.string(from: date)
         let filter = "created >= '\(dateString)'"
         return try await fetchAlertHistory(filter: filter)
     }

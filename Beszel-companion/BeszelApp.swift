@@ -16,9 +16,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 
         Task { @MainActor in
             await PushNotificationService.shared.setDeviceToken(token)
-            if let instance = InstanceManager.shared.activeInstance {
-                await PushNotificationService.shared.registerDevice(for: instance)
-            }
+            await PushNotificationService.shared.registerDevices(for: InstanceManager.shared.instances)
         }
     }
 
@@ -105,11 +103,18 @@ struct BeszelApp: App {
             .onChange(of: settingsManager.selectedTheme, initial: true) { _, theme in
                 applyTheme(theme)
             }
+            .onChange(of: instanceManager.instances) { _, instances in
+                guard alertManager.notificationsEnabled else { return }
+                Task { await PushNotificationService.shared.registerDevices(for: instances) }
+            }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .background {
                     isUnlocked = false
                 } else if newPhase == .active {
                     applyTheme(settingsManager.selectedTheme)
+                    if alertManager.notificationsEnabled {
+                        Task { await PushNotificationService.shared.registerDevices(for: instanceManager.instances) }
+                    }
                 }
             }
         }

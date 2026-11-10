@@ -8,12 +8,28 @@ actor PushNotificationService {
     private static let logger = Logger(subsystem: "com.nohitdev.Beszel", category: "PushNotificationService")
 
     private var deviceToken: String?
+    private let send: @Sendable (URLRequest) async throws -> (Data, URLResponse)
 
-    private init() {}
+    private init() {
+        send = { try await URLSession.shared.data(for: $0) }
+    }
+
+    #if DEBUG
+    init(send: @escaping @Sendable (URLRequest) async throws -> (Data, URLResponse)) {
+        self.send = send
+    }
+    #endif
 
     func setDeviceToken(_ token: String) {
         self.deviceToken = token
         Self.logger.info("Device token stored in memory")
+    }
+
+    func registerDevices(for instances: [Instance]) async {
+        guard deviceToken != nil else { return }
+        for instance in instances {
+            await registerDevice(for: instance)
+        }
     }
 
     func registerDevice(for instance: Instance) async {
@@ -41,6 +57,7 @@ actor PushNotificationService {
         let payload: [String: Any] = [
             "deviceToken": token,
             "instanceId": instanceId,
+            "hubName": instance.name,
             "timestamp": timestamp,
             "signature": sig
         ]
@@ -56,7 +73,7 @@ actor PushNotificationService {
 
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: payload)
-            let (_, response) = try await URLSession.shared.data(for: request)
+            let (_, response) = try await send(request)
 
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode == 200 {
